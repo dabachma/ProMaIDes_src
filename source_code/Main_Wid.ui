@@ -1,0 +1,1995 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Main_Wid</class>
+ <widget class="QMainWindow" name="Main_Wid">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>900</width>
+    <height>682</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>ProMaIDeS v 0.0.1</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="system_sys/source_code/gui/resources/system_sys_resource.qrc">
+    <normaloff>:/prom_icon</normaloff>:/prom_icon</iconset>
+  </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonTextBesideIcon</enum>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout">
+    <item>
+     <widget class="QTabWidget" name="tabWidget_data_view">
+      <property name="contextMenuPolicy">
+       <enum>Qt::DefaultContextMenu</enum>
+      </property>
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="tabPosition">
+       <enum>QTabWidget::South</enum>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="tab_data_gis">
+       <attribute name="title">
+        <string>&amp;GIS</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_data_data">
+       <attribute name="title">
+        <string>&amp;DATA</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QTabWidget" name="tabWidget_data_output">
+          <property name="currentIndex">
+           <number>5</number>
+          </property>
+          <property name="movable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="tab_fpl_data_view">
+           <attribute name="title">
+            <string>FPL</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="tab_hyd_data_view">
+           <attribute name="title">
+            <string>HYD</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="tab_dam_data_view">
+           <attribute name="title">
+            <string>DAM</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="tab_risk_data_view">
+           <attribute name="title">
+            <string>RISK</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="tab_cost_data_view">
+           <attribute name="title">
+            <string>COST</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="tab_madm_data_view">
+           <attribute name="title">
+            <string>MADM</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="tab_alt_data_view">
+           <attribute name="title">
+            <string>ALT</string>
+           </attribute>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_data_database">
+       <attribute name="title">
+        <string>&amp;DATABASE</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QGroupBox" name="groupBox_database_msg">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>80</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>60</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Status Msg</string>
+          </property>
+          <layout class="QVBoxLayout" name="_2">
+           <item>
+            <widget class="QTextEdit" name="status_txt">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="Sys_Sql_Table_Wid" name="database_table_view">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::CustomContextMenu</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_data_file">
+       <attribute name="title">
+        <string>&amp;FILE</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="Sys_Text_Browser_Wid" name="text_browser_file"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>900</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_System">
+    <property name="title">
+     <string>&amp;System</string>
+    </property>
+    <widget class="QMenu" name="menu_Database">
+     <property name="title">
+      <string>&amp;Database</string>
+     </property>
+     <addaction name="action_Open_Connection"/>
+     <addaction name="action_Show_Connection_Param"/>
+     <addaction name="actionShow_Connection_Status"/>
+     <addaction name="separator"/>
+     <addaction name="action_Close_Connection"/>
+     <addaction name="action_close_all_tables"/>
+    </widget>
+    <widget class="QMenu" name="menu_sys_common">
+     <property name="title">
+      <string>&amp;Common</string>
+     </property>
+     <widget class="QMenu" name="menu_System_output">
+      <property name="title">
+       <string>&amp;System output text</string>
+      </property>
+      <addaction name="action_reset_display_sys"/>
+      <addaction name="action_set_outputflag_sys"/>
+      <addaction name="action_set_logfile_sys"/>
+     </widget>
+     <addaction name="action_Reset_Error_Warning"/>
+     <addaction name="menu_System_output"/>
+     <addaction name="separator"/>
+     <addaction name="action_delete_files_logfile_archiv"/>
+     <addaction name="separator"/>
+     <addaction name="action_clear_all_output_displays"/>
+    </widget>
+    <widget class="QMenu" name="menu_project">
+     <property name="title">
+      <string>&amp;Project</string>
+     </property>
+     <addaction name="action_open_project"/>
+     <addaction name="action_new_project"/>
+     <addaction name="separator"/>
+     <addaction name="action_show_project"/>
+     <addaction name="action_set_working_dir"/>
+     <addaction name="action_edit_project"/>
+     <addaction name="action_copy_project"/>
+     <addaction name="action_save_project"/>
+     <addaction name="separator"/>
+     <addaction name="action_close_project"/>
+     <addaction name="separator"/>
+     <addaction name="action_delete_project"/>
+    </widget>
+    <addaction name="menu_project"/>
+    <addaction name="separator"/>
+    <addaction name="menu_Database"/>
+    <addaction name="separator"/>
+    <addaction name="menu_sys_common"/>
+    <addaction name="action_Quit"/>
+   </widget>
+   <widget class="QMenu" name="menu_FPL_system">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="tearOffEnabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>&amp;FPL</string>
+    </property>
+    <property name="separatorsCollapsible">
+     <bool>false</bool>
+    </property>
+    <widget class="QMenu" name="menu_fpl_calc">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;Calculation</string>
+     </property>
+     <addaction name="action_calc_determ"/>
+     <addaction name="action_calc_mc"/>
+     <addaction name="action_calc_frc"/>
+     <addaction name="separator"/>
+     <addaction name="action_test_random"/>
+    </widget>
+    <widget class="QMenu" name="menu_fpl_common">
+     <property name="title">
+      <string>&amp;Common</string>
+     </property>
+     <addaction name="action_check_fpl_tables"/>
+     <addaction name="separator"/>
+     <addaction name="action_set_outputflag_fpl"/>
+     <addaction name="action_set_logfile_fpl"/>
+     <addaction name="action_Reset_Fpl_display"/>
+    </widget>
+    <widget class="QMenu" name="menu_check_fpl">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;Section check...</string>
+     </property>
+     <addaction name="action_check_fpl_file"/>
+     <addaction name="action_check_fpl_db"/>
+    </widget>
+    <widget class="QMenu" name="menu_fpl2hyd">
+     <property name="title">
+      <string>&amp;FPL2HYD...</string>
+     </property>
+     <addaction name="action_fpl2hyd_combine"/>
+     <addaction name="action_fpl2hyd_check_ideal"/>
+    </widget>
+    <addaction name="action_fpl_import_file"/>
+    <addaction name="separator"/>
+    <addaction name="menu_fpl_calc"/>
+    <addaction name="action_user_defined_frc"/>
+    <addaction name="separator"/>
+    <addaction name="menu_check_fpl"/>
+    <addaction name="separator"/>
+    <addaction name="menu_fpl2hyd"/>
+    <addaction name="separator"/>
+    <addaction name="action_stop_fpl_calc"/>
+    <addaction name="action_delete_fpl_section"/>
+    <addaction name="action_restore_standard_fpl"/>
+    <addaction name="menu_fpl_common"/>
+   </widget>
+   <widget class="QMenu" name="menu_HYD_system">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>&amp;HYD</string>
+    </property>
+    <widget class="QMenu" name="menu_hyd_common">
+     <property name="title">
+      <string>&amp;Common</string>
+     </property>
+     <addaction name="action_check_hyd_tables"/>
+     <addaction name="separator"/>
+     <addaction name="action_set_output_flag_hyd"/>
+     <addaction name="action_set_logfile_hyd"/>
+     <addaction name="action_reset_display_hyd"/>
+     <addaction name="separator"/>
+     <addaction name="action_properties_hyd"/>
+    </widget>
+    <widget class="QMenu" name="menu_hyd_calc">
+     <property name="title">
+      <string>&amp;Calculation</string>
+     </property>
+     <addaction name="action_hydcalc_per_file"/>
+     <addaction name="action_hydcalc_per_db"/>
+    </widget>
+    <widget class="QMenu" name="menu_hyd_check">
+     <property name="title">
+      <string>&amp;System check</string>
+     </property>
+     <addaction name="action_hyd_check_file"/>
+     <addaction name="action_hyd_check_database"/>
+    </widget>
+    <widget class="QMenu" name="menu_hyd_import">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;Import files to database</string>
+     </property>
+     <addaction name="action_hyd_import_base_sz"/>
+     <addaction name="action_hyd_import_add_sz"/>
+    </widget>
+    <widget class="QMenu" name="menu_hyd_tools">
+     <property name="title">
+      <string>&amp;Tools</string>
+     </property>
+     <addaction name="action_convert_gis2prom_raster"/>
+     <addaction name="action_generate_dgm_from_profile"/>
+    </widget>
+    <addaction name="menu_hyd_import"/>
+    <addaction name="action_stop_hyd_import"/>
+    <addaction name="separator"/>
+    <addaction name="menu_hyd_check"/>
+    <addaction name="action_stop_hyd_check"/>
+    <addaction name="separator"/>
+    <addaction name="menu_hyd_calc"/>
+    <addaction name="action_stop_hyd_calc"/>
+    <addaction name="separator"/>
+    <addaction name="action_delete_boundary_scenario"/>
+    <addaction name="menu_hyd_common"/>
+    <addaction name="separator"/>
+    <addaction name="menu_hyd_tools"/>
+   </widget>
+   <widget class="QMenu" name="menu_RISK_system">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>&amp;RISK</string>
+    </property>
+    <widget class="QMenu" name="menu_risk_common">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;Common</string>
+     </property>
+     <addaction name="action_check_risk_tables"/>
+     <addaction name="separator"/>
+     <addaction name="action_set_output_flag_risk"/>
+     <addaction name="action_set_logfile_risk"/>
+     <addaction name="action_reset_display_risk"/>
+     <addaction name="separator"/>
+     <addaction name="action_properties_hyd_2"/>
+     <addaction name="separator"/>
+     <addaction name="action_test_random_generator_1"/>
+    </widget>
+    <widget class="QMenu" name="menu_risk_calc">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;Calculation</string>
+     </property>
+     <widget class="QMenu" name="menu_catchment_risk">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>&amp;Catchment risk</string>
+      </property>
+      <addaction name="action_calc_nobreak_state"/>
+      <addaction name="action_risk_state_generation"/>
+      <addaction name="separator"/>
+      <addaction name="action_calc_one_break_state"/>
+      <addaction name="action_calc_user_defined"/>
+      <addaction name="action_calc_automatic"/>
+      <addaction name="separator"/>
+      <addaction name="action_risk_cumulation"/>
+      <addaction name="separator"/>
+      <addaction name="action_calc_all"/>
+      <addaction name="separator"/>
+      <addaction name="action_stop_next_HYD_calc"/>
+     </widget>
+     <addaction name="action_calc_nobreak_risk"/>
+     <addaction name="action_calc_scenario_risk"/>
+     <addaction name="menu_catchment_risk"/>
+    </widget>
+    <addaction name="menu_risk_calc"/>
+    <addaction name="action_stop_risk_calc"/>
+    <addaction name="separator"/>
+    <addaction name="action_output_statistics_risk"/>
+    <addaction name="action_output_statistic_catchment_risk"/>
+    <addaction name="separator"/>
+    <addaction name="action_delete_results_risk"/>
+    <addaction name="menu_risk_common"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_developer_guide"/>
+    <addaction name="action_About"/>
+   </widget>
+   <widget class="QMenu" name="menu_DAM_system">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>&amp;DAM</string>
+    </property>
+    <widget class="QMenu" name="menu_dam_ecn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;ECoNomic</string>
+     </property>
+     <widget class="QMenu" name="menu_ecn_imp">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>&amp;Import</string>
+      </property>
+      <addaction name="action_imp_ecn_dam_func"/>
+      <addaction name="action_add_ecn_dam_raster"/>
+     </widget>
+     <addaction name="menu_ecn_imp"/>
+     <addaction name="action_del_all_ecn"/>
+     <addaction name="action_connect_raster_ecn"/>
+    </widget>
+    <widget class="QMenu" name="menu_dam_common">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;Common</string>
+     </property>
+     <addaction name="action_check_dam_tables"/>
+     <addaction name="separator"/>
+     <addaction name="action_set_output_flag_dam"/>
+     <addaction name="action_set_logfile_dam"/>
+     <addaction name="action_reset_display_dam"/>
+    </widget>
+    <widget class="QMenu" name="menu_dam_eco">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>ECOlogic</string>
+     </property>
+     <widget class="QMenu" name="menu_eco_imp">
+      <property name="title">
+       <string>&amp;Import</string>
+      </property>
+      <addaction name="action_imp_eco_biotope_types"/>
+      <addaction name="action_add_eco_biotope_raster"/>
+      <addaction name="separator"/>
+      <addaction name="action_imp_eco_soil_cost_functions"/>
+      <addaction name="action_imp_eco_soil_erosion_functions"/>
+      <addaction name="action_add_eco_soil_raster"/>
+     </widget>
+     <addaction name="menu_eco_imp"/>
+     <addaction name="action_del_eco_btype"/>
+     <addaction name="action_del_eco_soil"/>
+     <addaction name="action_connect_raster_eco"/>
+    </widget>
+    <widget class="QMenu" name="menu_dam_pop">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;PeOPle</string>
+     </property>
+     <widget class="QMenu" name="menu_pop_imp">
+      <property name="title">
+       <string>&amp;Import</string>
+      </property>
+      <addaction name="action_imp_pop_dam_func"/>
+      <addaction name="action_add_pop_raster"/>
+     </widget>
+     <addaction name="menu_pop_imp"/>
+     <addaction name="action_del_all_pop"/>
+     <addaction name="action_connect_raster_pop"/>
+    </widget>
+    <widget class="QMenu" name="menu_dam_system">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;System</string>
+     </property>
+     <addaction name="action_show_dam_statistic"/>
+     <addaction name="action_check_dam_system"/>
+     <addaction name="separator"/>
+     <addaction name="action_dam_connect"/>
+     <addaction name="action_dam_calculate"/>
+    </widget>
+    <widget class="QMenu" name="menu_dam_sc">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;SimpleCounting</string>
+     </property>
+     <widget class="QMenu" name="menu_Import">
+      <property name="title">
+       <string>&amp;Import</string>
+      </property>
+      <addaction name="action_imp_points"/>
+      <addaction name="action_imp_subcategory"/>
+     </widget>
+     <addaction name="menu_Import"/>
+     <addaction name="action_sc_delete"/>
+     <addaction name="action_sc_connect"/>
+    </widget>
+    <widget class="QMenu" name="menu_dam_pys">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;PsYchoSocial</string>
+     </property>
+     <widget class="QMenu" name="menu_pys_imp">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>&amp;Import</string>
+      </property>
+      <addaction name="action_imp_pys_cat"/>
+      <addaction name="action_imp_pys_density"/>
+      <addaction name="action_add_pys_raster"/>
+     </widget>
+     <addaction name="menu_pys_imp"/>
+     <addaction name="action_del_all_pys"/>
+     <addaction name="action_connect_raster_pys"/>
+    </widget>
+    <widget class="QMenu" name="menu_import_HYD_results">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;Import HYD-Results...</string>
+     </property>
+     <addaction name="action_import_hyd_res_base"/>
+     <addaction name="action_add_hyd_res"/>
+    </widget>
+    <addaction name="menu_import_HYD_results"/>
+    <addaction name="action_delete_hyd_results"/>
+    <addaction name="separator"/>
+    <addaction name="menu_dam_ecn"/>
+    <addaction name="menu_dam_eco"/>
+    <addaction name="menu_dam_pop"/>
+    <addaction name="menu_dam_pys"/>
+    <addaction name="menu_dam_sc"/>
+    <addaction name="separator"/>
+    <addaction name="menu_dam_system"/>
+    <addaction name="separator"/>
+    <addaction name="action_stop_dam_calc"/>
+    <addaction name="separator"/>
+    <addaction name="menu_dam_common"/>
+   </widget>
+   <widget class="QMenu" name="menu_MADM_system">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>&amp;MADM</string>
+    </property>
+    <widget class="QMenu" name="menu_madm_calc">
+     <property name="title">
+      <string>&amp;Calculation</string>
+     </property>
+     <addaction name="action_madm_calc_file"/>
+     <addaction name="action_madm_calc_database"/>
+    </widget>
+    <widget class="QMenu" name="menu_madm_common">
+     <property name="title">
+      <string>&amp;Common</string>
+     </property>
+     <addaction name="action_check_madm_tables"/>
+     <addaction name="separator"/>
+     <addaction name="action_set_output_flag_madm"/>
+     <addaction name="action_set_logfile_madm"/>
+     <addaction name="action_reset_display_madm"/>
+    </widget>
+    <addaction name="action_import_weighting_sets"/>
+    <addaction name="separator"/>
+    <addaction name="menu_madm_calc"/>
+    <addaction name="action_stop_madm_calc"/>
+    <addaction name="separator"/>
+    <addaction name="action_delete_results_madm"/>
+    <addaction name="menu_madm_common"/>
+   </widget>
+   <widget class="QMenu" name="menu_ALT_system">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>&amp;ALT</string>
+    </property>
+    <widget class="QMenu" name="menu_alt_ommon">
+     <property name="title">
+      <string>&amp;Common</string>
+     </property>
+     <addaction name="action_check_alt_tables"/>
+     <addaction name="separator"/>
+     <addaction name="action_set_output_flag_alt"/>
+     <addaction name="action_set_logfile_alt"/>
+     <addaction name="action_reset_display_alt"/>
+    </widget>
+    <widget class="QMenu" name="menu_new_area_measure_state">
+     <property name="title">
+      <string>&amp;New area-/measure-state</string>
+     </property>
+     <addaction name="action_new_measure_state"/>
+     <addaction name="action_new_area_state"/>
+     <addaction name="separator"/>
+     <addaction name="action_stop_measure_implementation"/>
+    </widget>
+    <widget class="QMenu" name="menu_edit_area_measure_state">
+     <property name="title">
+      <string>&amp;Edit area-/measure-state</string>
+     </property>
+     <addaction name="action_edit_measure_state"/>
+     <addaction name="action_edit_area_state"/>
+    </widget>
+    <addaction name="action_show_area_measure_state"/>
+    <addaction name="menu_new_area_measure_state"/>
+    <addaction name="separator"/>
+    <addaction name="menu_edit_area_measure_state"/>
+    <addaction name="action_switch_measure_state"/>
+    <addaction name="action_delete_measure_state"/>
+    <addaction name="separator"/>
+    <addaction name="menu_alt_ommon"/>
+   </widget>
+   <widget class="QMenu" name="menu_GIS">
+    <property name="title">
+     <string>&amp;GIS</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_window">
+    <property name="title">
+     <string>&amp;Window</string>
+    </property>
+    <widget class="QMenu" name="menu_Toolbar">
+     <property name="title">
+      <string>&amp;Toolbar</string>
+     </property>
+     <addaction name="action_show_project_tool"/>
+     <addaction name="action_show_db_tool"/>
+    </widget>
+    <widget class="QMenu" name="menu_show_side_display">
+     <property name="title">
+      <string>&amp;Show/Hide Docks</string>
+     </property>
+     <addaction name="action_explorer_display"/>
+     <addaction name="action_output_display"/>
+     <addaction name="action_Status_Display"/>
+    </widget>
+    <addaction name="menu_Toolbar"/>
+    <addaction name="separator"/>
+    <addaction name="menu_show_side_display"/>
+   </widget>
+   <widget class="QMenu" name="menu_COST_system">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>&amp;COST</string>
+    </property>
+    <widget class="QMenu" name="menu_cost_common">
+     <property name="title">
+      <string>&amp;Common</string>
+     </property>
+     <addaction name="action_check_cost_tables"/>
+     <addaction name="separator"/>
+     <addaction name="action_set_output_flag_cost"/>
+     <addaction name="action_set_logfile_cost"/>
+     <addaction name="action_reset_display_cost"/>
+    </widget>
+    <widget class="QMenu" name="menu_cost_ecn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;ECoNomic</string>
+     </property>
+     <addaction name="action_ecn_cost_user_defined"/>
+    </widget>
+    <addaction name="menu_cost_ecn"/>
+    <addaction name="separator"/>
+    <addaction name="menu_cost_common"/>
+   </widget>
+   <addaction name="menu_System"/>
+   <addaction name="menu_GIS"/>
+   <addaction name="menu_FPL_system"/>
+   <addaction name="menu_HYD_system"/>
+   <addaction name="menu_DAM_system"/>
+   <addaction name="menu_RISK_system"/>
+   <addaction name="menu_COST_system"/>
+   <addaction name="menu_MADM_system"/>
+   <addaction name="menu_ALT_system"/>
+   <addaction name="menu_window"/>
+   <addaction name="menu_Help"/>
+  </widget>
+  <widget class="Sys_Dock_Widget" name="dockWidget_outtxt">
+   <property name="minimumSize">
+    <size>
+     <width>145</width>
+     <height>156</height>
+    </size>
+   </property>
+   <property name="toolTip">
+    <string/>
+   </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea|Qt::RightDockWidgetArea|Qt::TopDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Output Display</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QGridLayout">
+     <item row="1" column="0">
+      <widget class="QTabWidget" name="tabWidget_outtext">
+       <property name="contextMenuPolicy">
+        <enum>Qt::ActionsContextMenu</enum>
+       </property>
+       <property name="tabPosition">
+        <enum>QTabWidget::South</enum>
+       </property>
+       <property name="tabShape">
+        <enum>QTabWidget::Rounded</enum>
+       </property>
+       <property name="currentIndex">
+        <number>7</number>
+       </property>
+       <widget class="QWidget" name="tab_systemtxt">
+        <attribute name="title">
+         <string>SYS</string>
+        </attribute>
+        <layout class="QGridLayout">
+         <item row="0" column="0">
+          <widget class="Sys_Output_Text_Wid" name="textEdit_systemtxt">
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAsNeeded</enum>
+           </property>
+           <property name="lineWrapMode">
+            <enum>QTextEdit::NoWrap</enum>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="tabStopWidth">
+            <number>25</number>
+           </property>
+           <property name="acceptRichText">
+            <bool>false</bool>
+           </property>
+           <property name="cursorWidth">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_exceptiontxt">
+        <attribute name="title">
+         <string>EXCEPT</string>
+        </attribute>
+        <layout class="QGridLayout">
+         <item row="0" column="0">
+          <widget class="Sys_Output_Text_Wid" name="textEdit_exceptiontxt">
+           <property name="lineWrapMode">
+            <enum>QTextEdit::NoWrap</enum>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_fpltxt">
+        <attribute name="title">
+         <string>FPL</string>
+        </attribute>
+        <layout class="QGridLayout">
+         <item row="0" column="0">
+          <widget class="Sys_Output_Text_Wid" name="textEdit_fpltxt">
+           <property name="lineWrapMode">
+            <enum>QTextEdit::NoWrap</enum>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="cursorWidth">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_hydtxt">
+        <attribute name="title">
+         <string>HYD</string>
+        </attribute>
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="Sys_Output_Text_Wid" name="textEdit_hydtxt"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_damtxt">
+        <attribute name="title">
+         <string>DAM</string>
+        </attribute>
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="Sys_Output_Text_Wid" name="textEdit_damtxt"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_risktxt">
+        <attribute name="title">
+         <string>RISK</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="Sys_Output_Text_Wid" name="textEdit_risktxt"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_costtxt">
+        <attribute name="title">
+         <string>COST</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="Sys_Output_Text_Wid" name="textEdit_costtxt"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_madmtxt">
+        <attribute name="title">
+         <string>MADM</string>
+        </attribute>
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="Sys_Output_Text_Wid" name="textEdit_madmtxt"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_alttxt">
+        <attribute name="title">
+         <string>ALT</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="Sys_Output_Text_Wid" name="textEdit_alttxt"/>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="db_toolbar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_Open_Connection"/>
+   <addaction name="actionShow_Connection_Status"/>
+   <addaction name="action_Show_Connection_Param"/>
+   <addaction name="separator"/>
+   <addaction name="action_Close_Connection"/>
+  </widget>
+  <widget class="Sys_Dock_Widget" name="dockWidget_tree_view">
+   <property name="minimumSize">
+    <size>
+     <width>145</width>
+     <height>156</height>
+    </size>
+   </property>
+   <property name="toolTip">
+    <string/>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
+   <property name="windowTitle">
+    <string>Explorer Display</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QTabWidget" name="tabWidget_treeview">
+       <property name="contextMenuPolicy">
+        <enum>Qt::ActionsContextMenu</enum>
+       </property>
+       <property name="tabPosition">
+        <enum>QTabWidget::South</enum>
+       </property>
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <widget class="QWidget" name="tab_tree_gis">
+        <attribute name="title">
+         <string>&amp;GIS</string>
+        </attribute>
+       </widget>
+       <widget class="QWidget" name="tab_tree_data">
+        <attribute name="title">
+         <string>&amp;DATA</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="Sys_Data_Tree_Wid" name="treeWidget_data">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_tree_database">
+        <attribute name="title">
+         <string>&amp;DATABASE</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="Sys_Database_Projectbrowser_Wid" name="browser_database" native="true"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_file_tree">
+        <attribute name="title">
+         <string>&amp;FILE</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="Sys_File_Tree_Wid" name="treeview_file">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="proj_toolbar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_open_project"/>
+   <addaction name="action_new_project"/>
+   <addaction name="separator"/>
+   <addaction name="action_show_project"/>
+   <addaction name="action_edit_project"/>
+   <addaction name="action_copy_project"/>
+   <addaction name="action_save_project"/>
+   <addaction name="separator"/>
+   <addaction name="action_close_project"/>
+  </widget>
+  <action name="action_Quit">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="action_Show_Connection_Param">
+   <property name="text">
+    <string>&amp;Show Connection  Param</string>
+   </property>
+  </action>
+  <action name="actionShow_Connection_Status">
+   <property name="text">
+    <string>Show Connection Status</string>
+   </property>
+  </action>
+  <action name="action_Close_Connection">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Close  Connection</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="action_calc_determ">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Deterministic (DETERM)...</string>
+   </property>
+  </action>
+  <action name="action_calc_mc">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Monte-Carlo (MC)...</string>
+   </property>
+  </action>
+  <action name="action_calc_frc">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Fragility curve (FRC)...</string>
+   </property>
+  </action>
+  <action name="action_test_random">
+   <property name="text">
+    <string>&amp;Test random generator...</string>
+   </property>
+  </action>
+  <action name="action_check_fpl_tables">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Check tables</string>
+   </property>
+  </action>
+  <action name="action_set_outputflag_fpl">
+   <property name="text">
+    <string>&amp;Set output flag...</string>
+   </property>
+  </action>
+  <action name="action_set_logfile_fpl">
+   <property name="text">
+    <string>&amp;Set new logfile...</string>
+   </property>
+  </action>
+  <action name="action_stop_fpl_calc">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Stop thread...</string>
+   </property>
+  </action>
+  <action name="action_Reset_Error_Warning">
+   <property name="text">
+    <string>&amp;Reset Error + Warning</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="action_reset_display_sys">
+   <property name="text">
+    <string>&amp;Reset Display</string>
+   </property>
+  </action>
+  <action name="action_set_logfile_sys">
+   <property name="text">
+    <string>&amp;Set new logfile...</string>
+   </property>
+  </action>
+  <action name="action_set_outputflag_sys">
+   <property name="text">
+    <string>&amp;Set output flag...</string>
+   </property>
+  </action>
+  <action name="action_Reset_Fpl_display">
+   <property name="text">
+    <string>&amp;Reset output display</string>
+   </property>
+  </action>
+  <action name="action_set_output_flag_hyd">
+   <property name="text">
+    <string>&amp;Set output flag...</string>
+   </property>
+  </action>
+  <action name="action_set_logfile_hyd">
+   <property name="text">
+    <string>&amp;Set new logfile...</string>
+   </property>
+  </action>
+  <action name="action_reset_display_hyd">
+   <property name="text">
+    <string>&amp;Reset output display</string>
+   </property>
+  </action>
+  <action name="action_hydcalc_per_file">
+   <property name="text">
+    <string>&amp;Per file...</string>
+   </property>
+  </action>
+  <action name="action_stop_hyd_calc">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Stop calculation...</string>
+   </property>
+  </action>
+  <action name="action_developer_guide">
+   <property name="text">
+    <string>&amp;Developer's Guide</string>
+   </property>
+  </action>
+  <action name="action_hyd_check_file">
+   <property name="text">
+    <string>&amp;Per file...</string>
+   </property>
+  </action>
+  <action name="action_hyd_check_database">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Per database</string>
+   </property>
+  </action>
+  <action name="action_stop_hyd_check">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Stop check...</string>
+   </property>
+  </action>
+  <action name="action_check_hyd_tables">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Check tables</string>
+   </property>
+   <property name="toolTip">
+    <string>Check the database tables of the hydraulic system</string>
+   </property>
+  </action>
+  <action name="action_hydcalc_per_db">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Per database...</string>
+   </property>
+  </action>
+  <action name="action_stop_hyd_import">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Stop import...</string>
+   </property>
+  </action>
+  <action name="action_hyd_import_base_sz">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Base scenario...</string>
+   </property>
+  </action>
+  <action name="action_hyd_import_add_sz">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Add scenario...</string>
+   </property>
+  </action>
+  <action name="action_imp_ecn_dam_func">
+   <property name="text">
+    <string>&amp;Land use categories...</string>
+   </property>
+  </action>
+  <action name="action_add_ecn_dam_raster">
+   <property name="text">
+    <string>&amp;Add damage raster...</string>
+   </property>
+  </action>
+  <action name="action_del_all_ecn">
+   <property name="text">
+    <string>&amp;Delete...</string>
+   </property>
+  </action>
+  <action name="action_stop_dam_calc">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Stop thread...</string>
+   </property>
+  </action>
+  <action name="action_check_dam_tables">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Check tables</string>
+   </property>
+  </action>
+  <action name="action_set_output_flag_dam">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Set output flag...</string>
+   </property>
+  </action>
+  <action name="action_set_logfile_dam">
+   <property name="text">
+    <string>&amp;Set new logfile...</string>
+   </property>
+  </action>
+  <action name="action_reset_display_dam">
+   <property name="text">
+    <string>&amp;Reset output display</string>
+   </property>
+  </action>
+  <action name="action_imp_eco_biotope_types">
+   <property name="text">
+    <string>&amp;Biotope-types...</string>
+   </property>
+  </action>
+  <action name="action_add_eco_biotope_raster">
+   <property name="text">
+    <string>Add biotope raster...</string>
+   </property>
+  </action>
+  <action name="action_imp_eco_soil_cost_functions">
+   <property name="text">
+    <string>Soil-cost functions...</string>
+   </property>
+  </action>
+  <action name="action_imp_eco_soil_erosion_functions">
+   <property name="text">
+    <string>&amp;Soil-erosion functions...</string>
+   </property>
+  </action>
+  <action name="action_add_eco_soil_raster">
+   <property name="text">
+    <string>&amp;Add soil raster...</string>
+   </property>
+  </action>
+  <action name="action_imp_pop_dam_func">
+   <property name="text">
+    <string>&amp;Vulnerability categories...</string>
+   </property>
+  </action>
+  <action name="action_add_pop_raster">
+   <property name="text">
+    <string>&amp;Add raster...</string>
+   </property>
+  </action>
+  <action name="action_del_eco_btype">
+   <property name="text">
+    <string>&amp;Delete biotope-type...</string>
+   </property>
+  </action>
+  <action name="action_del_all_pop">
+   <property name="text">
+    <string>&amp;Delete...</string>
+   </property>
+  </action>
+  <action name="action_del_eco_soil">
+   <property name="text">
+    <string>&amp;Delete soil-erosion...</string>
+   </property>
+  </action>
+  <action name="action_show_dam_statistic">
+   <property name="text">
+    <string>&amp;Show statistic</string>
+   </property>
+  </action>
+  <action name="action_dam_connect">
+   <property name="text">
+    <string>&amp;Connect dam2hyd</string>
+   </property>
+  </action>
+  <action name="action_dam_calculate">
+   <property name="text">
+    <string>&amp;Calculate damage...</string>
+   </property>
+  </action>
+  <action name="action_del_all_pys">
+   <property name="text">
+    <string>&amp;Delete...</string>
+   </property>
+  </action>
+  <action name="action_imp_pys_cat">
+   <property name="text">
+    <string>&amp;Categories...</string>
+   </property>
+  </action>
+  <action name="action_add_pys_raster">
+   <property name="text">
+    <string>&amp;Add raster...</string>
+   </property>
+  </action>
+  <action name="action_imp_pys_density">
+   <property name="text">
+    <string>&amp;Density function...</string>
+   </property>
+  </action>
+  <action name="action_open_project">
+   <property name="icon">
+    <iconset resource="system_sys/source_code/gui/resources/hydroxygen.qrc">
+     <normaloff>:/hydro/Open_Document</normaloff>:/hydro/Open_Document</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open project...</string>
+   </property>
+  </action>
+  <action name="action_new_project">
+   <property name="icon">
+    <iconset resource="system_sys/source_code/gui/resources/hydroxygen.qrc">
+     <normaloff>:/hydro/New_Document</normaloff>:/hydro/New_Document</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;New project...</string>
+   </property>
+  </action>
+  <action name="action_close_project">
+   <property name="icon">
+    <iconset resource="system_sys/source_code/gui/resources/hydroxygen.qrc">
+     <normaloff>:/hydro/Remove_Object</normaloff>:/hydro/Remove_Object</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Close project</string>
+   </property>
+  </action>
+  <action name="action_Open_Connection">
+   <property name="text">
+    <string>&amp;Open Connection</string>
+   </property>
+  </action>
+  <action name="action_show_project">
+   <property name="text">
+    <string>&amp;Show project</string>
+   </property>
+  </action>
+  <action name="action_edit_project">
+   <property name="icon">
+    <iconset resource="system_sys/source_code/gui/resources/hydroxygen.qrc">
+     <normaloff>:/hydro/Pencil</normaloff>:/hydro/Pencil</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Edit project...</string>
+   </property>
+  </action>
+  <action name="action_save_project">
+   <property name="icon">
+    <iconset resource="system_sys/source_code/gui/resources/hydroxygen.qrc">
+     <normaloff>:/hydro/Save_Document</normaloff>:/hydro/Save_Document</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="action_show_db_tool">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Database</string>
+   </property>
+  </action>
+  <action name="action_show_project_tool">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Project</string>
+   </property>
+  </action>
+  <action name="action_delete_project">
+   <property name="text">
+    <string>Delete project...</string>
+   </property>
+  </action>
+  <action name="action_user_defined_frc">
+   <property name="text">
+    <string>&amp;User defined reliability...</string>
+   </property>
+  </action>
+  <action name="action_connect_raster_ecn">
+   <property name="text">
+    <string>&amp;Connect raster</string>
+   </property>
+  </action>
+  <action name="action_connect_raster_eco">
+   <property name="text">
+    <string>&amp;Connect raster</string>
+   </property>
+  </action>
+  <action name="action_connect_raster_pop">
+   <property name="text">
+    <string>Connect raster</string>
+   </property>
+  </action>
+  <action name="action_connect_raster_pys">
+   <property name="text">
+    <string>&amp;Connect raster</string>
+   </property>
+  </action>
+  <action name="action_delete_boundary_scenario">
+   <property name="text">
+    <string>&amp;Delete boundary scenario...</string>
+   </property>
+  </action>
+  <action name="action_delete_fpl_section">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Delete section...</string>
+   </property>
+  </action>
+  <action name="action_restore_standard_fpl">
+   <property name="text">
+    <string>&amp;Restore standard...</string>
+   </property>
+  </action>
+  <action name="action_check_risk_tables">
+   <property name="text">
+    <string>&amp;Check tables</string>
+   </property>
+  </action>
+  <action name="action_set_output_flag_risk">
+   <property name="text">
+    <string>&amp;Set output flag...</string>
+   </property>
+  </action>
+  <action name="action_set_logfile_risk">
+   <property name="text">
+    <string>&amp;Set new logfile...</string>
+   </property>
+  </action>
+  <action name="action_reset_display_risk">
+   <property name="text">
+    <string>&amp;Reset output display</string>
+   </property>
+  </action>
+  <action name="action_stop_risk_calc">
+   <property name="text">
+    <string>&amp;Stop thread...</string>
+   </property>
+  </action>
+  <action name="action_calc_nobreak_risk">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Nobreak risk</string>
+   </property>
+  </action>
+  <action name="action_calc_scenario_risk">
+   <property name="text">
+    <string>&amp;Scenario risk...</string>
+   </property>
+  </action>
+  <action name="action_calc_automatic">
+   <property name="text">
+    <string>&amp;Automatic state calculation...</string>
+   </property>
+  </action>
+  <action name="action_calc_user_defined">
+   <property name="text">
+    <string>&amp;User defined state calculation...</string>
+   </property>
+  </action>
+  <action name="action_delete_results_risk">
+   <property name="text">
+    <string>&amp;Delete results/ restore...</string>
+   </property>
+  </action>
+  <action name="action_properties_hyd">
+   <property name="text">
+    <string>&amp;Properties...</string>
+   </property>
+  </action>
+  <action name="action_check_dam_system">
+   <property name="text">
+    <string>&amp;Check system</string>
+   </property>
+  </action>
+  <action name="action_fpl_import_file">
+   <property name="text">
+    <string>&amp;Import file to database...</string>
+   </property>
+  </action>
+  <action name="action_check_fpl_file">
+   <property name="text">
+    <string>&amp;Per file...</string>
+   </property>
+  </action>
+  <action name="action_check_fpl_db">
+   <property name="text">
+    <string>&amp;Per database...</string>
+   </property>
+  </action>
+  <action name="action_fpl2hyd_combine">
+   <property name="text">
+    <string>&amp;Combine FPL2HYD</string>
+   </property>
+  </action>
+  <action name="action_fpl2hyd_check_ideal">
+   <property name="text">
+    <string>&amp;Check ideal HYD-system</string>
+   </property>
+  </action>
+  <action name="action_stop_madm_calc">
+   <property name="text">
+    <string>&amp;Stop thread...</string>
+   </property>
+  </action>
+  <action name="action_delete_results_madm">
+   <property name="text">
+    <string>&amp;Delete weighting sets...</string>
+   </property>
+  </action>
+  <action name="action_madm_calc_file">
+   <property name="text">
+    <string>&amp;File...</string>
+   </property>
+  </action>
+  <action name="action_madm_calc_database">
+   <property name="text">
+    <string>&amp;Database</string>
+   </property>
+  </action>
+  <action name="action_check_madm_tables">
+   <property name="text">
+    <string>&amp;Check tables</string>
+   </property>
+  </action>
+  <action name="action_set_output_flag_madm">
+   <property name="text">
+    <string>&amp;Set output flag...</string>
+   </property>
+  </action>
+  <action name="action_set_logfile_madm">
+   <property name="text">
+    <string>&amp;Set new logfile...</string>
+   </property>
+  </action>
+  <action name="action_reset_display_madm">
+   <property name="text">
+    <string>&amp;Reset output display</string>
+   </property>
+  </action>
+  <action name="action_calc_nobreak_state">
+   <property name="text">
+    <string>&amp;Nobreak state calculation</string>
+   </property>
+  </action>
+  <action name="action_calc_one_break_state">
+   <property name="text">
+    <string>&amp;One-break state calculation...</string>
+   </property>
+  </action>
+  <action name="action_risk_cumulation">
+   <property name="text">
+    <string>&amp;Risk calculation</string>
+   </property>
+   <property name="iconText">
+    <string>Risk calculation</string>
+   </property>
+   <property name="toolTip">
+    <string>Risk calculation</string>
+   </property>
+  </action>
+  <action name="action_output_statistics_risk">
+   <property name="text">
+    <string>&amp;Output statistics risk results</string>
+   </property>
+  </action>
+  <action name="action_close_all_tables">
+   <property name="text">
+    <string>&amp;Close all tables</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="action_risk_state_generation">
+   <property name="text">
+    <string>&amp;Risk state generation...</string>
+   </property>
+  </action>
+  <action name="action_alt_hyd_boundaries">
+   <property name="text">
+    <string>Hydraulic boundaries</string>
+   </property>
+  </action>
+  <action name="action_check_alt_tables">
+   <property name="text">
+    <string>&amp;Check tables</string>
+   </property>
+  </action>
+  <action name="action_set_output_flag_alt">
+   <property name="text">
+    <string>&amp;Set output flag...</string>
+   </property>
+  </action>
+  <action name="action_set_logfile_alt">
+   <property name="text">
+    <string>&amp;Set new logfile...</string>
+   </property>
+  </action>
+  <action name="action_reset_display_alt">
+   <property name="text">
+    <string>&amp;Reset output display</string>
+   </property>
+  </action>
+  <action name="action_check_cost_tables">
+   <property name="text">
+    <string>&amp;Check tables</string>
+   </property>
+  </action>
+  <action name="action_set_output_flag_cost">
+   <property name="text">
+    <string>&amp;Set output flag...</string>
+   </property>
+  </action>
+  <action name="action_set_logfile_cost">
+   <property name="text">
+    <string>&amp;Set new logfile...</string>
+   </property>
+  </action>
+  <action name="action_reset_display_cost">
+   <property name="text">
+    <string>&amp;Reset output display</string>
+   </property>
+  </action>
+  <action name="action_ecn_cost_user_defined">
+   <property name="text">
+    <string>&amp;User defined data...</string>
+   </property>
+  </action>
+  <action name="action_new_area_state">
+   <property name="text">
+    <string>&amp;New area state...</string>
+   </property>
+  </action>
+  <action name="action_new_measure_state">
+   <property name="text">
+    <string>&amp;New measure state...</string>
+   </property>
+  </action>
+  <action name="action_show_area_measure_state">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Show area-/measure-state</string>
+   </property>
+  </action>
+  <action name="action_stop_next_HYD_calc">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Stop by next HYD-calculation...</string>
+   </property>
+  </action>
+  <action name="action_import_weighting_sets">
+   <property name="text">
+    <string>&amp;Import weighting sets files to database...</string>
+   </property>
+  </action>
+  <action name="action_clear_all_output_displays">
+   <property name="text">
+    <string>&amp;Clear all output displays</string>
+   </property>
+  </action>
+  <action name="action_delete_files_logfile_archiv">
+   <property name="text">
+    <string>&amp;Delete files in logfile archiv...</string>
+   </property>
+  </action>
+  <action name="action_edit_measure_state">
+   <property name="text">
+    <string>&amp;Edit measure state...</string>
+   </property>
+  </action>
+  <action name="action_edit_area_state">
+   <property name="text">
+    <string>&amp;Edit area state...</string>
+   </property>
+  </action>
+  <action name="action_properties_hyd_2">
+   <property name="text">
+    <string>&amp;Properties...</string>
+   </property>
+  </action>
+  <action name="action_output_statistic_catchment_risk">
+   <property name="text">
+    <string>&amp;Output statistic catchment risk</string>
+   </property>
+  </action>
+  <action name="action_calc_all">
+   <property name="text">
+    <string>&amp;Calculate all...</string>
+   </property>
+  </action>
+  <action name="action_stop_measure_implementation">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Stop measure implementation...</string>
+   </property>
+  </action>
+  <action name="action_switch_measure_state">
+   <property name="text">
+    <string>&amp;Switch measure-state...</string>
+   </property>
+  </action>
+  <action name="action_explorer_display">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Explorer Display</string>
+   </property>
+  </action>
+  <action name="action_output_display">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Output Display</string>
+   </property>
+  </action>
+  <action name="action_test_random_generator_1">
+   <property name="text">
+    <string>&amp;Test random generator...</string>
+   </property>
+  </action>
+  <action name="action_import_hyd_res_base">
+   <property name="text">
+    <string>&amp;Base scenario...</string>
+   </property>
+  </action>
+  <action name="action_add_hyd_res">
+   <property name="text">
+    <string>&amp;Add scenario...</string>
+   </property>
+  </action>
+  <action name="action_delete_hyd_results">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Delete Hyd-Results...</string>
+   </property>
+  </action>
+  <action name="action_convert_gis2prom_raster">
+   <property name="text">
+    <string>&amp;Convert Gis2Prom-raster (height)...</string>
+   </property>
+  </action>
+  <action name="action_set_new_path">
+   <property name="text">
+    <string>&amp;Set new path...</string>
+   </property>
+  </action>
+  <action name="action_set_working_dir">
+   <property name="text">
+    <string>&amp;Change working directory...</string>
+   </property>
+  </action>
+  <action name="action_copy_project">
+   <property name="icon">
+    <iconset resource="system_sys/source_code/gui/resources/hydroxygen.qrc">
+     <normaloff>:/hydro/Copy_Edit</normaloff>:/hydro/Copy_Edit</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Copy project...</string>
+   </property>
+  </action>
+  <action name="action_delete_measure_state">
+   <property name="text">
+    <string>&amp;Delete measure state...</string>
+   </property>
+  </action>
+  <action name="action_sc_delete">
+   <property name="text">
+    <string>&amp;Delete...</string>
+   </property>
+  </action>
+  <action name="action_sc_connect">
+   <property name="text">
+    <string>Connect</string>
+   </property>
+  </action>
+  <action name="action_imp_points">
+   <property name="text">
+    <string>&amp;Points...</string>
+   </property>
+  </action>
+  <action name="action_imp_subcategory">
+   <property name="text">
+    <string>&amp;Subcategory...</string>
+   </property>
+  </action>
+  <action name="action_Status_Display">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Status Display</string>
+   </property>
+  </action>
+  <action name="action_generate_dgm_from_profile">
+   <property name="text">
+    <string>&amp;Generate DGM-W from profile...</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Sys_Database_Projectbrowser_Wid</class>
+   <extends>QWidget</extends>
+   <header>sys_database_projectbrowser_wid.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Sys_Data_Tree_Wid</class>
+   <extends>QTreeWidget</extends>
+   <header>sys_data_tree_wid.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Sys_Sql_Table_Wid</class>
+   <extends>QTableView</extends>
+   <header>sys_sql_table_wid.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Sys_Output_Text_Wid</class>
+   <extends>QTextEdit</extends>
+   <header>sys_output_text_wid.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Sys_Text_Browser_Wid</class>
+   <extends>QTextBrowser</extends>
+   <header>sys_text_browser_wid.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Sys_File_Tree_Wid</class>
+   <extends>QTreeView</extends>
+   <header>sys_file_tree_wid.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Sys_Dock_Widget</class>
+   <extends>QDockWidget</extends>
+   <header>sys_dock_widget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>tabWidget_outtext</tabstop>
+  <tabstop>textEdit_systemtxt</tabstop>
+  <tabstop>textEdit_exceptiontxt</tabstop>
+  <tabstop>textEdit_fpltxt</tabstop>
+  <tabstop>textEdit_hydtxt</tabstop>
+  <tabstop>textEdit_damtxt</tabstop>
+  <tabstop>textEdit_risktxt</tabstop>
+  <tabstop>textEdit_madmtxt</tabstop>
+  <tabstop>tabWidget_treeview</tabstop>
+  <tabstop>treeWidget_data</tabstop>
+  <tabstop>database_table_view</tabstop>
+  <tabstop>tabWidget_data_view</tabstop>
+  <tabstop>status_txt</tabstop>
+ </tabstops>
+ <resources>
+  <include location="system_sys/source_code/gui/resources/hydroxygen.qrc"/>
+  <include location="system_sys/source_code/gui/resources/system_sys_resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>

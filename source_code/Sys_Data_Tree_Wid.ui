@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Sys_Data_Tree_Wid</class>
+ <widget class="QWidget" name="Sys_Data_Tree_Wid">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>79</width>
+    <height>79</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTreeWidget" name="data_tree">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
+     <property name="columnCount">
+      <number>2</number>
+     </property>
+     <column>
+      <property name="text">
+       <string>Data Explorer</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>No.</string>
+      </property>
+      <property name="toolTip">
+       <string>Number of items</string>
+      </property>
+     </column>
+     <item>
+      <property name="text">
+       <string>HYD</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>Config</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>River</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Floodplain</string>
+       </property>
+      </item>
+     </item>
+     <item>
+      <property name="text">
+       <string>DAM</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>ECN</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>Raster</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Functions</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Results</string>
+        </property>
+       </item>
+      </item>
+      <item>
+       <property name="text">
+        <string>ECO</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>BIOTOPE</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Raster</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Biotope-types</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Results</string>
+         </property>
+        </item>
+       </item>
+       <item>
+        <property name="text">
+         <string>SOIL-EROSION</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Raster</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Cost-function</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Erosion-function</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Results</string>
+         </property>
+        </item>
+       </item>
+      </item>
+      <item>
+       <property name="text">
+        <string>POP</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>Raster</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Damage functions</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Results</string>
+        </property>
+       </item>
+      </item>
+      <item>
+       <property name="text">
+        <string>PYS</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>Raster</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Categories</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Density function</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Results</string>
+        </property>
+       </item>
+      </item>
+      <item>
+       <property name="text">
+        <string>RESULTS</string>
+       </property>
+      </item>
+     </item>
+     <item>
+      <property name="text">
+       <string>FPL</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
