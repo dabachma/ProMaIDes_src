@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>HydGui_Bound_Scenario_Data_Dia</class>
+ <widget class="QDialog" name="HydGui_Bound_Scenario_Data_Dia">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>930</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>370</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>2000</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Set data of boundary scenario</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../../system_sys/source_code/gui/resources/system_sys_resource.qrc">
+    <normaloff>:/hyd_icon</normaloff>:/hyd_icon</iconset>
+  </property>
+  <layout class="QVBoxLayout">
+   <item>
+    <widget class="HydGui_Bound_Scenario_Table_Wid" name="tableWidget"/>
+   </item>
+   <item>
+    <layout class="QHBoxLayout">
+     <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>108</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="okButton">
+       <property name="text">
+        <string>OK</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>HydGui_Bound_Scenario_Table_Wid</class>
+   <extends>QTableWidget</extends>
+   <header>hydgui_bound_scenario_table_wid.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../../system_sys/source_code/gui/resources/system_sys_resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
