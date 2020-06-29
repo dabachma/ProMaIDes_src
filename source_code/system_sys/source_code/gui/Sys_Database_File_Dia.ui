@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Sys_Database_File_Dia</class>
+ <widget class="QWidget" name="Sys_Database_File_Dia">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>429</width>
+    <height>159</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Set Input Files</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resources/system_sys_resource.qrc">
+    <normaloff>:/prom_icon</normaloff>:/prom_icon</iconset>
+  </property>
+  <widget class="QGroupBox" name="InputGroupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>401</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Set Input</string>
+   </property>
+   <widget class="QLabel" name="DbFileLabel">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>25</y>
+      <width>65</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Database File</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="editDbFile">
+    <property name="geometry">
+     <rect>
+      <x>111</x>
+      <y>27</y>
+      <width>161</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="browseDbFileButton">
+    <property name="geometry">
+     <rect>
+      <x>315</x>
+      <y>25</y>
+      <width>75</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Browse</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="TableFileLabel">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>55</y>
+      <width>65</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Tables File</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="editTableFile">
+    <property name="geometry">
+     <rect>
+      <x>111</x>
+      <y>57</y>
+      <width>161</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="browseTableFileButton">
+    <property name="geometry">
+     <rect>
+      <x>315</x>
+      <y>55</y>
+      <width>75</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Browse</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="okButton">
+   <property name="geometry">
+    <rect>
+     <x>214</x>
+     <y>120</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>OK</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="cancelButton">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>120</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Cancel</string>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="resources/system_sys_resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Sys_Sql_Help_Condition_Wid</class>
+ <widget class="QWidget" name="Sys_Sql_Help_Condition_Wid">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>500</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>380</width>
+    <height>500</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>380</width>
+    <height>500</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Set a condition with Sql-Helper</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resources/system_sys_resource.qrc">
+    <normaloff>:/prom_icon</normaloff>:/prom_icon</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QGroupBox" name="groupBox_ari">
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Arithmetic and Conditions</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="Sys_Letter_Button" name="pushButton_plus">
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="Sys_Letter_Button" name="pushButton_div">
+            <property name="text">
+             <string>/</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="Sys_Letter_Button" name="pushButton_minus">
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="Sys_Letter_Button" name="pushButton_open_brack">
+            <property name="text">
+             <string>(</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="Sys_Letter_Button" name="pushButton_close_brack">
+            <property name="text">
+             <string>)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="Sys_Letter_Button" name="pushButton_mult">
+            <property name="text">
+             <string>x</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="Sys_Letter_Button" name="pushButton_equal">
+            <property name="text">
+             <string>=</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="Sys_Letter_Button" name="pushButton_unequal">
+            <property name="text">
+             <string>!=</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="Sys_Letter_Button" name="pushButton_higher">
+            <property name="text">
+             <string>&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="Sys_Letter_Button" name="pushButton_smaller">
+            <property name="text">
+             <string>&lt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="Sys_Letter_Button" name="pushButton_like">
+            <property name="text">
+             <string>like '</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="Sys_Letter_Button" name="pushButton_strich">
+            <property name="text">
+             <string>'</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="Sys_Letter_Button" name="pushButton_order">
+            <property name="text">
+             <string>order by(</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="Sys_Letter_Button" name="pushButton_perc">
+            <property name="text">
+             <string>%</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_combi">
+         <property name="title">
+          <string>Combination</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="Sys_Letter_Button" name="pushButton_and">
+            <property name="text">
+             <string>and</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="Sys_Letter_Button" name="pushButton_or">
+            <property name="text">
+             <string>or</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_row">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>300</height>
+        </size>
+       </property>
+       <property name="title">
+        <string>Row(s)</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QListWidget" name="listWidget">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>36</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>where</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="textEdit_sql">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>100</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="_2">
+     <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>209</width>
+         <height>18</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="send_button">
+       <property name="text">
+        <string>&amp;Send</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="clear_button">
+       <property name="text">
+        <string>&amp;Clear</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="close_button">
+       <property name="text">
+        <string>&amp;Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Sys_Letter_Button</class>
+   <extends>QPushButton</extends>
+   <header location="global">sys_letter_button.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="resources/hydroxygen.qrc"/>
+  <include location="resources/system_sys_resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>

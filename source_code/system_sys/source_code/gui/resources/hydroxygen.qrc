@@ -1,0 +1,56 @@
+<RCC>
+  <qresource prefix="hydro">
+
+    <file alias="Remove_Object">icons/hydroxygen/16x16/remove_object.png</file>
+    <file alias="Apply">icons/hydroxygen/16x16/apply.png</file>
+    <file alias="Appointment">icons/hydroxygen/16x16/appointment.png</file>
+    <file alias="Bell">icons/hydroxygen/16x16/bell.png</file>
+    <file alias="New_Bookmark">icons/hydroxygen/16x16/bookmark_new.png</file>
+    <file alias="Color_Line">icons/hydroxygen/16x16/color_line.png</file>
+    <file alias="New_Contact">icons/hydroxygen/16x16/contact_new.png</file>
+    <file alias="Export_Document">icons/hydroxygen/16x16/document_export.png</file>
+    <file alias="Import_Document">icons/hydroxygen/16x16/document_import.png</file>
+    <file alias="New_Document">icons/hydroxygen/16x16/document_new.png</file>
+    <file alias="Open_Document">icons/hydroxygen/16x16/document_open.png</file>
+    <file alias="Open_Recent_Document">icons/hydroxygen/16x16/document_open_recent.png</file>
+    <file alias="Document_Setup_Page">icons/hydroxygen/16x16/document_page_setup.png</file>
+    <file alias="Preview_Document">icons/hydroxygen/16x16/document_preview.png</file>
+    <file alias="Print_Document">icons/hydroxygen/16x16/document_print.png</file>
+    <file alias="Document_Properties">icons/hydroxygen/16x16/document_properties.png</file>
+    <file alias="Save_Document">icons/hydroxygen/16x16/document_save.png</file>
+    <file alias="Save_Document_As">icons/hydroxygen/16x16/document_save_as.png</file>
+    <file alias="Send_Document">icons/hydroxygen/16x16/document_send.png</file>
+    <file alias="Connect_DB">icons/hydroxygen/16x16/dtb_connect.png</file>
+    <file alias="Disconnect_DB">icons/hydroxygen/16x16/dtb_disconnect.png</file>
+    <file alias="Clear_Edit">icons/hydroxygen/16x16/edit_clear.png</file>
+    <file alias="Copy_Edit">icons/hydroxygen/16x16/edit_copy.png</file>
+    <file alias="Cut_Edit">icons/hydroxygen/16x16/edit_cut.png</file>
+    <file alias="Delete_Edit">icons/hydroxygen/16x16/edit_delete.png</file>
+    <file alias="Find_Edit">icons/hydroxygen/16x16/edit_find.png</file>
+    <file alias="Paste_Edit">icons/hydroxygen/16x16/edit_paste.png</file>
+    <file alias="Redo">icons/hydroxygen/16x16/edit_redo.png</file>
+    <file alias="Select_All">icons/hydroxygen/16x16/edit_select_all.png</file>
+    <file alias="Undo">icons/hydroxygen/16x16/edit_undo.png</file>
+    <file alias="New_Foder">icons/hydroxygen/16x16/folder_new.png</file>
+    <file alias="Go_Down">icons/hydroxygen/16x16/go_down.png</file>
+    <file alias="Go_Home">icons/hydroxygen/16x16/go_home.png</file>
+    <file alias="Go_Next">icons/hydroxygen/16x16/go_next.png</file>
+    <file alias="Go_Previous">icons/hydroxygen/16x16/go_previous.png</file>
+    <file alias="Go_Up">icons/hydroxygen/16x16/go_up.png</file>
+    <file alias="Help_About">icons/hydroxygen/16x16/help_about.png</file>
+    <file alias="Help_Contents">icons/hydroxygen/16x16/help_contents.png</file>
+    <file alias="Help_FAQ">icons/hydroxygen/16x16/help_faq.png</file>
+    <file alias="Help_Hint">icons/hydroxygen/16x16/help_hint.png</file>
+    <file alias="Insert_Object">icons/hydroxygen/16x16/insert_object.png</file>
+    <file alias="Insert_Text">icons/hydroxygen/16x16/insert_text.png</file>
+    <file alias="Pencil">icons/hydroxygen/16x16/pencil.png</file>
+    <file alias="Preferences">icons/hydroxygen/16x16/preferences.png</file>
+    <file alias="View_Fullscreen">icons/hydroxygen/16x16/view_fullscreen.png</file>
+    <file alias="View_Refresh">icons/hydroxygen/16x16/view_refresh.png</file>
+    <file alias="New_Window">icons/hydroxygen/16x16/window_new.png</file>
+    <file alias="Zoom_Best_Fit">icons/hydroxygen/16x16/zoom_best_fit.png</file>
+    <file alias="Zoom_In">icons/hydroxygen/16x16/zoom_in.png</file>
+    <file alias="Zoom_Original">icons/hydroxygen/16x16/zoom_original.png</file>
+    <file alias="Zoom_Out">icons/hydroxygen/16x16/zoom_out.png</file>
+  </qresource>
+</RCC>

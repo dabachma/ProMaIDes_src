@@ -1,0 +1,68 @@
+<RCC>
+  <qresource>
+    <file>system_sys_resource.qrc</file>
+    <file alias="prom_icon">icons/iww/prom.png</file>
+    <file alias="default_config">icons/iww/32x32/config.png</file>
+    <file alias="gis_icon">icons/iww/16x16/gis.png</file>
+    <file alias="file_icon">icons/iww/16x16/files.png</file>
+    <file alias="data_icon">icons/iww/16x16/data.png</file>
+    <file alias="database_icon">icons/iww/16x16/database.png</file>
+	<file alias="plus_icon">icons/iww/16x16/10.png</file>
+	<file alias="minus_icon">icons/iww/16x16/11.png</file>
+    <file alias="raster_icon">icons/iww/16x16/raster.png</file>
+    <file alias="river_icon">icons/iww/16x16/river.png</file>
+    <file alias="riverprof_icon">icons/iww/16x16/standard_profile.png</file>
+    <file alias="bridge_icon">icons/iww/16x16/bridge.png</file>
+    <file alias="weir_icon">icons/iww/16x16/weir.png</file>
+    <file alias="wall_icon">icons/iww/16x16/wall.png</file>
+    <file alias="dike_icon">icons/iww/16x16/dike.png</file>
+    <file alias="gate_icon">icons/iww/16x16/gate.png</file>
+    <file alias="dune_icon">icons/iww/16x16/dune.png</file>
+    <file alias="user_icon">icons/iww/16x16/user_def.png</file>
+    <file alias="alt_icon">icons/iww/16x16/alt.png</file>
+    <file alias="hyd_icon">icons/iww/16x16/hyd.png</file>
+    <file alias="fpl_icon">icons/iww/16x16/fpl.png</file>
+    <file alias="madm_icon">icons/iww/16x16/madm2.png</file>
+    <file alias="cost_icon">icons/iww/16x16/cost.png</file>
+    <file alias="dam_icon">icons/iww/16x16/dam.png</file>
+    <file alias="risk_icon">icons/iww/16x16/risk.png</file>
+    <file alias="excep_icon">icons/iww/16x16/exception.png</file>
+    <file alias="eco_btype_icon">icons/iww/16x16/eco_btype.png</file>
+    <file alias="eco_icon">icons/iww/16x16/eco.png</file>
+    <file alias="eco_soil_icon">icons/iww/16x16/eco_soil.png</file>
+    <file alias="pys_icon">icons/iww/16x16/pys.png</file>
+    <file alias="sc_icon">icons/iww/16x16/sc.png</file>
+    <file alias="pop_icon">icons/iww/16x16/pop.png</file>
+    <file>welcome_wid_v1.png</file>
+    <file alias="save_icon">icons/general/saveas.png</file>
+    <file alias="pdf_icon">icons/general/pdf.png</file>
+    <file alias="print_icon">icons/general/print.png</file>
+    <file alias="zoom_icon">icons/general/zoom.png</file>
+    <file alias="restore_icon">icons/general/restoresize.png</file>
+    <file alias="grid_icon">icons/general/grid.png</file>
+    <file alias="exp_icon">icons/general/export.png</file>
+    <file alias="edit_icon">icons/general/edit.png</file>
+    <file alias="dune_overflow_icon">icons/iww/16x16/dune_overflow_ico.png</file>
+    <file alias="dune_overtop_icon">icons/iww/16x16/dune_overtopping_ico.png</file>
+    <file alias="dune_waterside_ero_icon">icons/iww/16x16/dune_waterside_ero_ico.png</file>
+     <file alias="dike_overflow_icon">icons/iww/16x16/dike_overflow_ico.png</file>
+    <file alias="dike_overtop_icon">icons/iww/16x16/dike_overtopping_ico.png</file>
+    <file alias="dike_heave_icon">icons/iww/16x16/dike_heave_ico.png</file>
+    <file alias="dike_pip_icon">icons/iww/16x16/dike_piping_ico.png</file>
+    <file alias="dike_waterside_ero_icon">icons/iww/16x16/dike_waterside_ero_ico.png</file>
+    <file alias="dike_wave_impact_icon">icons/iww/16x16/dike_wave_impact_ico.png</file>
+    <file alias="dike_slope_stab_land_icon">icons/iww/16x16/dike_slope_stab_land_ico.png</file>
+    <file alias="dike_slope_stab_water_icon">icons/iww/16x16/dike_slope_stab_water_ico.png</file>
+    <file alias="gate_overflow_icon">icons/iww/16x16/gate_overflow_ico.png</file>
+    <file alias="gate_overtop_icon">icons/iww/16x16/gate_overtopping_ico.png</file>
+    <file alias="gate_struct_icon">icons/iww/16x16/gate_struct_ico.png</file>
+    <file alias="gate_notcloseicon">icons/iww/16x16/gate_notclose_ico.png</file>
+  </qresource>
+  <qresource prefix="32x32">
+    <file alias="config">icons/iww/32x32/config.png</file>
+    <file alias="DamGui_Ecn_Func">icons/iww/32x32/DamGui_Ecn_Func.png</file>
+    <file alias="DamGui_Raster">icons/iww/32x32/DamGui_Raster.png</file>
+    <file alias="HydGui_Rv_Profile_General">icons/iww/32x32/HydGui_Rv_Profile_General.png</file>
+    <file alias="faulttree">icons/iww/32x32/faulttree_general.png</file>
+  </qresource>
+</RCC>

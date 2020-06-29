@@ -1,0 +1,36 @@
+<ui version="4.0" >
+ <class>prec_wid</class>
+ <widget class="QWidget" name="prec_wid" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>93</width>
+    <height>68</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle" >
+   <string>Precision</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <widget class="QSpinBox" name="spinBox" />
+   </item>
+   <item>
+    <widget class="QPushButton" name="apply_button" >
+     <property name="text" >
+      <string>Apply</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
