@@ -1,0 +1,8 @@
+#pragma once
+class DamDui_Sc_Subcategory_Wid
+{
+public:
+	DamDui_Sc_Subcategory_Wid(void);
+	~DamDui_Sc_Subcategory_Wid(void);
+};
+

@@ -1,0 +1,23 @@
+<RCC>
+  <qresource>
+    <file alias="dike_piping">icons/dike_piping.png</file>
+    <file>icons/and_sign.png</file>
+    <file>icons/dike_bursting.png</file>
+    <file>icons/dike_overflow.png</file>
+    <file>icons/dike_piping.png</file>
+    <file alias="dike_piping_rename">icons/dike_piping_rename.png</file>
+    <file alias="dike_slope_landside">icons/dike_slope_landside.png</file>
+    <file alias="dike_slope_waterside">icons/dike_slope_waterside.png</file>
+    <file alias="null">icons/null.png</file>
+    <file alias="failure_icon">icons/failure_icon.png</file>
+    <file alias="dike_overflow">icons/dike_overflow.png</file>
+    <file alias="dike_bursting">icons/dike_bursting.png</file>
+    <file alias="dike_slope">icons/dike_slope.png</file>
+    <file alias="dike_piping_sellmeijer">icons/dike_piping_sellmeijer.png</file>
+    <file alias="dike_piping_lane">icons/dike_piping_lane.png</file>
+    <file alias="dike_waveovertopping">icons/dike_waveovertopping.png</file>
+    <file alias="highground_overflow">icons/highground_overflow.png</file>
+    <file alias="or_sign">icons/or_sign.png</file>
+    <file alias="and_sign">icons/and_sign.png</file>
+  </qresource>
+</RCC>

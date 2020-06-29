@@ -1,0 +1,2474 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FplGui_Detailed_Result_Wid</class>
+ <widget class="QWidget" name="FplGui_Detailed_Result_Wid">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>782</width>
+    <height>864</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>Arial</family>
+    <weight>50</weight>
+    <bold>false</bold>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Fpl results</string>
+  </property>
+  <property name="toolTip">
+   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This widget provides detailed results for a dike-section of the FPL-calculation.&lt;/p&gt;&lt;p&gt;More information is provided in:&lt;/p&gt;&lt;p&gt;1. Table dikeresults_prm&lt;/p&gt;&lt;p&gt;2. FPL-Logfle of the calculation&lt;/p&gt;&lt;p&gt;3. output/FPL directory &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_4">
+   <item row="0" column="0">
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>-1741</y>
+        <width>747</width>
+        <height>2587</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetNoConstraint</enum>
+       </property>
+       <item row="4" column="0">
+        <widget class="QGroupBox" name="groupBox_frc">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>525</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>12</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Show fragility curve results</string>
+         </property>
+         <property name="title">
+          <string>FRC</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item>
+           <widget class="Sys_Base_Expand_Wid" name="expander_frc_mech" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <item>
+              <widget class="Sys_Plot_Frame" name="widget_wave_height" native="true"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="Sys_Base_Expand_Wid" name="expander_frc_f_mech" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_11">
+             <item>
+              <widget class="Sys_Plot_Frame" name="widget_wave_impact" native="true"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="Sys_Base_Expand_Wid" name="expander_frc_prob" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_6">
+             <item>
+              <widget class="Sys_Plot_Frame" name="widget_tree_prob" native="true"/>
+             </item>
+             <item>
+              <widget class="Sys_Plot_Frame" name="widget_single_prob" native="true"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_id">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>9</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="bottomMargin">
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="head_label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>14</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Detailed results</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="groupBox_determ">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>12</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Show deterministc results</string>
+         </property>
+         <property name="title">
+          <string>Deterministic</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="3">
+           <widget class="QLabel" name="label_4">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>m</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLineEdit" name="lineEdit_waterlevel_det">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Waterlevel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="4">
+           <widget class="Sys_Base_Expand_Wid" name="expander_det_mech" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="QTableWidget" name="tableWidget_det_mech">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>500</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 8pt &quot;Arial&quot;</string>
+               </property>
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+               <property name="selectionMode">
+                <enum>QAbstractItemView::MultiSelection</enum>
+               </property>
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+               <row>
+                <property name="text">
+                 <string>Wind-induced wave</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="background">
+                 <color>
+                  <red>152</red>
+                  <green>152</green>
+                  <blue>152</blue>
+                 </color>
+                </property>
+                <property name="foreground">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave height</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave length</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave period</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave setup</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Mid depth</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave run up</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Gamma berm</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Gamma wave direction</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Mid gradient</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>h(run up)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Q(overtop)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Overflow</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Mue factor</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Q(overflow)</string>
+                </property>
+               </row>
+               <column>
+                <property name="text">
+                 <string>Value</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Unit</string>
+                </property>
+               </column>
+               <item row="0" column="0">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>152</red>
+                   <green>152</green>
+                   <blue>152</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="0" column="1">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>152</red>
+                   <green>152</green>
+                   <blue>152</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="1" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="1">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="2" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="1">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="3" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="1">
+                <property name="text">
+                 <string>1/s</string>
+                </property>
+               </item>
+               <item row="4" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="1">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="5" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="1">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="6" column="0">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>139</red>
+                   <green>139</green>
+                   <blue>139</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="6" column="1">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>139</red>
+                   <green>139</green>
+                   <blue>139</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="7" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="7" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="8" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="8" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="9" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="9" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="10" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="10" column="1">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="11" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="11" column="1">
+                <property name="text">
+                 <string>m³/s</string>
+                </property>
+               </item>
+               <item row="12" column="0">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>139</red>
+                   <green>139</green>
+                   <blue>139</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="12" column="1">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>139</red>
+                   <green>139</green>
+                   <blue>139</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="13" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="13" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="14" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="14" column="1">
+                <property name="text">
+                 <string>m³/s</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="4">
+           <widget class="Sys_Base_Expand_Wid" name="expander_det_mech_f" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QTableWidget" name="tableWidget_det_f_mech">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>370</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>8</pointsize>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 8pt &quot;Arial&quot;</string>
+               </property>
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+               <property name="selectionMode">
+                <enum>QAbstractItemView::MultiSelection</enum>
+               </property>
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+               <property name="showGrid">
+                <bool>true</bool>
+               </property>
+               <property name="sortingEnabled">
+                <bool>false</bool>
+               </property>
+               <property name="cornerButtonEnabled">
+                <bool>false</bool>
+               </property>
+               <row>
+                <property name="text">
+                 <string>Start erosion waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Erosion waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave impact</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Piping (Sellmeijer)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Piping (Lane)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Piping (Schmertmann)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Heave</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MicroStab waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MacroStab waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MicroStab landside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MacroStab landside</string>
+                </property>
+               </row>
+               <column>
+                <property name="text">
+                 <string>Resistance</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Stress</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>SF (Quot)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>SF (Diff)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Unit</string>
+                </property>
+               </column>
+               <item row="0" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="0" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="0" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="0" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="0" column="4">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="4">
+                <property name="text">
+                 <string>s</string>
+                </property>
+               </item>
+               <item row="2" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="4">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="3" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="4">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="4" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="4">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="5" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="4">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="6" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="6" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="6" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="6" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="6" column="4">
+                <property name="text">
+                 <string>kN</string>
+                </property>
+               </item>
+               <item row="7" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="7" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="7" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="7" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="7" column="4">
+                <property name="text">
+                 <string>N</string>
+                </property>
+               </item>
+               <item row="8" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="8" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="8" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="8" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="8" column="4">
+                <property name="text">
+                 <string>N</string>
+                </property>
+               </item>
+               <item row="9" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="9" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="9" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="9" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+                <property name="foreground">
+                 <brush brushstyle="NoBrush">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="9" column="4">
+                <property name="text">
+                 <string>N</string>
+                </property>
+               </item>
+               <item row="10" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="10" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="10" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="10" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+                <property name="foreground">
+                 <brush brushstyle="NoBrush">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="10" column="4">
+                <property name="text">
+                 <string>N</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QGroupBox" name="groupBox_mc">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>12</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Show Monte-Carlo results</string>
+         </property>
+         <property name="title">
+          <string>MC</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="3">
+           <widget class="QLabel" name="label_16">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>m/a</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLineEdit" name="lineEdit_waterlevel_mc">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <spacer name="horizontalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_15">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Waterlevel</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="4">
+           <widget class="Sys_Base_Expand_Wid" name="expander_mc_mech" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <italic>false</italic>
+             </font>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <item>
+              <widget class="QTableWidget" name="tableWidget_mc_mech">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>500</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 8pt &quot;Arial&quot;</string>
+               </property>
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+               <property name="selectionMode">
+                <enum>QAbstractItemView::MultiSelection</enum>
+               </property>
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+               <row>
+                <property name="text">
+                 <string>Wind-induced wave</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="background">
+                 <color>
+                  <red>152</red>
+                  <green>152</green>
+                  <blue>152</blue>
+                 </color>
+                </property>
+                <property name="foreground">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave height</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave length</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave period</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave setup</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Mid depth</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave run up</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Gamma berm</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Gamma wave direction</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Mid gradient</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>h(run up)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Q(overtop)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Overflow</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Mue factor</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Q(overflow)</string>
+                </property>
+               </row>
+               <column>
+                <property name="text">
+                 <string>Value</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Unit</string>
+                </property>
+               </column>
+               <item row="0" column="0">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>152</red>
+                   <green>152</green>
+                   <blue>152</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="0" column="1">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>152</red>
+                   <green>152</green>
+                   <blue>152</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="1" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="1">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="2" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="1">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="3" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="1">
+                <property name="text">
+                 <string>1/s</string>
+                </property>
+               </item>
+               <item row="4" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="1">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="5" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="1">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="6" column="0">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>139</red>
+                   <green>139</green>
+                   <blue>139</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="6" column="1">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>139</red>
+                   <green>139</green>
+                   <blue>139</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="7" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="7" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="8" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="8" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="9" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="9" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="10" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="10" column="1">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="11" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="11" column="1">
+                <property name="text">
+                 <string>m³/s</string>
+                </property>
+               </item>
+               <item row="12" column="0">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>139</red>
+                   <green>139</green>
+                   <blue>139</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="12" column="1">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>139</red>
+                   <green>139</green>
+                   <blue>139</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="13" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="13" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="14" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="14" column="1">
+                <property name="text">
+                 <string>m³/s</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="4">
+           <widget class="Sys_Base_Expand_Wid" name="expander_mc_f_mech" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <italic>false</italic>
+             </font>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0">
+              <widget class="QTableWidget" name="tableWidget_mc_f_mech">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>370</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>8</pointsize>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 8pt &quot;Arial&quot;</string>
+               </property>
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+               <property name="selectionMode">
+                <enum>QAbstractItemView::MultiSelection</enum>
+               </property>
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+               <property name="showGrid">
+                <bool>true</bool>
+               </property>
+               <property name="sortingEnabled">
+                <bool>false</bool>
+               </property>
+               <property name="cornerButtonEnabled">
+                <bool>false</bool>
+               </property>
+               <row>
+                <property name="text">
+                 <string>Start erosion waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Erosion waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave impact</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Piping (Sellmeijer)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Piping (Lane)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Piping (Schmertmann)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Heave</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MicroStab waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MacroStab waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MicroStab landside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MacroStab landside</string>
+                </property>
+               </row>
+               <column>
+                <property name="text">
+                 <string>Resistance</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Stress</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>SF (Quot)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>SF (Diff)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Unit</string>
+                </property>
+               </column>
+               <item row="0" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="0" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="0" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="0" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="0" column="4">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="4">
+                <property name="text">
+                 <string>s</string>
+                </property>
+               </item>
+               <item row="2" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="4">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="3" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="4">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="4" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="4">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="5" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="4">
+                <property name="text">
+                 <string>m</string>
+                </property>
+               </item>
+               <item row="6" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="6" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="6" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="6" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="6" column="4">
+                <property name="text">
+                 <string>kN</string>
+                </property>
+               </item>
+               <item row="7" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="7" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="7" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="7" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="7" column="4">
+                <property name="text">
+                 <string>N</string>
+                </property>
+               </item>
+               <item row="8" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="8" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="8" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="8" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="8" column="4">
+                <property name="text">
+                 <string>N</string>
+                </property>
+               </item>
+               <item row="9" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="9" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="9" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="9" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+                <property name="foreground">
+                 <brush brushstyle="NoBrush">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="9" column="4">
+                <property name="text">
+                 <string>N</string>
+                </property>
+               </item>
+               <item row="10" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="10" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="10" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="10" column="3">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+                <property name="foreground">
+                 <brush brushstyle="NoBrush">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="10" column="4">
+                <property name="text">
+                 <string>N</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="4">
+           <widget class="Sys_Base_Expand_Wid" name="expander_mc_prob" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_7">
+             <item>
+              <widget class="QTableWidget" name="tableWidget_mc_prob">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>370</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>8</pointsize>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">font: 8pt &quot;Arial&quot;</string>
+               </property>
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+               <property name="selectionMode">
+                <enum>QAbstractItemView::MultiSelection</enum>
+               </property>
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+               <property name="showGrid">
+                <bool>true</bool>
+               </property>
+               <property name="sortingEnabled">
+                <bool>false</bool>
+               </property>
+               <property name="cornerButtonEnabled">
+                <bool>false</bool>
+               </property>
+               <row>
+                <property name="text">
+                 <string>Start erosion waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Erosion waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Wave impact</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Piping (Sellmeijer)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Piping (Lane)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Piping (Schmertmann)</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Heave</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MicroStab waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MacroStab waterside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MicroStab landside</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>MacroStab landside</string>
+                </property>
+               </row>
+               <column>
+                <property name="text">
+                 <string>Single Probability</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Tree Probability</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Unit</string>
+                </property>
+               </column>
+               <item row="0" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="0" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="0" column="2">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="1" column="2">
+                <property name="text">
+                 <string>s/a</string>
+                </property>
+               </item>
+               <item row="2" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="2" column="2">
+                <property name="text">
+                 <string>m/a</string>
+                </property>
+               </item>
+               <item row="3" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="3" column="2">
+                <property name="text">
+                 <string>m/a</string>
+                </property>
+               </item>
+               <item row="4" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="4" column="2">
+                <property name="text">
+                 <string>m/a</string>
+                </property>
+               </item>
+               <item row="5" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="5" column="2">
+                <property name="text">
+                 <string>m/a</string>
+                </property>
+               </item>
+               <item row="6" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="6" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="background">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>108</red>
+                   <green>108</green>
+                   <blue>108</blue>
+                  </color>
+                 </brush>
+                </property>
+               </item>
+               <item row="6" column="2">
+                <property name="text">
+                 <string>m/a</string>
+                </property>
+               </item>
+               <item row="7" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="7" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="7" column="2">
+                <property name="text">
+                 <string>N/a</string>
+                </property>
+               </item>
+               <item row="8" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="8" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="8" column="2">
+                <property name="text">
+                 <string>N/a</string>
+                </property>
+               </item>
+               <item row="9" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="9" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="9" column="2">
+                <property name="text">
+                 <string>N/a</string>
+                </property>
+               </item>
+               <item row="10" column="0">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="10" column="1">
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </item>
+               <item row="10" column="2">
+                <property name="text">
+                 <string>N/a</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Sys_Plot_Frame</class>
+   <extends>QWidget</extends>
+   <header location="global">sys_plot_frame.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Sys_Base_Expand_Wid</class>
+   <extends>QWidget</extends>
+   <header>sys_base_expand_wid.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../../system_sys/source_code/gui/resources/system_sys_resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>

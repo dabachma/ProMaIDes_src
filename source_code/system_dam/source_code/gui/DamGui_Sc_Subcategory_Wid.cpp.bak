@@ -1,0 +1,12 @@
+#include "source_code\Dam_Headers_Precompiled.h"
+#include "DamDui_Sc_Subcategory_Wid.h"
+
+
+DamDui_Sc_Subcategory_Wid::DamDui_Sc_Subcategory_Wid(void)
+{
+}
+
+
+DamDui_Sc_Subcategory_Wid::~DamDui_Sc_Subcategory_Wid(void)
+{
+}
