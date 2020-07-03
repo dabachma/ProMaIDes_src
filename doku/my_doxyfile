@@ -1591,6 +1591,8 @@ PERL_PATH              = /usr/bin/perl
 # or super classes. Setting the tag to NO turns the diagrams off. Note that
 # this option also works with HAVE_DOT disabled, but it is recommended to
 # install and use dot, since it yields more powerful graphs.
+#C:\Users\Daniel Bachmann\AppData\Local\Programs\MiKTeX 2.9\miktex\bin\x64\ after installation of MikTeX 2.9 on PC
+#c:\Program Files (x86)\gs\gs9.18\bin\ set to Umgebungsvariablen (Version 9.18 (x86) works finally
 
 CLASS_DIAGRAMS         = YES
 
@@ -1743,7 +1745,7 @@ DOT_IMAGE_FORMAT       = png
 INTERACTIVE_SVG        = NO
 
 # The tag DOT_PATH can be used to specify the path where the dot tool can be
-# found. If left blank, it is assumed the dot tool can be found in the path.
+# found. If left blank, it is assumed the dot tool can be found in the path. Just take the folder and copy it to c:
 
 DOT_PATH               = c:\Graphviz2.28\bin\
 
