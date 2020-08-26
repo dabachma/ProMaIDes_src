@@ -3513,6 +3513,7 @@ Warning Hyd_Model_River::set_warning(const int warn_type){
 			place.append("check_river_model(void)");
 			reason="The given distance between the profiles is two time greater (tolerance) than the geometrial distances";
 			help="Check the geometry of the river model";
+			info << "River model: " << this->Param_RV.RVName << "  No. " << this->Param_RV.RVNumber << endl;
 			reaction="No reaction";
 			type=12;	
 			break;
@@ -3520,6 +3521,7 @@ Warning Hyd_Model_River::set_warning(const int warn_type){
 			place.append("check_river_model(void)");
 			reason="The given distance between the profiles is half times smaller (tolerance) than the geometrial distances";
 			help="Check the geometry of the river model";
+			info << "River model: " << this->Param_RV.RVName<<"  No. "<< this->Param_RV.RVNumber << endl;
 			reaction="No reaction";
 			type=12;
 			break;

@@ -1082,8 +1082,9 @@ void _Hyd_River_Profile_Type::check_points(void){
 		Warning msg = this->set_warning(2);
 		ostringstream info;
 		info << "Point (start/end) :" << "Start point" << endl;
-		info << "Given height start  :" << this->points[0].get_ycoordinate() << endl;
-		info << "Given height start + 1  :" << this->points[1].get_ycoordinate() << endl;
+		info << "Given height start  :" << this->points[0].get_global_z_coordinate() << endl;
+		info << "Given height start + 1  :" << this->points[1].get_global_z_coordinate() << endl;
+		
 		//reaction
 		this->points[0].set_point_y_coordinate(this->points[1].get_ycoordinate() + 0.001);
 		msg.make_second_info(info.str());
@@ -1096,8 +1097,8 @@ void _Hyd_River_Profile_Type::check_points(void){
 		Warning msg = this->set_warning(2);
 		ostringstream info;
 		info << "Point (start/end) :" << "End point" << endl;
-		info << "Given height end  :" << this->points[this->number_points - 1].get_ycoordinate() << endl;
-		info << "Given height end - 1  :" << this->points[this->number_points - 2].get_ycoordinate() << endl;
+		info << "Given height end  :" << this->points[this->number_points - 1].get_global_z_coordinate() << endl;
+		info << "Given height end - 1  :" << this->points[this->number_points - 2].get_global_z_coordinate() << endl;
 		//reaction
 		this->points[this->number_points - 1].set_point_y_coordinate(this->points[this->number_points - 2].get_ycoordinate() + 0.001);
 		msg.make_second_info(info.str());
