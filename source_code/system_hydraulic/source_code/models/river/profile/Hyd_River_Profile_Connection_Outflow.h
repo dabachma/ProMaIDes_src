@@ -57,8 +57,10 @@ public:
 
 	///Output the result members for each riverprofiletype at every timestep
 	void output_result_members_per_timestep(void);
-	///Output the result members for each riverprofiletype at every timestep to file
+	///Output the result members for each riverprofiletype at every timestep to tecplot file
 	void output_result_members_per_timestep(ofstream *file);
+	///Output the result members for each riverprofiletype at every timestep to csv file
+	void output_result_members_per_timestep2csv(ofstream *file);
 
 	///Reset all coupling discharges; use it before syncronization
 	void reset_coupling_discharge(void);
@@ -109,6 +111,8 @@ public:
 
 	///Get boundary condition is applied
 	bool boundary_is_applied(void);
+	///Get q-value
+	double get_Q(void);
 
 private:
 	//members

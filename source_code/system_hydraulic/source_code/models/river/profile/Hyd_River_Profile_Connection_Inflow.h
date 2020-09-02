@@ -85,8 +85,13 @@ public:
 
 	///Output the result members for each riverprofiletype at every timestep
 	void output_result_members_per_timestep(void);
-	///Output the result members for each riverprofiletype at every timestep to file
+	///Output the result members for each riverprofiletype at every timestep to tecplot file
 	void output_result_members_per_timestep(ofstream *file);
+	///Output the result members for each riverprofiletype at every timestep to csvfile
+	void output_result_members_per_timestep2csv(ofstream *file);
+
+
+
 	///Add the hydrological balance value of the point boundary condition discharges to the given pointer (here nothing happen)
 	void add_hydro_balance_point_boundary(_hyd_hydrological_balance *given);
 
@@ -104,6 +109,9 @@ public:
 
 	///Set that a point boundary is given
 	void set_point_bound_flag(const bool flag);
+
+	///Get q-value
+	double get_Q(void);
 
 private:
 	//members

@@ -69,6 +69,9 @@ public:
 	///Output the geometrie to tecplot
 	void output_geometrie2tecplot(void);
 
+	///Output the geometrie to paraview
+	void output_geometrie2paraview(void);
+
 	///Make the syncronisation between the models and the boundaries; here set the sea waterlevel
 	void make_syncronisation(const double time_point);
 
@@ -122,7 +125,9 @@ private:
 	///Transfer the coastl-line (Hyd_Floodplain_Polysegment) into the coast-polygon (Hyd_Floodplain_Polygon)
 	void polysegment2polygon(void);
 	///Get the filename for the coast-model geometrie file
-	string get_filename_geometrie2tecplot(void);
+	string get_filename_geometrie2tecplot(const string type);
+	///Get the filename for the coast-model geometrie file
+	string get_filename_geometrie2paraview(const string type);
 
 	///Complete the filenames with the global path
 	void complete_filenames_with_path(string global_path);

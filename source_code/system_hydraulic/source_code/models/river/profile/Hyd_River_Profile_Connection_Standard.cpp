@@ -919,10 +919,15 @@ void Hyd_River_Profile_Connection_Standard::output_result_members_per_timestep(v
 	cout << endl;
 	Sys_Common_Output::output_hyd->output_txt(&cout,true);
 }
-//Output the result members for each riverprofiletype at every timestep to file
+//Output the result members for each riverprofiletype at every timestep to tecplot file
 void Hyd_River_Profile_Connection_Standard::output_result_members_per_timestep(ofstream *file){
 		_Hyd_River_Profile::output_result_members_per_timestep(file);
 		*file  << W(12) << P(4) <<FORMAT_FIXED_REAL << this->q_river << endl;
+}
+///Output the result members for each riverprofiletype at every timestep to csv file
+void Hyd_River_Profile_Connection_Standard::output_result_members_per_timestep2csv(ofstream *file) {
+	_Hyd_River_Profile::output_result_members_per_timestep2csv(file);
+	*file << W(12) << P(4) << FORMAT_FIXED_REAL << this->q_river << endl;
 }
 //Set new break-parameters of the left bank; the structure must be already allocated
 void Hyd_River_Profile_Connection_Standard::set_break_parameter_left(_hyd_break_parameters* new_values){
@@ -1001,6 +1006,10 @@ bool Hyd_River_Profile_Connection_Standard::boundary_is_applied(void){
 	else{
 		return false;
 	}
+}
+///Get q-value
+double Hyd_River_Profile_Connection_Standard::get_Q(void) {
+	return this->q_river;
 }
 //___________________
 //protected

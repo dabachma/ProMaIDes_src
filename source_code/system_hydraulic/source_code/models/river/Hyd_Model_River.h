@@ -151,6 +151,8 @@ public:
 	void output_setted_members(void);
 	///Output the geometrie to tecplot as 2d
 	void output_geometrie2tecplot_2d(void);
+	///Output the geometrie to paraview as 2d
+	void output_geometrie2paraview_2d(void);
 
 	///Output the result members for each riverprofile at every timestep
 	void output_result_members_per_timestep(void);
@@ -158,6 +160,11 @@ public:
 	void output_result2tecplot_1d(const double timepoint, const int timestep_number);
 	///Output the result members per timestep to tecplot as 2d
 	void output_result2tecplot_2d(const double timepoint, const int timestep_number);
+	///Output the result members per timestep to csv as 1d
+	void output_result2csv_1d(const double timepoint, const int timestep_number);
+	///Output the result members per timestep to paraview as 2d
+	void output_result2paraview_2d(const double timepoint, const int timestep_number);
+
 
 	///Output solver errors for one solver step
 	void output_solver_errors(const double time_point, const int step_counter, const string timestring , const string realtime, const double diff_time, const int total_internal, const int internal_steps);
@@ -165,6 +172,10 @@ public:
 	void output_final(void);
 	///Output the maximum result members to tecplot
 	void output_result_max2tecplot(void);
+	///Output the maximum result members to csv
+	void output_result_max2csv(void);
+	///Output the maximum result members to paraview as 2d
+	void output_result_max2paraview2d(void);
 	///Output the maximum result members to a database table
 	void output_result_max2database(QSqlDatabase *ptr_database, const string break_sz);
 

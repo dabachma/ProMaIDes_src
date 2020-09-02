@@ -219,6 +219,8 @@ public:
 
 	///Set output folder name in case of a calculation via database by a given scenario name
 	void set_folder_name(const string sc_name, const bool creation_flag);
+	///Set output folder name in case of file calculation output
+	void set_folder_name_file(void);
 	///Set identifier string
 	void set_identifier_string(const string identifier);
 	///Get the identifier prefix for the output to display/console
@@ -426,10 +428,15 @@ private:
 	void output_calculation_steps_rivermodel2file(const double timestep);
 	///Output the calculation steps (time, solversteps etc) of the river models to display/console
 	void output_calculation_steps_rivermodel2display(const double timestep);
+	///Output the calculation steps (time, solversteps etc) of the river models to databse
+	void output_calculation_steps_rivermodel2database(const double timestep);
+
 	///Output the results of the calculation steps of the floodplain models to file
 	void output_calculation_steps_floodplainmodel2file(const double timestep);
 	///Output the results of the calculation steps of the floodplain models to display/console
 	void output_calculation_steps_floodplainmodel2display(const double timestep);
+	///Output the results of the calculation steps of the floodplain models to database
+	void output_calculation_steps_floodplainmodel2database(const double timestep);
 
 	///Clear all not needed data of the models before the solver is initialized
 	void clear_models(void);

@@ -27,6 +27,7 @@ Hyd_Coupling_Point_RV2FP::Hyd_Coupling_Point_RV2FP(void){
 	this->horizontal_backwater_flag=false;
 	this->horizontal_backwater_flag_upstream=false;
 	this->current_q_break=0.0;
+	this->old_q_break = 0.0;
 	this->coupling_v_break=0.0;
 
 	this->break_flag=false;
@@ -107,6 +108,9 @@ Hyd_Coupling_Point_RV2FP::Hyd_Coupling_Point_RV2FP(const Hyd_Coupling_Point_RV2F
 
 	this->horizontal_backwater_flag=object.horizontal_backwater_flag;
 	this->horizontal_backwater_flag_upstream=object.horizontal_backwater_flag_upstream;
+	this->current_q_break = object.current_q_break;
+	this->old_q_break = object.old_q_break;
+	this->coupling_v_break = object.coupling_v_break;
 	
 
 	this->break_flag=object.break_flag;
@@ -829,7 +833,10 @@ Hyd_Coupling_Point_RV2FP& Hyd_Coupling_Point_RV2FP::operator=(const Hyd_Coupling
 
 	this->horizontal_backwater_flag=object.horizontal_backwater_flag;
 	this->horizontal_backwater_flag_upstream=object.horizontal_backwater_flag_upstream;
+	this->current_q_break = object.current_q_break;
+	this->coupling_v_break = object.coupling_v_break;
 	this->grad_q_current=object.grad_q_current;
+	this->old_q_break = object.old_q_break;
 	this->grad_q_before=object.grad_q_before;
 	this->oscilation_smoother=object.oscilation_smoother;
 	this->number_osci_counter=object.number_osci_counter;

@@ -345,7 +345,7 @@ void Hyd_Coupling_RV2FP_Dikebreak::init_coupling(Hyd_Coupling_RV2FP_Merged *coup
 
 }
 //The couplings are initialized with the already performed RV2FP couplings; here a list of river profiles is also given for the creation of a list of possible starting breach points (scenario based risk approach)
-void Hyd_Coupling_RV2FP_Dikebreak::init_coupling(Hyd_Coupling_RV2FP_Merged *couplings, const int number, _Hyd_River_Profile **involved_profiles, const int number_involved_profiles, const int section_id_fpl){
+void Hyd_Coupling_RV2FP_Dikebreak::init_coupling(Hyd_Coupling_RV2FP_Merged *couplings, const int number, _Hyd_River_Profile **involved_profiles, const int number_involved_profiles, const int section_id_fpl, _hyd_output_flags *output_flags){
 	this->index_section_fpl=section_id_fpl;
 	//flag if the connection is found
 	bool found_flag=false;
@@ -409,7 +409,12 @@ void Hyd_Coupling_RV2FP_Dikebreak::init_coupling(Hyd_Coupling_RV2FP_Merged *coup
 		this->ptr_river=couplings[found_index].get_river_model();
 		//open the file for output
 		try{
-			this->init_output2file();
+			if (output_flags->tecplot_1d_required == true) {
+				this->init_output2file_tecplot();
+			}
+			if (output_flags->paraview_1d_required == true) {
+				this->init_output2file_csv();
+			}
 		}
 		catch(Error msg){
 			throw msg;
@@ -418,7 +423,7 @@ void Hyd_Coupling_RV2FP_Dikebreak::init_coupling(Hyd_Coupling_RV2FP_Merged *coup
 	}
 }
 //The couplings are initialized with the already performed RV2FP couplings; the coupling point index, where the break should begin is directly given (catchment area risk approach)
-void Hyd_Coupling_RV2FP_Dikebreak::init_coupling(Hyd_Coupling_RV2FP_Merged *couplings, const int number, const int section_id_fpl, const int point_id){
+void Hyd_Coupling_RV2FP_Dikebreak::init_coupling(Hyd_Coupling_RV2FP_Merged *couplings, const int number, const int section_id_fpl, const int point_id, _hyd_output_flags *output_flags){
 	this->index_section_fpl=section_id_fpl;
 	int found_index=-1;
 	//search for the coupling point list
@@ -460,7 +465,12 @@ void Hyd_Coupling_RV2FP_Dikebreak::init_coupling(Hyd_Coupling_RV2FP_Merged *coup
 		//open the file for output
 		try{
 			this->ptr_river=couplings[found_index].get_river_model();
-			this->init_output2file();
+			if (output_flags->tecplot_1d_required == true) {
+				this->init_output2file_tecplot();
+			}
+			if (output_flags->paraview_1d_required == true) {
+				this->init_output2file_csv();
+			}
 		}
 		catch(Error msg){
 			throw msg;
@@ -484,7 +494,10 @@ void Hyd_Coupling_RV2FP_Dikebreak::synchronise_models(const double timepoint, co
 			this->start_coupling_point->calculate_mid_waterlevel();
 			//start the breach
 			if(this->start_waterlevel_global<=this->start_coupling_point->get_mid_waterlevel()){
+				
 				this->started_flag=true;
+
+
 				this->start_coupling_point->set_index_break_class(this->index);
 				this->starting_time_point=timepoint;
 				//stating breach width is set to 1.0
@@ -496,6 +509,7 @@ void Hyd_Coupling_RV2FP_Dikebreak::synchronise_models(const double timepoint, co
 				if(this->start_coupling_point->set_overflow_height_reduction(this->numerical_breach_v*this->delta_t)==true){
 					this->init_phase_finished=true;	
 				};
+
 			}
 		}
 		//breach is in the initial phase => breach sill is lowering
@@ -595,8 +609,8 @@ void Hyd_Coupling_RV2FP_Dikebreak::output_index_coupled_models(ostringstream *co
 	}
 	Sys_Common_Output::output_hyd->output_txt(cout);
 }
-//Output result members to file
-void Hyd_Coupling_RV2FP_Dikebreak::output_results2file(double const ){
+//Output result members to tecplot file
+void Hyd_Coupling_RV2FP_Dikebreak::output_results2file_tecplot(double const ){
 	if(this->file_name!=label::not_set){
 		for(int i=0; i< this->break_info_list.time.count(); i++){
 						this->output_file << W(9)<<P(0) << FORMAT_FIXED_REAL << this->break_info_list.time.at(i) <<W(16); 
@@ -642,20 +656,56 @@ void Hyd_Coupling_RV2FP_Dikebreak::output_results2file(double const ){
 			this->output_file <<"max observed " << this->max_observed_waterlevel << endl;*/
 		}
 	}
-	this->break_info_list.counter_breach.clear();
-	this->break_info_list.delta_h2start.clear();
-	this->break_info_list.downstream_breach.clear();
-	this->break_info_list.downstream_delta_h.clear();
-	this->break_info_list.upstream_breach.clear();
-	this->break_info_list.upstream_delta_h.clear();
-	this->break_info_list.downstream_wall_stress.clear();
-	this->break_info_list.upstream_wall_stress.clear();
-	this->break_info_list.mean_q.clear();
-	this->break_info_list.mean_v.clear();
-	this->break_info_list.time.clear();
-	this->break_info_list.time_breach.clear();
-	this->break_info_list.total_breach.clear();
 
+
+}
+///Output result members to csv file
+void Hyd_Coupling_RV2FP_Dikebreak::output_results2file_csv(double const global_time) {
+	if (this->file_name_csv != label::not_set) {
+		for (int i = 0; i < this->break_info_list.time.count(); i++) {
+			this->output_file_csv << W(9) << P(0) << FORMAT_FIXED_REAL << this->break_info_list.time.at(i) << W(16) << ",";
+			this->output_file_csv << this->break_info_list.counter_breach.at(i) << W(20) << ",";
+			this->output_file_csv << this->break_info_list.time_breach.at(i) << W(20) << ",";
+			this->output_file_csv << P(3) << FORMAT_FIXED_REAL << this->break_info_list.total_breach.at(i) << W(20) << ",";
+			if (this->started_flag == true) {
+				this->output_file_csv << this->break_info_list.upstream_breach.at(i) + 0.5*this->init_breach_width << W(20) << "," << this->break_info_list.downstream_breach.at(i) + 0.5*this->init_breach_width << W(29) << ",";
+			}
+			else {
+				this->output_file_csv << 0.0 << W(20) << "," << 0.0 << W(29) << ",";
+			}
+			if (this->started_flag == true) {
+				this->output_file_csv << this->break_info_list.upstream_delta_h.at(i) << W(29) << ",";
+				this->output_file_csv << this->break_params_upstream->resistance << W(29) << ",";
+			}
+			else {
+				this->output_file_csv << 0.0 << W(29) << ",";
+				this->output_file_csv << 0.0 << W(29) << ",";
+			}
+
+			if (this->started_flag == true) {
+				this->output_file_csv << this->break_info_list.downstream_delta_h.at(i) << W(29) << ",";
+				this->output_file_csv << this->break_params_downstream->resistance << W(29) << ",";
+			}
+			else {
+				this->output_file_csv << 0.0 << W(29) << ",";
+				this->output_file_csv << 0.0 << W(29) << ",";
+			}
+
+			this->output_file_csv << this->break_info_list.mean_q.at(i) << W(29) << ",";
+			this->output_file_csv << this->break_info_list.mean_v.at(i) << W(29) << ",";
+
+			if (this->wall_breach_flag == true) {
+				this->output_file_csv << this->break_info_list.upstream_wall_stress.at(i) << W(29) << "," << this->break_info_list.downstream_wall_stress.at(i) << W(29) << ",";
+			}
+			this->output_file_csv << this->break_info_list.delta_h2start.at(i) << endl;
+
+			/*for(int i=0; i< this->number_possible_start_points; i++){
+
+				this->output_file << i <<" "<< this->list_possible_start_points[i]->get_mid_waterlevel()<< " " <<this->list_possible_start_points[i]->get_mid_basepoint_height()<< endl;
+			}
+			this->output_file <<"max observed " << this->max_observed_waterlevel << endl;*/
+		}
+	}
 }
 //Output final result members
 void Hyd_Coupling_RV2FP_Dikebreak::output_final_results(void){
@@ -899,7 +949,7 @@ void Hyd_Coupling_RV2FP_Dikebreak::clone_couplings(Hyd_Coupling_RV2FP_Dikebreak 
 
 }
 //Initiate the output to a file
-void Hyd_Coupling_RV2FP_Dikebreak::init_output2file(void){
+void Hyd_Coupling_RV2FP_Dikebreak::init_output2file_tecplot(void){
 	if(this->coupling_flag==false){
 		return;
 	}
@@ -920,14 +970,17 @@ void Hyd_Coupling_RV2FP_Dikebreak::init_output2file(void){
 	this->break_info_list.time.clear();
 	this->break_info_list.time_breach.clear();
 	this->break_info_list.total_breach.clear();
+	buffer += "/";
+	buffer += hyd_label::tecplot;
+	buffer += "/";
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
 		if(this->user_defined==true){
-			suffix << "_BREACH_RV_"<<this->index_rv_model<<"_ID_"<<this->index<<".dat";
+			suffix << "BREACH_RV_"<<this->index_rv_model<<"_ID_"<<this->index<< hyd_label::dat;
 		}
 		else{
-			suffix << "_BREACH_RV_"<<this->index_rv_model<<"_FPL_"<<this->index_section_fpl<<".dat";
+			suffix << "BREACH_RV_"<<this->index_rv_model<<"_FPL_"<<this->index_section_fpl<<hyd_label::dat;
 		}
 		buffer.append(suffix.str());
 		this->file_name=buffer;
@@ -939,6 +992,52 @@ void Hyd_Coupling_RV2FP_Dikebreak::init_output2file(void){
 			throw msg;
 		}
 	}
+}
+///Initiate the output to a csv file
+void Hyd_Coupling_RV2FP_Dikebreak::init_output2file_csv(void) {
+	if (this->coupling_flag == false) {
+		return;
+	}
+	string buffer;
+
+	//get the file name from the river model
+	buffer = this->ptr_river->Param_RV.get_crude_filename_result_1d();
+	this->break_info_list.counter_breach.clear();
+	this->break_info_list.delta_h2start.clear();
+	this->break_info_list.downstream_breach.clear();
+	this->break_info_list.downstream_delta_h.clear();
+	this->break_info_list.upstream_breach.clear();
+	this->break_info_list.upstream_delta_h.clear();
+	this->break_info_list.downstream_wall_stress.clear();
+	this->break_info_list.upstream_wall_stress.clear();
+	this->break_info_list.mean_q.clear();
+	this->break_info_list.mean_v.clear();
+	this->break_info_list.time.clear();
+	this->break_info_list.time_breach.clear();
+	this->break_info_list.total_breach.clear();
+	buffer += "/";
+	buffer += hyd_label::paraview;
+	buffer += "/";
+
+	if (buffer != label::not_set) {
+		stringstream suffix;
+		if (this->user_defined == true) {
+			suffix << "BREACH_RV_" << this->index_rv_model << "_ID_" << this->index << hyd_label::csv;
+		}
+		else {
+			suffix << "BREACH_RV_" << this->index_rv_model << "_FPL_" << this->index_section_fpl << hyd_label::csv;
+		}
+		buffer.append(suffix.str());
+		this->file_name_csv = buffer;
+		//open the file
+		try {
+			this->open_output_file_csv();
+		}
+		catch (Error msg) {
+			throw msg;
+		}
+	}
+
 }
 //________________
 //private
@@ -1474,8 +1573,8 @@ void Hyd_Coupling_RV2FP_Dikebreak::check_dikebreak_parameter(void){
 		throw msg;
 	}
 }
-//Output the header to the result file
-void Hyd_Coupling_RV2FP_Dikebreak::output_header_result2file(void){
+//Output the header to the result tecplot file
+void Hyd_Coupling_RV2FP_Dikebreak::output_header_result2file_tecplot(void){
 
 	if(this->file_name!=label::not_set){
 		//output the file header
@@ -1517,6 +1616,40 @@ void Hyd_Coupling_RV2FP_Dikebreak::output_header_result2file(void){
 		//}
 
 	}
+}
+//Output the header to the result csv file
+void Hyd_Coupling_RV2FP_Dikebreak::output_header_result2file_csv(void) {
+
+	if (this->file_name_csv != label::not_set) {
+		//output the file header
+		this->output_file_csv << "  t (global) " << label::sec << " , No. , " << " t (local) " << label::sec << ", " << " b (total) " << label::m << ", ";
+		this->output_file_csv << " b (upstream) " << label::m << "," << " b (downstream)" << label::m << ", " << " delta h (upstream) " << label::m;
+		this->output_file_csv << ", " << " R (upstream)";
+		if (this->wall_breach_flag == true) {
+			this->output_file_csv << label::stress_unit;
+		}
+		else {
+			this->output_file_csv << label::m_per_sec;
+		}
+		this->output_file_csv << ", " << " delta h (downstream) " << label::m << ", ";
+		this->output_file_csv << " R (downstream)";
+		if (this->wall_breach_flag == true) {
+			this->output_file_csv << label::stress_unit;
+		}
+		else {
+			this->output_file_csv << label::m_per_sec;
+		}
+		this->output_file_csv << ", " << " q (mean)" << label::qm_per_sec << ", " << " v (mean)" << label::m_per_sec;
+		if (this->wall_breach_flag == true) {
+			this->output_file_csv << ", " << " S (upstream) " << label::stress_unit << ", " << " S (downstream) " << label::stress_unit;
+		}
+		this->output_file_csv << ", " << " delta h (begin)" << label::m << endl;
+	
+
+
+
+	}
+
 }
 //Investigate and set the starting coupling point
 bool Hyd_Coupling_RV2FP_Dikebreak::set_start_coupling_point(void){

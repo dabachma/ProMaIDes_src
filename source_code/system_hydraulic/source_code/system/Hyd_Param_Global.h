@@ -29,6 +29,30 @@ enum _hyd_gs_scheme_type {
 	eCLASSICAL_GS = 2 
 };
 
+///Structure where the geometrical information of the floodplain are stored \ingroup hyd
+struct _hyd_output_flags {
+
+	///Output flag if a tecplot 1d output is required
+	bool tecplot_1d_required;
+	///Output flag if a tecplot 2d output is required
+	bool tecplot_2d_required;
+
+	///Output flag if a bluekenue 2d output is required
+	bool bluekenue_2d_required;
+
+	///Output flag if a paraview / csv 1d output is required
+	bool paraview_1d_required;
+	///Output flag if a paraview / csv 2d output is required
+	bool paraview_2d_required;
+
+	///Output flag if database instationary output is required
+	bool database_instat_required;
+
+	///String to outputfolder
+	string output_folder;
+
+};
+
 ///Container class for the global parameters of the hydraulic system (Hyd_System_Hydraulic) \ingroup hyd
 /**
 	This is a data container for the hydraulic system members. Besides data storing it handles:
@@ -112,6 +136,9 @@ public:
 	int get_number_river_model(void);
 	///Get the flag if the coast model is applied in the system
 	bool get_coast_model_applied(void);
+
+	///Get the output flags which output is required
+	_hyd_output_flags get_output_flags(void);
 
 	///Set the number of river-models
 	void set_number_river_models(const int number);
@@ -213,6 +240,10 @@ private:
 	int total_number_models;
 	///Total number of setted couplings
 	int total_setted_couplings;
+
+	///Output flags, which output is required
+	_hyd_output_flags output_flags;
+
 
 
 	//methods

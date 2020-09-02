@@ -206,6 +206,35 @@ void Hyd_Observation_Point::output_obs_point2file(ofstream *output, const int co
 		}
 	}
 }
+//Ouput the observation point to file as csv output
+void Hyd_Observation_Point::output_obs_point2csvfile(ofstream *output, const int counter_used) {
+	if (this->element == NULL && this->profile == NULL) {
+		return;
+	}
+
+
+	if (this->floodplain_flag == true) {
+		
+		for (int i = 0; i < counter_used; i++) {
+			if (this->time_point[i].time >= 0.0) {
+				*output << this->time_point[i].time <<W(15) << "," << this->time_point[i].waterlevel << W(15) << "," << this->time_point[i].s_value << W(15);
+				*output << "," << this->time_point[i].velocity << W(15) << "," << this->time_point[i].x_velocity << W(15) << "," << this->time_point[i].y_velocity << W(15);
+				*output << "," << this->time_point[i].ds2dt_fr << W(15) << "," << this->time_point[i].ds2dt_coupling << endl;
+				output->flush();
+			}
+		}
+	}
+	else {
+		
+		for (int i = 0; i < counter_used; i++) {
+			if (this->time_point[i].time >= 0.0) {
+				*output << this->time_point[i].time << W(15) << "," << this->time_point[i].waterlevel << W(15) << "," << this->time_point[i].s_value << W(15);
+				*output << "," << this->time_point[i].velocity << W(15) << "," << this->time_point[i].ds2dt_fr << W(15) << "," << this->time_point[i].discharge << endl;
+				output->flush();
+			}
+		}
+	}
+}
 //Output setted members
 void Hyd_Observation_Point::output_setted_members(ostringstream *cout, const int index){
 	

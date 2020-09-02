@@ -154,6 +154,8 @@ public:
 	void output_geometrie2tecplot(void);
 	///Output the geometrie to BlueKenue file
 	void output_geometrie2bluekenue(void);
+	///Output the geometrie to Paraview file
+	void output_geometrie2paraview(void);
 
 	///Output the result members per timestep
 	void output_result_members_per_timestep(void);
@@ -161,6 +163,8 @@ public:
 	void output_result2tecplot(const double timepoint, const int timestep_number);
 	///Output the result members per timestep to r2c file used in BlueKenue
     void output_result2bluekenue(const double timepoint, const int timestep_number, const double start_time);
+	///Output the result members per timestep to Paraview
+	void output_result2paraview(const double timepoint, const int timestep_number);
 
 	///Output solver errors for one solver step
 	void output_solver_errors(const double time_point, const int step_counter, const string timestring, const string realtime, const double diff_time, const int total_internal, const int internal_steps);
@@ -168,6 +172,10 @@ public:
 	void output_final(void);
 	///Output the maximum result members to tecplot
 	void output_result_max2tecplot(void);
+	///Output the maximum result members to bluekenue
+	void output_result_max2bluekenue(void);
+	///Output the maximum result members to paraview
+	void output_result_max2paraview(void);
 	///Output the maximum result members to a database table
 	void output_result_max2database(QSqlDatabase *ptr_database, const string break_sz, bool *was_output, const bool must_output);
 

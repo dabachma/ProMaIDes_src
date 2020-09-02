@@ -21,6 +21,8 @@
 //std namespace 
 using namespace std;
 
+
+
 //do not output the warning von vc about the enum use with a scope (e.g. _sys_table_type::fpl)
 //#pragma warning(disable : 4482)
 
@@ -228,8 +230,11 @@ namespace constant{
 
 
 }
+
 ///General functions for all moduls
 namespace functions{
+	
+
 	///Signum function
 	double signum_func(const double value);
 	///Convert seconds into a string day:hour:minute:second
@@ -247,6 +252,8 @@ namespace functions{
 	bool check_infinite(const double value);
 	///Delete a comment "#", leading and ending tabs/white spaces of a given string
 	void clean_string(string *txt);
+	///Clean all white spaces 
+	string clean_white_space(string *txt);
 	///Convert all char's in a string to the lower case
 	string convert_string2lower_case(string *txt);
 	///Convert all char's in a string to the upper case
@@ -280,6 +287,18 @@ namespace functions{
 
     ///Set flags for table widgets
     void set_table_widget_flags(QTableWidget * widget);
+
+	///Make output path complete
+	string make_complete_output_path(const string path, const string folder, const string name);
+
+	///For binary output of vtk-files (paraview)
+	template <typename T>
+	void SwapEnd(T& var)
+	{
+		char* varArray = reinterpret_cast<char*>(&var);
+		for (long i = 0; i < static_cast<long>(sizeof(var) / 2); i++)
+			std::swap(varArray[sizeof(var) - 1 - i], varArray[i]);
+	}
 
 
 }
@@ -2323,9 +2342,21 @@ namespace hyd_label{
 	const string sz_bound_name("NAME");
 
 
+	///Output for Tecplot
+	const string tecplot("tecplot");
+	///Output for BlueKenue
+	const string bluekenue("bluekenue");
+	///Output for ParaView / csv
+	const string paraview("paraview");
 
-
-
+	///File type .dat (tecplot)
+	const string dat(".dat");
+	///File type .r2s (bluekenue)
+	const string r2s(".r2s");
+	///File type .csv (paraview)
+	const string csv(".csv");
+	///File type .vtk (paraview)
+	const string vtk(".vtk");
 
 }
 ///General text labels specially for the module DAM \ingroup dam

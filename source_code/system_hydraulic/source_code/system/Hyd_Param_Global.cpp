@@ -4,6 +4,8 @@
 //init static members
 Tables *Hyd_Param_Global::global_param_table=NULL;
 
+//TODO: file input, database input, erase file pathes in Models
+
 //constructor
 Hyd_Param_Global::Hyd_Param_Global(void):default_max_steps(40000), default_init_stepsize(0.0), default_max_h_change_fp(1000.0), default_max_h_change_rv(1000.0), default_min_internal_step(10.0), default_max_v_change_rv(1000.0) {
 
@@ -41,6 +43,16 @@ Hyd_Param_Global::Hyd_Param_Global(void):default_max_steps(40000), default_init_
 
 	this->total_number_models=0;
 	this->total_setted_couplings=0;
+
+
+	this->output_flags.tecplot_1d_required=false;
+	this->output_flags.tecplot_2d_required = false;
+	this->output_flags.bluekenue_2d_required = false;
+	this->output_flags.paraview_1d_required = true;
+	this->output_flags.paraview_2d_required = true;
+	this->output_flags.database_instat_required = true;
+	this->output_flags.output_folder = label::not_set;
+
 	
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Param_Global), _sys_system_modules::HYD_SYS);
@@ -85,6 +97,7 @@ Hyd_Param_Global::Hyd_Param_Global(Hyd_Param_Global &par):default_max_steps(4000
 	this->total_number_models=par.total_number_models;
 	this->total_setted_couplings=par.total_setted_couplings;
 
+	this->output_flags = par.output_flags;
 
 
 
@@ -493,6 +506,14 @@ void Hyd_Param_Global::output_members(void){
 	cout << " Maximum of waterlevel change (RV)             : " << W(7)<< P(6) << this->max_h_change_rv << label::m << endl;
 	cout << " Maximum of explicit velocity head change (RV) : " << W(7)<< P(6) << this->max_h_change_rv << label::m << endl;
 	cout << " Minimum of internal stepsize                  : " << W(7)<< P(2) << this->min_internal_step << label::sec<< endl;
+	cout << "OUTPUT SETTINGS" << endl;
+	cout << " Tecplot 1d output required                    : " << W(7) << P(6) << functions::convert_boolean2string(this->output_flags.tecplot_1d_required) << endl;
+	cout << " Tecplot 2d output required                    : " << W(7) << P(6) << functions::convert_boolean2string(this->output_flags.tecplot_2d_required) << endl;
+	cout << " BlueKenue 2d output required                  : " << W(7) << P(6) << functions::convert_boolean2string(this->output_flags.bluekenue_2d_required) << endl;
+	cout << " ParaView / csv 1d output required             : " << W(7) << P(6) << functions::convert_boolean2string(this->output_flags.paraview_1d_required) << endl;
+	cout << " ParaView 2d output required                   : " << W(7) << P(6) << functions::convert_boolean2string(this->output_flags.paraview_2d_required) << endl;
+	cout << " Instationary database output required         : " << W(7) << P(6) << functions::convert_boolean2string(this->output_flags.database_instat_required) << endl;
+	cout << " Path to outputfolder                          : " << W(7) << P(6) << this->output_flags.output_folder << endl;
 
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 
@@ -688,6 +709,10 @@ int Hyd_Param_Global::get_number_river_model(void){
 bool Hyd_Param_Global::get_coast_model_applied(void){
 	return this->coastmodel_applied;
 }
+//Get the output flags which output is required
+_hyd_output_flags Hyd_Param_Global::get_output_flags(void) {
+	return this->output_flags;
+}
 //Set the number of river-models
 void Hyd_Param_Global::set_number_river_models(const int number){
 	this->GlobNofRV=number;
@@ -793,6 +818,8 @@ Hyd_Param_Global& Hyd_Param_Global::operator= (const Hyd_Param_Global& par){
 	this->total_number_models=par.total_number_models;
 	this->total_setted_couplings=par.total_setted_couplings;
 
+	//output settings
+	this->output_flags = par.output_flags;
 
 
 	return *this;
@@ -909,6 +936,9 @@ void Hyd_Param_Global::set_global_path(string filename){
 			this->global_path=filename.substr(0, pos2+1);
 		}
 
+	}
+	if (this->output_flags.output_folder == label::not_set) {
+		this->output_flags.output_folder = this->global_path;
 	}
 
 

@@ -1040,12 +1040,15 @@ void Hyd_Model_River::output_geometrie2tecplot_2d(void){
 	//for 2d-output
 	if(this->Param_RV.tecplot_outfile_name_2d!=label::not_set){
 		//open the file
-		this->tecplot_output_2d_geo.open(this->Param_RV.get_filename_geometrie2tecplot_2d().c_str());
+		string buffer = this->Param_RV.get_filename_geometrie2file_2d(hyd_label::tecplot);
+		//Add file type
+		buffer += hyd_label::dat;
+		this->tecplot_output_2d_geo.open(buffer.c_str());
 		//check if it is open
 		if(this->tecplot_output_2d_geo.is_open()==false){
 			Error msg=this->set_error(13);
 			ostringstream info;
-			info << "File name " << this->Param_RV.get_filename_geometrie2tecplot_2d()<< endl;
+			info << "File name " << buffer << endl;
 			msg.make_second_info(info.str());
 			throw msg;
 		}
@@ -1197,13 +1200,132 @@ void Hyd_Model_River::output_geometrie2tecplot_2d(void){
 			//close the file
 			this->tecplot_output_2d_geo.close();
 
-			//check the 1d output
-			if(this->tecplot_output.is_open()==false){
-				this->init_tecplot_output();
-			}
+
 		}
 	}
 
+}
+///Output the geometrie to paraview as 2d
+void Hyd_Model_River::output_geometrie2paraview_2d(void) {
+
+	//get the file name
+	string filename = this->Param_RV.get_filename_geometrie2file_2d(hyd_label::paraview);
+	//Add file type
+	filename += hyd_label::vtk;
+
+	if (filename == label::not_set) {
+		return;
+	}
+	//open the file
+	this->tecplot_output.open(filename.c_str());
+	if (this->tecplot_output.is_open() == false) {
+		Error msg = this->set_error(7);
+		ostringstream info;
+		info << "Filename " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	//fileheader
+	//output the file header
+	this->tecplot_output << "# vtk DataFile Version 3.0" << endl;
+	this->tecplot_output << "Geometry of river " << this->Param_RV.RVNumber << " with river name " << this->Param_RV.RVName << " (Data of polygon from downstream profile)"<< endl;
+	//this->tecplot_output << "# Element-Type expression: 0 STANDARD_ELEM; 1 COAST_ELEM; 2 NOFLOW_ELEM; 3 NOINFO_ELEM; 4 RIVER_ELEM; 5 OTHER_FP_ELEM; 6 DIKELINE_ELEM" << endl << endl;
+	this->tecplot_output << "ASCII" << endl;
+	this->tecplot_output << "DATASET POLYDATA" << endl;
+	this->tecplot_output << "POINTS " << (this->number_inbetween_profiles +2)*2<< " double" << endl;
+
+	//output points
+	this->tecplot_output << this->inflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	this->tecplot_output << this->inflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	this->tecplot_output  << "  0 "<<endl;
+
+	this->tecplot_output << this->inflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	this->tecplot_output << this->inflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	this->tecplot_output << "  0 " << endl;
+
+
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+		this->tecplot_output << "  0 " << endl;
+
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+		this->tecplot_output << "  0 " << endl;
+
+	}
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	this->tecplot_output << "  0 " << endl;
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	this->tecplot_output << "  0 " << endl;
+	this->tecplot_output << endl;
+
+	this->tecplot_output << "POLYGONS " << this->number_inbetween_profiles+1 << " "<< (this->number_inbetween_profiles + 1)*5 << endl;
+	for (int i = 0; i < (this->number_inbetween_profiles + 1); i++) {
+		this->tecplot_output << "4 " ;
+		if (i == 0) {
+			this->tecplot_output << " 0 2 3 1" << endl;
+
+		}
+		else {
+			int index = i * 2;
+			this->tecplot_output << " "<< index <<" "<< index+2 << " "<< index+3 << " "<< index+1<< endl;
+		}
+
+
+	}
+
+	//output celldata
+	this->tecplot_output << "CELL_DATA " << this->number_inbetween_profiles + 1 << endl;
+	string buff_unit;
+
+	buff_unit = " z_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_global_z_min() << "  ";
+	}
+
+	//outflow profile
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_global_z_min() << "  ";
+	this->tecplot_output << endl ;
+
+	buff_unit = " type_"; 
+	buff_unit += label::no_unit;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		this->tecplot_output << this->river_profiles[i].get_profile_type() << "  ";
+	}
+
+	//outflow profile
+	this->tecplot_output << this->outflow_river_profile.get_profile_type() << "  ";
+	this->tecplot_output << endl;
+
+	buff_unit = " init_h_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		this->tecplot_output << this->river_profiles[i].get_init_condition_value() << "  ";
+	}
+
+	//outflow profile
+	this->tecplot_output << this->outflow_river_profile.get_init_condition_value() << "  ";
+	this->tecplot_output << endl;
+
+	//close the file
+	this->tecplot_output.close();
+	this->tecplot_output.clear();
 }
 //Output the result members for each riverprofile at every timestep
 void Hyd_Model_River::output_result_members_per_timestep(void){
@@ -1233,16 +1355,16 @@ void Hyd_Model_River::output_result2tecplot_1d(const double timepoint, const int
 		this->init_tecplot_output();
 	}
 
-	if(this->tecplot_output.is_open()==true){
+	if (this->tecplot_output.is_open() == true) {
 		//output the zone header
-		this->tecplot_output << endl << "ZONE T= "<< "\" "<< timepoint <<" \" "<< " I = " << this->Param_RV.RVNofProf << endl;
+		this->tecplot_output << endl << "ZONE T= " << "\" " << timepoint << " \" " << " I = " << this->Param_RV.RVNofProf << endl;
 		this->tecplot_output << "SOLUTIONTIME=" << timepoint << endl;
-		this->tecplot_output << "STRANDID=" << timestep_number+1<< endl;
+		this->tecplot_output << "STRANDID=" << timestep_number + 1 << endl;
 
 		//output intflow profile
 		this->inflow_river_profile.output_result_members_per_timestep(&this->tecplot_output);
 		//inbetween
-		for(int i=0; i<this->number_inbetween_profiles; i++){
+		for (int i = 0; i < this->number_inbetween_profiles; i++) {
 			this->river_profiles[i].output_result_members_per_timestep(&this->tecplot_output);
 		}
 		//outflow
@@ -1400,6 +1522,193 @@ void Hyd_Model_River::output_result2tecplot_2d(const double timepoint, const int
 
 	}
 }
+///Output the result members per timestep to csv as 1d
+void Hyd_Model_River::output_result2csv_1d(const double timepoint, const int timestep_number) {
+
+	// for 1d - output
+	//results per timesteps
+	ofstream output_csv;
+	if (this->Param_RV.tecplot_outfile_name_1d != label::not_set) {
+		//open the file
+		string buffer = this->Param_RV.get_filename_result2file_1d(hyd_label::paraview);
+		//Add time and file type
+		buffer += "_";
+		int time = (int)timepoint;
+		buffer += std::to_string(time);
+		buffer += hyd_label::csv;
+		output_csv.open(buffer.c_str());
+		//check if it is open
+		if (output_csv.is_open() == false) {
+			Error msg = this->set_error(11);
+			ostringstream info;
+			info << "File name " << this->Param_RV.get_filename_result2file_1d(hyd_label::paraview) << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+		else {
+			//output the file header
+			output_csv << " Riverstation " << label::m << "," << " z_min " << label::m << ",";
+			output_csv << " z_left_bank " << label::m << "," << " z_right_bank " << label::m << ",";
+			output_csv << " s (global) " << label::m << ",";
+			output_csv <<" h (local) " << label::m << ",";
+			output_csv <<" v " << label::m_per_sec << ",";
+			output_csv <<" fr " << label::no_unit << ",";
+			output_csv <<" q " << label::qm_per_sec;
+			output_csv <<  endl;
+		}
+		
+	}
+
+	//output per profile
+	if (output_csv.is_open() == true) {
+
+		//output intflow profile
+		this->inflow_river_profile.output_result_members_per_timestep2csv(&output_csv);
+		//inbetween
+		for (int i = 0; i < this->number_inbetween_profiles; i++) {
+			this->river_profiles[i].output_result_members_per_timestep2csv(&output_csv);
+		}
+		//outflow
+		this->outflow_river_profile.output_result_members_per_timestep2csv(&output_csv);
+		output_csv.flush();
+		output_csv.close();
+	}
+}
+//Output the result members per timestep to paraview as 2d
+void Hyd_Model_River::output_result2paraview_2d(const double timepoint, const int timestep_number) {
+
+	//get the file name
+	string filename = this->Param_RV.get_filename_result2file_2d(hyd_label::paraview);
+	//Add file type
+	int time = (int)timepoint;
+	filename += "_";
+	filename += std::to_string(time);
+	filename += hyd_label::vtk;
+
+	if (filename == label::not_set) {
+		return;
+	}
+	ofstream output;
+	//open the file
+	output.open(filename.c_str());
+	if (output.is_open() == false) {
+		Error msg = this->set_error(7);
+		ostringstream info;
+		info << "Filename " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	//fileheader
+	//output the file header
+	output << "# vtk DataFile Version 3.0" << endl;
+	output << "Values of river " << this->Param_RV.RVNumber << " with river name " << this->Param_RV.RVName << " time "<< timepoint <<" (Data of polygon from downstream profile)" << endl;
+	output << "ASCII" << endl;
+	output << "DATASET POLYDATA" << endl;
+	output << "POINTS " << (this->number_inbetween_profiles + 2) * 2 << " double" << endl;
+
+	//output points
+	output << this->inflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	output << this->inflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	output << "  0 " << endl;
+
+	output << this->inflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	output << this->inflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	output << "  0 " << endl;
+
+
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+		output << this->river_profiles[i].typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+		output << this->river_profiles[i].typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+		output << "  0 " << endl;
+
+		output << this->river_profiles[i].typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+		output << this->river_profiles[i].typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+		output << "  0 " << endl;
+
+	}
+	output << this->outflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	output << this->outflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	output << "  0 " << endl;
+	output << this->outflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	output << this->outflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	output << "  0 " << endl;
+	output << endl;
+
+	output << "POLYGONS " << this->number_inbetween_profiles + 1 << " " << (this->number_inbetween_profiles + 1) * 5 << endl;
+	for (int i = 0; i < (this->number_inbetween_profiles + 1); i++) {
+		output << "4 ";
+		if (i == 0) {
+			output << " 0 2 3 1" << endl;
+
+		}
+		else {
+			int index = i * 2;
+			output << " " << index << " " << index + 2 << " " << index + 3 << " " << index + 1 << endl;
+		}
+
+
+	}
+
+	//output celldata
+	output << "CELL_DATA " << this->number_inbetween_profiles + 1 << endl;
+	string buff_unit;
+
+	buff_unit = " h_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		output << this->river_profiles[i].typ_of_profile->get_h()<< "  ";
+	}
+	//outflow profile
+	output << this->outflow_river_profile.typ_of_profile->get_h() << "  ";
+	output << endl;
+
+	buff_unit = " s_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		output << this->river_profiles[i].typ_of_profile->get_s() << "  ";
+	}
+	//outflow profile
+	output << this->outflow_river_profile.typ_of_profile->get_s() << "  ";
+	output << endl;
+
+	buff_unit = " vtot_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		output << this->river_profiles[i].typ_of_profile->get_vtot() << "  ";
+	}
+	//outflow profile
+	output << this->outflow_river_profile.typ_of_profile->get_vtot() << "  ";
+	output << endl;
+
+	buff_unit = " Q_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		output << this->river_profiles[i].get_Q() << "  ";
+	}
+	//outflow profile
+	output << this->outflow_river_profile.get_Q() << "  ";
+	output << endl;
+
+	output.clear();
+	output.close();
+
+}
 //output solver errors
 void Hyd_Model_River::output_solver_errors(const double time_point, const int step_counter, const string timestring, const string realtime, const double diff_time, const int total_internal, const int internal_steps){
 
@@ -1449,6 +1758,199 @@ void Hyd_Model_River::output_final(void){
 void Hyd_Model_River::output_result_max2tecplot(void){
 	//output the maximum values
 	this->output_maximum_results2tecplot();
+}
+///Output the maximum result members to csv
+void Hyd_Model_River::output_result_max2csv(void) {
+	//maximum results
+	if (this->Param_RV.tecplot_outfile_name_1d != label::not_set) {
+		//close the result file per time step
+		this->tecplot_output.close();
+		this->tecplot_output.clear();
+
+		//reopen the file
+		string buffer = this->Param_RV.get_filename_result2file_1d_maxvalues(hyd_label::paraview);
+		//Add file type
+		buffer += hyd_label::csv;
+		this->tecplot_output.open(buffer.c_str());
+		//check if it is open
+		if (this->tecplot_output.is_open() == false) {
+			Error msg = this->set_error(11);
+			ostringstream info;
+			info << "File name " << this->Param_RV.get_filename_result2file_1d_maxvalues(hyd_label::paraview) << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+
+		//output the file header
+		this->tecplot_output << " Riverstation " << label::m;
+		this->tecplot_output << " ,z_min " << label::m;
+		this->tecplot_output << " ,z_left_bank " << label::m;
+		this->tecplot_output << " ,z_right_bank " << label::m;
+		this->tecplot_output << " ,s_max " << label::m;
+		this->tecplot_output << " ,t(s_max) " << label::sec;
+		this->tecplot_output << " ,h_max " << label::m;
+		this->tecplot_output << " ,t(h_max) " << label::sec;
+		this->tecplot_output << " ,v_max " << label::m_per_sec;
+		this->tecplot_output << " ,t(v_max) " << label::sec;
+		this->tecplot_output << " ,was_dry " << label::no_unit;
+		this->tecplot_output << " ,t(dry) " << label::sec;
+		this->tecplot_output << " ,t(wet) " << label::sec;
+		this->tecplot_output << ",CVol_1D_in" << label::cubicmeter;
+		this->tecplot_output << ",CVol_1D_out" << label::cubicmeter;
+		this->tecplot_output << ",CVol_Struc_in" << label::cubicmeter;
+		this->tecplot_output << ",CVol_Struc_out" << label::cubicmeter;
+		this->tecplot_output << ",CVol_OV_Le_in" << label::cubicmeter;
+		this->tecplot_output << ",CVol_OV_Le_out" << label::cubicmeter;
+		this->tecplot_output << ",CVol_OV_Ri_in" << label::cubicmeter;
+		this->tecplot_output << ",CVol_OV_Ri_out" << label::cubicmeter;
+		this->tecplot_output << ",CVol_DB_Le_in" << label::cubicmeter;
+		this->tecplot_output << ",CVol_DB_Le_out" << label::cubicmeter;
+		this->tecplot_output << ",CVol_DB_Ri_in" << label::cubicmeter;
+		this->tecplot_output << ",CVol_tot_in" << label::cubicmeter;
+		this->tecplot_output << ",CVol_tot_out" << label::cubicmeter;
+		this->tecplot_output << ",Qmax" << label::qm_per_sec;
+		this->tecplot_output << ",t[Qmax]" << label::sec;
+		this->tecplot_output << endl;
+
+		//inflow profile
+		this->inflow_river_profile.output_max_results2csvfile(&this->tecplot_output);
+
+		//inbetween profiles
+		for (int i = 0; i < this->number_inbetween_profiles; i++) {
+			this->river_profiles[i].output_max_results2csvfile(&this->tecplot_output);
+
+		}
+		//outflow profile
+		this->outflow_river_profile.output_max_results2csvfile(&this->tecplot_output);
+
+		//close it
+		this->tecplot_output.close();
+
+	}
+
+}
+//Output the maximum result members to paraview as 2d
+void Hyd_Model_River::output_result_max2paraview2d(void) {
+	//get the file name
+	string filename = this->Param_RV.get_filename_result2file_2d_maxvalues(hyd_label::paraview);
+	//Add file type
+	filename += hyd_label::vtk;
+
+	if (filename == label::not_set) {
+		return;
+	}
+	//open the file
+	this->tecplot_output.open(filename.c_str());
+	if (this->tecplot_output.is_open() == false) {
+		Error msg = this->set_error(7);
+		ostringstream info;
+		info << "Filename " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	//fileheader
+	//output the file header
+	this->tecplot_output << "# vtk DataFile Version 3.0" << endl;
+	this->tecplot_output << "Maximum values of river " << this->Param_RV.RVNumber << " with river name " << this->Param_RV.RVName << " (Data of polygon from downstream profile)" << endl;
+	this->tecplot_output << "ASCII" << endl;
+	this->tecplot_output << "DATASET POLYDATA" << endl;
+	this->tecplot_output << "POINTS " << (this->number_inbetween_profiles + 2) * 2 << " double" << endl;
+
+	//output points
+	this->tecplot_output << this->inflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	this->tecplot_output << this->inflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	this->tecplot_output << "  0 " << endl;
+
+	this->tecplot_output << this->inflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	this->tecplot_output << this->inflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	this->tecplot_output << "  0 " << endl;
+
+
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+		this->tecplot_output << "  0 " << endl;
+
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+		this->tecplot_output << "  0 " << endl;
+
+	}
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_first_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	this->tecplot_output << "  0 " << endl;
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_xcoordinate() << "  ";
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_last_point()->get_global_x_y_coordinates().get_ycoordinate() << "  ";
+	this->tecplot_output << "  0 " << endl;
+	this->tecplot_output << endl;
+
+	this->tecplot_output << "POLYGONS " << this->number_inbetween_profiles + 1 << " " << (this->number_inbetween_profiles + 1) * 5 << endl;
+	for (int i = 0; i < (this->number_inbetween_profiles + 1); i++) {
+		this->tecplot_output << "4 ";
+		if (i == 0) {
+			this->tecplot_output << " 0 2 3 1" << endl;
+
+		}
+		else {
+			int index = i * 2;
+			this->tecplot_output << " " << index << " " << index + 2 << " " << index + 3 << " " << index + 1 << endl;
+		}
+
+
+	}
+
+	//output celldata
+	this->tecplot_output << "CELL_DATA " << this->number_inbetween_profiles + 1 << endl;
+	string buff_unit;
+
+	buff_unit = " h_max_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_max_h().maximum<< "  ";
+	}
+	//outflow profile
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_max_h().maximum << "  ";
+	this->tecplot_output << endl;
+
+	buff_unit = " s_max_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_max_s().maximum << "  ";
+	}
+	//outflow profile
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_max_s().maximum << "  ";
+	this->tecplot_output << endl;
+
+	buff_unit = " v_max_";
+	buff_unit += label::m_per_sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_max_vtot().maximum << "  ";
+	}
+	//outflow profile
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_max_vtot().maximum << "  ";
+	this->tecplot_output << endl;
+
+	
+	
+
+	//close the file
+	this->tecplot_output.close();
+	this->tecplot_output.clear();
+
+
+
 }
 //Output the maximum result members to a database table
 void Hyd_Model_River::output_result_max2database(QSqlDatabase *ptr_database, const string break_sz){
@@ -3111,23 +3613,30 @@ void Hyd_Model_River::init_tecplot_output(void){
 	if(this->Param_RV.tecplot_outfile_name_1d!=label::not_set){
 		if(this->tecplot_output.is_open()==false){
 			//open the file
-			this->tecplot_output.open(this->Param_RV.get_filename_result2tecplot_1d().c_str());
+			string buffer = this->Param_RV.get_filename_result2file_1d(hyd_label::tecplot);
+			//Add file type
+			buffer += hyd_label::dat;
+			this->tecplot_output.open(buffer.c_str());
 			//check if it is open
 			if(this->tecplot_output.is_open()==false){
 				Error msg=this->set_error(11);
 				ostringstream info;
-				info << "File name " << this->Param_RV.get_filename_result2tecplot_1d() << endl;
+				info << "File name " << this->Param_RV.get_filename_result2file_1d(hyd_label::tecplot) << endl;
 				msg.make_second_info(info.str());
 				throw msg;
 			}
 			else{
 				//output the file header
 				this->tecplot_output << "TITLE = "<< "\" " << this->Param_RV.RVName << " No. " << this->Param_RV.RVNumber << " \"" << endl;
-				this->tecplot_output << "VARIABLES = " << "\" " << " Riverstation " << label::m << "\"   \"" << " zmin " << label::m << "\"   \"" <<  " s (global) " << label::m << "\"   \""  ;
-				this->tecplot_output << " h (local) " << label::m <<   "\"";
+				this->tecplot_output << "VARIABLES = " << "\" " << " Riverstation " << label::m << "\"   \"" << " zmin " << label::m << "\"";
+				this->tecplot_output << " \"" << " z_left_bank " << label::m << "\" ";
+				this->tecplot_output << " \"" << " z_right_bank " << label::m << "\" ";
+				this->tecplot_output << " \"" << " s (global) " << label::m << "\"";
+				this->tecplot_output << " \"" << " h (local) " << label::m <<   "\"";
 				this->tecplot_output <<	" \"" <<  " v " << label::m_per_sec << "\"";
 				this->tecplot_output <<	" \"" <<  " fr " << label::no_unit << "\"";
 				this->tecplot_output << " \"" << " q " << label::qm_per_sec << "\" ";
+				
 				this->tecplot_output <<  endl << endl;
 			}
 		}
@@ -3137,12 +3646,15 @@ void Hyd_Model_River::init_tecplot_output(void){
 	if(this->Param_RV.tecplot_outfile_name_2d!=label::not_set){
 		if(this->tecplot_output_2d.is_open()==false){
 			//open the file
-			this->tecplot_output_2d.open(this->Param_RV.get_filename_result2tecplot_2d().c_str());
+			string buffer = this->Param_RV.get_filename_result2file_2d(hyd_label::tecplot);
+			//Add file type
+			buffer += hyd_label::dat;
+			this->tecplot_output_2d.open(buffer.c_str());
 			//check if it is open
 			if(this->tecplot_output_2d.is_open()==false){
 				Error msg=this->set_error(11);
 				ostringstream info;
-				info << "File name " << this->Param_RV.get_filename_result2tecplot_2d()<< endl;
+				info << "File name " << this->Param_RV.get_filename_result2file_2d(hyd_label::tecplot)<< endl;
 				msg.make_second_info(info.str());
 				throw msg;
 			}
@@ -3171,12 +3683,15 @@ void Hyd_Model_River::output_maximum_results2tecplot(void){
 		this->tecplot_output.clear();
 
 		//reopen the file
-		this->tecplot_output.open(this->Param_RV.get_filename_result2tecplot_1d_maxvalues().c_str());
+		string buffer = this->Param_RV.get_filename_result2file_1d_maxvalues(hyd_label::tecplot);
+		//Add file type
+		buffer += hyd_label::dat;
+		this->tecplot_output.open(buffer.c_str());
 		//check if it is open
 		if(this->tecplot_output.is_open()==false){
 			Error msg=this->set_error(11);
 			ostringstream info;
-			info << "File name " << this->Param_RV.get_filename_result2tecplot_1d_maxvalues() << endl;
+			info << "File name " << this->Param_RV.get_filename_result2file_1d_maxvalues(hyd_label::tecplot) << endl;
 			msg.make_second_info(info.str());
 			throw msg;
 		}
@@ -3186,6 +3701,8 @@ void Hyd_Model_River::output_maximum_results2tecplot(void){
 		this->tecplot_output << "VARIABLES = " <<endl;
 		this->tecplot_output<< "\" " << " Riverstation " << label::m ;
 		this->tecplot_output<< "\" \"" << " z_min " << label::m ;
+		this->tecplot_output << "\" \"" << " z_left_bank " << label::m;
+		this->tecplot_output << "\" \"" << " z_right_bank " << label::m;
 		this->tecplot_output<< "\" \"" << " s_max " << label::m ;
 		this->tecplot_output<< "\"   \"" << " t(s_max) " << label::sec ;
 		this->tecplot_output<< "\"  \"" << " h_max " << label::m ;

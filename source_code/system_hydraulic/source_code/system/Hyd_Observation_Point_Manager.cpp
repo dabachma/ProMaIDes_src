@@ -561,15 +561,15 @@ void Hyd_Observation_Point_Manager::syncron_obs_points(const double time_point){
 		this->obs_point[i].synchron_obs_point(time_point);
 	}
 }
-//Output the data of the observation points to file
-void Hyd_Observation_Point_Manager::output_obs_points2file(const string filename_rv, const string filename_fp){
+//Output the data of the observation points to tecplot file
+void Hyd_Observation_Point_Manager::output_obs_points2tecplot_file(const string filename_rv, const string filename_fp){
 
 	ostringstream prefix;
 	prefix << "OBS> ";
 	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
 
 	ostringstream cout;
-	cout << "Output the observation points to file..."<< endl;
+	cout << "Output the observation points to tecplot file..."<< endl;
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 
 	if(this->number_obs_rv>0){
@@ -577,6 +577,26 @@ void Hyd_Observation_Point_Manager::output_obs_points2file(const string filename
 	}
 	if(this->number_obs_fp>0){
 		this->output_obs_point_fp2file(filename_fp);
+	}
+
+	Sys_Common_Output::output_hyd->rewind_userprefix();
+}
+//Output the data of the observation points to ParaView / cvs file
+void Hyd_Observation_Point_Manager::output_obs_points2paraview_file(const string filename_rv, const string filename_fp) {
+
+	ostringstream prefix;
+	prefix << "OBS> ";
+	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+
+	ostringstream cout;
+	cout << "Output the observation points to paraview file..." << endl;
+	Sys_Common_Output::output_hyd->output_txt(&cout);
+
+	if (this->number_obs_rv > 0) {
+		this->output_obs_point_rv2csvfile(filename_rv);
+	}
+	if (this->number_obs_fp > 0) {
+		this->output_obs_point_fp2csvfile(filename_fp);
 	}
 
 	Sys_Common_Output::output_hyd->rewind_userprefix();
@@ -769,6 +789,78 @@ void Hyd_Observation_Point_Manager::output_obs_point_fp2file(const string file){
 
 	output.close();
 
+}
+//Output the observation points of river models to csv file
+void Hyd_Observation_Point_Manager::output_obs_point_rv2csvfile(const string file) {
+	
+	for (int i = 0; i < this->number_obs_point; i++) {
+		string buff_name = file;
+		if (this->obs_point[i].get_model_flag() == false) {
+			ofstream output;
+			buff_name += "_";
+			buff_name += this->obs_point[i].get_point_name();
+			buff_name += hyd_label::csv;
+
+			output.open(buff_name.c_str());
+			//check if it is open
+			if (output.is_open() == false) {
+				Error msg = this->set_error(4);
+				ostringstream info;
+				info << "File name " << buff_name << endl;
+				msg.make_second_info(info.str());
+				throw msg;
+			}
+
+			//output the file header
+			output << " Time " << label::sec<<",";
+			output << " h " << label::m << ",";
+			output << " s " << label::m << ",";
+			output << " v " << label::m_per_sec << ",";
+			output << " Fr " << label::no_unit << ",";
+			output << " Q " << label::qm_per_sec ;
+			output <<  endl;
+
+			this->obs_point[i].output_obs_point2csvfile(&output, this->counter_used);
+			output.close();
+		}	
+	}
+}
+//Output the observation points of floodplain models to csvfile
+void Hyd_Observation_Point_Manager::output_obs_point_fp2csvfile(const string file) {
+	
+	for (int i = 0; i < this->number_obs_point; i++) {
+		string buff_name = file;
+		if (this->obs_point[i].get_model_flag() == true) {
+			ofstream output;
+			buff_name += "_";
+			buff_name += this->obs_point[i].get_point_name();
+			buff_name += hyd_label::csv;
+			output.open(buff_name.c_str());
+			//check if it is open
+			if (output.is_open() == false) {
+				Error msg = this->set_error(5);
+				ostringstream info;
+				info << "File name " << buff_name << endl;
+				msg.make_second_info(info.str());
+				throw msg;
+			}
+
+			//output the file header
+			output  << " Time " << label::sec << ",";
+			output  << " h " << label::m << ",";
+			output  << " s " << label::m << ",";
+			output  << " v " << label::m_per_sec << ",";
+			output  << " v_x " << label::m_per_sec << ",";
+			output  << " v_y " << label::m_per_sec << ",";
+			output  << " ds_dt " << label::m_per_min << ",";
+			output  << " ds_dt_coupling " << label::m_per_sec;
+			output   << endl;
+
+	
+			this->obs_point[i].output_obs_point2csvfile(&output, this->counter_used);
+			output.close();
+		}
+	}
 }
 //set the error
 Error Hyd_Observation_Point_Manager::set_error(const int err_type){

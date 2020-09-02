@@ -239,6 +239,8 @@ public:
 	///Initialize output files, e.g. dike break
 	void init_output_files(void);
 
+	///Set the pointer to the output flags
+	void set_ptr2outputflags(_hyd_output_flags *flags);
 
 
 private:
@@ -284,6 +286,9 @@ private:
 	double old_time_point;
 	///Delta time
 	double delta_t;
+
+	///Pointer to the output settings
+	_hyd_output_flags *ptr_output_flags;
 
 
 

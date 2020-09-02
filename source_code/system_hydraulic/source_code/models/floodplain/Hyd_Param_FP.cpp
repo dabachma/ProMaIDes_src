@@ -266,9 +266,9 @@ void Hyd_Param_FP::output_members(void){
 	cout << " Wet-factor                   : " << W(7) << P(2)<< FORMAT_SCIENTIFIC_REAL << this->FPWet << label::m <<endl;
 	if(this->tecplot_outfile_name!=label::not_set){
 		cout << "2D-RESULTFILE     " << endl;
-		cout << " 2d-geometry in file          : " << W(7) << Hyd_Param_Global::get_print_filename(60,this->get_filename_geometrie2tecplot().c_str()) << endl;
-		cout << " 2d-results in file           : " << W(7) << Hyd_Param_Global::get_print_filename(60,this->get_filename_result2tecplot(-1.0).c_str()) << endl;
-		cout << " 2d-maximum results in file   : " << W(7) << Hyd_Param_Global::get_print_filename(60,this->get_filename_result_max2tecplot().c_str())<< endl;
+		cout << " 2d-geometry in folder          : " << W(7) << Hyd_Param_Global::get_print_filename(60,this->tecplot_outfile_name.c_str()) << endl;
+		cout << " 2d-results in folder           : " << W(7) << Hyd_Param_Global::get_print_filename(60,this->tecplot_outfile_name.c_str()) << endl;
+		cout << " 2d-maximum results in folder   : " << W(7) << Hyd_Param_Global::get_print_filename(60,this->tecplot_outfile_name.c_str())<< endl;
 	}
 	
 	Sys_Common_Output::output_hyd->output_txt(&cout);
@@ -276,87 +276,84 @@ void Hyd_Param_FP::output_members(void){
 	Sys_Common_Output::output_hyd->rewind_userprefix();
 }
 //Get the filename for the floodplain geometrie file
-string Hyd_Param_FP::get_filename_geometrie2tecplot(void){
+string Hyd_Param_FP::get_filename_geometrie2file(const string type){
 	string buffer;
 	buffer=this->tecplot_outfile_name;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_FP_GEO_"<<this->FPNumber<<".dat";
-		buffer.append(suffix.str());
+		suffix << "FP_GEO_"<<this->FPNumber;
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 
 }
 //Get the filename for the floodplain geometrie file without suffix
-string Hyd_Param_FP::get_filename_geometrie(void){
+string Hyd_Param_FP::get_filename_geometrie(const string type){
 	string buffer;
 	buffer=this->tecplot_outfile_name;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_FP_GEO_"<<this->FPNumber;
-		buffer.append(suffix.str());
+		suffix << "FP_GEO_"<<this->FPNumber;
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 
 }
-//Get the filename for the floodplain result file for tecplot
-string Hyd_Param_FP::get_filename_result2tecplot(const double timepoint){
+//Get the filename for the floodplain result file 
+string Hyd_Param_FP::get_filename_result2file(const string type, const double timepoint){
 	string buffer;
 	buffer=this->tecplot_outfile_name;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_FP_RES_"<<this->FPNumber;
+		suffix << "FP_RES_"<<this->FPNumber;
 		if(timepoint>=0.0){
 			suffix<<"_"<<timepoint;
 		}
 		else{
 			suffix<<"_time";
 		}
-		suffix<<".dat";
-		buffer.append(suffix.str());
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 
 }
 //Get the filename for the floodplain result file without suffix
-string Hyd_Param_FP::get_filename_result(void){
+string Hyd_Param_FP::get_filename_result(const string type){
 	string buffer;
 	buffer=this->tecplot_outfile_name;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_FP_RES_"<<this->FPNumber;
-		
-		
-		buffer.append(suffix.str());
+		suffix << "FP_RES_"<<this->FPNumber;
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 
 }
-//Get the filename for the maximum floodplain result file for tecplot
-string Hyd_Param_FP::get_filename_result_max2tecplot(void){
+//Get the filename for the maximum floodplain result file 
+string Hyd_Param_FP::get_filename_result_max2file(const string type){
 	string buffer;
 	buffer=this->tecplot_outfile_name;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_FP_RESMAX_"<<this->FPNumber<<".dat";
-		buffer.append(suffix.str());
+		suffix << "FP_RESMAX_"<<this->FPNumber;
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 }
-//Get the filename for the floodplain observation points to file for tecplot
-string Hyd_Param_FP::get_filename_obs_point2tecplot(void){
+//Get the filename for the floodplain observation points to file 
+string Hyd_Param_FP::get_filename_obs_point2file(const string type){
 	string buffer;
 	buffer=this->tecplot_outfile_name;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_FP_OBS_POINT.dat";
-		buffer.append(suffix.str());
+		suffix << "FP_OBS_POINT";
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 }

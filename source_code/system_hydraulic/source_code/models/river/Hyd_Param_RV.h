@@ -56,16 +56,18 @@ public:
 	///Check the members
 	void check_members(void);
 
-	///Get the filename for the rivermodel as 2d (geometrie) for tecplot
-	string get_filename_geometrie2tecplot_2d(void);
-	///Get the filename for the rivermodel results file as 2d for tecplot
-	string get_filename_result2tecplot_2d(void);
-	///Get the filename for the rivermodel results file as 1d for tecplot
-	string get_filename_result2tecplot_1d(void);
-	///Get the filename for the rivermodel maximum result to file as 1d for tecplot
-	string get_filename_result2tecplot_1d_maxvalues(void);
-	///Get the filename for the rivermodel observation points to file for tecplot
-	string get_filename_result2tecplot_1d_obs_point(void);
+	///Get the filename for the rivermodel as 2d (geometrie) for file output
+	string get_filename_geometrie2file_2d(const string type);
+	///Get the filename for the rivermodel results file as 2d for file output
+	string get_filename_result2file_2d(const string type);
+	///Get the filename for the rivermodel results file as 1d for file output
+	string get_filename_result2file_1d(const string type);
+	///Get the filename for the rivermodel maximum result to file as 1d file output
+	string get_filename_result2file_1d_maxvalues(const string type);
+	///Get the filename for the rivermodel maximum result to file as 2d file output
+	string get_filename_result2file_2d_maxvalues(const string type);
+	///Get the filename for the rivermodel observation points to file output
+	string get_filename_result2file_1d_obs_point(const string type);
 	///Get the crude version of the filename for 1d output
 	string get_crude_filename_result_1d(void);
 

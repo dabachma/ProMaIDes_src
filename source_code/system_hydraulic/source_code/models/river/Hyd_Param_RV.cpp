@@ -130,12 +130,12 @@ void Hyd_Param_RV::output_members(void){
 
 	if(this->tecplot_outfile_name_1d!=label::not_set){
 		cout << "1D-RESULTFILE     " << endl;
-		cout << " 1d-results in file           : " << W(7) << Hyd_Param_Global::get_print_filename(60,this->get_filename_result2tecplot_1d().c_str()) << endl;
+		cout << " 1d-results in file           : " << W(7) << Hyd_Param_Global::get_print_filename(60,this->get_crude_filename_result_1d().c_str()) << endl;
 	}
 	if(this->tecplot_outfile_name_2d!=label::not_set){
 		cout << "2D-RESULTFILE     " << endl;
-		cout << " 2d-geometry in file          : " << W(7) << Hyd_Param_Global::get_print_filename(60,this->get_filename_geometrie2tecplot_2d().c_str()) << endl;
-		cout << " 2d-results  in file          : " << W(7) << Hyd_Param_Global::get_print_filename(60,this->get_filename_result2tecplot_2d().c_str()) << endl;
+		cout << " 2d-geometry in folder          : " << W(7) << Hyd_Param_Global::get_print_filename(60, this->get_crude_filename_result_1d().c_str()) << endl;
+		cout << " 2d-results  in folder          : " << W(7) << Hyd_Param_Global::get_print_filename(60, this->get_crude_filename_result_1d().c_str()) << endl;
 	}
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 
@@ -172,63 +172,75 @@ void Hyd_Param_RV::check_members(void){
 	}
 
 }
-//Get the filename for the rivermodel as 2d (geometrie) for tecplot
-string Hyd_Param_RV::get_filename_geometrie2tecplot_2d(void){
+//Get the filename for the rivermodel as 2d (geometrie) for file
+string Hyd_Param_RV::get_filename_geometrie2file_2d(const string type){
 	string buffer;
 	buffer=this->tecplot_outfile_name_2d;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_RV_GEO_2D_"<<this->RVNumber<<".dat";
-		buffer.append(suffix.str());
+		suffix << "RV_GEO_2D_"<<this->RVNumber;
+		buffer=functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 }
-//Get the filename for the rivermodel results file as 2d for tecplot
-string Hyd_Param_RV::get_filename_result2tecplot_2d(void){
+//Get the filename for the rivermodel results file as 2d for file
+string Hyd_Param_RV::get_filename_result2file_2d(const string type){
 	string buffer;
 	buffer=this->tecplot_outfile_name_2d;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_RV_RES_2D_"<<this->RVNumber<<".dat";
-		buffer.append(suffix.str());
+		suffix << "RV_RES_2D_"<<this->RVNumber;
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 }
-//Get the filename for the rivermodel results file as 1d for tecplot
-string Hyd_Param_RV::get_filename_result2tecplot_1d(void){
+//Get the filename for the rivermodel results file as 1d for file
+string Hyd_Param_RV::get_filename_result2file_1d(const string type){
 	string buffer;
 	buffer=this->tecplot_outfile_name_1d;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_RV_RES_1D_"<<this->RVNumber<<".dat";
-		buffer.append(suffix.str());
+		suffix << "RV_RES_1D_"<<this->RVNumber;
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 }
-//Get the filename for the rivermodel maximum result to file as 1d for tecplot
-string Hyd_Param_RV::get_filename_result2tecplot_1d_maxvalues(void){
+//Get the filename for the rivermodel maximum result to file as 1d for file
+string Hyd_Param_RV::get_filename_result2file_1d_maxvalues(const string type){
 	string buffer;
 	buffer=this->tecplot_outfile_name_1d;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_RV_MAXRES_1D_"<<this->RVNumber<<".dat";
-		buffer.append(suffix.str());
+		suffix << "RV_MAXRES_1D_"<<this->RVNumber;
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 }
-//Get the filename for the rivermodel observation points to file for tecplot
-string Hyd_Param_RV::get_filename_result2tecplot_1d_obs_point(void){
+///Get the filename for the rivermodel maximum result to file as 2d file output
+string Hyd_Param_RV::get_filename_result2file_2d_maxvalues(const string type) {
+	string buffer;
+	buffer = this->tecplot_outfile_name_2d;
+
+	if (buffer != label::not_set) {
+		stringstream suffix;
+		suffix << "RV_MAXRES_2D_" << this->RVNumber;
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
+	}
+	return buffer;
+}
+//Get the filename for the rivermodel observation points to file 
+string Hyd_Param_RV::get_filename_result2file_1d_obs_point(const string type){
 	string buffer;
 	buffer=this->tecplot_outfile_name_1d;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_RV_OBS_POINT.dat";
-		buffer.append(suffix.str());
+		suffix << "RV_OBS_POINT";
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 }

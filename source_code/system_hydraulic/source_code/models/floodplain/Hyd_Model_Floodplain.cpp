@@ -1233,7 +1233,9 @@ void Hyd_Model_Floodplain::output_setted_members(void){
 //Output the geometrie to tecplot
 void Hyd_Model_Floodplain::output_geometrie2tecplot(void){
 	//get the file name
-	string filename=this->Param_FP.get_filename_geometrie2tecplot();
+	string filename=this->Param_FP.get_filename_geometrie2file(hyd_label::tecplot);
+	//Add file type
+	filename += hyd_label::dat;
 	if(filename==label::not_set){
 		return;
 	}
@@ -1394,16 +1396,14 @@ void Hyd_Model_Floodplain::output_geometrie2tecplot(void){
 void Hyd_Model_Floodplain::output_geometrie2bluekenue(void){
 
 	//get the file name
-	string filename_part=this->Param_FP.get_filename_geometrie();
-	if(filename_part==label::not_set){
-		return;
-	}
+	string filename = this->Param_FP.get_filename_geometrie2file(hyd_label::bluekenue);
+	//Add file type
+	filename += hyd_label::r2s;
+
     if(this->Param_FP.get_geometrical_info().number_x==0){
         return;
     }
-	string filename;
-	filename.append(filename_part.c_str());
-    filename.append(".r2s");
+
 
 
 	//open the file
@@ -1424,9 +1424,9 @@ void Hyd_Model_Floodplain::output_geometrie2bluekenue(void){
     this->bluekenue_output <<"# DataType 2D Rect Scalar   (Element midpoints are displayed!) " << endl;
     this->bluekenue_output <<":Application BlueKenue      " << endl;
     this->bluekenue_output <<":Version 3.3.4      " << endl;
-	this->bluekenue_output <<":WrittenBy       ProMaIDes IWW" << endl;
+	this->bluekenue_output <<":WrittenBy       ProMaIDes HS-M" << endl;
 	this->bluekenue_output <<":CreationDate " << Sys_Output_Division::set_time()<<endl;
-	this->bluekenue_output << "#Type expression: 0 STANDARD_ELEM; 1 COAST_ELEM; 2 NOFLOW_ELEM; 3 NOINFO_ELEM; 4 RIVER_ELEM; 5 OTHER_FP_ELEM; 6 DIKELINE_ELEM" << endl << endl;
+	this->bluekenue_output << "# Element-type expression: 0 STANDARD_ELEM; 1 COAST_ELEM; 2 NOFLOW_ELEM; 3 NOINFO_ELEM; 4 RIVER_ELEM; 5 OTHER_FP_ELEM; 6 DIKELINE_ELEM" << endl << endl;
 	this->bluekenue_output <<"#------------------------------------------------------------------------" << endl<<endl;
 	this->bluekenue_output <<":Name Geometry of floodplain "<< this->Param_FP.get_floodplain_name() << endl;
 	this->bluekenue_output <<":Title "<< this->Param_FP.get_floodplain_name() << endl<<endl;
@@ -1525,6 +1525,110 @@ void Hyd_Model_Floodplain::output_geometrie2bluekenue(void){
 
 
 }
+//Output the geometrie to Paraview file
+void Hyd_Model_Floodplain::output_geometrie2paraview(void) {
+	//get the file name
+	string filename = this->Param_FP.get_filename_geometrie2file(hyd_label::paraview);
+	//Add file type
+	filename += hyd_label::vtk;
+
+	if (filename == label::not_set) {
+		return;
+	}
+	//open the file
+	this->tecplot_output.open(filename.c_str());
+	if (this->tecplot_output.is_open() == false) {
+		Error msg = this->set_error(7);
+		ostringstream info;
+		info << "Filename " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	//fileheader
+	//output the file header
+	this->tecplot_output << "# vtk DataFile Version 3.0" << endl;
+	this->tecplot_output << "Geometry of floodplain " << this->Param_FP.FPNumber << " with floodplain name " << this->Param_FP.FPName<<endl;
+	//this->tecplot_output << "  (Element-Type expression: 0 STANDARD_ELEM; 1 COAST_ELEM; 2 NOFLOW_ELEM; 3 NOINFO_ELEM; 4 RIVER_ELEM; 5 OTHER_FP_ELEM; 6 DIKELINE_ELEM)" << endl;
+	this->tecplot_output << "ASCII" << endl;
+	this->tecplot_output << "DATASET STRUCTURED_GRID" << endl;
+	this->tecplot_output << "DIMENSIONS " << this->Param_FP.FPNofX + 1 << " " << this->Param_FP.FPNofY + 1 << " 1" << endl;
+	this->tecplot_output << "POINTS " << (this->Param_FP.FPNofX + 1)*(this->Param_FP.FPNofY + 1) << " double" << endl;
+
+	//output raster
+	for (int i = 0; i < this->raster.get_number_raster_points(); i++) {
+		this->tecplot_output << this->raster.get_raster_point(i)->get_xcoordinate() << " " << this->raster.get_raster_point(i)->get_ycoordinate() << "  0" << endl;
+	}
+
+	this->tecplot_output << endl << endl;
+
+	//output data
+	string buff_unit;
+	this->tecplot_output << "CELL_DATA " << this->NEQ << endl;
+	buff_unit = " Elem_No_";
+	buff_unit += label::no_unit;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " unsigned_int" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].get_elem_number() << "  ";
+	}
+
+	this->tecplot_output << endl << endl;
+	buff_unit = " z_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].get_z_value() << "  ";
+	}
+
+	this->tecplot_output << endl << endl;
+	buff_unit = " Elem_Type_";
+	buff_unit += label::no_unit;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " unsigned_int" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].get_elem_type() << "  ";
+	}
+	
+	this->tecplot_output << endl << endl;
+	buff_unit = " Init_cond_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].get_flow_data().init_condition << "  ";
+	}
+
+	this->tecplot_output << endl << endl;
+	buff_unit = " Mat_Type_";
+	buff_unit += label::no_unit;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " unsigned_int" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].get_flow_data().mat_type << "  ";
+	}
+
+	this->tecplot_output << endl << endl;
+	buff_unit = " n_value_";
+	buff_unit += label::n_unit;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].get_flow_data().n_value << "  ";
+	}
+	this->tecplot_output << endl;
+
+
+	//close the file
+	this->tecplot_output.close();
+	this->tecplot_output.clear();
+}
 //Output the result members per timestep
 void Hyd_Model_Floodplain::output_result_members_per_timestep(void){
 	//set prefix for output
@@ -1544,7 +1648,10 @@ void Hyd_Model_Floodplain::output_result_members_per_timestep(void){
 //Output the result members per timestep to tecplot
 void Hyd_Model_Floodplain::output_result2tecplot(const double timepoint, const int timestep_number){
 	//get the file name
-	string filename=this->Param_FP.get_filename_result2tecplot(timepoint);
+	string filename=this->Param_FP.get_filename_result2file(hyd_label::tecplot, timepoint);
+	//Add file type
+	filename += hyd_label::dat;
+
 	if(filename==label::not_set){
 		return;
 	}
@@ -1710,21 +1817,13 @@ void Hyd_Model_Floodplain::output_result2tecplot(const double timepoint, const i
 void Hyd_Model_Floodplain::output_result2bluekenue(const double timepoint, const int timestep_number, const double start_time){
 	
 	//get the file name
-    //printf("Time %i  %f  \n", my_c,my_time);
-	string filename_part=this->Param_FP.get_filename_result();
-	if(filename_part==label::not_set){
-		return;
-	}
+	string filename = this->Param_FP.get_filename_result(hyd_label::bluekenue);
+	//Add file type
+	filename += hyd_label::r2s;
+
     if(this->Param_FP.get_geometrical_info().number_x==0){
         return;
     }
-	string filename;
-
-
-
-	//h output
-	filename.append(filename_part.c_str());
-    filename.append(".r2s");
 
 
 	//open the file h
@@ -1755,7 +1854,7 @@ void Hyd_Model_Floodplain::output_result2bluekenue(const double timepoint, const
         txt <<"# DataType 2D Rect Scalar     (Element midpoints are displayed!) " << endl;
         txt <<":Application BlueKenue      " << endl;
         txt <<":Version 3.3.4      " << endl;
-        txt <<":WrittenBy       ProMaIDes IWW" << endl;
+        txt <<":WrittenBy       ProMaIDes HS-M" << endl;
         txt <<":CreationDate " << Sys_Output_Division::set_time().c_str()<<endl;
         txt <<"#------------------------------------------------------------------------" << endl<<endl;
         txt <<":Name Results of floodplain "<< this->Param_FP.get_floodplain_name().c_str() << endl;
@@ -1835,6 +1934,104 @@ void Hyd_Model_Floodplain::output_result2bluekenue(const double timepoint, const
 
 
 }
+//Output the result members per timestep to Paraview
+void Hyd_Model_Floodplain::output_result2paraview(const double timepoint, const int timestep_number) {
+
+	//get the file name
+	string filename = this->Param_FP.get_filename_result2file(hyd_label::paraview, timepoint);
+	//Add file type
+	filename += hyd_label::vtk;
+
+	if (filename == label::not_set) {
+		return;
+	}
+	//open the file
+	QFile output;
+	output.setFileName(filename.c_str());
+	output.open(QIODevice::WriteOnly);
+	if (output.isOpen() == false) {
+		Error msg = this->set_error(7);
+		ostringstream info;
+		info << "Filename " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	// we will serialize the data into the file
+	QDataStream bin(&output);
+
+	//fileheader
+	QTextStream txt(&output);
+	//output the file header
+	txt << "# vtk DataFile Version 3.0" << endl;
+	txt << "Result of floodplain " << this->Param_FP.FPNumber << " with floodplain name " << this->Param_FP.FPName.c_str() << " for time "<< timepoint <<endl;
+	txt << "BINARY" << endl;
+	txt << "DATASET STRUCTURED_GRID" << endl;
+	txt << "DIMENSIONS " << this->Param_FP.FPNofX + 1 << " " << this->Param_FP.FPNofY + 1 << " 1" << endl;
+	txt << "POINTS " << (this->Param_FP.FPNofX + 1)*(this->Param_FP.FPNofY + 1) << " float" << endl;
+
+	//output raster
+	float h;
+	for (int i = 0; i < this->raster.get_number_raster_points(); i++) {
+		h = this->raster.get_raster_point(i)->get_xcoordinate();
+		functions::SwapEnd(h);
+		bin.writeRawData(reinterpret_cast<const char *>(&h), sizeof(float));
+		h = this->raster.get_raster_point(i)->get_ycoordinate();
+		functions::SwapEnd(h);
+		bin.writeRawData(reinterpret_cast<const char *>(&h), sizeof(float));
+		h = 0;
+		functions::SwapEnd(h);
+		bin.writeRawData(reinterpret_cast<const char *>(&h), sizeof(float));
+	}
+
+
+
+
+	//output data
+	string buff_unit;
+	txt << "CELL_DATA " << this->NEQ << endl;
+	buff_unit = " h_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	txt<< "SCALARS" << "  " << buff_unit.c_str() << " float" << endl;
+	txt << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		h = this->floodplain_elems[i].element_type->get_h_value();
+		functions::SwapEnd(h);
+		bin.writeRawData(reinterpret_cast<const char *>(&h), sizeof(float));
+	}
+	txt << endl;
+	
+
+	buff_unit = " s_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	txt << "SCALARS" << "  " << buff_unit.c_str() << " float" << endl;
+	txt << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		 h = this->floodplain_elems[i].element_type->get_s_value();
+		 functions::SwapEnd(h);
+		 bin.writeRawData(reinterpret_cast<const char *>(&h), sizeof(float));
+	}
+	txt << endl;
+	buff_unit = " v_total_";
+	buff_unit += label::m_per_sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	txt << "SCALARS" << "  " << buff_unit.c_str() << " float" << endl;
+	txt << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		h = this->floodplain_elems[i].element_type->get_flowvelocity_vtotal();
+		functions::SwapEnd(h);
+		bin.writeRawData(reinterpret_cast<const char *>(&h), sizeof(float));
+	}
+
+
+
+
+	//close the file
+	output.close();
+	
+}
 //output solver errors
 void Hyd_Model_Floodplain::output_solver_errors(const double time_point, const int step_counter, const string timestring, const string realtime, const double diff_time, const int total_internal, const int internal_steps){
 	//set prefix for output
@@ -1879,7 +2076,10 @@ void Hyd_Model_Floodplain::output_final(void){
 //Output the maximum result members to tecplot
 void Hyd_Model_Floodplain::output_result_max2tecplot(void){
 	//get the file name
-	string filename=this->Param_FP.get_filename_result_max2tecplot();
+	string filename = this->Param_FP.get_filename_result_max2file(hyd_label::tecplot);
+	//Add file type
+	filename += hyd_label::dat;
+
 	if(filename==label::not_set){
 		return;
 	}
@@ -2435,6 +2635,459 @@ void Hyd_Model_Floodplain::output_result_max2tecplot(void){
 
 	this->tecplot_output << endl<< endl;
 	//close the file
+	this->tecplot_output.close();
+	this->tecplot_output.clear();
+}
+//Output the maximum result members to bluekenue
+void Hyd_Model_Floodplain::output_result_max2bluekenue(void) {
+
+	//get the file name
+	string filename = this->Param_FP.get_filename_result_max2file(hyd_label::bluekenue);
+	//Add file type
+	filename += hyd_label::r2s;
+
+	if (filename == label::not_set) {
+		return;
+	}
+	//open the file
+	this->bluekenue_output.open(filename.c_str());
+	if (this->bluekenue_output.is_open() == false) {
+		Error msg = this->set_error(7);
+		ostringstream info;
+		info << "Filename " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	//fileheader
+	//output the file header
+	//output geometrie header
+	this->bluekenue_output << endl << endl;
+	this->bluekenue_output << "####################################################################### " << endl;
+	this->bluekenue_output << ":FileType r2s ASCII EnSim 1.0  " << endl;
+	this->bluekenue_output << "# Canadian Hydraulics Centre/National Research Council (c) 1998-2005  " << endl;
+	this->bluekenue_output << "# DataType 2D Rect Scalar   (Element midpoints are displayed!) " << endl;
+	this->bluekenue_output << ":Application BlueKenue      " << endl;
+	this->bluekenue_output << ":Version 3.3.4      " << endl;
+	this->bluekenue_output << ":WrittenBy       ProMaIDes HS-M" << endl;
+	this->bluekenue_output << ":CreationDate " << Sys_Output_Division::set_time() << endl;
+	this->bluekenue_output << "#------------------------------------------------------------------------" << endl << endl;
+	this->bluekenue_output << ":Name Max values of floodplain " << this->Param_FP.get_floodplain_name() << endl;
+	this->bluekenue_output << ":Title " << this->Param_FP.get_floodplain_name() << endl << endl;
+	this->bluekenue_output << ":Projection Cartesian" << endl;
+	this->bluekenue_output << ":Ellipsoid Unknown " << endl << endl;
+	this->bluekenue_output << ":xOrigin " << P(5) << FORMAT_FIXED_REAL << this->floodplain_elems[0].get_mid_point()->get_xcoordinate() << endl;
+	this->bluekenue_output << ":yOrigin " << P(5) << FORMAT_FIXED_REAL << this->floodplain_elems[0].get_mid_point()->get_ycoordinate() << endl;
+	this->bluekenue_output << ":xCount " << this->Param_FP.FPNofX << endl;
+	this->bluekenue_output << ":yCount " << this->Param_FP.FPNofY << endl;
+	this->bluekenue_output << ":xDelta " << this->Param_FP.width_x << endl;
+	this->bluekenue_output << ":yDelta " << this->Param_FP.width_y << endl;
+	this->bluekenue_output << ":Angle " << this->Param_FP.angle << endl;
+	//output geometrie attribute
+
+	this->bluekenue_output << ":AttributeName  1 h_max" << endl;
+	this->bluekenue_output << ":AttributeUnits 1 " << label::m << endl;
+	this->bluekenue_output << ":AttributeName  2 t(h_max)" << endl;
+	this->bluekenue_output << ":AttributeUnits 2 " << label::sec << endl;
+	this->bluekenue_output << ":AttributeName  3 ds_dt_max" << endl;
+	this->bluekenue_output << ":AttributeUnits 3 " << label::m_per_min << endl;
+	this->bluekenue_output << ":AttributeName  4 t(ds_dt_max)" << endl;
+	this->bluekenue_output << ":AttributeUnits 4 " << label::sec<< endl;
+	this->bluekenue_output << ":AttributeName  5 v_x_max" << endl;
+	this->bluekenue_output << ":AttributeUnits 5 " << label::m_per_sec << endl;
+	this->bluekenue_output << ":AttributeName  6 t(v_x_max)" << endl;
+	this->bluekenue_output << ":AttributeUnits 6 " << label::sec << endl;
+	this->bluekenue_output << ":AttributeName  7 v_y_max" << endl;
+	this->bluekenue_output << ":AttributeUnits 7 " << label::m_per_sec << endl;
+	this->bluekenue_output << ":AttributeName  8 t(v_y_max)" << endl;
+	this->bluekenue_output << ":AttributeUnits 8 " << label::sec << endl;
+	this->bluekenue_output << ":AttributeName  9 v_tot_max" << endl;
+	this->bluekenue_output << ":AttributeUnits 9 " << label::m_per_sec << endl;
+	this->bluekenue_output << ":AttributeName  10 t(v_tot_max)" << endl;
+	this->bluekenue_output << ":AttributeUnits 10 " << label::sec << endl;
+	this->bluekenue_output << ":AttributeName  11 hv_max" << endl;
+	this->bluekenue_output << ":AttributeUnits 11 " << label::sqm_per_sec << endl;
+	this->bluekenue_output << ":AttributeName  12 t(hv_max)" << endl;
+	this->bluekenue_output << ":AttributeUnits 12 " << label::sec << endl;
+
+	this->bluekenue_output << ":AttributeName  13 was_wet" << endl;
+	this->bluekenue_output << ":AttributeUnits 13 " << label::no_unit << endl;
+	this->bluekenue_output << ":AttributeName  14 arrival_time" << endl;
+	this->bluekenue_output << ":AttributeUnits 14 " << label::sec << endl;
+	this->bluekenue_output << ":AttributeName  15 t(wet)" << endl;
+	this->bluekenue_output << ":AttributeUnits 15 " << label::sec << endl;
+
+
+	this->bluekenue_output << ":EndHeader " << endl << endl;
+
+	int counter_endl = 0;
+
+	//required?
+	//this->tecplot_output << "\" CVol_FP_in " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_FP_out " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_RV_Sc_in " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_RV_Sc_out " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_RV_Di_in " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_RV_Di_out " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_RV_OV_in " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_RV_OV_out " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_RV_DB_in " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_RV_DB_out " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_CO_OV_in " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_CO_OV_out " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_CO_DB_in " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_CO_DB_out " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_sum_in " << label::cubicmeter << "\" " << endl;
+	//this->tecplot_output << "\" CVol_sum_out " << label::cubicmeter << "\" " << endl;
+
+	
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_h_value().maximum << "  ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_h_value().time_point << "  ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_ds2dt().maximum*60.0 << "  ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_ds2dt().time_point << "  ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_v_x().maximum<< " ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_v_x().time_point << " ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_v_y().maximum << " ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_v_y().time_point << " ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_v_total().maximum << " ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_v_total().time_point << " ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_hv().maximum << "  ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+	counter_endl = 0;
+	this->bluekenue_output << endl;
+
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_max_hv().time_point << "  ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+
+	counter_endl = 0;
+	this->bluekenue_output << endl << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_was_wet_flag()<< "  ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+	counter_endl = 0;
+	this->bluekenue_output << endl;
+
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_arrival_time() << "  ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+	counter_endl = 0;
+	this->bluekenue_output << endl;
+
+	for (int i = 0; i < this->NEQ; i++) {
+		this->bluekenue_output << this->floodplain_elems[i].element_type->get_wet_duration() << "  ";
+		counter_endl++;
+		if (counter_endl == this->Param_FP.FPNofX) {
+			counter_endl = 0;
+			this->bluekenue_output << endl;
+		}
+	}
+
+
+	//close the file
+	this->bluekenue_output.close();
+	this->bluekenue_output.clear();
+
+}
+//Output the maximum result members to paraview
+void Hyd_Model_Floodplain::output_result_max2paraview(void) {
+
+	//get the file name
+	string filename = this->Param_FP.get_filename_result_max2file(hyd_label::paraview);
+	//Add file type
+	filename += hyd_label::vtk;
+
+	if (filename == label::not_set) {
+		return;
+	}
+	//open the file
+	this->tecplot_output.open(filename.c_str());
+	if (this->tecplot_output.is_open() == false) {
+		Error msg = this->set_error(7);
+		ostringstream info;
+		info << "Filename " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	//fileheader
+	//output the file header
+	this->tecplot_output << "# vtk DataFile Version 3.0"<< endl;
+	this->tecplot_output << "Maximum results of floodplain " << this->Param_FP.FPNumber <<" with floodplain name "<< this->Param_FP.FPName << endl;
+	this->tecplot_output << "ASCII" << endl;
+	this->tecplot_output << "DATASET STRUCTURED_GRID" << endl;
+	this->tecplot_output << "DIMENSIONS " << this->Param_FP.FPNofX+1<< " " << this->Param_FP.FPNofY +1<< " 1"<< endl;
+	this->tecplot_output << "POINTS " <<(this->Param_FP.FPNofX + 1)*(this->Param_FP.FPNofY + 1) << " double" <<endl;
+
+	//output raster
+	for (int i = 0; i < this->raster.get_number_raster_points(); i++) {
+		this->tecplot_output << this->raster.get_raster_point(i)->get_xcoordinate() << " " << this->raster.get_raster_point(i)->get_ycoordinate() << "  0" << endl;
+	}
+
+	this->tecplot_output << endl << endl;
+	string buff_unit;
+	//output data
+	this->tecplot_output << "CELL_DATA " << this->NEQ << endl;
+	this->tecplot_output << endl << endl;
+	buff_unit = " h_max_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  "<<buff_unit<< " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_h_value().maximum << "  ";
+	}
+	
+	this->tecplot_output << endl << endl;
+	buff_unit = " t(h_max)_";
+	buff_unit += label::sec;
+	buff_unit=functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  "<< buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_h_value().time_point << "  ";
+	}
+
+	this->tecplot_output << endl << endl;
+	buff_unit = " ds_dt_max_";
+	buff_unit += label::m_per_min;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_ds2dt().maximum*60.0 << "  ";
+	}
+	this->tecplot_output << endl << endl;
+	buff_unit = " t(ds_dt_max)_";
+	buff_unit += label::sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_ds2dt().time_point << "  ";
+	}
+	this->tecplot_output << endl << endl;
+	buff_unit = " v_x_max_";
+	buff_unit += label::m_per_sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_v_x().maximum << "  ";
+	}
+	this->tecplot_output << endl << endl;
+	buff_unit = "t(v_x_max)_";
+	buff_unit += label::sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_v_x().time_point << "  ";
+	}
+
+	this->tecplot_output << endl << endl;
+	buff_unit = " v_y_max_";
+	buff_unit += label::m_per_sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_v_y().maximum << "  ";
+	}
+	this->tecplot_output << endl << endl;
+	buff_unit = "t(v_y_max)_";
+	buff_unit += label::sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_v_y().time_point << "  ";
+	}
+	this->tecplot_output << endl << endl;
+	buff_unit = " v_tot_";
+	buff_unit += label::m_per_sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_v_total().maximum << "  ";
+	}
+	this->tecplot_output << endl << endl;
+	buff_unit = "t(v_tot)_";
+	buff_unit += label::sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_v_total().time_point << "  ";
+	}
+	this->tecplot_output << endl << endl;
+	buff_unit = " hv_max_";
+	buff_unit += label::sqm_per_sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_hv().maximum << "  ";
+	}
+	this->tecplot_output << endl << endl;
+	buff_unit = " t(hv_max)_";
+	buff_unit += label::sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_max_hv().time_point << "  ";
+	}
+
+	this->tecplot_output << endl << endl;
+	buff_unit = " was_wet_";
+	buff_unit += label::no_unit;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_was_wet_flag() << "  ";
+	}
+
+
+	this->tecplot_output << endl << endl;
+	buff_unit = " arrival_time_";
+	buff_unit += label::sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_arrival_time() << "  ";
+	}
+	this->tecplot_output << endl << endl;
+	buff_unit = " t(wet)_";
+	buff_unit += label::sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_wet_duration() << "  ";
+	}
+
+
+
+
+
+		//close the file
 	this->tecplot_output.close();
 	this->tecplot_output.clear();
 }

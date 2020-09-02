@@ -46,7 +46,6 @@ Hyd_Hydraulic_System::Hyd_Hydraulic_System(void){
 	this->output_is_running=false;
 	this->output_is_allowed=false;
 	this->output_is_required=false;
-;
 
 	//development static output file
 	//Hyd_Hydraulic_System::test.open("./ERG/test.dat");
@@ -59,6 +58,9 @@ Hyd_Hydraulic_System::Hyd_Hydraulic_System(void){
 	//Hyd_Hydraulic_System::test << "\" qbuff \" ";
 	//Hyd_Hydraulic_System::test << "\" flag \" "<<endl;
 	//Hyd_Hydraulic_System::test << P(4) << FORMAT_FIXED_REAL;
+
+
+	this->coupling_managment.set_ptr2outputflags(&this->global_parameters.output_flags);
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Hydraulic_System)-sizeof(Hyd_Param_Global)-sizeof(Hyd_Param_Material)-sizeof(Hyd_Coupling_Management), _sys_system_modules::HYD_SYS);
@@ -1112,16 +1114,33 @@ void Hyd_Hydraulic_System::output_setted_members(void){
 			this->my_rvmodels[j].output_setted_members();
 		}
 	}
-	//river models tecplot output
+	//river models fileoutput
+
 	if(this->file_output_required==true){
 		if(this->global_parameters.GlobNofRV>0){
-			cout << "Setted members of the Rivermodel(s) to tecplot..." << endl ;
+			cout << "Setted members of the Rivermodel(s) to file..." << endl ;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
-			for (int j =0; j < this->global_parameters.GlobNofRV; j++){
-				this->my_rvmodels[j].output_geometrie2tecplot_2d();
+			if (this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+				cout << "for Tecplot..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+					this->my_rvmodels[j].output_geometrie2tecplot_2d();
+				}
+			}
+			if (this->global_parameters.get_output_flags().paraview_2d_required == true) {
+				cout << "for ParaView..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+					this->my_rvmodels[j].output_geometrie2paraview_2d();
+				}
+			}
+			if (this->global_parameters.get_output_flags().tecplot_2d_required == false && this->global_parameters.get_output_flags().paraview_2d_required == false) {
+				cout << "No output required..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
 			}
 		}
 	}
+	
 
 	//floodplain models (console)
 	if(this->global_parameters.GlobNofFP>0){
@@ -1131,15 +1150,37 @@ void Hyd_Hydraulic_System::output_setted_members(void){
 			this->my_fpmodels[j].output_setted_members();
 		}
 	}
-	//floodplain models tecplot output
+	//floodplain models file output
 	if(this->file_output_required==true){
 		if(this->global_parameters.GlobNofFP>0){
 			cout << "Setted members of the Floodplainmodel(s) to file..." << endl ;
-			Sys_Common_Output::output_hyd->output_txt(&cout);
-			for (int j =0; j < this->global_parameters.GlobNofFP; j++){
-				this->my_fpmodels[j].output_geometrie2tecplot();
-				this->my_fpmodels[j].output_geometrie2bluekenue();
+			Sys_Common_Output::output_hyd->output_txt(&cout);	
+			if (this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+				cout << "for Tecplot..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
+					this->my_fpmodels[j].output_geometrie2tecplot();
+				}
 			}
+			if (this->global_parameters.get_output_flags().paraview_2d_required == true) {
+				cout << "for ParaView..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
+					this->my_fpmodels[j].output_geometrie2paraview();
+				}
+			}
+			if (this->global_parameters.get_output_flags().bluekenue_2d_required==true) {
+				cout << "for BlueKenue..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
+					this->my_fpmodels[j].output_geometrie2bluekenue();
+				}
+			}
+			if (this->global_parameters.get_output_flags().tecplot_2d_required == false && this->global_parameters.get_output_flags().paraview_2d_required == false && this->global_parameters.get_output_flags().bluekenue_2d_required == false) {
+				cout << "No output required..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+			}
+			
 		}
 	}
 	//coast models tecplot output
@@ -1147,7 +1188,20 @@ void Hyd_Hydraulic_System::output_setted_members(void){
 		if(this->global_parameters.coastmodel_applied==true){
 			cout << "Setted members of the Coastmodel to file..." << endl ;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
-			this->my_comodel->output_geometrie2tecplot();
+			if (this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+				cout << "for Tecplot..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				this->my_comodel->output_geometrie2tecplot();
+			}
+			if (this->global_parameters.get_output_flags().paraview_2d_required == true) {
+				cout << "for ParaView..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				this->my_comodel->output_geometrie2paraview();
+			}
+			if (this->global_parameters.get_output_flags().tecplot_2d_required == false && this->global_parameters.get_output_flags().paraview_2d_required == false) {
+				cout << "No output required..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+			}
 		}
 	}
 	//couplings
@@ -1348,11 +1402,35 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 				this->my_rvmodels[j].output_final();
 			}
 			if(this->file_output_required==true && all_output==true){
-				cout << "Output maximum results of the Rivermodel(s) to tecplot..." << endl ;
+				cout << "Output maximum results of the Rivermodel(s) to file..." << endl ;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
-				for (int j =0; j < this->global_parameters.GlobNofRV; j++){
-					this->my_rvmodels[j].output_result_max2tecplot();
+				
+				if (this->global_parameters.get_output_flags().tecplot_1d_required == true) {
+					cout << "for Tecplot..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+					for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+						this->my_rvmodels[j].output_result_max2tecplot();
+					}
 				}
+				if (this->global_parameters.get_output_flags().paraview_1d_required == true) {
+					cout << "for ParaView / csv 1d..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+					for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+						this->my_rvmodels[j].output_result_max2csv();
+					}
+				}
+				if (this->global_parameters.get_output_flags().paraview_2d_required == true) {
+					cout << "for ParaView 2d..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+					for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+						this->my_rvmodels[j].output_result_max2paraview2d();
+					}
+				}
+				if (this->global_parameters.get_output_flags().tecplot_1d_required == false && this->global_parameters.get_output_flags().paraview_1d_required == false) {
+					cout << "No output required..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+				}
+
 			}
 			if(this->database_is_set==true && all_output==true){
 				cout << "Output maximum results of the Rivermodel(s) to database..." << endl ;
@@ -1363,7 +1441,7 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 			}
 		}
 
-		//floodplain models
+		//floodplain models 
 		if(this->global_parameters.GlobNofFP>0){
 			cout << "Statistics of the Floodplainmodel(s)..." << endl ;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
@@ -1371,10 +1449,32 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 				this->my_fpmodels[j].output_final();
 			}
 			if(this->file_output_required==true && all_output==true){
-				cout << "Output maximum results of the Floodplainmodel(s) to tecplot..." << endl ;
+				cout << "Output maximum results of the Floodplainmodel(s) to file..." << endl ;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
-				for (int j =0; j < this->global_parameters.GlobNofFP; j++){
-					this->my_fpmodels[j].output_result_max2tecplot();
+				if (this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+					cout << "for Tecplot..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+					for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
+						this->my_fpmodels[j].output_result_max2tecplot();
+					}
+				}
+				if (this->global_parameters.get_output_flags().bluekenue_2d_required == true) {
+					cout << "for BlueKenue..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+					for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
+						this->my_fpmodels[j].output_result_max2bluekenue();
+					}
+				}
+				if (this->global_parameters.get_output_flags().paraview_2d_required == true) {
+					cout << "for ParaView..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+					for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
+						this->my_fpmodels[j].output_result_max2paraview();
+					}
+				}
+				if (this->global_parameters.get_output_flags().tecplot_2d_required == false && this->global_parameters.get_output_flags().paraview_2d_required == false) {
+					cout << "No output required..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
 				}
 			}
 			if(this->database_is_set==true && all_output==true){
@@ -1405,13 +1505,35 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 		if(this->file_output_required==true){
 			string rv_buff=label::not_set;
 			string fp_buff=label::not_set;
+			//output to tecplot
 			if(this->global_parameters.get_number_river_model()>0){
-				rv_buff=this->my_rvmodels[0].Param_RV.get_filename_result2tecplot_1d_obs_point();
+				rv_buff=this->my_rvmodels[0].Param_RV.get_filename_result2file_1d_obs_point(hyd_label::tecplot);
+				rv_buff += hyd_label::dat;
 			}
 			if(this->global_parameters.get_number_floodplain_model()>0){
-				fp_buff=this->my_fpmodels[0].Param_FP.get_filename_obs_point2tecplot();
+				fp_buff=this->my_fpmodels[0].Param_FP.get_filename_obs_point2file(hyd_label::tecplot);
+				fp_buff += hyd_label::dat;
 			}
-			this->obs_point_managment.output_obs_points2file(rv_buff, fp_buff);
+			cout << "Observation point data to file..." << endl;
+			Sys_Common_Output::output_hyd->output_txt(&cout);
+			if (this->global_parameters.get_output_flags().tecplot_1d_required == true) {
+				this->obs_point_managment.output_obs_points2tecplot_file(rv_buff, fp_buff);
+			}
+			//output to csv
+			if (this->global_parameters.get_number_river_model() > 0) {
+				rv_buff = this->my_rvmodels[0].Param_RV.get_filename_result2file_1d_obs_point(hyd_label::paraview);
+			}
+			if (this->global_parameters.get_number_floodplain_model() > 0) {
+				fp_buff = this->my_fpmodels[0].Param_FP.get_filename_obs_point2file(hyd_label::paraview);
+			}
+			if (this->global_parameters.get_output_flags().paraview_1d_required == true) {
+				this->obs_point_managment.output_obs_points2paraview_file(rv_buff, fp_buff);
+			}
+			if(this->global_parameters.get_output_flags().tecplot_1d_required == false && this->global_parameters.get_output_flags().paraview_1d_required == false){
+				cout << "No observation point output required..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+
+			}
 		}
 
 		//errors/warnings
@@ -1700,15 +1822,31 @@ void Hyd_Hydraulic_System::set_folder_name(const string sc_name, const bool crea
 			}
 			else{
 				my_dir.cd(buffer.str().c_str());
-				//delete existing files
-				QStringList list;
-				list=my_dir.entryList(QDir::Files);
-				for(int i=0; i<list.count(); i++){
-					my_dir.remove(list.at(i));
-				}
+				my_dir.removeRecursively();
+				my_dir.mkdir(buffer.str().c_str());
+				//delete existing files (old style)
+				//QStringList list;
+				//list=my_dir.entryList(QDir::Files);
+				//for(int i=0; i<list.count(); i++){
+				//	my_dir.remove(list.at(i));
+				//}
 			}
+			//add additional folders
+			my_dir.cd(buffer.str().c_str());
+			if (this->global_parameters.get_output_flags().tecplot_1d_required == true || this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+				my_dir.mkdir(hyd_label::tecplot.c_str());
+			}
+			if (this->global_parameters.get_output_flags().bluekenue_2d_required == true) {
+				my_dir.mkdir(hyd_label::bluekenue.c_str());
+			}
+			if (this->global_parameters.get_output_flags().paraview_1d_required == true || this->global_parameters.get_output_flags().paraview_2d_required == true) {
+				my_dir.mkdir(hyd_label::paraview.c_str());
+			}
+
+
+
 			//add prefix for the files
-			buffer<<"DBASE";
+			//buffer<<"DBASE";
 		}
 		this->file_output_folder=buffer.str();
 		//set if they are already allocated to the models
@@ -1726,6 +1864,59 @@ void Hyd_Hydraulic_System::set_folder_name(const string sc_name, const bool crea
 			this->my_comodel->set_output_folder(this->file_output_folder);
 		}
 	}
+}
+//Set output folder name in case of file calculation output
+void Hyd_Hydraulic_System::set_folder_name_file(void) {
+	ostringstream buffer;
+	if (this->file_output_required == true) {
+		QDir my_dir;
+		// create folder
+		buffer << this->global_parameters.get_output_flags().output_folder<< "/output" << "/";
+		if (my_dir.exists(buffer.str().c_str()) == false) {
+			my_dir.mkdir(buffer.str().c_str());
+		}
+		else {
+			my_dir.cd(buffer.str().c_str());
+			my_dir.removeRecursively();
+			my_dir.mkdir(buffer.str().c_str());
+			//delete existing files (old style)
+			//QStringList list;
+			//list=my_dir.entryList(QDir::Files);
+			//for(int i=0; i<list.count(); i++){
+			//	my_dir.remove(list.at(i));
+			//}
+		}
+		//add additional folders
+		my_dir.cd(buffer.str().c_str());
+		if (this->global_parameters.get_output_flags().tecplot_1d_required == true || this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+			my_dir.mkdir(hyd_label::tecplot.c_str());
+		}
+		if (this->global_parameters.get_output_flags().bluekenue_2d_required == true) {
+			my_dir.mkdir(hyd_label::bluekenue.c_str());
+		}
+		if (this->global_parameters.get_output_flags().paraview_1d_required == true || this->global_parameters.get_output_flags().paraview_2d_required == true) {
+			my_dir.mkdir(hyd_label::paraview.c_str());
+		}
+		this->file_output_folder = buffer.str();
+
+		//set if they are already allocated to the models
+		if (this->my_rvmodels != NULL) {
+			for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+				this->my_rvmodels[i].set_output_folder(this->file_output_folder);
+			}
+		}
+		if (this->my_fpmodels != NULL) {
+			for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
+				this->my_fpmodels[i].set_output_folder(this->file_output_folder);
+			}
+		}
+		if (this->my_comodel != NULL) {
+			this->my_comodel->set_output_folder(this->file_output_folder);
+		}
+
+	}
+
+
 }
 //Set identifier string
 void Hyd_Hydraulic_System::set_identifier_string(const string identifier){
@@ -2670,10 +2861,28 @@ void Hyd_Hydraulic_System::make_calculation_floodplainmodel(void){
 //Output the results of the calculation steps of the river models to file
 void Hyd_Hydraulic_System::output_calculation_steps_rivermodel2file(const double timestep){
 	if(this->file_output_required==true){
-		for(int i=0; i< this->global_parameters.GlobNofRV;i++){
-			//to the tecplot file
-			this->my_rvmodels[i].output_result2tecplot_1d(timestep,this->timestep_counter);
-			this->my_rvmodels[i].output_result2tecplot_2d(timestep,this->timestep_counter);
+		if (this->global_parameters.get_output_flags().tecplot_1d_required == true || this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+			for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+				//to the tecplot file
+				if (this->global_parameters.get_output_flags().tecplot_1d_required == true) {
+					this->my_rvmodels[i].output_result2tecplot_1d(timestep, this->timestep_counter);
+				}
+				if (this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+					this->my_rvmodels[i].output_result2tecplot_2d(timestep, this->timestep_counter);
+				}
+			}
+		}
+		if (this->global_parameters.get_output_flags().paraview_1d_required == true) {
+			for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+				//to the csv / paraview file
+				if (this->global_parameters.get_output_flags().paraview_1d_required == true) {
+					this->my_rvmodels[i].output_result2csv_1d(timestep, this->timestep_counter);
+				}
+				if (this->global_parameters.get_output_flags().paraview_2d_required == true) {
+					this->my_rvmodels[i].output_result2paraview_2d(timestep, this->timestep_counter);
+				}
+			}
+
 		}
 	}
 }
@@ -2694,15 +2903,35 @@ void Hyd_Hydraulic_System::output_calculation_steps_rivermodel2display(const dou
 		Sys_Common_Output::output_hyd->rewind_userprefix();
 	}
 }
+//Output the calculation steps (time, solversteps etc) of the river models to databse
+void Hyd_Hydraulic_System::output_calculation_steps_rivermodel2database(const double timestep) {
+	for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+		//to the databse TODO
+		//this->my_rvmodels[i].output_result2tecplot_1d(timestep, this->timestep_counter);
+		//this->my_rvmodels[i].output_result2tecplot_2d(timestep, this->timestep_counter);
+	}
+}
 //Output the results of the calculation steps of the floodplain models to file
-void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2file(const double timestep){
-	if(this->file_output_required==true){
+void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2file(const double timestep) {
+	if (this->file_output_required == true) {
 		//loop over the floodplain models
-		for(int i=0; i< this->global_parameters.GlobNofFP;i++){
-			//to the tecplot file
-            //this->my_fpmodels[i].output_result2tecplot(timestep, this->timestep_counter);
-            this->my_fpmodels[i].output_result2bluekenue(timestep, this->timestep_counter, this->global_parameters.get_startime());
-
+		if (this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+			for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
+				//to the tecplot file
+				this->my_fpmodels[i].output_result2tecplot(timestep, this->timestep_counter);
+			}
+		}
+		if (this->global_parameters.get_output_flags().bluekenue_2d_required == true) {
+			for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
+				//to the bluekenue file
+				this->my_fpmodels[i].output_result2bluekenue(timestep, this->timestep_counter, this->global_parameters.get_startime());
+			}
+		}
+		if (this->global_parameters.get_output_flags().paraview_2d_required == true) {
+			for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
+				//to the paraview file 
+				this->my_fpmodels[i].output_result2paraview(timestep, this->timestep_counter);
+			}
 		}
 	}
 }
@@ -2722,6 +2951,15 @@ void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2display(cons
 		//rewind two times the prefix
 		Sys_Common_Output::output_hyd->rewind_userprefix();
 		Sys_Common_Output::output_hyd->rewind_userprefix();
+	}
+}
+//Output the results of the calculation steps of the floodplain models to database
+void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2database(const double timestep) {
+	//loop over the floodplain models
+	for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
+		//to database TODO
+		//this->my_fpmodels[i].output_result2tecplot(timestep, this->timestep_counter);
+		//this->my_fpmodels[i].output_result2bluekenue(timestep, this->timestep_counter, this->global_parameters.get_startime());
 	}
 }
 //Clear all not needed data of the models before the solver is initialized

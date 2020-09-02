@@ -2793,7 +2793,7 @@ void _Hyd_River_Profile::output_max_results(void){
 	cout << endl;
 	Sys_Common_Output::output_hyd->output_txt(&cout,true);
 }
-//Output the maximum result output to a given file
+//Output the maximum result output to a given tecplot file
 void _Hyd_River_Profile::output_max_results2file(ofstream *file){
 	*file << P(1) << FORMAT_FIXED_REAL<< this->river_station << W(11);
 	this->typ_of_profile->output_max_results2file(file);
@@ -2821,6 +2821,36 @@ void _Hyd_River_Profile::output_max_results2file(ofstream *file){
 	*file << P(2) << FORMAT_FIXED_REAL <<this->q_value_max.maximum << W(15);
 	*file << P(0) << FORMAT_FIXED_REAL <<this->q_value_max.time_point;
 	*file << endl;
+}
+//Output the maximum result output to a csv file
+void _Hyd_River_Profile::output_max_results2csvfile(ofstream *file) {
+	*file << P(1) << FORMAT_FIXED_REAL << this->river_station << W(11) << ",";
+	this->typ_of_profile->output_max_results2csvfile(file);
+	*file << P(1) << FORMAT_FIXED_REAL << this->coupling_1d_volume.volume_in << W(15) << ",";
+	*file << P(1) << FORMAT_FIXED_REAL << this->coupling_1d_volume.volume_out << W(15) << ",";
+	*file << P(1) << FORMAT_FIXED_REAL << this->structure_coupling_volume.volume_in << W(15) << ",";
+	*file << P(1) << FORMAT_FIXED_REAL << this->structure_coupling_volume.volume_out << W(15) << ",";
+	*file << P(1) << FORMAT_FIXED_REAL << this->left_bank_overflow_volume.volume_in << W(15) << ",";
+	*file << P(1) << FORMAT_FIXED_REAL << this->left_bank_overflow_volume.volume_out << W(15) << ",";
+	*file << P(1) << FORMAT_FIXED_REAL << this->right_bank_overflow_volume.volume_in << W(15) << ",";
+	*file << P(1) << FORMAT_FIXED_REAL << this->right_bank_overflow_volume.volume_out << W(15) << ",";
+	*file << P(1) << FORMAT_FIXED_REAL << this->left_dikebreak_coupling_volume.volume_in << W(15) << ",";
+	*file << P(1) << FORMAT_FIXED_REAL << this->left_dikebreak_coupling_volume.volume_out << W(15) << ",";
+	*file << P(1) << FORMAT_FIXED_REAL << this->right_dikebreak_coupling_volume.volume_in << W(15) << ",";
+	*file << P(1) << FORMAT_FIXED_REAL << this->right_dikebreak_coupling_volume.volume_out << W(15) << ",";
+	double sum = 0.0;
+	sum = this->coupling_1d_volume.volume_in + this->structure_coupling_volume.volume_in +
+		this->left_bank_overflow_volume.volume_in + this->right_bank_overflow_volume.volume_in +
+		this->left_dikebreak_coupling_volume.volume_in + this->right_dikebreak_coupling_volume.volume_in;
+	*file << P(1) << FORMAT_FIXED_REAL << sum << W(15);
+	sum = this->coupling_1d_volume.volume_out + this->structure_coupling_volume.volume_out +
+		this->left_bank_overflow_volume.volume_out + this->right_bank_overflow_volume.volume_out +
+		this->left_dikebreak_coupling_volume.volume_out + this->right_dikebreak_coupling_volume.volume_out;
+	*file << P(1) << FORMAT_FIXED_REAL << sum << W(15) << ",";
+	*file << P(2) << FORMAT_FIXED_REAL << this->q_value_max.maximum << W(15) << ",";
+	*file << P(0) << FORMAT_FIXED_REAL << this->q_value_max.time_point;
+	*file << endl;
+
 }
 //Output the maximum calculated results to the database table (erg_table)
 void _Hyd_River_Profile::output_max_results(QSqlDatabase *ptr_database, const int rv_no, const string polygon_string, int *glob_id, const string break_sc){
@@ -2967,6 +2997,12 @@ void _Hyd_River_Profile::output_result_members_per_timestep(ostringstream *cout)
 void _Hyd_River_Profile::output_result_members_per_timestep(ofstream *file){
 	*file << W(10) << P(2) << FORMAT_FIXED_REAL<< this->river_station;
 	this->typ_of_profile->output_result_members_timestep(file);
+}
+//Output the result members for each riverprofiletype at every timestep to csv file
+void _Hyd_River_Profile::output_result_members_per_timestep2csv(ofstream *file) {
+	*file << W(10) << P(2) << FORMAT_FIXED_REAL << this->river_station << ",";
+	this->typ_of_profile->output_result_members_timestep2csv(file);
+
 }
 //Get the stabilization discharge
 double _Hyd_River_Profile::get_stabilization_discharge(void){

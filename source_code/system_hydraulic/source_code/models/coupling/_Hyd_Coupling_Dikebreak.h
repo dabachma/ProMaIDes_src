@@ -152,6 +152,9 @@ public:
 	///Ouput the point to database as Geo_point data
 	void output_point2database(QSqlDatabase *ptr_database);
 
+	///Clear break list
+	void clear_break_list(void);
+
 
 protected:
 
@@ -262,10 +265,15 @@ protected:
 	///The mean delta h over the breach over the breach time
 	double total_mean_dh;
 
-	///File stream for output the breach developement
+	///File stream for output the breach developement in tecplot
 	ofstream output_file;
-	///Name of the file for breach developement
+	///Name of the file for breach developement in tecplot
 	string file_name;
+
+	///File stream for output the breach developement in csv
+	ofstream output_file_csv;
+	///Name of the file for breach developement in csv
+	string file_name_csv;
 
 	///Flag if the breach-development is user-defined
 	bool user_defined;
@@ -295,13 +303,22 @@ protected:
 	///Calculate the total mean delta h at the breach heads 
 	void calculate_total_mean_delta_h(void);
 
-	///Close the output file
+	///Close the output file for tecplot
 	void close_output_file(void);
-	///Open the outpufile; if it is open it will be closed
+	///Open the outpufile for tecplot; if it is open it will be closed
 	void open_output_file(void);
 
-	///Output the header to the result file
-	virtual void output_header_result2file(void)=0;
+	///Output the header to the result file for tecplot
+	virtual void output_header_result2file_tecplot(void)=0;
+
+
+	///Close the output file for csv
+	void close_output_file_csv(void);
+	///Open the outpufile for csv; if it is open it will be closed
+	void open_output_file_csv(void);
+
+	///Output the header to the result file for csv
+	virtual void output_header_result2file_csv(void) = 0;
 
 private:
 

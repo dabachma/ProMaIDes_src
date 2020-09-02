@@ -198,7 +198,7 @@ void Hyd_Coast_Model::output_members(void){
 	cout << " Instationary boundary file   : " << W(7) << Hyd_Param_Global::get_print_filename(37,this->params.filename_instat_boundary.c_str())<< endl;
 	cout << " Coastline file               : " << W(7) << Hyd_Param_Global::get_print_filename(37,this->params.filename_coastline.c_str())<< endl;
 	cout << "GEOMETRY  " << endl;
-	cout << " Geometry file                : " << W(7) << Hyd_Param_Global::get_print_filename(37,this->get_filename_geometrie2tecplot().c_str())<< endl;
+	cout << " Geometry folder                : " << W(7) << Hyd_Param_Global::get_print_filename(37, this->params.filename_geometry_tecplot.c_str())<< endl;
 	
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 	//coastline
@@ -218,9 +218,12 @@ void Hyd_Coast_Model::output_geometrie2tecplot(void){
 
 	if(this->params.filename_geometry_tecplot!=label::not_set){
 		ofstream outfile;
-		outfile.open(this->get_filename_geometrie2tecplot().c_str());
+		outfile.open(this->get_filename_geometrie2tecplot(hyd_label::tecplot).c_str());
 		if(outfile.is_open()==false){
 			Error msg=this->set_error(0);
+			ostringstream info;
+			info << "Filename : " << this->get_filename_geometrie2tecplot(hyd_label::tecplot) << endl;
+			msg.make_second_info(info.str());
 			throw msg;
 		}
 		//fileheader
@@ -269,6 +272,44 @@ void Hyd_Coast_Model::output_geometrie2tecplot(void){
 		outfile.close();
 	}
 
+}
+//Output the geometrie to paraview
+void Hyd_Coast_Model::output_geometrie2paraview(void) {
+	if (this->params.filename_geometry_tecplot != label::not_set) {
+		ofstream outfile;
+		outfile.open(this->get_filename_geometrie2paraview(hyd_label::paraview).c_str());
+		if (outfile.is_open() == false) {
+			Error msg = this->set_error(5);
+			ostringstream info;
+			info << "Filename : " << this->get_filename_geometrie2tecplot(hyd_label::paraview) << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+
+		//fileheader
+		//output the file header
+		outfile << "# vtk DataFile Version 3.0" << endl;
+		outfile << "Geometry of coastline " << endl;
+		outfile << "ASCII" << endl;
+		outfile << "DATASET POLYDATA" << endl;
+		outfile << "POINTS " << this->coastline_polysegment.get_number_segments() << " double" << endl;
+		for (int i = 0; i < this->coastline_polysegment.get_number_segments(); i++) {
+			outfile << this->coastline_polysegment.get_segment(i)->point1.get_xcoordinate() << " ";
+			outfile << this->coastline_polysegment.get_segment(i)->point1.get_ycoordinate() << " ";
+			outfile << "  0";
+			outfile << endl;
+		}
+
+		outfile << "LINES " << " 1 " << this->coastline_polysegment.get_number_segments()+1 << endl;
+		outfile << this->coastline_polysegment.get_number_segments()<< " ";
+		for (int i = 0; i < this->coastline_polysegment.get_number_segments(); i++) {
+			outfile << i << " ";
+		}
+		outfile << endl;
+
+
+		outfile.close();
+	}
 }
 //Make the syncronisation between the models and the boundaries; here set the sea waterlevel
 void Hyd_Coast_Model::make_syncronisation(const double time_point){
@@ -378,14 +419,26 @@ void Hyd_Coast_Model::polysegment2polygon(void){
 
 }
 //Get the filename for the floodplain geometrie file
-string Hyd_Coast_Model::get_filename_geometrie2tecplot(void){
+string Hyd_Coast_Model::get_filename_geometrie2tecplot(const string type){
 	string buffer;
 	buffer=this->params.filename_geometry_tecplot;
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
-		suffix << "_CO_GEO.dat";
-		buffer.append(suffix.str());
+		suffix << "CO_GEO.dat";
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
+	}
+	return buffer;
+}
+//Get the filename for the floodplain geometrie file
+string Hyd_Coast_Model::get_filename_geometrie2paraview(const string type) {
+	string buffer;
+	buffer = this->params.filename_geometry_tecplot;
+
+	if (buffer != label::not_set) {
+		stringstream suffix;
+		suffix << "CO_GEO.vtk";
+		buffer = functions::make_complete_output_path(buffer, type, suffix.str());
 	}
 	return buffer;
 }
@@ -422,10 +475,9 @@ Error Hyd_Coast_Model::set_error(const int err_type){
 
 	switch (err_type){
 		case 0://can not open file
-			place.append("input_members(const int index, const string filename)");
+			place.append("output_geometrie2tecplot(void)");
 			reason="Can not open file";
 			help="Check the file";
-			info << "Filename : " << this->get_filename_geometrie2tecplot() << endl;
 			type=5;
 			break;
 		case 1://can not allocate the point buffer
@@ -451,6 +503,12 @@ Error Hyd_Coast_Model::set_error(const int err_type){
 			reason="No coast boundary curve is found";
 			help="Check the coast boundaries in table";
 			type=2;
+			break;
+		case 5://can not open file
+			place.append("output_geometrie2paraview(void)");
+			reason = "Can not open file";
+			help = "Check the file";
+			type = 5;
 			break;
 		default:
 			place.append("set_error(const int err_type)");

@@ -3,6 +3,8 @@
 #include "Common_Const.h"
 using namespace std;
 
+
+
 //Signum function
 double functions::signum_func(const double value){
 	if(value>0.0){
@@ -169,6 +171,13 @@ void functions::clean_string(string *txt){
 		}
 	}
 	while(txt->empty()==false);
+}
+//Clean all white space
+string functions::clean_white_space(string *txt) {
+	string buff= *txt;
+	buff.erase(std::remove_if(buff.begin(), buff.end(), ::isspace), buff.end());
+
+	return buff;
 }
 //Convert all char's in a string to the lower case
 string functions::convert_string2lower_case(string *txt){
@@ -459,29 +468,32 @@ bool functions::decide_begin_end_keyword(QString *type){
 		return true;
 	}	
 }
-
 //Set flags for table widgets (static)
 void functions::set_table_widget_flags(QTableWidget * widget){
-
 
     Qt::ItemFlags my_flag;
     my_flag=my_flag|(Qt::ItemIsEnabled);
     my_flag=my_flag|(Qt::ItemIsSelectable);
     my_flag=my_flag|(Qt::ItemIsDragEnabled);
-
-
-
-
     for(int i=0; i<widget->rowCount(); i++){
         for(int j=0; j<widget->columnCount(); j++){
             QTableWidgetItem *buff=widget->item(i,j);
             if(buff!=NULL){
                 buff->setFlags(my_flag);
             }
-
-
         }
     }
-
-
 }
+//Make output path complete
+string functions::make_complete_output_path(const string path, const string folder, const string name) {
+	string my_str;
+	my_str = path;
+	my_str += "/";
+	my_str += folder;
+	my_str += "/";
+	my_str += name;
+
+	return my_str;
+}
+//For binary output of vtk-files (paraview)
+

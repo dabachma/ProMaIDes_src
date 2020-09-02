@@ -80,17 +80,17 @@ public:
 	///Output the members of the floodplain model
 	void output_members(void);
 	///Get the filename for the floodplain geometrie file
-	string get_filename_geometrie2tecplot(void);
+	string get_filename_geometrie2file(const string type);
 	///Get the filename for the floodplain geometrie file without suffix
-	string get_filename_geometrie(void);
-	///Get the filename for the floodplain result file for tecplot
-	string get_filename_result2tecplot(const double timepoint);
+	string get_filename_geometrie(const string type);
+	///Get the filename for the floodplain result file 
+	string get_filename_result2file(const string type, const double timepoint);
 	///Get the filename for the floodplain result file without suffix
-	string get_filename_result(void);
-	///Get the filename for the floodplain result file for tecplot
-	string get_filename_result_max2tecplot(void);
-	///Get the filename for the maximum floodplain observation points to file for tecplot
-	string get_filename_obs_point2tecplot(void);
+	string get_filename_result(const string type);
+	///Get the filename for the floodplain result file 
+	string get_filename_result_max2file(const string type);
+	///Get the filename for the maximum floodplain observation points to file 
+	string get_filename_obs_point2file(const string type);
 	///Calculate the approximate workspace requirement
     long long int calculate_approx_workspace(void);
 

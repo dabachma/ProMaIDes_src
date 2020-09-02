@@ -280,7 +280,7 @@ void Hyd_Coupling_FP2CO_Dikebreak::init_coupling(Hyd_Coupling_FP2CO_Merged *coup
 	Sys_Common_Output::output_hyd->rewind_userprefix();
 }
 //The couplings are initialized with the already performed FP2CO couplings; here a list of coast line points is also given for the creation of a list of possible starting breach points (scenario based risk approach)
-void Hyd_Coupling_FP2CO_Dikebreak::init_coupling(Hyd_Coupling_FP2CO_Merged *couplings, Hyd_Floodplain_Dikeline_Point **involved_points, const int number_involved_points, const int section_id_fpl){
+void Hyd_Coupling_FP2CO_Dikebreak::init_coupling(Hyd_Coupling_FP2CO_Merged *couplings, Hyd_Floodplain_Dikeline_Point **involved_points, const int number_involved_points, const int section_id_fpl, _hyd_output_flags *output_flags){
 
 	this->index_section_fpl=section_id_fpl;
 	//flag if the connection is found
@@ -330,7 +330,13 @@ void Hyd_Coupling_FP2CO_Dikebreak::init_coupling(Hyd_Coupling_FP2CO_Merged *coup
 		this->coupling_flag=true;
 		//open the file for output
 		try{
-			this->init_output2file();
+			if (output_flags->tecplot_1d_required == true) {
+				this->init_output2file_tecplot();
+			}
+			if (output_flags->paraview_1d_required == true) {
+				this->init_output2file_csv();
+			}
+
 		}
 		catch(Error msg){
 			throw msg;
@@ -338,7 +344,7 @@ void Hyd_Coupling_FP2CO_Dikebreak::init_coupling(Hyd_Coupling_FP2CO_Merged *coup
 	}
 }
 //The couplings are initialized with the already performed FP2CO couplings; the coupling point index, where the break should begin is directly given (catchment area risk approach)
-void Hyd_Coupling_FP2CO_Dikebreak::init_coupling(Hyd_Coupling_FP2CO_Merged *couplings, const int section_id_fpl, const int point_id){
+void Hyd_Coupling_FP2CO_Dikebreak::init_coupling(Hyd_Coupling_FP2CO_Merged *couplings, const int section_id_fpl, const int point_id, _hyd_output_flags *output_flags){
 
 
 	this->index_section_fpl=section_id_fpl;
@@ -369,7 +375,12 @@ void Hyd_Coupling_FP2CO_Dikebreak::init_coupling(Hyd_Coupling_FP2CO_Merged *coup
 		}
 		//open the file for output
 		try{
-			this->init_output2file();
+			if (output_flags->tecplot_1d_required == true) {
+				this->init_output2file_tecplot();
+			}
+			if (output_flags->paraview_1d_required == true) {
+				this->init_output2file_csv();
+			}
 		}
 		catch(Error msg){
 			throw msg;
@@ -498,8 +509,8 @@ void Hyd_Coupling_FP2CO_Dikebreak::output_index_coupled_models(ostringstream *co
 	}
 	Sys_Common_Output::output_hyd->output_txt(cout);
 }
-//Output result members to file
-void Hyd_Coupling_FP2CO_Dikebreak::output_results2file(double const ){
+//Output result members to tecplot file
+void Hyd_Coupling_FP2CO_Dikebreak::output_results2file_tecplot (double const ){
 	if(this->file_name!=label::not_set){
 		for(int i=0; i< this->break_info_list.time.count(); i++){
 			this->output_file << W(9)<<P(0) << FORMAT_FIXED_REAL << this->break_info_list.time.at(i) <<W(16); 
@@ -563,6 +574,59 @@ void Hyd_Coupling_FP2CO_Dikebreak::output_results2file(double const ){
 	this->break_info_list.total_breach.clear();
 
 }
+//Output result members to csv file
+void Hyd_Coupling_FP2CO_Dikebreak::output_results2file_csv(double const global_time) {
+	if (this->file_name_csv != label::not_set) {
+		for (int i = 0; i < this->break_info_list.time.count(); i++) {
+			this->output_file_csv << W(9) << P(0) << FORMAT_FIXED_REAL << this->break_info_list.time.at(i) << W(16)<<",";
+			this->output_file_csv << this->break_info_list.counter_breach.at(i) << W(20) << ",";
+			this->output_file_csv << this->break_info_list.time_breach.at(i) << W(20) << ",";
+			this->output_file_csv << P(3) << FORMAT_FIXED_REAL << this->break_info_list.total_breach.at(i) << W(20) << ",";
+			if (this->started_flag == true) {
+				this->output_file_csv << this->break_info_list.upstream_breach.at(i) + 0.5*this->init_breach_width << W(20) << "," << this->break_info_list.downstream_breach.at(i) + 0.5*this->init_breach_width << W(29) << ",";
+			}
+			else {
+				this->output_file_csv << 0.0 << W(20) << "," << 0.0 << W(29) << ",";
+			}
+			if (this->started_flag == true) {
+				this->output_file_csv << this->break_info_list.upstream_delta_h.at(i) << W(29) << ",";
+				this->output_file_csv << this->break_params_upstream->resistance << W(29) << ",";
+			}
+			else {
+				this->output_file_csv << 0.0 << W(29) << ",";
+				this->output_file_csv << 0.0 << W(29) << ",";
+			}
+
+			if (this->started_flag == true) {
+				this->output_file_csv << this->break_info_list.downstream_delta_h.at(i) << W(29) << ",";
+				this->output_file_csv << this->break_params_downstream->resistance << W(29) << ",";
+			}
+			else {
+				this->output_file_csv << 0.0 << W(29) << ",";
+				this->output_file_csv << 0.0 << W(29) << ",";
+			}
+
+			this->output_file_csv << this->break_info_list.mean_q.at(i) << W(29) << ",";
+			this->output_file_csv << this->break_info_list.mean_v.at(i) << W(29) << ",";
+
+			if (this->wall_breach_flag == true) {
+				this->output_file_csv << this->break_info_list.upstream_wall_stress.at(i) << W(29) << "," << this->break_info_list.downstream_wall_stress.at(i) << W(29) << ",";
+			}
+			this->output_file_csv << this->break_info_list.delta_h2start.at(i) << endl;
+
+
+
+			/*for(int i=0; i< this->number_possible_start_points; i++){
+
+				this->output_file << i <<" "<< this->list_possible_start_points[i]->get_mid_waterlevel()<< " " <<this->list_possible_start_points[i]->get_mid_basepoint_height()<< endl;
+			}*/
+			//this->output_file << this->max_observed_waterlevel << endl;
+		}
+
+	}
+
+
+}
 //Output final result members
 void Hyd_Coupling_FP2CO_Dikebreak::output_final_results(void){
 	ostringstream cout;
@@ -609,6 +673,7 @@ void Hyd_Coupling_FP2CO_Dikebreak::output_final_results(QSqlDatabase *ptr_databa
 	if(this->started_flag==false){
 		return;
 	}
+	
 
 	//the table is set (the name and the column names) and allocated
 	try{
@@ -778,8 +843,8 @@ void Hyd_Coupling_FP2CO_Dikebreak::clone_couplings(Hyd_Coupling_FP2CO_Dikebreak 
 	this->break_params_upstream=this->upstream_coupling_point->get_ptr_upstream_point()->get_ptr_break_param();
 	this->wall_breach_flag=this->break_params_upstream->abrupt_fails_flag;
 }
-//Initiate the output to a file
-void Hyd_Coupling_FP2CO_Dikebreak::init_output2file(void){
+//Initiate the output to a tecplot file
+void Hyd_Coupling_FP2CO_Dikebreak::init_output2file_tecplot(void){
 	if(this->coupling_flag==false){
 		return;
 	}
@@ -800,15 +865,18 @@ void Hyd_Coupling_FP2CO_Dikebreak::init_output2file(void){
 	this->break_info_list.time.clear();
 	this->break_info_list.time_breach.clear();
 	this->break_info_list.total_breach.clear();
+	buffer += "/";
+	buffer += hyd_label::tecplot;
+	buffer += "/";
 
 	
 	if(buffer!=label::not_set){
 		stringstream suffix;
 		if(this->user_defined==true){
-			suffix << "_BREACH_CO_ID_"<<this->index<<".dat";
+			suffix << "BREACH_CO_ID_"<<this->index<< hyd_label::dat;
 		}
 		else{
-			suffix << "_BREACH_CO_FPL_"<<this->index_section_fpl<<".dat";
+			suffix << "BREACH_CO_FPL_"<<this->index_section_fpl<< hyd_label::dat;
 		}
 		buffer.append(suffix.str());
 		this->file_name=buffer;
@@ -820,6 +888,53 @@ void Hyd_Coupling_FP2CO_Dikebreak::init_output2file(void){
 			throw msg;
 		}
 	}
+}
+///Initiate the output to a csv file
+void Hyd_Coupling_FP2CO_Dikebreak::init_output2file_csv(void) {
+	if (this->coupling_flag == false) {
+		return;
+	}
+	string buffer;
+	//get the file name of the coast model
+	buffer = coast->get_crude_filename_result_1d();
+
+	this->break_info_list.counter_breach.clear();
+	this->break_info_list.delta_h2start.clear();
+	this->break_info_list.downstream_breach.clear();
+	this->break_info_list.downstream_delta_h.clear();
+	this->break_info_list.upstream_breach.clear();
+	this->break_info_list.upstream_delta_h.clear();
+	this->break_info_list.downstream_wall_stress.clear();
+	this->break_info_list.upstream_wall_stress.clear();
+	this->break_info_list.mean_q.clear();
+	this->break_info_list.mean_v.clear();
+	this->break_info_list.time.clear();
+	this->break_info_list.time_breach.clear();
+	this->break_info_list.total_breach.clear();
+	buffer += "/";
+	buffer += hyd_label::paraview;
+	buffer += "/";
+
+
+	if (buffer != label::not_set) {
+		stringstream suffix;
+		if (this->user_defined == true) {
+			suffix << "BREACH_CO_ID_" << this->index << hyd_label::csv;
+		}
+		else {
+			suffix << "BREACH_CO_FPL_" << this->index_section_fpl << hyd_label::csv;
+		}
+		buffer.append(suffix.str());
+		this->file_name_csv = buffer;
+		//open the file
+		try {
+			this->open_output_file_csv();
+		}
+		catch (Error msg) {
+			throw msg;
+		}
+	}
+
 }
 //__________
 //private
@@ -1309,8 +1424,8 @@ void Hyd_Coupling_FP2CO_Dikebreak::check_dikebreak_parameter(void){
 		throw msg;
 	}
 }
-//Output the header to the result file
-void Hyd_Coupling_FP2CO_Dikebreak::output_header_result2file(void){
+//Output the header to the result tecplot file
+void Hyd_Coupling_FP2CO_Dikebreak::output_header_result2file_tecplot(void){
 	if(this->file_name!=label::not_set){
 		//output the file header
 		this->output_file << "TITLE = "<< "\" Breachno. " << this->index<<" at Coast model";
@@ -1349,6 +1464,37 @@ void Hyd_Coupling_FP2CO_Dikebreak::output_header_result2file(void){
 		//}
 
 	}
+
+}
+///Output the header to the result csv file
+void Hyd_Coupling_FP2CO_Dikebreak::output_header_result2file_csv(void) {
+	if (this->file_name_csv != label::not_set) {
+		//output the file header
+		this->output_file_csv << "  t_(global) " << label::sec << " , No. , " << " t_(local) " << label::sec << " , " << " b_(total) " << label::m << ",";
+		this->output_file_csv << " b (down the coastline) " << label::m << "," << " b (up the coastline)" << label::m << "," << " delta h (down the coastline) " << label::m;
+		this->output_file_csv << ", " << " R (down the coastline)";
+		if (this->wall_breach_flag == true) {
+			this->output_file_csv << label::stress_unit;
+		}
+		else {
+			this->output_file_csv << label::m_per_sec;
+		}
+		this->output_file_csv << ", " << " delta h (up the coastline) " << label::m << ", ";
+		this->output_file_csv << " R (up the coastline)";
+		if (this->wall_breach_flag == true) {
+			this->output_file_csv << label::stress_unit;
+		}
+		else {
+			this->output_file_csv << label::m_per_sec;
+		}
+		this->output_file_csv << "," << " q (mean)" << label::qm_per_sec << ", " << " v (mean)" << label::m_per_sec;
+		if (this->wall_breach_flag == true) {
+			this->output_file << "," << " S (upstream) " << label::stress_unit << "," << " S (downstream) " << label::stress_unit;
+		}
+		this->output_file_csv << "," << " delta h (begin)" << label::m << endl;
+
+	}
+
 
 }
 //Investigate and set the starting coupling point

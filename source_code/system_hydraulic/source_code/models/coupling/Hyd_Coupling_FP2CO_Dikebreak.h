@@ -58,9 +58,9 @@ public:
 	///The couplings are initialized with the already performed FP2CO couplings
 	void init_coupling(Hyd_Coupling_FP2CO_Merged *couplings);
 	///The couplings are initialized with the already performed FP2CO couplings; here a list of coast line points is also given for the creation of a list of possible starting breach points (scenario based risk approach)
-	void init_coupling(Hyd_Coupling_FP2CO_Merged *couplings, Hyd_Floodplain_Dikeline_Point **involved_points, const int number_involved_points, const int section_id_fpl);
+	void init_coupling(Hyd_Coupling_FP2CO_Merged *couplings, Hyd_Floodplain_Dikeline_Point **involved_points, const int number_involved_points, const int section_id_fpl, _hyd_output_flags *output_flags);
 	///The couplings are initialized with the already performed FP2CO couplings; the coupling point index, where the break should begin is directly given (catchment area risk approach)
-	void init_coupling(Hyd_Coupling_FP2CO_Merged *couplings, const int section_id_fpl, const int point_id);
+	void init_coupling(Hyd_Coupling_FP2CO_Merged *couplings, const int section_id_fpl, const int point_id, _hyd_output_flags *output_flags);
 	///Synchronise the models
 	void synchronise_models(const double timepoint, const double delta_t, const bool time_check);
 
@@ -70,8 +70,10 @@ public:
 	static void output_header_coupled_indices(ostringstream *cout);
 	///Output the indizes of the coupled model
 	void output_index_coupled_models(ostringstream *cout, const int number);
-	///Output result members to file
-	void output_results2file(double const global_time);
+	///Output result members to tecplot file
+	void output_results2file_tecplot(double const global_time);
+	///Output result members to csv file
+	void output_results2file_csv(double const global_time);
 	///Output final result members to display/console
 	void output_final_results(void);
 	///Output final results to database
@@ -83,8 +85,11 @@ public:
 	///Clone the dikebreak coupling
 	void clone_couplings(Hyd_Coupling_FP2CO_Dikebreak *coupling, Hyd_Coupling_FP2CO_Merged *merged_couplings);
 
-	///Initiate the output to a file
-	void init_output2file(void);
+	///Initiate the output to a tecplot file
+	void init_output2file_tecplot(void);
+
+	///Initiate the output to a csv file
+	void init_output2file_csv(void);
 
 private:
 
@@ -143,10 +148,10 @@ private:
 	void check_dikebreak_parameter(void);
 
 
-
-
-	///Output the header to the result file
-	void output_header_result2file(void);
+	///Output the header to the result tecplot file
+	void output_header_result2file_tecplot(void);
+	///Output the header to the result csv file
+	void output_header_result2file_csv(void);
 
 	///Investigate and set the starting coupling point
 	bool set_start_coupling_point(void);

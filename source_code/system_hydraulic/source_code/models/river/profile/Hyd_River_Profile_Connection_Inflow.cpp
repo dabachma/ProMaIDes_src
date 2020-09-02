@@ -359,11 +359,16 @@ void Hyd_River_Profile_Connection_Inflow::output_result_members_per_timestep(voi
 	Sys_Common_Output::output_hyd->output_txt(&cout,true);
 
 }
-//Output the result members for each riverprofiletype at every timestep to file
+//Output the result members for each riverprofiletype at every timestep to tecplot file
 void Hyd_River_Profile_Connection_Inflow::output_result_members_per_timestep(ofstream *file){
 	
 	_Hyd_River_Profile::output_result_members_per_timestep(file);
 	*file << W(12) << P(4) << FORMAT_FIXED_REAL << this->q_inflow <<  endl;
+}
+///Output the result members for each riverprofiletype at every timestep to csvfile
+void Hyd_River_Profile_Connection_Inflow::output_result_members_per_timestep2csv(ofstream *file) {
+	_Hyd_River_Profile::output_result_members_per_timestep2csv(file);
+	*file << W(12) << P(4) << FORMAT_FIXED_REAL << this->q_inflow << endl;
 }
 ///Add the hydrological balance value of the point boundary condition discharges to the given pointer (here nothing happen)
 void Hyd_River_Profile_Connection_Inflow::add_hydro_balance_point_boundary(_hyd_hydrological_balance *given){
@@ -457,6 +462,10 @@ void Hyd_River_Profile_Connection_Inflow::connect_instat_point_boundarycurve(Hyd
 	//Set that a point boundary is given
 void Hyd_River_Profile_Connection_Inflow::set_point_bound_flag(const bool flag){
 	this->boundary_cond_point_flag=flag;
+}
+///Get q-value
+double Hyd_River_Profile_Connection_Inflow::get_Q(void) {
+	return this->q_inflow;
 }
 //___________________________________
 //private

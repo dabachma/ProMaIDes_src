@@ -76,6 +76,8 @@ public:
 
 	///Ouput the observation point to file as tecplot output
 	void output_obs_point2file(ofstream *output, const int counter_used);
+	///Ouput the observation point to file as csv output
+	void output_obs_point2csvfile(ofstream *output, const int counter_used);
 
 	///Output setted members
 	void output_setted_members(ostringstream *cout, const int index);

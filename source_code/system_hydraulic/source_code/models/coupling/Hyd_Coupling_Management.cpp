@@ -45,6 +45,7 @@ Hyd_Coupling_Management::Hyd_Coupling_Management(void){
 
 	this->old_time_point=0.0;
 	this->delta_t=0.0;
+	this->ptr_output_flags = NULL;
 
 
 	//count the memory
@@ -248,11 +249,15 @@ void Hyd_Coupling_Management::output_final_results(QSqlDatabase *ptr_database, c
 
 
 	try{
+		//first delete old results in table
+		if (this->number_rv2fp_dikebreak > 0 || this->number_rv2fp_dikebreak_fpl > 0 || this->number_fp2co_dikebreak > 0|| this->number_fp2co_dikebreak_fpl > 0) {
+			_Hyd_Coupling_Dikebreak::delete_data_in_result_table(ptr_database, this->system_id, break_sc, hyd_bound_sz);
+		}
+
 		//dikebreak river to floodplain
 		if(this->number_rv2fp_dikebreak>0){
 			cout << "Output final results of the river to floodplain break coupling to database..." << endl ;
-			Sys_Common_Output::output_hyd->output_txt(&cout);
-			_Hyd_Coupling_Dikebreak::delete_data_in_result_table(ptr_database, this->system_id, break_sc, hyd_bound_sz);  
+			Sys_Common_Output::output_hyd->output_txt(&cout);		
 		}
 		for(int i=0; i<this->number_rv2fp_dikebreak;i++){
 			this->coupling_rv2fp_dikebreak[i].output_final_results(ptr_database, break_sc, hyd_bound_sz);
@@ -261,7 +266,6 @@ void Hyd_Coupling_Management::output_final_results(QSqlDatabase *ptr_database, c
 		if(this->number_rv2fp_dikebreak_fpl>0){
 			cout << "Output final results of the river to floodplain break coupling initiated by the FPL-system to database..." << endl ;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
-			_Hyd_Coupling_Dikebreak::delete_data_in_result_table(ptr_database, this->system_id, break_sc, hyd_bound_sz);  
 		}
 		for(int i=0; i<this->number_rv2fp_dikebreak_fpl;i++){
 			this->coupling_rv2fp_dikebreak_fpl[i].output_final_results(ptr_database, break_sc, hyd_bound_sz);
@@ -272,7 +276,6 @@ void Hyd_Coupling_Management::output_final_results(QSqlDatabase *ptr_database, c
 		if(this->number_fp2co_dikebreak>0){
 			cout << "Output final results of the coast to floodplain break coupling to database..." << endl ;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
-			_Hyd_Coupling_Dikebreak::delete_data_in_result_table(ptr_database, this->system_id, break_sc, hyd_bound_sz);  
 		}
 		for(int i=0; i<this->number_fp2co_dikebreak;i++){
 			this->coupling_fp2co_dikebreak[i].output_final_results(ptr_database, break_sc, hyd_bound_sz);
@@ -280,8 +283,7 @@ void Hyd_Coupling_Management::output_final_results(QSqlDatabase *ptr_database, c
 
 		if(this->number_fp2co_dikebreak_fpl>0){
 			cout << "Output final results of the coast to floodplain break coupling initiated by the FPL-system to database..." << endl ;
-			Sys_Common_Output::output_hyd->output_txt(&cout);
-			_Hyd_Coupling_Dikebreak::delete_data_in_result_table(ptr_database, this->system_id, break_sc, hyd_bound_sz);  
+			Sys_Common_Output::output_hyd->output_txt(&cout); 
 		}
 		for(int i=0; i<this->number_fp2co_dikebreak_fpl;i++){
 			this->coupling_fp2co_dikebreak_fpl[i].output_final_results(ptr_database, break_sc, hyd_bound_sz);
@@ -409,7 +411,7 @@ void Hyd_Coupling_Management::init_rv2fp_dikebreak_fpl(const int index, const in
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 	
-	this->coupling_rv2fp_dikebreak_fpl[index].init_coupling(this->coupling_merged_rv2fp, this->number_merged_rv2fp, involved_profiles, number_involved_profiles, section_id_fpl);
+	this->coupling_rv2fp_dikebreak_fpl[index].init_coupling(this->coupling_merged_rv2fp, this->number_merged_rv2fp, involved_profiles, number_involved_profiles, section_id_fpl, this->ptr_output_flags);
 }
 //Initialise the dikebreak coupling, which are automatically set via the fpl-system; the coupling point index, where the break should begin is directly given (catchment area risk approach) (river model to floodplain model)
 void Hyd_Coupling_Management::init_rv2fp_dikebreak_fpl(const int index, const int section_id_fpl, const int point_id){
@@ -424,7 +426,7 @@ void Hyd_Coupling_Management::init_rv2fp_dikebreak_fpl(const int index, const in
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 	
-	this->coupling_rv2fp_dikebreak_fpl[index].init_coupling(this->coupling_merged_rv2fp, this->number_merged_rv2fp, section_id_fpl, point_id);
+	this->coupling_rv2fp_dikebreak_fpl[index].init_coupling(this->coupling_merged_rv2fp, this->number_merged_rv2fp, section_id_fpl, point_id, this->ptr_output_flags);
 }
 //Clear the dikebreak coupling, which are automatically set via the fpl-system (river model to floodplain model)
 void Hyd_Coupling_Management::clear_rv2fp_dikebreak_fpl(void){
@@ -474,8 +476,8 @@ void Hyd_Coupling_Management::init_fp2co_dikebreak_fpl(const int index, const in
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 	
-	this->coupling_fp2co_dikebreak_fpl[index].init_coupling(this->coupling_merged_fp2co, involved_points, number_involved_points, section_id_fpl);
-
+	this->coupling_fp2co_dikebreak_fpl[index].init_coupling(this->coupling_merged_fp2co, involved_points, number_involved_points, section_id_fpl, this->ptr_output_flags);
+	
 }
 //Initialise the dikebreak coupling, which are automatically set via the fpl-system; the coupling point index, where the break should begin is directly given (catchment area risk approach) (coast model to floodplain model)
 void Hyd_Coupling_Management::init_fp2co_dikebreak_fpl(const int index, const int section_id_fpl, const int point_id){
@@ -490,7 +492,7 @@ void Hyd_Coupling_Management::init_fp2co_dikebreak_fpl(const int index, const in
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 	
-	this->coupling_fp2co_dikebreak_fpl[index].init_coupling(this->coupling_merged_fp2co, section_id_fpl, point_id);
+	this->coupling_fp2co_dikebreak_fpl[index].init_coupling(this->coupling_merged_fp2co, section_id_fpl, point_id,  this->ptr_output_flags);
 
 
 }
@@ -553,106 +555,111 @@ void Hyd_Coupling_Management::set_rv2rv_diversion(const int number){
 	}
 }
 //Input the parameters for all river coupling via a diversion channel per file
-void Hyd_Coupling_Management::read_rv2rv_diversion_per_file(const string file){
-	try{
-		for(int i=0; i<this->number_rv2rv_diversion; i++){
+void Hyd_Coupling_Management::read_rv2rv_diversion_per_file(const string file) {
+	try {
+		for (int i = 0; i < this->number_rv2rv_diversion; i++) {
 			this->coupling_1d_diversion[i].input_parameter_per_file(i, file);
 		}
 	}
-	catch(Error msg){
+	catch (Error msg) {
 		throw msg;
 	}
 }
 //Input the parameters for all river coupling via a diversion channel from a selection of a database table
-void Hyd_Coupling_Management::read_rv2rv_diversion_per_database(const QSqlTableModel *results, const _sys_system_id id){
-	try{
-		for(int i=0; i<this->number_rv2rv_diversion; i++){
+void Hyd_Coupling_Management::read_rv2rv_diversion_per_database(const QSqlTableModel *results, const _sys_system_id id) {
+	try {
+		for (int i = 0; i < this->number_rv2rv_diversion; i++) {
 			this->coupling_1d_diversion[i].set_systemid(id);
 			this->coupling_1d_diversion[i].input_parameter_per_database(results, i, true);
 		}
 	}
-	catch(Error msg){
+	catch (Error msg) {
 		throw msg;
 	}
 }
 //Transfer the parameters for a river coupling via a diversion channel to a database
-void Hyd_Coupling_Management::transfer_rv2rv_diversion2database(QSqlDatabase *ptr_database){
-	try{
-		for(int i=0; i<this->number_rv2rv_diversion; i++){
+void Hyd_Coupling_Management::transfer_rv2rv_diversion2database(QSqlDatabase *ptr_database) {
+	try {
+		for (int i = 0; i < this->number_rv2rv_diversion; i++) {
 			this->coupling_1d_diversion[i].transfer_diversion_channel2database_table(ptr_database);
 		}
 	}
-	catch(Error msg){
+	catch (Error msg) {
 		throw msg;
 	}
 
 }
 //Convert the indices of the coupled models into pointer for all river coupling via a diversion channel
-void Hyd_Coupling_Management::set_pointer_rv2rv_diversion(Hyd_Model_River *river_models, const int number_rv_models){
-	try{
-		for(int i=0; i<this->number_rv2rv_diversion; i++){
+void Hyd_Coupling_Management::set_pointer_rv2rv_diversion(Hyd_Model_River *river_models, const int number_rv_models) {
+	try {
+		for (int i = 0; i < this->number_rv2rv_diversion; i++) {
 			this->coupling_1d_diversion[i].convert_indices2pointer(river_models, number_rv_models);
 		}
 	}
-	catch(Error msg){
+	catch (Error msg) {
 		throw msg;
 	}
 }
 //Get the number of river to river coupling via diversion
-int Hyd_Coupling_Management::get_rv2rv_diversion(void){
+int Hyd_Coupling_Management::get_rv2rv_diversion(void) {
 	return this->number_rv2rv_diversion;
 }
 //Set number of river to floodplain coupling via a hydraulic structure; here they are also allocated
-void Hyd_Coupling_Management::set_rv2fp_structure(const int number){
-	this->number_rv2fp_structure=number;
-	try{
+void Hyd_Coupling_Management::set_rv2fp_structure(const int number) {
+	this->number_rv2fp_structure = number;
+	try {
 		this->allocate_coupling_class_rv2fp_structure();
 	}
-	catch(Error msg){
+	catch (Error msg) {
 		throw msg;
 	}
 }
 //Input the parameters for a river to floodplain coupling via a hydraulic structure per file
-void Hyd_Coupling_Management::read_rv2fp_structure_per_file(const string file){
-	try{
-		for(int i=0; i<this->number_rv2fp_structure; i++){
+void Hyd_Coupling_Management::read_rv2fp_structure_per_file(const string file) {
+	try {
+		for (int i = 0; i < this->number_rv2fp_structure; i++) {
 			this->coupling_rv2fp_structure[i].input_parameter_per_file(i, file);
 		}
 	}
-	catch(Error msg){
+	catch (Error msg) {
 		throw msg;
 	}
-}	
+}
 //Input the parameters for a river to floodplain coupling via a hydraulic structure from a selection of a database table
-void Hyd_Coupling_Management::read_rv2fp_structure_per_database(const QSqlQueryModel *results, const _sys_system_id id){
-	try{
-		for(int i=0; i<this->number_rv2fp_structure; i++){
+void Hyd_Coupling_Management::read_rv2fp_structure_per_database(const QSqlQueryModel *results, const _sys_system_id id) {
+	try {
+		for (int i = 0; i < this->number_rv2fp_structure; i++) {
 			this->coupling_rv2fp_structure[i].set_systemid(id);
 			this->coupling_rv2fp_structure[i].input_parameter_per_database(results, i, true);
 		}
 	}
-	catch(Error msg){
+	catch (Error msg) {
 		throw msg;
 	}
 }
 //Transfer the parameters for a river to floodplain coupling via a hydraulic structure to a database
-void Hyd_Coupling_Management::transfer_rv2fp_structure2database(QSqlDatabase *ptr_database){
-	try{
-		for(int i=0; i<this->number_rv2fp_structure; i++){
+void Hyd_Coupling_Management::transfer_rv2fp_structure2database(QSqlDatabase *ptr_database) {
+	try {
+		for (int i = 0; i < this->number_rv2fp_structure; i++) {
 			this->coupling_rv2fp_structure[i].transfer_coupling_structure2database_table(ptr_database);
 		}
 	}
-	catch(Error msg){
+	catch (Error msg) {
 		throw msg;
 	}
 }
 //Get the number of river to floodplain coupling via a hydraulic structure
-int Hyd_Coupling_Management::get_rv2fp_structure(void){
+int Hyd_Coupling_Management::get_rv2fp_structure(void) {
 	return this->number_rv2fp_structure;
 }
 //Set number of river to floodplain coupling via a dikebreak; here they are also allocated
-void Hyd_Coupling_Management::set_rv2fp_dikebreak(const int number){
-	this->number_rv2fp_dikebreak=number;
+void Hyd_Coupling_Management::set_rv2fp_dikebreak(const int number) {
+	this->number_rv2fp_dikebreak = number;
+	if (number == 0) {
+		return;
+	}
+
+
 	try{
 		this->allocate_coupling_class_rv2fp_dikebreak();
 	}
@@ -702,6 +709,9 @@ int Hyd_Coupling_Management::get_rv2fp_dikebreak(void){
 //Set number of coast to floodplain coupling via a dikebreak; here they are also allocated
 void Hyd_Coupling_Management::set_fp2co_dikebreak(const int number){
 	this->number_fp2co_dikebreak=number;
+	if (number == 0) {
+		return;
+	}
 	try{
 		this->allocate_coupling_class_fp2co_dikebreak();
 	}
@@ -1100,20 +1110,57 @@ void Hyd_Coupling_Management::synchronise_couplings(const double timepoint, cons
 }
 //Output the couplings (e.g. dikebreak development) per calculation step
 void Hyd_Coupling_Management::output_coupling_calculation_steps2file(const double timepoint){
-	//river to floodplain
-	for(int i=0; i< this->number_rv2fp_dikebreak; i++){
-		this->coupling_rv2fp_dikebreak[i].output_results2file(timepoint);;
+	
+	if (this->ptr_output_flags->tecplot_1d_required == true) {
+		//river to floodplain
+		for (int i = 0; i < this->number_rv2fp_dikebreak; i++) {
+			this->coupling_rv2fp_dikebreak[i].output_results2file_tecplot(timepoint);
+		}
+		for (int i = 0; i < this->number_rv2fp_dikebreak_fpl; i++) {
+			this->coupling_rv2fp_dikebreak_fpl[i].output_results2file_tecplot(timepoint);
+		}
+		//coast to floodplain
+		for (int i = 0; i < this->number_fp2co_dikebreak; i++) {
+			this->coupling_fp2co_dikebreak[i].output_results2file_tecplot(timepoint);
+		}
+		for (int i = 0; i < this->number_fp2co_dikebreak_fpl; i++) {
+			this->coupling_fp2co_dikebreak_fpl[i].output_results2file_tecplot(timepoint);
+		}
 	}
-	for(int i=0; i< this->number_rv2fp_dikebreak_fpl; i++){
-		this->coupling_rv2fp_dikebreak_fpl[i].output_results2file(timepoint);;
+	if (this->ptr_output_flags->paraview_1d_required == true) {
+		//river to floodplain
+		for (int i = 0; i < this->number_rv2fp_dikebreak; i++) {
+			this->coupling_rv2fp_dikebreak[i].output_results2file_csv(timepoint);
+		}
+		for (int i = 0; i < this->number_rv2fp_dikebreak_fpl; i++) {
+			this->coupling_rv2fp_dikebreak_fpl[i].output_results2file_csv(timepoint);
+		}
+		//coast to floodplain
+		for (int i = 0; i < this->number_fp2co_dikebreak; i++) {
+			this->coupling_fp2co_dikebreak[i].output_results2file_csv(timepoint);
+		}
+		for (int i = 0; i < this->number_fp2co_dikebreak_fpl; i++) {
+			this->coupling_fp2co_dikebreak_fpl[i].output_results2file_csv(timepoint);
+		}
+	}
+	
+	//clear lists
+	//river to floodplain
+	for (int i = 0; i < this->number_rv2fp_dikebreak; i++) {
+		this->coupling_rv2fp_dikebreak[i].clear_break_list();
+	}
+	for (int i = 0; i < this->number_rv2fp_dikebreak_fpl; i++) {
+		this->coupling_rv2fp_dikebreak_fpl[i].clear_break_list();
 	}
 	//coast to floodplain
-	for(int i=0; i< this->number_fp2co_dikebreak; i++){
-		this->coupling_fp2co_dikebreak[i].output_results2file(timepoint);;
+	for (int i = 0; i < this->number_fp2co_dikebreak; i++) {
+		this->coupling_fp2co_dikebreak[i].clear_break_list();
 	}
-	for(int i=0; i< this->number_fp2co_dikebreak_fpl; i++){
-		this->coupling_fp2co_dikebreak_fpl[i].output_results2file(timepoint);;
+	for (int i = 0; i < this->number_fp2co_dikebreak_fpl; i++) {
+		this->coupling_fp2co_dikebreak_fpl[i].clear_break_list();
 	}
+
+
 }
 //Reset the coupling for a new hydraulic simulation without deleting the objects
 void Hyd_Coupling_Management::reset_couplings(void){
@@ -1305,14 +1352,31 @@ void Hyd_Coupling_Management::clone_couplings(Hyd_Coupling_Management *coupling,
 }
 //Initialize output files, e.g. dike break
 void Hyd_Coupling_Management::init_output_files(void){
-	for(int i=0; i< this->number_rv2fp_dikebreak; i++){
-		this->coupling_rv2fp_dikebreak[i].init_output2file();
+	for (int i = 0; i < this->number_rv2fp_dikebreak; i++) {
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		if (this->ptr_output_flags->tecplot_1d_required == true) {
+			this->coupling_rv2fp_dikebreak[i].init_output2file_tecplot();
+		}
+		if (this->ptr_output_flags->paraview_1d_required == true) {
+			this->coupling_rv2fp_dikebreak[i].init_output2file_csv();
+		}
+
+
 	}
 
 	for(int i=0; i< this->number_fp2co_dikebreak; i++){
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
-		this->coupling_fp2co_dikebreak[i].init_output2file();
+		if (this->ptr_output_flags->tecplot_1d_required == true) {
+			this->coupling_fp2co_dikebreak[i].init_output2file_tecplot();
+		}
+		if (this->ptr_output_flags->paraview_1d_required == true) {
+			this->coupling_fp2co_dikebreak[i].init_output2file_csv();
+		}
 	}
+}
+//Set the pointer to the output flags
+void Hyd_Coupling_Management::set_ptr2outputflags(_hyd_output_flags *flags) {
+	this->ptr_output_flags = flags;
 }
 //__________________
 //private

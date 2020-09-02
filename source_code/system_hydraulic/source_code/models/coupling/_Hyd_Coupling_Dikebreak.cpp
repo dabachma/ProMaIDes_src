@@ -54,7 +54,8 @@ _Hyd_Coupling_Dikebreak::_Hyd_Coupling_Dikebreak(void): default_max_breach_width
 	this->mean_q=0.0;
 	this->total_mean_dh=0.0;
 
-	file_name=label::not_set;
+	this->file_name = label::not_set;
+	this->file_name_csv = label::not_set;
 	this->user_defined=true;
 
 
@@ -63,6 +64,7 @@ _Hyd_Coupling_Dikebreak::_Hyd_Coupling_Dikebreak(void): default_max_breach_width
 _Hyd_Coupling_Dikebreak::~_Hyd_Coupling_Dikebreak(void){
 
 	this->close_output_file();
+	this->close_output_file_csv();
 
 }
 //________
@@ -924,6 +926,26 @@ void _Hyd_Coupling_Dikebreak::output_point2database(QSqlDatabase *ptr_database){
 		throw msg;
 	}
 }
+///Clear break list
+void _Hyd_Coupling_Dikebreak::clear_break_list(void) {
+
+	this->break_info_list.counter_breach.clear();
+	this->break_info_list.delta_h2start.clear();
+	this->break_info_list.downstream_breach.clear();
+	this->break_info_list.downstream_delta_h.clear();
+	this->break_info_list.upstream_breach.clear();
+	this->break_info_list.upstream_delta_h.clear();
+	this->break_info_list.downstream_wall_stress.clear();
+	this->break_info_list.upstream_wall_stress.clear();
+	this->break_info_list.mean_q.clear();
+	this->break_info_list.mean_v.clear();
+	this->break_info_list.time.clear();
+	this->break_info_list.time_breach.clear();
+	this->break_info_list.total_breach.clear();
+
+
+
+}
 //__________
 //protected
 //Check the dikebreak parameters
@@ -1021,8 +1043,29 @@ void _Hyd_Coupling_Dikebreak::open_output_file(void){
 			Error msg=this->set_error(0);
 			throw msg;
 		}
-		this->output_header_result2file();
+		this->output_header_result2file_tecplot();
 	}
+}
+//Close the output file for csv
+void _Hyd_Coupling_Dikebreak::close_output_file_csv(void) {
+	if (this->output_file_csv.is_open() == true) {
+		this->output_file_csv.close();
+	}
+}
+//Open the outpufile for csv; if it is open it will be closed
+void _Hyd_Coupling_Dikebreak::open_output_file_csv(void) {
+	//close it
+	this->close_output_file_csv();
+
+	if (this->file_name_csv != label::not_set) {
+		this->output_file_csv.open(this->file_name_csv.c_str());
+		if (this->output_file_csv.is_open() != true) {
+			Error msg = this->set_error(0);
+			throw msg;
+		}
+		this->output_header_result2file_csv();
+	}
+
 }
 //______
 //private
@@ -1039,7 +1082,7 @@ Error _Hyd_Coupling_Dikebreak::set_error(const int err_type){
 	switch (err_type){
 		case 0://could not open the outputfile
 			place.append("open_output_file(void)");
-			reason="Could not open the file for the output of the break development";
+			reason="Could not open the tecplot-file for the output of the break development";
 			help="Check the file";
 			info << "Filename                : " <<this->file_name << endl;
 			info << "Dikebreak coupling index: " << this->index << endl;
@@ -1051,6 +1094,14 @@ Error _Hyd_Coupling_Dikebreak::set_error(const int err_type){
 			help="Check the given starting waterlevel";
 			info << "Dikebreak coupling index: " << this->index << endl;
 			type=16;
+			break;
+		case 2://could not open the outputfile
+			place.append("open_output_file_csv(void)");
+			reason = "Could not open the csv-file for the output of the break development";
+			help = "Check the file";
+			info << "Filename                : " << this->file_name << endl;
+			info << "Dikebreak coupling index: " << this->index << endl;
+			type = 5;
 			break;
 		default:
 			place.append("set_error(const int err_type)");

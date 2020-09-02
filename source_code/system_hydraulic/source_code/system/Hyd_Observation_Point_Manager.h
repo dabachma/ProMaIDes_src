@@ -63,8 +63,10 @@ public:
 	///Syncronize the observation points
 	void syncron_obs_points(const double time_point);
 
-	///Output the data of the observation points to file
-	void output_obs_points2file(const string filename_rv, const string filename_fp);
+	///Output the data of the observation points to tecplot file
+	void output_obs_points2tecplot_file(const string filename_rv, const string filename_fp);
+	///Output the data of the observation points to ParaView / cvs file
+	void output_obs_points2paraview_file(const string filename_rv, const string filename_fp);
 
 	///Clear the observation points
 	void clear_obs_points(void);
@@ -106,10 +108,15 @@ private:
 	///Count number river- and floodplain obeservation points
 	void count_number_rv_fp_obs_point(void);
 
-	///Output the observation points of river models to file
+	///Output the observation points of river models to tecplot file
 	void output_obs_point_rv2file(const string file);
-	///Output the observation points of floodplain models to file
+	///Output the observation points of floodplain models to tecplot file
 	void output_obs_point_fp2file(const string file);
+
+	///Output the observation points of river models to csv file
+	void output_obs_point_rv2csvfile(const string file);
+	///Output the observation points of floodplain models to csvfile
+	void output_obs_point_fp2csvfile(const string file);
 
 
 	///Set error(s)

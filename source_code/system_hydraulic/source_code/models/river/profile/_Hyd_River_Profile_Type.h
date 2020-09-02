@@ -177,8 +177,11 @@ public:
 	///Output the result members each internal timestep (controll reason)
 	void output_result_members_timestep(ostringstream *cout);
 
-	///Output the result members each internal timestep to file
+	///Output the result members each internal timestep to tecplot file
 	void output_result_members_timestep(ofstream *file);
+	///Output the result members each internal timestep to csv file
+	void output_result_members_timestep2csv(ofstream *file);
+
 
 	///Output the header for the maximum result output to console/display 
 	static void output_header_max_results(ostringstream *cout);
@@ -186,6 +189,8 @@ public:
 	void output_max_results(ostringstream *cout);
 	///Output the maximum result output to a given file 
 	void output_max_results2file(ofstream *file);
+	///Output the maximum result output to a csv file 
+	void output_max_results2csvfile(ofstream *file);
 	///Set the maximum result values of profile type to a string for the transfer into a database table (_Hyd_River_Profile)
 	string set_maximum_value2string(void);
 
@@ -252,6 +257,21 @@ public:
 	void set_user_flags(const _hyd_profile_calc_setting flags);
 	///Get the user flags for the calculation
 	_hyd_profile_calc_setting get_user_flags(void);
+
+	///Get h_max-value
+	_hyd_max_values get_max_h(void);
+	///Get s_max-value
+	_hyd_max_values get_max_s(void);
+	///Get max vtot-value
+	_hyd_max_values get_max_vtot(void);
+
+	///Get h-value
+	double get_h(void);
+	///Get s-value
+	double get_s(void);
+	///Get vtot-value
+	double get_vtot(void);
+
 
 protected:
 

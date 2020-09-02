@@ -611,6 +611,7 @@ void Hyd_Multiple_Hydraulic_Systems::set_hyd_system_new_file(int *counter_sys){
 				Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 				this->threads[i].init_models();
 				Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+				this->threads[i].set_folder_name_file();
 				this->threads[i].output_setted_members();
 				Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 				this->threads[i].init_solver();
@@ -989,7 +990,8 @@ void Hyd_Multiple_Hydraulic_Systems::import_basesystem_file2database(void){
 		this->sz_bound_manager.delete_table_create_base_sz(&this->qsqldatabase);
 		this->sz_bound_manager.set_szenario_per_db(&this->qsqldatabase);
 		this->threads[0].hyd_sz.set_members(this->sz_bound_manager.get_ptr_sz(0));
-		this->threads[0].set_folder_name("", false);
+		//this->threads[0].set_folder_name("", false);
+		this->threads[0].set_folder_name_file();
 		
 		//set numbers
 		this->threads[0].set_thread_number(0);
@@ -1246,6 +1248,7 @@ void Hyd_Multiple_Hydraulic_Systems::check_hydraulic_system_perfile(void){
 			this->threads[0].set_system_per_file(this->file_names[i]);
 			this->threads[0].output_glob_models();
 			this->threads[0].init_models();
+			this->threads[0].set_folder_name_file();
 			this->threads[0].output_setted_members();
 			this->threads[0].init_solver();
 			//rewind the prefix

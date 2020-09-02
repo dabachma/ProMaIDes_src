@@ -119,8 +119,10 @@ public:
 	///Output the result members for each riverprofiletype at every timestep
 	virtual void output_result_members_per_timestep(void);
 
-	///Output the result members for each riverprofiletype at every timestep to the given file
+	///Output the result members for each riverprofiletype at every timestep to tecplot file
 	virtual void output_result_members_per_timestep(ofstream *file);
+	///Output the result members for each riverprofiletype at every timestep to csv file
+	virtual void output_result_members_per_timestep2csv(ofstream *file);
 
 	//Set new break-parameters of the left bank; the structure must be already allocated
 	void set_break_parameter_left(_hyd_break_parameters* new_values);
@@ -135,6 +137,9 @@ public:
 
 	///Get boundary condition is applied
 	bool boundary_is_applied(void);
+
+	///Get q-value
+	double get_Q(void);
 
 
 

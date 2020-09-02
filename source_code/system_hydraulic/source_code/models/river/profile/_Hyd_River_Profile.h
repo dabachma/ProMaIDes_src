@@ -355,13 +355,17 @@ public:
 
 	///Output the result members for each riverprofiletype at every timestep to file
 	void output_result_members_per_timestep(ofstream *file);
+	///Output the result members for each riverprofiletype at every timestep to csv file
+	void output_result_members_per_timestep2csv(ofstream *file);
 
 	///Output the header for the maximum result output to console/display
 	static void output_header_max_results(void);
 	///Output the maximum result output to console/display
 	void output_max_results(void);
-	///Output the maximum result output to a given file
+	///Output the maximum result output to a given tecplot file
 	void output_max_results2file(ofstream *file);
+	///Output the maximum result output to a csv file
+	void output_max_results2csvfile(ofstream *file);
 	///Output the maximum calculated results to the database table (erg_table)
 	void output_max_results(QSqlDatabase *ptr_database, const int rv_no, const string polygon_string, int *glob_id, const string break_sc);
 
@@ -409,6 +413,9 @@ public:
 
 	///Append a string to the profile name
 	void append_str2name(const string append);
+
+	///Get q-value
+	virtual double get_Q(void) = 0;
 
 protected:
 	//members
