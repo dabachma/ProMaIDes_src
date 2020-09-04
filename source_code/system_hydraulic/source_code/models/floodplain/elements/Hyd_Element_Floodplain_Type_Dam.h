@@ -29,7 +29,7 @@ public:
 
 	//method
 	///Initialize the element (call it backward: not from the origin; start at the diagonal corner of the origin)
-	void init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table);
+	void init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table, const bool clone);
 	
 	///Set the maximum results values directly
 	void set_max_results_directly(const double waterlevel, const double max_v, const double duration, const double dh_dt);

@@ -277,7 +277,113 @@ void Sys_Version_Update::check_update_hyd_table_elem_result_smax(QSqlDatabase *p
 
 	Hyd_Element_Floodplain::close_erg_table();
 }
+//Check and update the hydraulic global parameter table with output settings 3.9.2020
+void Sys_Version_Update::check_update_hyd_table_global_param(QSqlDatabase *ptr_database, const string project_file) {
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
 
+	bool error = false;
+
+	//check if columns exists
+	try {
+		Hyd_Param_Global::set_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//output tecplot 1d
+	bool exists = false;
+	for (int i = 0; i < Hyd_Param_Global::global_param_table->get_number_col(); i++) {
+		if ((Hyd_Param_Global::global_param_table->get_ptr_col())[i].id == hyd_label::output_tecplot_1d) {
+			exists = (Hyd_Param_Global::global_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_sys_param, hyd_label::output_tecplot_1d, sys_label::tab_col_type_bool, false, "false", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_sys_param, hyd_label::output_tecplot_1d);
+	}
+
+	//output tecplot 2d
+	exists = false;
+	for (int i = 0; i < Hyd_Param_Global::global_param_table->get_number_col(); i++) {
+		if ((Hyd_Param_Global::global_param_table->get_ptr_col())[i].id == hyd_label::output_tecplot_2d) {
+			exists = (Hyd_Param_Global::global_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_sys_param, hyd_label::output_tecplot_2d, sys_label::tab_col_type_bool, false, "false", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_sys_param, hyd_label::output_tecplot_2d);
+	}
+
+	//output paraview 1d
+	exists = false;
+	for (int i = 0; i < Hyd_Param_Global::global_param_table->get_number_col(); i++) {
+		if ((Hyd_Param_Global::global_param_table->get_ptr_col())[i].id == hyd_label::output_paraview_1d) {
+			exists = (Hyd_Param_Global::global_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_sys_param, hyd_label::output_paraview_1d, sys_label::tab_col_type_bool, false, "true", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_sys_param, hyd_label::output_paraview_1d);
+	}
+
+	//output paraview 2d
+	exists = false;
+	for (int i = 0; i < Hyd_Param_Global::global_param_table->get_number_col(); i++) {
+		if ((Hyd_Param_Global::global_param_table->get_ptr_col())[i].id == hyd_label::output_paraview_2d) {
+			exists = (Hyd_Param_Global::global_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_sys_param, hyd_label::output_paraview_2d, sys_label::tab_col_type_bool, false, "true", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_sys_param, hyd_label::output_paraview_2d);
+	}
+
+	//output bluekenue 2d
+	exists = false;
+	for (int i = 0; i < Hyd_Param_Global::global_param_table->get_number_col(); i++) {
+		if ((Hyd_Param_Global::global_param_table->get_ptr_col())[i].id == hyd_label::output_bluekenue_2d) {
+			exists = (Hyd_Param_Global::global_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_sys_param, hyd_label::output_bluekenue_2d, sys_label::tab_col_type_bool, false, "false", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_sys_param, hyd_label::output_bluekenue_2d);
+	}
+
+	//output bluekenue 2d
+	exists = false;
+	for (int i = 0; i < Hyd_Param_Global::global_param_table->get_number_col(); i++) {
+		if ((Hyd_Param_Global::global_param_table->get_ptr_col())[i].id == hyd_label::output_instat_db) {
+			exists = (Hyd_Param_Global::global_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_sys_param, hyd_label::output_instat_db, sys_label::tab_col_type_bool, false, "true", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_sys_param, hyd_label::output_instat_db);
+	}
+
+
+
+
+	Hyd_Param_Global::close_table();
+
+}
 //____________
 //private
 //Set error(s)

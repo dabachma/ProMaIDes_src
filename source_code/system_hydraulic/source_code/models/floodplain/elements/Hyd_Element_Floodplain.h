@@ -187,7 +187,7 @@ public:
 	void clone_element(Hyd_Element_Floodplain *elements);
 
 	///Initialize the _Hyd_Element_Floodplain_Type; decide which type is chosen
-	void init_element_type(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table);
+	void init_element_type(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table, const bool clone);
 	
 	///Set the element number
 	void set_elem_number(const int number);

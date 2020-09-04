@@ -92,6 +92,24 @@ enum _hyd_keyword_file{
 	eNOFFP2COBREAK,
 	///Marker for the solver settings (main key word)
 	eINTEGRATION,
+
+	///Marker for the output settings (main key word)
+	eOUTPUT,
+	///Marker for the Tecplot 1d output
+	eTECPLOT1D,
+	///Marker for the Tecplot 2d output
+	eTECPLOT2D,
+	///Marker for the Bluekenue 2d output
+	eBLUEKENUE2D,
+	///Marker for the Paraview / Excel 1d output
+	ePARAVIEW1D,
+	///Marker for the Paraview 2d output
+	ePARAVIEW2D,
+	///Marker for the database instationary output
+	eDATABASE_INSTAT,
+	///Marker for the out folder
+	eOUTPUT_FOLDER,
+
 	///Marker for the maximum number of steps
 	eMAXNUMSTEPS,
 	///Marker for the maximum stepsize

@@ -73,7 +73,7 @@ Hyd_Element_Floodplain_Type_Standard::~Hyd_Element_Floodplain_Type_Standard(void
 //____________
 //public
 //Initialize the element (call it backward: not from the origin; start at the diagonal corner of the origin)
-void Hyd_Element_Floodplain_Type_Standard::init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table){
+void Hyd_Element_Floodplain_Type_Standard::init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table, const bool clone){
 	//set the width
 	this->x_width=width_x;
 	this->y_width=width_y;
@@ -94,7 +94,9 @@ void Hyd_Element_Floodplain_Type_Standard::init_element(_hyd_neighbouring_elems 
 			if(this->flow_data.poleni_flag_x==true){
 				//set the absolut weir height
 				this->flow_data.height_border_x_abs=max(this->s_max_x, this->flow_data.height_border_x_abs);
-				this->flow_data.poleni_x=this->flow_data.poleni_x/(*this->x_width);
+				if (clone == false) {
+					this->flow_data.poleni_x = this->flow_data.poleni_x / (*this->x_width);
+				}
 			}
 		}
 		else{
@@ -116,7 +118,9 @@ void Hyd_Element_Floodplain_Type_Standard::init_element(_hyd_neighbouring_elems 
 			if(this->flow_data.poleni_flag_y==true){
 				//set the absolut weir height
 				this->flow_data.height_border_y_abs=max(this->s_max_y, this->flow_data.height_border_y_abs);
-				this->flow_data.poleni_y=this->flow_data.poleni_y/(*this->y_width);
+				if (clone == false) {
+					this->flow_data.poleni_y = this->flow_data.poleni_y / (*this->y_width);
+				}
 			}
 		}
 		else{

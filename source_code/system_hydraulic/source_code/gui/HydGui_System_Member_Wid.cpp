@@ -99,6 +99,31 @@ HydGui_System_Member_Wid::HydGui_System_Member_Wid(DataRole role, QWidget *paren
 	ui.min_intstep->set_increment(1.0);
 	ui.min_intstep->set_dataRole(role);
 
+	// output settings
+	ui.output_1d_tecplot->set_label_text("Tecplot 1d output required");
+	ui.output_1d_tecplot->set_tooltip("Please check it, if a 1d output for Tecplot is required");
+	//ui.output_1d_tecplot->set_dataRole(role);
+
+	ui.output_2d_tecplot->set_label_text("Tecplot 2d output required");
+	ui.output_2d_tecplot->set_tooltip("Please check it, if a 2d output for Tecplot is required");
+	//ui.output_2d_tecplot->set_dataRole(role);
+
+	ui.output_1d_paraview->set_label_text("ParaView / Excel (csv) 1d output required");
+	ui.output_1d_paraview->set_tooltip("Please check it, if a 1d output for ParaView /Excel is required");
+	//ui.output_1d_paraview->set_dataRole(role);
+
+	ui.output_2d_paraview->set_label_text("ParaView 2d output required");
+	ui.output_2d_paraview->set_tooltip("Please check it, if a 2d output for ParaView is required");
+	//ui.output_1d_paraview->set_dataRole(role);
+
+	ui.output_2d_bluekenue->set_label_text("BlueKenue 2d output required");
+	ui.output_2d_bluekenue->set_tooltip("Please check it, if a 2d output for BlueKenue is required");
+	//ui.output_2d_bluekenue->set_dataRole(role);
+
+	ui.output_instat_dbase->set_label_text("Instationary DataBase output required");
+	ui.output_instat_dbase->set_tooltip("Please check it, if a instationary database output is required");
+	//ui.output_instat_dbase->set_dataRole(role);
+
 	//SELF
 	switch(role) {
 		case 0: //DisplayRole
@@ -141,6 +166,12 @@ void HydGui_System_Member_Wid::set_editable(const bool state) {
 	ui.max_h_rv->set_editable(state);
 	ui.max_v_rv->set_editable(state);
 	ui.min_intstep->set_editable(state);
+	ui.output_1d_tecplot->set_editable(state);
+	ui.output_2d_tecplot->set_editable(state);
+	ui.output_1d_paraview->set_editable(state);
+	ui.output_2d_paraview->set_editable(state);
+	ui.output_2d_bluekenue->set_editable(state);
+	ui.output_instat_dbase->set_editable(state);
 }
 //Set all members of the widget, similar to a copy constructor
 void HydGui_System_Member_Wid::set_member(_Sys_Abstract_Base_Wid *ptr) {
@@ -172,6 +203,14 @@ void HydGui_System_Member_Wid::set_member(_Sys_Abstract_Base_Wid *ptr) {
 	ui.max_v_rv->set_value(other->ui.max_v_rv->get_value());
 	ui.min_intstep->set_value(other->ui.min_intstep->get_value());
 
+	//output settings
+	ui.output_1d_tecplot->set_value(other->ui.output_1d_tecplot->get_value());
+	ui.output_2d_tecplot->set_value(other->ui.output_2d_tecplot->get_value());
+	ui.output_1d_paraview->set_value(other->ui.output_1d_paraview->get_value());
+	ui.output_2d_paraview->set_value(other->ui.output_2d_paraview->get_value());
+	ui.output_2d_bluekenue->set_value(other->ui.output_2d_bluekenue->get_value());
+	ui.output_instat_dbase->set_value(other->ui.output_instat_dbase->get_value());
+
 }
 
 //Set default values
@@ -197,6 +236,14 @@ void HydGui_System_Member_Wid::set_default_values(void) {
 	ui.max_h_rv->set_value(0.01);
 	ui.max_v_rv->set_value(0.1);
 	ui.min_intstep->set_value(10.0);
+
+	//output settings
+	ui.output_1d_tecplot->set_value(false);
+	ui.output_2d_tecplot->set_value(false);
+	ui.output_1d_paraview->set_value(true);
+	ui.output_2d_paraview->set_value(true);
+	ui.output_2d_bluekenue->set_value(false);
+	ui.output_instat_dbase->set_value(true);
 }
 //Set the member of the widget per database
 void HydGui_System_Member_Wid::set_member(QSqlDatabase *ptr_database){
@@ -248,6 +295,14 @@ void HydGui_System_Member_Wid::set_member(QSqlDatabase *ptr_database){
 	ui.max_h_rv->set_value(buffer.max_h_change_rv);
 	ui.max_v_rv->set_value(buffer.max_v_change_rv);
 	ui.min_intstep->set_value(buffer.min_internal_step);
+
+	//output settings
+	ui.output_1d_tecplot->set_value(buffer.output_flags.tecplot_1d_required);
+	ui.output_2d_tecplot->set_value(buffer.output_flags.tecplot_2d_required);
+	ui.output_1d_paraview->set_value(buffer.output_flags.paraview_1d_required);
+	ui.output_2d_paraview->set_value(buffer.output_flags.paraview_2d_required);
+	ui.output_2d_bluekenue->set_value(buffer.output_flags.bluekenue_2d_required);
+	ui.output_instat_dbase->set_value(buffer.output_flags.database_instat_required);
 }
 //____________
 //public slots
@@ -305,7 +360,19 @@ void HydGui_System_Member_Wid::transfer_members2database(HydGui_System_Member_Wi
 	query_string  << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::syn_min_int_tstep) << " = "<< dialog->ui.min_intstep->get_value()<< " , ";
 
 	query_string  << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::pretype) << " = '"<< dialog->ui.pretype->get_current_value()<< "' , ";
-	query_string  << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::gramschmidt) << " = '"<< dialog->ui.gramschmidt->get_current_value()<< "' ";
+	query_string  << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::gramschmidt) << " = '"<< dialog->ui.gramschmidt->get_current_value()<< "', ";
+	
+
+	query_string << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_tecplot_1d) << " = '" << functions::convert_boolean2string(dialog->ui.output_1d_tecplot->get_value()) << "', ";
+	query_string << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_tecplot_2d) << " = '" << functions::convert_boolean2string(dialog->ui.output_2d_tecplot->get_value()) << "', ";
+	query_string << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_1d) << " = '" << functions::convert_boolean2string(dialog->ui.output_1d_paraview->get_value()) << "', ";
+	query_string << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_2d) << " = '" << functions::convert_boolean2string(dialog->ui.output_2d_paraview->get_value()) << "', ";
+	query_string << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_bluekenue_2d) << " = '" << functions::convert_boolean2string(dialog->ui.output_2d_bluekenue->get_value()) << "', ";
+	query_string << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_instat_db) << " = '" << functions::convert_boolean2string(dialog->ui.output_instat_dbase->get_value()) << "' ";
+
+
+
+	
 	query_string  << " WHERE ";
 	query_string  << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::nofset) << " = "  << this->set_spinBox->value()-1;
 	

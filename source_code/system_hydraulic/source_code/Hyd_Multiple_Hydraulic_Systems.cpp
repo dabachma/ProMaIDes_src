@@ -669,8 +669,7 @@ void Hyd_Multiple_Hydraulic_Systems::set_hyd_system_new_db(int *counter_sys, con
 				ostringstream buffer;
 				buffer << this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_id()<<"-"<<this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_name();
 				this->threads[i].set_identifier_string(buffer.str());
-				buffer <<".CA";
-				this->threads[i].set_folder_name(buffer.str(), true);
+				
 
 				//set hydraulic boundary scenario id
 				this->threads[i].set_new_hyd_bound_sz_id(*this->sz_bound_manager.get_ptr_sz(*counter_sys));
@@ -679,8 +678,11 @@ void Hyd_Multiple_Hydraulic_Systems::set_hyd_system_new_db(int *counter_sys, con
 				prefix << this->threads[i].get_identifier_prefix();
 				Sys_Common_Output::output_hyd->set_userprefix(&prefix);
 				try{
+					
 					//preprocessing
 					this->threads[i].set_system_per_database();
+					buffer << ".CA";
+					this->threads[i].set_folder_name(buffer.str(), true);
 					Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 					this->threads[i].output_glob_models();
 					Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();

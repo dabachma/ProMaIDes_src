@@ -559,19 +559,7 @@ void Hyd_Coupling_FP2CO_Dikebreak::output_results2file_tecplot (double const ){
 		}
 
 	}
-	this->break_info_list.counter_breach.clear();
-	this->break_info_list.delta_h2start.clear();
-	this->break_info_list.downstream_breach.clear();
-	this->break_info_list.downstream_delta_h.clear();
-	this->break_info_list.upstream_breach.clear();
-	this->break_info_list.upstream_delta_h.clear();
-	this->break_info_list.downstream_wall_stress.clear();
-	this->break_info_list.upstream_wall_stress.clear();
-	this->break_info_list.mean_q.clear();
-	this->break_info_list.mean_v.clear();
-	this->break_info_list.time.clear();
-	this->break_info_list.time_breach.clear();
-	this->break_info_list.total_breach.clear();
+
 
 }
 //Output result members to csv file

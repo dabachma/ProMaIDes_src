@@ -31,7 +31,7 @@ public:
 
 	//method
 	///Initialize the element (here it is not needed)
-	void init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table);
+	void init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table, const bool clone);
 
 	//Make the syncronistation of the elements to a given time point
 	void calculate_boundary_value(const double time_point);

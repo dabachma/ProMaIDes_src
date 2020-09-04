@@ -371,7 +371,7 @@ private:
 	void set_elem_geometry(void);
 
 	///Initialize the elements
-	void init_elements(Hyd_Param_Material *material_table);
+	void init_elements(Hyd_Param_Material *material_table, const bool clone);
 
 	///Set the init condition to the result vector
 	void set_initcond2resultvector(void);

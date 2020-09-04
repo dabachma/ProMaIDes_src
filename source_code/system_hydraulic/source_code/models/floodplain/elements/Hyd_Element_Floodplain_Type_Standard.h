@@ -33,7 +33,7 @@ public:
 
 	//methods
 	///Initialize the element (call it backward: not from the origin; start at the diagonal corner of the origin)
-	void init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table);
+	void init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table, const bool clone);
 
 	///Connect the element with a instationary boundary curve if requiered
 	void connect_instat_boundarycurve(Hyd_Instationary_Boundary *bound_curve);

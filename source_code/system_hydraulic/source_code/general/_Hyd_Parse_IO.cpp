@@ -292,6 +292,16 @@ _hyd_keyword_file _Hyd_Parse_IO::ParseNextKeyword(char *CommandList){
 	else if (FIND1("$MAXNUMSTEPS")	)	Keyword = eMAXNUMSTEPS; 
 	else if (FIND1("$MAXSTEPSIZE")	)	Keyword = eMAXSTEPSIZE;
 	else if (FIND1("$INISTEPSIZE")	)	Keyword = eINISTEPSIZE;
+	//output settings
+	else if (FIND1("!OUTPUT"))	Keyword = eOUTPUT;
+	else if (FIND1("$TECPLOT_1D"))	Keyword = eTECPLOT1D;
+	else if (FIND1("$TECPLOT_2D"))	Keyword = eTECPLOT2D;
+	else if (FIND1("$BLUEKENUE_2D"))	Keyword = eBLUEKENUE2D;
+	else if (FIND1("$PARAVIEW_EXCEL_1D"))	Keyword = ePARAVIEW1D;
+	else if (FIND1("$PARAVIEW_2D"))	Keyword = ePARAVIEW2D;
+	else if (FIND1("$DATBASE_INSTAT"))	Keyword = eDATABASE_INSTAT;
+	else if (FIND1("$OUTPUT_FOLDER"))	Keyword = eOUTPUT_FOLDER;
+
 	//preconditioner settings
 	else if (FIND1("!PRECON")		)	Keyword = ePRECON; 
 	else if (FIND1("$PRETYPE")		)	Keyword = ePRETYPE; 

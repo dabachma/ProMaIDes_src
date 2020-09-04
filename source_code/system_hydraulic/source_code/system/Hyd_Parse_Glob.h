@@ -81,6 +81,8 @@ private:
 	void parse_coastmodel(_hyd_keyword_file Key, word Command);
 	 ///Parse integration setting
 	void parse_integration_setting(_hyd_keyword_file Key, word Command);
+	///Parse output setting
+	void parse_output_setting(_hyd_keyword_file Key, word Command);
 	///Parse preconditioner settings
 	void parse_precon_setting(_hyd_keyword_file Key, word Command);
 	///Parse syncronisation settings

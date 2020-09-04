@@ -256,6 +256,9 @@ void Hyd_Parse_Glob::parse_global_params(void){
 				case eINTEGRATION:
 					this->parse_integration_setting(Key, Command);
 					break;
+				case eOUTPUT:
+					this->parse_output_setting(Key, Command);
+					break;
 				case ePRECON:
 					this->parse_precon_setting(Key, Command);
 					break;
@@ -538,6 +541,63 @@ void Hyd_Parse_Glob::parse_integration_setting(_hyd_keyword_file Key, word Comma
 				throw msg;
 			}
 		}while (Key != eSET); // End of Integration specifications are marked by </Set>
+	}
+}
+//Parse output setting
+void Hyd_Parse_Glob::parse_output_setting(_hyd_keyword_file Key, word Command) {
+	// Next keyword is SET or STANDARD
+	do {
+		if (Key == eFAIL) {
+			if (!this->GetLine(Command)) {
+				Error msg = this->set_error(5);
+				throw msg;
+			}
+		}
+		Key = ParseNextKeyword(Command);
+	} while ((Key != eSET) && (Key != eSTANDARD));
+
+	// Set specifications for STANDARD
+	if (Key == eSTANDARD) {
+		return;
+	}
+	else if (Key == eSET) {
+		//
+		do {
+			if (Key == eFAIL) {
+				if (!this->GetLine(Command)) {
+					Error msg = this->set_error(5);
+					throw msg;
+				}
+			}
+			Key = ParseNextKeyword(Command);
+			stringstream buffer;
+			string str_buff;
+			buffer << Command;
+			buffer >> str_buff;
+			if (Key == eTECPLOT1D) {
+				this->Globals.output_flags.tecplot_1d_required = _Hyd_Parse_IO::transform_string2boolean(str_buff);
+			}
+			else if (Key == eTECPLOT2D) {
+				this->Globals.output_flags.tecplot_2d_required = _Hyd_Parse_IO::transform_string2boolean(str_buff);
+			}
+			else if (Key == eBLUEKENUE2D) {
+				this->Globals.output_flags.bluekenue_2d_required= _Hyd_Parse_IO::transform_string2boolean(str_buff);
+			}
+			else if (Key == ePARAVIEW1D) {
+				this->Globals.output_flags.paraview_1d_required= _Hyd_Parse_IO::transform_string2boolean(str_buff);
+			}
+			else if (Key == ePARAVIEW2D) {
+				this->Globals.output_flags.paraview_2d_required= _Hyd_Parse_IO::transform_string2boolean(str_buff);
+			}
+			else if (Key == eDATABASE_INSTAT) {
+				this->Globals.output_flags.database_instat_required = _Hyd_Parse_IO::transform_string2boolean(str_buff);
+			}
+			else if (Key == eOUTPUT_FOLDER) {
+				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&str_buff);
+				_Hyd_Parse_IO::erase_end_whitespace_tabs(&str_buff);
+				this->Globals.output_flags.output_folder = _Hyd_Parse_IO::insert_linux_slash2string(str_buff);
+			}
+		} while (Key != eSET); // End of Precon specifications are marked by </Set>
 	}
 }
 //parse preconditioner settings

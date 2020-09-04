@@ -222,7 +222,12 @@ void Hyd_Parse_RV::parse_1d_result_file(_hyd_keyword_file Key, word Command){
 		string buff2=buffer;
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&buff2);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&buff2);
-		this->rv_params.tecplot_outfile_name_1d=buff2;
+		//this->rv_params.tecplot_outfile_name_1d=buff2;
+		ostringstream info;
+		info << "See  !1DOUTPUT keyword:" << buffer << " in the RV-section" << endl;
+		Warning msg = this->set_warning(1);
+		msg.make_second_info(info.str());
+		msg.output_msg(2);
 	}
 }
 //Parse for the 2d_result_file name for tecplot
@@ -239,7 +244,12 @@ void Hyd_Parse_RV::parse_2d_result_file(_hyd_keyword_file Key, word Command){
 		string buff2=buffer;
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&buff2);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&buff2);
-		this->rv_params.tecplot_outfile_name_2d=buff2;
+		//this->rv_params.tecplot_outfile_name_2d=buff2;
+		ostringstream info;
+		info << "See  !2DOUTPUT keyword:" << buffer << " in the RV-section" << endl;
+		Warning msg = this->set_warning(1);
+		msg.make_second_info(info.str());
+		msg.output_msg(2);
 	}
 }
 //Parse for the calculation limits
@@ -308,6 +318,42 @@ void Hyd_Parse_RV::check_parameters_found(void){
 		throw msg;
 	}
 
+}
+//Set the warning
+Warning Hyd_Parse_RV::set_warning(const int warn_type) {
+	string place = "Hyd_Parse_RV::";
+	string help;
+	string reason;
+	string reaction;
+	int type = 0;
+	Warning msg;
+	stringstream info;
+
+	switch (warn_type) {
+	case 0://output settings are changed
+		place.append("parse_1d_result_file(_hyd_keyword_file Key, word Command)");
+		reason = "Keyword is not more supported; the output-settings are done now in the global parameter section";
+		reaction = "No reaction";
+		help = "Just erase the following line in the .ilm-file";
+		type = 1;
+		break;
+	case 1://output settings are changed
+		place.append("parse_2d_result_file(_hyd_keyword_file Key, word Command)");
+		reason = "Keyword is not more supported; the output-settings are done now in the global parameter section";
+		reaction = "No reaction";
+		help = "Just erase the following line in the .ilm-file";
+		type = 1;
+		break;
+
+	default:
+		place.append("set_warning(const int warn_type)");
+		reason = "Unknown flag!";
+		help = "Check the flags";
+		type = 5;
+	}
+	msg.set_msg(place, reason, help, reaction, type);
+	msg.make_second_info(info.str());
+	return msg;
 }
 //set the error
 Error Hyd_Parse_RV::set_error(const int err_type){

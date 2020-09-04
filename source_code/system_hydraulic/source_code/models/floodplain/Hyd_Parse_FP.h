@@ -72,6 +72,9 @@ private:
 	///Check if the requiered paramaters were found
 	void check_parameters_found(void);
 
+
+	///Set the warning
+	Warning set_warning(const int warn_type);
 	///Set error(s)
 	Error set_error(const int err_type);
 

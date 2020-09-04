@@ -430,7 +430,15 @@ void Hyd_Parse_FP::parse_2d_result_file(_hyd_keyword_file Key, word Command){
 		string buff2=buffer;
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&buff2);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&buff2);
-		this->fp_params.tecplot_outfile_name=buff2;
+		ostringstream info;
+		info << "See  !2DOUTPUT keyword:" << buffer << " in the FP-section"<< endl;
+		Warning msg = this->set_warning(0);
+		msg.make_second_info(info.str());
+		msg.output_msg(2);
+		
+
+
+
 	}
 }
 //Check if the requiered paramaters were found
@@ -460,6 +468,34 @@ void Hyd_Parse_FP::check_parameters_found(void){
 		throw msg;
 	}
 
+}
+//Set the warning
+Warning Hyd_Parse_FP::set_warning(const int warn_type) {
+	string place = "Hyd_Parse_FP::";
+	string help;
+	string reason;
+	string reaction;
+	int type = 0;
+	Warning msg;
+	stringstream info;
+
+	switch (warn_type) {
+	case 0://absolute solver tolerance
+		place.append("parse_2d_result_file(_hyd_keyword_file Key, word Command)");
+		reason = "Keyword is not more supported; the output-settings are done now in the global parameter section";
+		reaction = "No reaction";
+		help = "Just erase the following line in the .ilm-file";
+		type = 1;
+		break;
+	default:
+		place.append("set_warning(const int warn_type)");
+		reason = "Unknown flag!";
+		help = "Check the flags";
+		type = 5;
+	}
+	msg.set_msg(place, reason, help, reaction, type);
+	msg.make_second_info(info.str());
+	return msg;
 }
 //set the error
 Error Hyd_Parse_FP::set_error(const int err_type){

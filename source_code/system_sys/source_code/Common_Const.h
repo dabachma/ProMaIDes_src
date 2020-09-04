@@ -1857,6 +1857,21 @@ namespace hyd_label{
 	///Keyword for the database table column of the global parameters: minimum internal time step [s] (Hyd_Param_Global)
 	const string syn_min_int_tstep("SYN_MIN_INT_TSTEP");
 
+	///Keyword for the database table column of the global parameters: output for tecplot 1d  (Hyd_Param_Global)
+	const string output_tecplot_1d("output_tecplot_1d");
+	///Keyword for the database table column of the global parameters: output for tecplot 2d  (Hyd_Param_Global)
+	const string output_tecplot_2d("output_tecplot_2d");
+	///Keyword for the database table column of the global parameters: output for bluekenue 2d  (Hyd_Param_Global)
+	const string output_bluekenue_2d("output_bluekenue_2d");
+	///Keyword for the database table column of the global parameters: output for paraview 1d  (Hyd_Param_Global)
+	const string output_paraview_1d("output_paraview_1d");
+	///Keyword for the database table column of the global parameters: output for paraview 2d  (Hyd_Param_Global)
+	const string output_paraview_2d("output_paraview_2d");
+	///Keyword for the database table column of the global parameters: instationary output for database  (Hyd_Param_Global)
+	const string output_instat_db("insta_output_db");
+	///Keyword for the database table column of the global parameters: output folder (Hyd_Param_Global)
+	const string output_folder("output_folder");
+
 	///Keyword for the database table name of the material parameters (Hyd_Param_Material)
 	const string tab_mat_param("HYD_MATERIAL_PARAM");
 	///Keyword for the database table column of the material parameters: number as identifier [-] (Hyd_Param_Material)

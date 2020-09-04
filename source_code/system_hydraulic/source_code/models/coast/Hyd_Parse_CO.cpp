@@ -198,12 +198,45 @@ void Hyd_Parse_CO::parse_geometry_file_tecplot(_hyd_keyword_file Key, word Comma
 		char buffer[512];
 		RemoveDelimiters(Command, buffer);
 		UseLinuxSlash(buffer);
-		this->params.filename_geometry_tecplot=buffer;
+		//this->params.filename_geometry_tecplot=buffer;
+		ostringstream info;
+		info << "See  !2DOUTPUT keyword:" << buffer << " in the CO-section" << endl;
+		Warning msg = this->set_warning(0);
+		msg.make_second_info(info.str());
+		msg.output_msg(2);
 	}
 }
 //Check if the requiered paramaters were found
 void Hyd_Parse_CO::check_parameters_found(void){
 
+}
+//Set the warning
+Warning Hyd_Parse_CO::set_warning(const int warn_type) {
+	string place = "Hyd_Parse_CO::";
+	string help;
+	string reason;
+	string reaction;
+	int type = 0;
+	Warning msg;
+	stringstream info;
+
+	switch (warn_type) {
+	case 0://output settings are changed
+		place.append("parse_geometry_file_tecplot(_hyd_keyword_file Key, word Command)");
+		reason = "Keyword is not more supported; the output-settings are done now in the global parameter section";
+		reaction = "No reaction";
+		help = "Just erase the following line in the .ilm-file";
+		type = 1;
+		break;
+	default:
+		place.append("set_warning(const int warn_type)");
+		reason = "Unknown flag!";
+		help = "Check the flags";
+		type = 5;
+	}
+	msg.set_msg(place, reason, help, reaction, type);
+	msg.make_second_info(info.str());
+	return msg;
 }
 //set the error
 Error Hyd_Parse_CO::set_error(const int err_type){

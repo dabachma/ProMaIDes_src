@@ -2872,7 +2872,7 @@ void Hyd_Hydraulic_System::output_calculation_steps_rivermodel2file(const double
 				}
 			}
 		}
-		if (this->global_parameters.get_output_flags().paraview_1d_required == true) {
+		if (this->global_parameters.get_output_flags().paraview_1d_required == true || this->global_parameters.get_output_flags().paraview_2d_required == true) {
 			for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
 				//to the csv / paraview file
 				if (this->global_parameters.get_output_flags().paraview_1d_required == true) {

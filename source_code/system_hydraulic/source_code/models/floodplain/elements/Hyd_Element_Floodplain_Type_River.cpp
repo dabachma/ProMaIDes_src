@@ -28,7 +28,7 @@ Hyd_Element_Floodplain_Type_River::~Hyd_Element_Floodplain_Type_River(void){
 //________
 //public
 //Initialize the element (here it is not needed)
-void Hyd_Element_Floodplain_Type_River::init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *, Hyd_Param_Material *){
+void Hyd_Element_Floodplain_Type_River::init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *, Hyd_Param_Material *, const bool ){
 	
 	//set the width
 	this->x_width=width_x;

@@ -110,7 +110,7 @@ public:
 	//method
 
 	///Initialize the element (call it backward: not from the origin; start at the diagonal corner of the origin)
-	virtual void init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table)=0;
+	virtual void init_element(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table, const bool clone)=0;
 	///Connect the element with a instationary boundary curve if requiered (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 	virtual void connect_instat_boundarycurve(Hyd_Instationary_Boundary *bound_curve);
 	

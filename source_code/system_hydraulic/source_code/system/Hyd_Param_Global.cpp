@@ -159,6 +159,17 @@ void Hyd_Param_Global::globals_per_parser(const string globalfile){
 		buff<<this->get_global_path() << this->obs_point_file;
 		this->obs_point_file=_Hyd_Parse_IO::insert_linux_slash2string(buff.str());
 	}
+	buff.str("");
+	if (this->output_flags.output_folder != label::not_set) {
+		buff << this->get_global_path() << this->output_flags.output_folder;
+		this->output_flags.output_folder = _Hyd_Parse_IO::insert_linux_slash2string(buff.str());
+	}
+	else {
+		
+		this->output_flags.output_folder = this->global_path;
+		
+
+	}
 
 	try{
 		this->check_members();
@@ -179,7 +190,7 @@ void Hyd_Param_Global::create_table(QSqlDatabase *ptr_database){
 			Sys_Common_Output::output_hyd->output_txt(&cout);
 			//make specific input for this class
 			const string tab_name=hyd_label::tab_sys_param;
-			const int num_col=15;
+			const int num_col=21;
 			_Sys_data_tab_column tab_col[num_col];
 			//init
 			for(int i=0; i< num_col; i++){
@@ -250,8 +261,33 @@ void Hyd_Param_Global::create_table(QSqlDatabase *ptr_database){
 			tab_col[13].name=hyd_label::gramschmidt;
 			tab_col[13].type=sys_label::tab_col_type_string;
 
-			tab_col[14].name=label::description;
-			tab_col[14].type=sys_label::tab_col_type_string;
+			tab_col[14].name = hyd_label::output_tecplot_1d;
+			tab_col[14].type = sys_label::tab_col_type_bool;
+			tab_col[14].default_value = "false";
+
+			tab_col[15].name = hyd_label::output_tecplot_2d;
+			tab_col[15].type = sys_label::tab_col_type_bool;
+			tab_col[15].default_value = "false";
+
+			tab_col[16].name = hyd_label::output_bluekenue_2d;
+			tab_col[16].type = sys_label::tab_col_type_bool;
+			tab_col[16].default_value = "false";
+
+			tab_col[17].name = hyd_label::output_paraview_1d;
+			tab_col[17].type = sys_label::tab_col_type_bool;
+			tab_col[17].default_value = "true";
+
+			tab_col[18].name = hyd_label::output_paraview_2d;
+			tab_col[18].type = sys_label::tab_col_type_bool;
+			tab_col[18].default_value = "true";
+
+			tab_col[19].name = hyd_label::output_instat_db;
+			tab_col[19].type = sys_label::tab_col_type_bool;
+			tab_col[19].default_value = "true";
+
+
+			tab_col[20].name=label::description;
+			tab_col[20].type=sys_label::tab_col_type_string;
 
 			try{
 				Hyd_Param_Global::global_param_table= new Tables();
@@ -281,7 +317,7 @@ void Hyd_Param_Global::set_table(QSqlDatabase *ptr_database, const bool not_clos
 	if(Hyd_Param_Global::global_param_table==NULL){
 		//make specific input for this class
 		const string tab_id_name=hyd_label::tab_sys_param;
-		string tab_id_col[14];
+		string tab_id_col[20];
 
 		tab_id_col[0]=hyd_label::nofset;
 		tab_id_col[1]=hyd_label::tstart;
@@ -297,6 +333,12 @@ void Hyd_Param_Global::set_table(QSqlDatabase *ptr_database, const bool not_clos
 		tab_id_col[11]=hyd_label::syn_maxchange_h_rv;
 		tab_id_col[12]=hyd_label::syn_min_int_tstep;
 		tab_id_col[13]=hyd_label::syn_maxchange_v_rv;
+		tab_id_col[14] = hyd_label::output_tecplot_1d;
+		tab_id_col[15] = hyd_label::output_tecplot_2d;
+		tab_id_col[16] = hyd_label::output_bluekenue_2d;
+		tab_id_col[17] = hyd_label::output_paraview_1d;
+		tab_id_col[18] = hyd_label::output_paraview_2d;
+		tab_id_col[19] = hyd_label::output_instat_db;
 
 		try{
 			Hyd_Param_Global::global_param_table= new Tables(tab_id_name, tab_id_col, sizeof(tab_id_col)/sizeof(tab_id_col[0]));
@@ -455,7 +497,13 @@ void Hyd_Param_Global::globals_per_database(QSqlDatabase *ptr_database, const bo
 	this->max_h_change_rv=(model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::syn_maxchange_h_rv)).c_str()).toDouble());
 	this->min_internal_step=(model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::syn_min_int_tstep)).c_str()).toDouble());
 	this->max_v_change_rv=(model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::syn_maxchange_v_rv)).c_str()).toDouble());
-
+	//output
+	this->output_flags.tecplot_1d_required = (model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_tecplot_1d)).c_str()).toBool());
+	this->output_flags.tecplot_2d_required = (model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_tecplot_2d)).c_str()).toBool());
+	this->output_flags.bluekenue_2d_required = (model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_bluekenue_2d)).c_str()).toBool());
+	this->output_flags.paraview_1d_required = (model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_1d)).c_str()).toBool());
+	this->output_flags.paraview_2d_required = (model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_2d)).c_str()).toBool());
+	this->output_flags.database_instat_required = (model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_instat_db)).c_str()).toBool());
 
 	if(output==true){
 		//rewind the prefix
@@ -937,9 +985,7 @@ void Hyd_Param_Global::set_global_path(string filename){
 		}
 
 	}
-	if (this->output_flags.output_folder == label::not_set) {
-		this->output_flags.output_folder = this->global_path;
-	}
+
 
 
 }
@@ -993,6 +1039,16 @@ void Hyd_Param_Global::input_globals2database_table(QSqlDatabase *ptr_database, 
 	model.setData(model.index(0,model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::syn_maxchange_h_rv)).c_str())),this->max_h_change_rv);
 	model.setData(model.index(0,model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::syn_min_int_tstep)).c_str())),this->min_internal_step);
 	model.setData(model.index(0,model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::syn_maxchange_v_rv)).c_str())),this->max_v_change_rv);
+	//output
+	model.setData(model.index(0, model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_tecplot_1d)).c_str())), functions::convert_boolean2string(this->output_flags.tecplot_1d_required).c_str());
+	model.setData(model.index(0, model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_tecplot_2d)).c_str())), functions::convert_boolean2string(this->output_flags.tecplot_2d_required).c_str());
+	model.setData(model.index(0, model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_1d)).c_str())), functions::convert_boolean2string(this->output_flags.paraview_1d_required).c_str());
+	model.setData(model.index(0, model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_2d)).c_str())), functions::convert_boolean2string(this->output_flags.paraview_2d_required).c_str());
+	model.setData(model.index(0, model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_instat_db)).c_str())), functions::convert_boolean2string(this->output_flags.database_instat_required).c_str());
+	model.setData(model.index(0, model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_bluekenue_2d)).c_str())), functions::convert_boolean2string(this->output_flags.bluekenue_2d_required).c_str());
+
+	
+	
 	//submit it to the datbase
 	Data_Base::database_submit(&model);
 	if(model.lastError().isValid()){

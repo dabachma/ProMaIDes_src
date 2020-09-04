@@ -658,7 +658,7 @@ void Hyd_Model_Floodplain::clone_model(Hyd_Model_Floodplain *floodplain, Hyd_Par
 	for(int i=0; i< this->NEQ; i++){
 		this->floodplain_elems[i].clone_element(&floodplain->floodplain_elems[i]);
 	}
-	this->init_elements(material_table);
+	this->init_elements(material_table, true);
 	cout <<"Clone floodplain model boundary curves..."<<endl;
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 	//boundary curves
@@ -681,7 +681,7 @@ void Hyd_Model_Floodplain::init_floodplain_model(Hyd_Param_Material *material_ta
             //intercept them with the raster
              this->connect_elems2noflowpolygons();
             //initialize the elements
-            this->init_elements(material_table);
+            this->init_elements(material_table,false);
              //connect them to the instationary bounadry curves to the elems
             this->connect_elems2instat_boundarycurves(coast_boundary);
             //count the element types
@@ -4129,7 +4129,7 @@ void Hyd_Model_Floodplain::set_elem_geometry(void){
 	}
 }
 //initialize the elements
-void Hyd_Model_Floodplain::init_elements(Hyd_Param_Material *material_table){
+void Hyd_Model_Floodplain::init_elements(Hyd_Param_Material *material_table, const bool clone){
 	ostringstream cout;
 	cout <<"Initialize "<< this->NEQ << " elements of the floodplain..."<<endl;
 	Sys_Common_Output::output_hyd->output_txt(&cout);
@@ -4147,7 +4147,7 @@ void Hyd_Model_Floodplain::init_elements(Hyd_Param_Material *material_table){
 			buffer_neigh_elems.x_direction=this->set_neighbouring_elements(i,_hyd_neighbouring_direction::X_DIR);
 			buffer_neigh_elems.minus_y_direction=this->set_neighbouring_elements(i,_hyd_neighbouring_direction::MINUS_Y_DIR);
 			buffer_neigh_elems.minus_x_direction=this->set_neighbouring_elements(i,_hyd_neighbouring_direction::MINUS_X_DIR);
-			this->floodplain_elems[i].init_element_type(buffer_neigh_elems ,this->Param_FP.get_ptr_width_x(), this->Param_FP.get_ptr_width_y(), this->Param_FP.get_ptr_elem_area(),material_table);
+			this->floodplain_elems[i].init_element_type(buffer_neigh_elems ,this->Param_FP.get_ptr_width_x(), this->Param_FP.get_ptr_width_y(), this->Param_FP.get_ptr_elem_area(),material_table, clone);
 		}
 
 		//connection for the river elemnts

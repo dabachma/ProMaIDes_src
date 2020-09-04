@@ -29,7 +29,7 @@ Hyd_Element_Floodplain_Type_Dam::~Hyd_Element_Floodplain_Type_Dam(void){
 //____________
 //public
 //Initialize the element (here it is not needed)
-void Hyd_Element_Floodplain_Type_Dam::init_element(_hyd_neighbouring_elems , double *, double *, double *, Hyd_Param_Material *){
+void Hyd_Element_Floodplain_Type_Dam::init_element(_hyd_neighbouring_elems , double *, double *, double *, Hyd_Param_Material *, const bool ){
 	
 }
 //Set the maximum results values directly

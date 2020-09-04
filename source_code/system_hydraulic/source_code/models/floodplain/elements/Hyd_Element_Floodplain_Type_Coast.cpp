@@ -24,7 +24,7 @@ Hyd_Element_Floodplain_Type_Coast::~Hyd_Element_Floodplain_Type_Coast(void){
 //________
 //public
 //Initialize the element (here it is not needed)
-void Hyd_Element_Floodplain_Type_Coast::init_element(_hyd_neighbouring_elems , double *, double *, double *, Hyd_Param_Material *){
+void Hyd_Element_Floodplain_Type_Coast::init_element(_hyd_neighbouring_elems , double *, double *, double *, Hyd_Param_Material *, const bool ){
 
 }
 //Set the pointer to the sea waterlevel

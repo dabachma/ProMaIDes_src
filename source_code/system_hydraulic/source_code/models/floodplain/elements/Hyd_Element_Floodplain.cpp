@@ -1716,6 +1716,12 @@ void Hyd_Element_Floodplain::copy_results(QSqlDatabase *ptr_database, const _sys
 void Hyd_Element_Floodplain::clone_element(Hyd_Element_Floodplain *elements){
 	this->glob_elem_number = elements->glob_elem_number;
 	this->elem_number=elements->elem_number;
+	if (this->elem_number == 158) {
+		int zi = 0;
+		zi = zi + 1;
+		cout << zi;
+
+	}
 	this->type=elements->type;
 	this->z_value=elements->z_value;
 	this->polygon_string=elements->polygon_string;
@@ -1963,7 +1969,7 @@ int Hyd_Element_Floodplain::select_relevant_boundary_cond_database(QSqlQueryMode
 	return number;
 }
 //Initialize the _Hyd_Element_Floodplain_Type; decide which type is chosen
-void Hyd_Element_Floodplain::init_element_type(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table){
+void Hyd_Element_Floodplain::init_element_type(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table, const bool clone){
 	//allocate the element_type
 	try{
 		this->allocate_element_type();
@@ -1975,9 +1981,17 @@ void Hyd_Element_Floodplain::init_element_type(_hyd_neighbouring_elems neigh_ele
 	try{
 		//init the element type
 		this->element_type->set_data_buffers(*this->buffer_boundary_data, *this->buffer_flow_data, &this->z_value);
+		
+
+		if (this->elem_number == 158) {
+			int zi = 0;
+			zi = zi + 1;
+			cout << zi;
+
+		}
 		this->delete_data_buffer();
 
-		this->element_type->init_element(neigh_elem, width_x, width_y, area, mat_table);
+		this->element_type->init_element(neigh_elem, width_x, width_y, area, mat_table, clone);
 	}
 	catch(Error msg){
 		ostringstream info;
