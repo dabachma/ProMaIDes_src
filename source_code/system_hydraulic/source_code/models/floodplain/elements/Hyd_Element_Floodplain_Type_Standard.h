@@ -194,6 +194,9 @@ public:
 	///Set the maximum result values of an element to an query string to transfer them into a database table (Hyd_Element_Floodplain
 	void set_maximum_value2querystring(ostringstream *query_string);
 
+	///Set the instationary result values of an element to an query string to transfer them into a database table (Hyd_Element_Floodplain
+	void set_instat_value2querystring(ostringstream *query_string);
+
 
 	///Reset the hydrological balance value and the maximum values
 	void reset_hydrobalance_maxvalues(void);

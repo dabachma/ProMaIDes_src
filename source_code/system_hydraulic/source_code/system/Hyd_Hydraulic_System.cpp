@@ -534,6 +534,7 @@ void Hyd_Hydraulic_System::create_hyd_database_tables(void){
 		//result tables
 		//floodplain
 		Hyd_Element_Floodplain::create_erg_table(&this->database);
+		Hyd_Element_Floodplain::create_erg_instat_table(&this->database);
 		//river
 		_Hyd_River_Profile::create_erg_table(&this->database);
 
@@ -671,6 +672,11 @@ void Hyd_Hydraulic_System::check_hyd_database_tables(void){
 			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 			Hyd_Element_Floodplain::set_erg_table(&this->database);
 
+			cout << "Check instationary result database table (floodplain)..." << endl;
+			Sys_Common_Output::output_hyd->output_txt(&cout, false, false);
+			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+			Hyd_Element_Floodplain::set_erg_instat_table(&this->database);
+
 			//result tables
 			cout << "Check max-result database table (river)..." << endl ;
 			Sys_Common_Output::output_hyd->output_txt(&cout,false, false);
@@ -788,6 +794,7 @@ void Hyd_Hydraulic_System::switch_applied_flags_results(QSqlDatabase *ptr_databa
 void Hyd_Hydraulic_System::copy_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest){
 	_Hyd_River_Profile::copy_results(ptr_database, src, dest);
 	Hyd_Element_Floodplain::copy_results(ptr_database, src, dest);
+	Hyd_Element_Floodplain::copy_instat_results(ptr_database, src, dest);
 	_Hyd_Coupling_Dikebreak::copy_results(ptr_database, src, dest);
 	Hyd_Coupling_RV2FP_Merged::copy_results(ptr_database, src, dest);
 }
@@ -2732,6 +2739,8 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 	this->output_calculation_steps_rivermodel2file(this->internal_time);
 	//output the results of the floodplain models to file
 	this->output_calculation_steps_floodplainmodel2file(this->internal_time);
+	this->output_calculation_steps_floodplainmodel2database(this->internal_time);
+
 	//output the break results per step to file
 	this->coupling_managment.output_coupling_calculation_steps2file(this->internal_time);
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
@@ -2955,11 +2964,19 @@ void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2display(cons
 }
 //Output the results of the calculation steps of the floodplain models to database
 void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2database(const double timestep) {
+	//delete results
+	if (this->timestep_counter == 0) {
+		Hyd_Element_Floodplain::delete_data_in_instat_erg_table(&this->database, this->system_id, this->hyd_sz.get_id(), this->break_sz);
+	}
+
 	//loop over the floodplain models
 	for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
-		//to database TODO
-		//this->my_fpmodels[i].output_result2tecplot(timestep, this->timestep_counter);
-		//this->my_fpmodels[i].output_result2bluekenue(timestep, this->timestep_counter, this->global_parameters.get_startime());
+		//to database 
+		if (global_parameters.get_output_flags().database_instat_required == true) {
+			
+			this->my_fpmodels[i].output_result2database(&this->database, this->break_sz, timestep, this->timestep_counter);
+		}
+		
 	}
 }
 //Clear all not needed data of the models before the solver is initialized

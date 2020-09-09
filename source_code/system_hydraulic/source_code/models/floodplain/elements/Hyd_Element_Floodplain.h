@@ -76,6 +76,8 @@ public:
 	///Pointer to the database table for the results of an hydraulic simulation for the floodplain elements
 	/**This pointer is allocated with set_erg_table(QSqlDatabase *ptr_database) and deleted with close_erg_table(void) */
 	static Tables *erg_table;
+	/**This pointer is allocated with set_erg_instat_table(QSqlDatabase *ptr_database) and deleted with close_erg_instat_table(void) */
+	static Tables *erg_instat_table;
 	///Pointer to the database table for the element data in a database
 	/**This pointer is allocated with set_table(QSqlDatabase *ptr_database) and deleted with close_table(void) */
 	static Tables *elem_table;
@@ -168,6 +170,8 @@ public:
 	static void delete_data_in_erg_table(QSqlDatabase *ptr_database, const _sys_system_id id);
 	///Delete the data in the database table for the results of the hydraulic calculation for a floodplain specified by the system state and the scenario-ids 
 	static void delete_data_in_erg_table(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz );
+	///Delete the data in the database table for the instationaryresults of the hydraulic calculation for a floodplain specified by the system id and the scenario-ids (static)
+	static void delete_data_in_instat_erg_table(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz);
 
 
 	///Switch the applied-flag for the 2-d results in the database table for a defined system state
@@ -181,6 +185,21 @@ public:
 
 	///Copy the results of a given system id to another one in database table
 	static void copy_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest);
+
+
+	///Create the database table for the instationary results of an hydraulic simulation for the floodplain elements
+	static void create_erg_instat_table(QSqlDatabase *ptr_database);
+	///Create the database view for the instationary results of an hydraulic simulation for the floodplain elements
+	static void create_erg_instat_view1(QSqlDatabase *ptr_database);
+	///Set the database table for the instationary results of an hydraulic simulation for the floodplain elements: it sets the table name and the name of the columns and allocate them
+	static void set_erg_instat_table(QSqlDatabase *ptr_database, const bool not_close = false);
+	///Close and delete the database table for the instationary results of an hydraulic simulation for the floodplain elements
+	static void close_erg_instat_table(void);
+	///Get the maximum value of the global index of the element instationary result database table
+	static int get_max_glob_id_erg_instat_table(QSqlDatabase *ptr_database);
+
+	///Copy the instationary results of a given system id to another one in database table
+	static void copy_instat_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest);
 
 
 	///Clone the members of the floodplain elements
@@ -246,6 +265,11 @@ public:
 	static string get_insert_header_erg_data_table(QSqlDatabase *ptr_database);
 	///Get a string for transfering the result data to database 
 	string get_datastring_erg2database(const int glob_elem_id, const int fp_number, const _hyd_floodplain_geo_info geo_info, const string break_sz, const bool must_output);
+
+	///Get the header for inserting the element instationary result data to database table (static)
+	static string get_insert_header_erg_instat_data_table(QSqlDatabase *ptr_database);
+	///Get a string for transfering the instationary result data to database 
+	string get_datastring_erg_instat_2database(const int elem_id, const string break_sz, const string time, const _hyd_floodplain_geo_info geo_info);
 
 
 	///Output the maximum calculated results to the database table (erg_table)

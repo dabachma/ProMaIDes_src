@@ -272,6 +272,9 @@ public:
 	///Set the maximum result values of an element to an query string to transfer them into a database table (Hyd_Element_Floodplain
 	virtual void set_maximum_value2querystring(ostringstream *query_string);
 
+	///Set the instationary result values of an element to an query string to transfer them into a database table (Hyd_Element_Floodplain)
+	virtual void set_instat_value2querystring(ostringstream *query_string);
+
 	///Get the next _hyd_all_element_direction to the given direction counterclockwise
 	static _hyd_all_element_direction get_next_element_direction_counterclockwise(const _hyd_all_element_direction dir);
 	///Get the next _hyd_all_element_direction to the given direction clockwise

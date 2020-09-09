@@ -401,6 +401,21 @@ string Tables::get_column_name(const string id){
 	this->my_locker.unlock();
 	return buffer_name;
 }
+///Get the used name of a column with a given id-name; needed for a database query; table name is added
+string Tables::get_column_name_table(const string id) {
+	this->my_locker.lock();
+	string buffer_name; 
+	buffer_name.append(this->table_name.name);
+	buffer_name += ".";
+	for (int i = 0; i < this->col_num; i++) {
+		if (id == this->column[i].id) {
+			buffer_name += this->column[i].name;
+			break;
+		}
+	}
+	this->my_locker.unlock();
+	return buffer_name;
+}
 //Delete the whole data in the database table
 void Tables::delete_data_in_table(QSqlDatabase *ptr_database){
 	//delete the table
@@ -442,6 +457,28 @@ int Tables::maximum_int_of_column(const string column_name, QSqlDatabase *ptr_da
 		max=0;
 	}
 	return max;
+}
+
+//Create an index to a given column in table (return value true)
+void Tables::create_index2column(QSqlDatabase *ptr_database, const string column_name) {
+	ostringstream request;
+	request << "CREATE INDEX "<< this->table_name.name<<"_"<<column_name<<"_idx ON ";
+	request << this->get_table_name()<< "("<<column_name<<")";
+
+	QSqlQuery query(*ptr_database);
+	Data_Base::database_request(&query, request.str(), ptr_database);
+	query.first();
+
+}
+///Create a spatial index to a given column in table (return value true)
+void Tables::create_spatial_index2column(QSqlDatabase *ptr_database, const string column_name) {
+	ostringstream request;
+	request << "CREATE INDEX " << this->table_name.name << "_" << column_name << "_geom_idx ON ";
+	request << this->get_table_name() << " USING GIST (" << column_name << ")";
+
+	QSqlQuery query(*ptr_database);
+	Data_Base::database_request(&query, request.str(), ptr_database);
+	query.first();
 }
 //Output the table name and column names: id-names as well as used names
 void Tables::output_tab_col(void){

@@ -277,7 +277,7 @@ void Sys_Version_Update::check_update_hyd_table_elem_result_smax(QSqlDatabase *p
 
 	Hyd_Element_Floodplain::close_erg_table();
 }
-//Check and update the hydraulic global parameter table with output settings 3.9.2020
+//Check and update the hydraulic global parameter table with output settings (3.9.2020)
 void Sys_Version_Update::check_update_hyd_table_global_param(QSqlDatabase *ptr_database, const string project_file) {
 	if (Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
 		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
@@ -384,6 +384,48 @@ void Sys_Version_Update::check_update_hyd_table_global_param(QSqlDatabase *ptr_d
 	Hyd_Param_Global::close_table();
 
 }
+//Check and update the hydraulic table for instationary floodplain resulzs (7.9.2020)
+void Sys_Version_Update::check_update_hyd_table_instat_results(QSqlDatabase *ptr_database) {
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_dam ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
+	bool error = false;
+	//check it
+	try {
+		Hyd_Element_Floodplain::set_erg_instat_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (Hyd_Element_Floodplain::erg_instat_table->table_name.found_flag == false) {
+			Hyd_Element_Floodplain::close_erg_instat_table();
+			Hyd_Element_Floodplain::create_erg_instat_table(ptr_database);
+
+			//add an index to the max erg table
+			try {
+				Hyd_Element_Floodplain::set_erg_table(ptr_database);
+			}
+			catch (Error msg) {
+				throw msg;
+			}
+			Hyd_Element_Floodplain::erg_table->create_spatial_index2column(ptr_database, Hyd_Element_Floodplain::erg_table->get_column_name(hyd_label::elemdata_polygon));
+			Hyd_Element_Floodplain::close_erg_table();
+
+
+
+		}
+	}
+
+	
+
+	Hyd_Element_Floodplain::close_erg_instat_table();
+
+}
 //____________
 //private
 //Set error(s)
@@ -419,3 +461,4 @@ Error Sys_Version_Update::set_error(const int err_type){
 	msg.make_second_info(info.str());
 	return msg;
 }
+

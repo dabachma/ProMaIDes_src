@@ -108,16 +108,24 @@ public:
 	///Create a table in the database, if it does not exists (return value true)
 	bool create_non_existing_tables(const string name, _Sys_data_tab_column columns[], const int column_number, QSqlDatabase *ptr_database, _sys_table_type actuel_type);
 
+
+
 	///Get the used name of the table; needed for a database query
 	string get_table_name(void);
 	///Get the used name of a column with a given id-name; needed for a database query
 	string get_column_name(const string id);
+	///Get the used name of a column with a given id-name; needed for a database query; table name is added
+	string get_column_name_table(const string id);
 
 	///Delete the whole data in the database table
 	void delete_data_in_table(QSqlDatabase *ptr_database);
 
 	///Get the maximum value as integer of a given column; used for evaluation the global identifier of data records
 	int maximum_int_of_column(const string column_name, QSqlDatabase *ptr_database);
+	///Create an index to a given column in table (return value true)
+	void create_index2column(QSqlDatabase *ptr_database, const string column_name);
+	///Create a spatial index to a given column in table (return value true)
+	void create_spatial_index2column(QSqlDatabase *ptr_database, const string column_name);
 	
 	///Output the table name and column names: id-names as well as used names
 	void output_tab_col(void);

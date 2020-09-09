@@ -1950,6 +1950,10 @@ namespace hyd_label{
 
 	///Keyword for the database table name of the element result data of a floodplain model (Hyd_Element_Floodplain)
 	const string tab_fpelem_erg_max("HYD_FLOODPLAIN_ELEM_MAX_RESULT");
+	///Keyword for the database table name of the element instationary result data of a floodplain model (Hyd_Element_Floodplain)
+	const string tab_fpelem_erg_instat("HYD_FLOODPLAIN_ELEM_INSTAT_RESULT");
+	///Keyword for the database view name of the element instationary result data of a floodplain model (Hyd_Element_Floodplain)
+	const string view_fpelem_erg_instat("HYD_FLOODPLAIN_ELEM_INSTAT_RES_VIEW");
 	///Keyword for the database table column of the element result data of a floodplain model: local maximal waterlevel in an element [m] (Hyd_Element_Floodplain, _Hyd_Element_Floodplain_Type)
 	const string elemerg_h_max("WATERLEVEL");
 	///Keyword for the database table column of the element result data of a floodplain model: global maximal waterlevel in an element [m] (Hyd_Element_Floodplain, _Hyd_Element_Floodplain_Type)
@@ -2002,6 +2006,9 @@ namespace hyd_label{
 	const string elemerg_cv_fp_in("IN_OTHER_FP");
 	///Keyword for the database table column of the element result data of a floodplain model: total outflow volume due to a floodplain coupling to another floodplain element [m³] (Hyd_Element_Floodplain, _Hyd_Element_Floodplain_Type)
 	const string elemerg_cv_fp_out("OUT_OTHER_FP");
+
+	///Keyword for the database table column of the instationary result data (Hyd_Element_Floodplain, _Hyd_River_Profile)
+	const string data_time("DATE_TIME");
 
 
 	///Keyword for the database table name of the profile data of a river model (_Hyd_River_Profile)

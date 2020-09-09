@@ -2032,6 +2032,99 @@ void Hyd_Model_Floodplain::output_result2paraview(const double timepoint, const 
 	output.close();
 	
 }
+//Output the result members per timestep to database
+void Hyd_Model_Floodplain::output_result2database(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number) {
+
+
+	//evaluate the global identifier
+	int id_glob = Hyd_Element_Floodplain::get_max_glob_id_erg_instat_table(ptr_database) + 1;
+
+	//Set the query
+	QSqlQuery query_buff(*ptr_database);
+
+
+
+	//get the header for the query
+	string query_header;
+	query_header = Hyd_Element_Floodplain::get_insert_header_erg_instat_data_table(ptr_database);
+
+	ostringstream query_data;
+	ostringstream query_total;
+	int counter = 0;
+	string buffer_data;
+
+	 //time string
+	string time;
+	stringstream buff_t;
+	tm time_struct;
+
+	functions::convert_seconds2datestruct(timepoint, &time_struct);
+	buff_t << "'19" << time_struct.tm_year << "-" << setw(2) << setfill('0') << time_struct.tm_mon + 1;
+	buff_t << "-" << setw(2) << setfill('0') << time_struct.tm_mday << " ";
+	buff_t << setw(2) << setfill('0') << time_struct.tm_hour << ":";
+	buff_t << setw(2) << setfill('0') << time_struct.tm_min << ":" << setw(2) << setfill('0')<< time_struct.tm_sec << "'";
+	time = buff_t.str();
+
+
+
+
+	for (int i = 0; i < this->NEQ; i++) {
+
+
+		buffer_data = this->floodplain_elems[i].get_datastring_erg_instat_2database(id_glob, break_sz, time, this->Param_FP.get_geometrical_info());
+		if (buffer_data != label::not_set) {
+			query_data << buffer_data << " ,";
+			//count the global index
+			id_glob++;
+			counter++;
+		}
+
+		//send packages of 100
+		if (counter == 100) {
+			query_total << query_header << query_data.str();
+			//delete last komma
+			string buff = query_total.str();
+			buff.erase(buff.length() - 1);
+			Data_Base::database_request(&query_buff, buff, ptr_database);
+
+			counter = 0;
+			if (query_buff.lastError().isValid()) {
+				Warning msg = this->set_warning(3);
+				ostringstream info;
+				info << "Table Name                : " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << endl;
+				info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+				info << "Data string               : " << query_data.str() << endl;
+				msg.make_second_info(info.str());
+				msg.output_msg(2);
+			}
+			//delete them
+			query_total.str("");
+			query_data.str("");
+			query_buff.clear();
+		}
+	}
+	//send the rest
+	if (counter != 0) {
+		query_total << query_header << query_data.str();
+		//delete last komma
+		string buff = query_total.str();
+		buff.erase(buff.length() - 1);
+		Data_Base::database_request(&query_buff, buff, ptr_database);
+		//delete them
+		query_total.str("");
+		query_data.str("");
+		counter = 0;
+		if (query_buff.lastError().isValid()) {
+			Warning msg = this->set_warning(3);
+			ostringstream info;
+			info << "Table Name                : " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << endl;
+			info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(2);
+		}
+	}
+
+}
 //output solver errors
 void Hyd_Model_Floodplain::output_solver_errors(const double time_point, const int step_counter, const string timestring, const string realtime, const double diff_time, const int total_internal, const int internal_steps){
 	//set prefix for output

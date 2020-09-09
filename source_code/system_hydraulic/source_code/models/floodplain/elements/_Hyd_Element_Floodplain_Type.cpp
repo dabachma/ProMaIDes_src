@@ -387,6 +387,17 @@ void _Hyd_Element_Floodplain_Type::set_maximum_value2querystring(ostringstream *
 	*query_string << 0.0 << " , " ;
 
 }
+///Set the instationary result values of an element to an query string to transfer them into a database table (Hyd_Element_Floodplain)
+void _Hyd_Element_Floodplain_Type::set_instat_value2querystring(ostringstream *query_string) {
+	//instat-values
+	*query_string << 0.0 << " , ";
+	*query_string << 0.0 << " , ";
+	*query_string << 0.0 << " , ";
+	*query_string << 0.0 << " , ";
+	*query_string << 0.0 << " , ";
+	*query_string << 0.0 << " , ";
+	*query_string << 0.0 << " , ";
+}
 //Get the next _hyd_all_element_direction to the given direction counterclockwise (static)
 _hyd_all_element_direction _Hyd_Element_Floodplain_Type::get_next_element_direction_counterclockwise(const _hyd_all_element_direction dir){
 	_hyd_all_element_direction next_dir;

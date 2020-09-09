@@ -1539,7 +1539,7 @@ void Hyd_Model_River::output_result2csv_1d(const double timepoint, const int tim
 		output_csv.open(buffer.c_str());
 		//check if it is open
 		if (output_csv.is_open() == false) {
-			Error msg = this->set_error(11);
+			Error msg = this->set_error(6);
 			ostringstream info;
 			info << "File name " << this->Param_RV.get_filename_result2file_1d(hyd_label::paraview) << endl;
 			msg.make_second_info(info.str());
@@ -4100,6 +4100,18 @@ Error Hyd_Model_River::set_error(const int err_type){
 			reason="Not all boundary curves are found";
 			help="Check the number of boundary curves in boundary file and in the main file";
 			type=1;
+			break;
+		case 6://could not open the tecplot file
+			place.append("output_result2csv_1d(const double timepoint, const int timestep_number)");
+			reason = "Could not open the file for the paraview output of the river model";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 7://could not open the  file
+			place.append("output_geometrie2paraview_2d(void)");
+			reason = "Could not open the file for the paraview output of the river model";
+			help = "Check the file";
+			type = 5;
 			break;
 		case 8://not all profiles are found
 			place.append("calculate_distance_of_profiles(void)");

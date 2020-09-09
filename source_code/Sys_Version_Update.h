@@ -36,8 +36,11 @@ public:
 	///Check and update the text of the hydraulic table of the hydraulic element result members; smax is introduced (6.07.2012)
 	void check_update_hyd_table_elem_result_smax(QSqlDatabase *ptr_database, const string project_file);
 
-	///Check and update the hydraulic global parameter table with output settings 3.9.2020
+	///Check and update the hydraulic global parameter table with output settings (3.9.2020)
 	void check_update_hyd_table_global_param(QSqlDatabase *ptr_database, const string project_file);
+
+	///Check and update the hydraulic table for instationary floodplain resulzs (7.9.2020)
+	void check_update_hyd_table_instat_results(QSqlDatabase *ptr_database);
 
 private:
 	///Set error(s)

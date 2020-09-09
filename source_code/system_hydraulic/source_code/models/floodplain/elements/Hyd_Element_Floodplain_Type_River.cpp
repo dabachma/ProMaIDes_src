@@ -179,6 +179,17 @@ void Hyd_Element_Floodplain_Type_River::set_maximum_value2querystring(ostringstr
 	*query_string << 0.0 << " , " ;
 	
 }
+//Set the instationary result values of an element to an query string to transfer them into a database table (Hyd_Element_Floodplain
+void Hyd_Element_Floodplain_Type_River::set_instat_value2querystring(ostringstream *query_string) {
+	//instat-values
+	*query_string << this->get_h_value() << " , ";
+	*query_string << this->get_s_value() << " , ";
+	*query_string << 0.0 << " , ";
+	*query_string << 0.0 << " , ";
+	*query_string << 0.0 << " , ";
+	*query_string << 0.0 << " , ";
+	*query_string << 0.0 << " , ";
+}
 //Reset the hydrological balance value and the maximum values
 void Hyd_Element_Floodplain_Type_River::reset_hydrobalance_maxvalues(void){
 	_Hyd_Element_Floodplain_Type::reset_hydrobalance_maxvalues();
