@@ -269,7 +269,7 @@ public:
 	///Get the header for inserting the element instationary result data to database table (static)
 	static string get_insert_header_erg_instat_data_table(QSqlDatabase *ptr_database);
 	///Get a string for transfering the instationary result data to database 
-	string get_datastring_erg_instat_2database(const int elem_id, const string break_sz, const string time, const _hyd_floodplain_geo_info geo_info);
+	string get_datastring_erg_instat_2database(const int id, const int elem_id, const string break_sz, const string time, const _hyd_floodplain_geo_info geo_info);
 
 
 	///Output the maximum calculated results to the database table (erg_table)

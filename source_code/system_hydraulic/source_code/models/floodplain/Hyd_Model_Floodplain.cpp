@@ -2071,7 +2071,7 @@ void Hyd_Model_Floodplain::output_result2database(QSqlDatabase *ptr_database, co
 	for (int i = 0; i < this->NEQ; i++) {
 
 
-		buffer_data = this->floodplain_elems[i].get_datastring_erg_instat_2database(id_glob, break_sz, time, this->Param_FP.get_geometrical_info());
+		buffer_data = this->floodplain_elems[i].get_datastring_erg_instat_2database(i, id_glob, break_sz, time, this->Param_FP.get_geometrical_info());
 		if (buffer_data != label::not_set) {
 			query_data << buffer_data << " ,";
 			//count the global index
@@ -3911,6 +3911,16 @@ void Hyd_Model_Floodplain::update_elems_by_opt_data(void){
 	for(int i=0; i< this->NEQ; i++){
 		this->floodplain_elems[i].element_type->calculate_ds_dt();
 	}
+
+	//Recalc velocities TODO
+	double sin_value = sin(this->Param_FP.angle*constant::Cpi / 180.0);
+	double cos_value = cos(this->Param_FP.angle*constant::Cpi / 180.0);
+	for (int i = this->NEQ-1; i >= 0 ; i--) {
+		this->floodplain_elems[i].element_type->calculate_v(sin_value, cos_value);
+	}
+
+
+
 }
 //Initialize the reduced id
 void Hyd_Model_Floodplain::init_reduced_id(void){

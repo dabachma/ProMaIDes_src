@@ -245,6 +245,30 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_ds_dt(void){
 	}
 
 }
+///Calculate the flow velocities over time 
+void Hyd_Element_Floodplain_Type_Standard::calculate_v(const double sin_value, const double cos_value) {
+	//x-direction
+	if (this->element_x_minus != NULL){
+		this->v_x = (this->v_x + this->element_x_minus->element_type->get_flowvelocity_vx())*0.5;
+	}
+	else {
+		this->v_x = (this->v_x + 0.0)*0.5;
+	}
+
+	//y-direction
+	if (this->element_y_minus != NULL) {
+		this->v_y = (this->v_y + this->element_y_minus->element_type->get_flowvelocity_vy())*0.5;
+	}
+	else {
+		this->v_y = (this->v_y + 0.0)*0.5;
+	}
+
+	//turning
+	this->v_x = cos_value * this->v_x + sin_value * this->v_y;
+	this->v_y = cos_value * this->v_y - sin_value * this->v_x;
+
+
+}
 //Set a value to the the variation of the global waterlevel over time
 void Hyd_Element_Floodplain_Type_Standard::set_ds2dt_value(const double value){
 	this->ds_dt_value=value;

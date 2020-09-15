@@ -62,6 +62,8 @@ public:
 
 	///Calculate the variation of the global waterlevel over time
 	void calculate_ds_dt(void);
+	///Calculate the flow velocities over time 
+	void calculate_v(const double sin_value, const double cos_value);
 	///Set a value to the the variation of the global waterlevel over time
 	void set_ds2dt_value(const double value);
 

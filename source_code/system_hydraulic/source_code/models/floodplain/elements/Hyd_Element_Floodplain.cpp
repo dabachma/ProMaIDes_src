@@ -3021,10 +3021,10 @@ string Hyd_Element_Floodplain::get_insert_header_erg_instat_data_table(QSqlDatab
 
 }
 //Get a string for transfering the instationary result data to database 
-string Hyd_Element_Floodplain::get_datastring_erg_instat_2database(const int elem_id, const string break_sz, const string time, const _hyd_floodplain_geo_info geo_info) {
+string Hyd_Element_Floodplain::get_datastring_erg_instat_2database(const int id, const int elem_id, const string break_sz, const string time, const _hyd_floodplain_geo_info geo_info) {
 	string buffer = label::not_set;
 
-	if (this->element_type->get_was_wet_flag() == false ) {
+	if (this->element_type->get_was_wet_flag() == false && id !=0 ) {
 		return buffer;
 	}
 

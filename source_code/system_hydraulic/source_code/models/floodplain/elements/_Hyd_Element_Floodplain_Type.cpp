@@ -45,6 +45,10 @@ void _Hyd_Element_Floodplain_Type::set_ds2dt_value(const double ){
 void _Hyd_Element_Floodplain_Type::calculate_ds_dt(void){
 
 }
+///Calculate the flow velocities over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
+void _Hyd_Element_Floodplain_Type::calculate_v(const double , const double ) {
+
+}
 //Distribute the flows (ds_dt) to the neighbouring x- and y-elements (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 //Add a value to the the variation of the global waterlevel over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 void _Hyd_Element_Floodplain_Type::add_ds_dt(const double ){

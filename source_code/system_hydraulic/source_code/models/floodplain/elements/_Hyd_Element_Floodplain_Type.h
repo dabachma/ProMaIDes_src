@@ -147,6 +147,8 @@ public:
 
 	///Calculate the variation of the global waterlevel over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 	virtual void calculate_ds_dt(void);
+	///Calculate the flow velocities over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
+	virtual void calculate_v(const double sin_value, const double cos_value);
 	///Add a value to the the variation of the global waterlevel over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 	virtual void add_ds_dt(const double value);
 
