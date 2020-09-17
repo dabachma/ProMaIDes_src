@@ -46,7 +46,7 @@ void _Hyd_Element_Floodplain_Type::calculate_ds_dt(void){
 
 }
 ///Calculate the flow velocities over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
-void _Hyd_Element_Floodplain_Type::calculate_v(const double , const double ) {
+void _Hyd_Element_Floodplain_Type::calculate_v_out(const double , const double ) {
 
 }
 //Distribute the flows (ds_dt) to the neighbouring x- and y-elements (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
@@ -85,6 +85,14 @@ double _Hyd_Element_Floodplain_Type::get_flowvelocity_vx(void){
 }
 //Get the flow velocity in y-direction
 double _Hyd_Element_Floodplain_Type::get_flowvelocity_vy(void){
+	return 0.0;
+}
+//Get the flow velocity in x-direction for output
+double _Hyd_Element_Floodplain_Type::get_flowvelocity_vx_out(void) {
+	return 0.0;
+}
+//Get the flow velocity in y-direction for output
+double _Hyd_Element_Floodplain_Type::get_flowvelocity_vy_out(void) {
 	return 0.0;
 }
 //Get the total flow velocity

@@ -8,6 +8,7 @@ Tables *_Hyd_River_Profile::wallbreak_table=NULL;
 Tables *_Hyd_River_Profile::dikebreak_table=NULL;
 Tables *_Hyd_River_Profile::bridge_table=NULL;
 Tables *_Hyd_River_Profile::erg_table=NULL;
+Tables *_Hyd_River_Profile::erg_instat_table = NULL;
 
 //constructor
 _Hyd_River_Profile::_Hyd_River_Profile(void){
@@ -1363,6 +1364,28 @@ void _Hyd_River_Profile::create_erg_table(QSqlDatabase *ptr_database){
 		}
 
 	_Hyd_River_Profile::close_erg_table();
+
+	//make indizes
+	//the table is set (the name and the column names) and allocated
+	try {
+		_Hyd_River_Profile::set_erg_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+
+	_Hyd_River_Profile::erg_table->create_spatial_index2column(ptr_database, _Hyd_River_Profile::erg_table->get_column_name(hyd_label::elemdata_polygon));
+
+
+	_Hyd_River_Profile::close_erg_table();
+	}
+}
+//Close and delete the database table for the results of an hydraulic simulation the river profiles (static)
+void _Hyd_River_Profile::close_erg_table(void) {
+	if (_Hyd_River_Profile::erg_table != NULL) {
+		delete _Hyd_River_Profile::erg_table;
+		_Hyd_River_Profile::erg_table = NULL;
 	}
 }
 //Set the database table for the results of an hydraulic simulation for the river profiles: it sets the table name and the name of the columns and allocate them (static)
@@ -1422,6 +1445,177 @@ void _Hyd_River_Profile::set_erg_table(QSqlDatabase *ptr_database){
 			throw msg;
 		}
 	}
+}
+//Create the database table for the instationary results of an hydraulic simulation for the river profiles
+void _Hyd_River_Profile::create_erg_instat_table(QSqlDatabase *ptr_database) {
+	if (_Hyd_River_Profile::erg_instat_table == NULL) {
+		ostringstream cout;
+		cout << "Create river profile instationary result database table..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+		//make specific input for this class
+		const string tab_name = hyd_label::tab_rvprof_erg_instat;
+		const int num_col = 13;
+		_Sys_data_tab_column tab_col[num_col];
+		//init
+		for (int i = 0; i < num_col; i++) {
+			tab_col[i].key_flag = false;
+			tab_col[i].unsigned_flag = false;
+			tab_col[i].primary_key_flag = false;
+		}
+
+		tab_col[0].name = label::glob_id;
+		tab_col[0].type = sys_label::tab_col_type_int;
+		tab_col[0].unsigned_flag = true;
+		tab_col[0].primary_key_flag = true;
+
+		tab_col[1].name = hyd_label::profdata_rvno;
+		tab_col[1].type = sys_label::tab_col_type_int;
+		tab_col[1].unsigned_flag = true;
+		tab_col[1].key_flag = true;
+
+		tab_col[2].name = label::areastate_id;
+		tab_col[2].type = sys_label::tab_col_type_int;
+		tab_col[2].unsigned_flag = true;
+		tab_col[2].key_flag = true;
+
+		tab_col[3].name = label::measure_id;
+		tab_col[3].type = sys_label::tab_col_type_int;
+		tab_col[3].unsigned_flag = true;
+		tab_col[3].key_flag = true;
+
+		tab_col[4].name = label::applied_flag;
+		tab_col[4].type = sys_label::tab_col_type_bool;
+		tab_col[4].default_value = "true";
+		tab_col[4].key_flag = true;
+
+		tab_col[5].name = hyd_label::sz_bound_id;
+		tab_col[5].type = sys_label::tab_col_type_int;
+		tab_col[5].unsigned_flag = true;
+		tab_col[5].key_flag = true;
+
+		tab_col[6].name = risk_label::sz_break_id;
+		tab_col[6].type = sys_label::tab_col_type_string;
+		tab_col[6].key_flag = true;
+
+		tab_col[7].name = hyd_label::proferg_h_max;
+		tab_col[7].type = sys_label::tab_col_type_double;
+		tab_col[7].unsigned_flag = true;
+		tab_col[7].default_value = "0.0";
+
+		tab_col[8].name = hyd_label::proferg_s_max;
+		tab_col[8].type = sys_label::tab_col_type_double;
+		tab_col[8].unsigned_flag = true;
+		tab_col[8].default_value = "0.0";
+
+
+		tab_col[9].name = hyd_label::proferg_v_max;
+		tab_col[9].type = sys_label::tab_col_type_double;
+		tab_col[9].default_value = "0.0";
+
+
+		tab_col[10].name = hyd_label::proferg_q_max;
+		tab_col[10].type = sys_label::tab_col_type_double;
+		tab_col[10].default_value = "0.0";
+
+		tab_col[11].name = hyd_label::data_time;
+		tab_col[11].type = sys_label::tab_col_type_string;
+		tab_col[11].default_value = "";
+
+		tab_col[12].name = hyd_label::proferg_polygon;
+		tab_col[12].type = sys_label::tab_col_type_polygon;
+
+		try {
+			_Hyd_River_Profile::erg_instat_table = new Tables();
+			if (_Hyd_River_Profile::erg_instat_table->create_non_existing_tables(tab_name, tab_col, num_col, ptr_database, _sys_table_type::hyd) == false) {
+				cout << " Table exists" << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+			};
+		}
+		catch (bad_alloc& t) {
+			Error msg;
+			msg.set_msg("_Hyd_River_Profile::create_erg_instat_table(QSqlDatabase *ptr_database)", "Can not allocate the memory", "Check the memory", 10, false);
+			ostringstream info;
+			info << "Info bad alloc: " << t.what() << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+		catch (Error msg) {
+			_Hyd_River_Profile::close_erg_instat_table();
+			throw msg;
+		}
+
+		_Hyd_River_Profile::close_erg_instat_table();
+
+		//make indizes
+		//the table is set (the name and the column names) and allocated
+		try {
+			_Hyd_River_Profile::set_erg_instat_table(ptr_database);
+		}
+		catch (Error msg) {
+			throw msg;
+		}
+
+
+		_Hyd_River_Profile::erg_instat_table->create_index2column(ptr_database, _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::data_time));
+		_Hyd_River_Profile::erg_instat_table->create_spatial_index2column(ptr_database, _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::elemdata_polygon));
+
+
+		_Hyd_River_Profile::close_erg_instat_table();
+	}
+
+}
+//Set the database table for the instationary results of an hydraulic simulation for the river profiles: it sets the table name and the name of the columns and allocate them
+void _Hyd_River_Profile::set_erg_instat_table(QSqlDatabase *ptr_database, const bool not_close) {
+	if (_Hyd_River_Profile::erg_instat_table == NULL) {
+		//make specific input for this class
+		const string tab_id_name = hyd_label::tab_rvprof_erg_instat;
+
+		string tab_id_col[13];
+		tab_id_col[0] = label::glob_id;
+		tab_id_col[1] = hyd_label::profdata_rvno;
+		tab_id_col[2]= label::areastate_id;
+		tab_id_col[3] = label::measure_id;
+		tab_id_col[4] = label::applied_flag;
+		tab_id_col[5] = hyd_label::sz_bound_id;
+		tab_id_col[6] = risk_label::sz_break_id;
+		tab_id_col[7] = hyd_label::proferg_h_max;
+		tab_id_col[8] = hyd_label::proferg_s_max;
+		tab_id_col[9] = hyd_label::proferg_v_max;
+		tab_id_col[10] = hyd_label::proferg_q_max;
+		tab_id_col[11] = hyd_label::proferg_polygon;
+		tab_id_col[12] = hyd_label::data_time;
+
+
+
+		try {
+			_Hyd_River_Profile::erg_instat_table = new Tables(tab_id_name, tab_id_col, sizeof(tab_id_col) / sizeof(tab_id_col[0]));
+			_Hyd_River_Profile::erg_instat_table->set_name(ptr_database, _sys_table_type::hyd);
+		}
+		catch (bad_alloc& t) {
+			Error msg;
+			msg.set_msg("_Hyd_River_Profile::set_erg_instat_table(QSqlDatabase *ptr_database)", "Can not allocate the memory", "Check the memory", 10, false);
+			ostringstream info;
+			info << "Info bad alloc: " << t.what() << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+		catch (Error msg) {
+			if (not_close == false) {
+				_Hyd_River_Profile::close_erg_instat_table();
+			}
+			throw msg;
+		}
+	}
+
+
+}
+//Close and delete the database table for the instationary results of an hydraulic simulation the river profiles
+void _Hyd_River_Profile::close_erg_instat_table(void) {
+	if (_Hyd_River_Profile::erg_instat_table != NULL) {
+		delete _Hyd_River_Profile::erg_instat_table;
+		_Hyd_River_Profile::erg_instat_table = NULL;
+	}
+
 }
 //Delete the results data in the result database table for a given boundary scenario (static)
 void _Hyd_River_Profile::delete_results_by_scenario(QSqlDatabase *ptr_database, const int sc_id){
@@ -1564,6 +1758,152 @@ void _Hyd_River_Profile::delete_results_in_table(QSqlDatabase *ptr_database, con
 		msg.make_second_info(info.str());
 		throw msg;
 	}
+}
+//Delete the instationary results data in the maximum result database table for a given boundary scenario
+void _Hyd_River_Profile::delete_instat_results_by_scenario(QSqlDatabase *ptr_database, const int sc_id) {
+	QSqlQueryModel results;
+
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	ostringstream test_filter;
+
+	test_filter << "DELETE ";
+	test_filter << " FROM " << _Hyd_River_Profile::erg_instat_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " = " << sc_id;
+
+	Data_Base::database_request(&results, test_filter.str(), ptr_database);
+
+	//check the request
+	if (results.lastError().isValid()) {
+		Error msg;
+		msg.set_msg("_Hyd_River_Profile::delete_instat_results_by_sceneario(QSqlDatabase *ptr_database, const int sc_id)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << _Hyd_River_Profile::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << results.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+}
+//Delete the instationary results data in the maximum result database table for a given system state
+void _Hyd_River_Profile::delete_instat_results_by_system_state(QSqlDatabase *ptr_database, const _sys_system_id id) {
+	QSqlQueryModel results;
+
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	ostringstream test_filter;
+
+	test_filter << "DELETE ";
+	test_filter << " FROM " << _Hyd_River_Profile::erg_instat_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " AND ";
+	test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+
+	Data_Base::database_request(&results, test_filter.str(), ptr_database);
+
+	//check the request
+	if (results.lastError().isValid()) {
+		Error msg;
+		msg.set_msg("_Hyd_River_Profile::delete_instat_results_by_sceneario(QSqlDatabase *ptr_database, const _sys_system_id id)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << _Hyd_River_Profile::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << results.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+}
+//Delete the instationary results data in the maximum result database table for specific parameters
+void _Hyd_River_Profile::delete_instat_results_in_table(QSqlDatabase *ptr_database, const _sys_system_id id, const string break_sz, const bool like_flag) {
+	QSqlQueryModel results;
+
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	ostringstream test_filter;
+
+	test_filter << "DELETE ";
+	test_filter << " FROM " << _Hyd_River_Profile::erg_instat_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " AND ";
+	test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " AND ";
+	if (like_flag == false) {
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(risk_label::sz_break_id) << " = '" << break_sz << "'";
+	}
+	else {
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(risk_label::sz_break_id) << " LIKE '" << break_sz << "'";
+	}
+
+	Data_Base::database_request(&results, test_filter.str(), ptr_database);
+
+	//check the request
+	if (results.lastError().isValid()) {
+		Error msg;
+		msg.set_msg("_Hyd_River_Profile::delete_instat_results_in_table(QSqlDatabase *ptr_database, const _sys_system_id id, const string break_sz, const bool like_flag=false)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << _Hyd_River_Profile::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << results.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+}
+//Delete the instationaryresults data in the maximum result database table for specific parameters
+void _Hyd_River_Profile::delete_instat_results_in_table(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag) {
+	QSqlQueryModel results;
+
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	ostringstream test_filter;
+
+	test_filter << "DELETE ";
+	test_filter << " FROM " << _Hyd_River_Profile::erg_instat_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " AND ";
+	test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " AND ";
+	test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " = " << bound_sz;
+	test_filter << " AND ";
+	if (like_flag == false) {
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(risk_label::sz_break_id) << " = '" << break_sz << "'";
+	}
+	else {
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(risk_label::sz_break_id) << " LIKE '" << break_sz << "'";
+	}
+
+	Data_Base::database_request(&results, test_filter.str(), ptr_database);
+
+	//check the request
+	if (results.lastError().isValid()) {
+		Error msg;
+		msg.set_msg("_Hyd_River_Profile::delete_instat_results_in_table(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag=false)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << _Hyd_River_Profile::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << results.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
 }
 //Delete the profiles and appending data by a system id (static);
 void _Hyd_River_Profile::delete_profile_in_table(QSqlDatabase *ptr_database, const _sys_system_id id){
@@ -1912,6 +2252,7 @@ void _Hyd_River_Profile::delete_data_in_table(QSqlDatabase *ptr_database){
 	_Hyd_River_Profile::delete_data_in_dikebreak_table(ptr_database);
 	_Hyd_River_Profile::delete_data_in_bridge_table(ptr_database);
 	_Hyd_River_Profile::delete_data_in_erg_table(ptr_database);
+	_Hyd_River_Profile::delete_data_in_erg_instat_table(ptr_database);
 
 	//delete the data of the appending table; the profile points
 	_Hyd_River_Profile_Type::delete_data_in_table(ptr_database);
@@ -1925,6 +2266,7 @@ void _Hyd_River_Profile::close_table(void){
 	_Hyd_River_Profile::close_dikebreak_table();
 	_Hyd_River_Profile::close_bridge_table();
 	_Hyd_River_Profile::close_erg_table();
+	_Hyd_River_Profile::close_erg_instat_table();
 
 	//close the appending table of the profile points
 	_Hyd_River_Profile_Type::close_table();
@@ -2070,6 +2412,79 @@ void _Hyd_River_Profile::switch_applied_flag_erg_table(QSqlDatabase *ptr_databas
 		msg.make_second_info(info.str());
 		throw msg;
 	}
+}
+//Switch the applied-flag for the 1-d instationary results in the database table for a defined system state
+void _Hyd_River_Profile::switch_applied_flag_erg_instat_table(QSqlDatabase *ptr_database, const _sys_system_id id, const bool flag) {
+	//the table is set (the name and the column names) and allocated
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	QSqlQueryModel query;
+
+	ostringstream query_string;
+	query_string << "UPDATE ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_table_name();
+	query_string << " SET ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(label::applied_flag) << " = " << functions::convert_boolean2string(flag);
+	query_string << " WHERE ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(label::areastate_id) << " = " << id.area_state;
+	query_string << " AND ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	query_string << " AND ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(label::applied_flag) << " = " << functions::convert_boolean2string(!flag);
+
+	Data_Base::database_request(&query, query_string.str(), ptr_database);
+	if (query.lastError().isValid() == true) {
+		Error msg;
+		msg.set_msg("_Hyd_River_Profile::switch_applied_flag_erg_instat_table(QSqlDatabase *ptr_database, const _sys_system_id id, const bool flag)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << _Hyd_River_Profile::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << query.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+}
+//Switch the applied-flag for the 1-d instationbary results in the database table for a defined system state
+void _Hyd_River_Profile::switch_applied_flag_erg_instat_table(QSqlDatabase *ptr_database, const _sys_system_id id, const int hyd_sc, const bool flag) {
+	//the table is set (the name and the column names) and allocated
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	QSqlQueryModel query;
+
+	ostringstream query_string;
+	query_string << "UPDATE ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_table_name();
+	query_string << " SET ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(label::applied_flag) << " = " << functions::convert_boolean2string(flag);
+	query_string << " WHERE ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(label::areastate_id) << " = " << id.area_state;
+	query_string << " AND ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	query_string << " AND ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " = " << hyd_sc;
+	query_string << " AND ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(label::applied_flag) << " = " << functions::convert_boolean2string(!flag);
+
+	Data_Base::database_request(&query, query_string.str(), ptr_database);
+	if (query.lastError().isValid() == true) {
+		Error msg;
+		msg.set_msg("_Hyd_River_Profile::switch_applied_flag_erg_instat_table(QSqlDatabase *ptr_database, const _sys_system_id id, const int hyd_sc, const bool flag)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << _Hyd_River_Profile::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << query.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
 }
 //Switch the applied-flag for the boundary condition in the database table for a defined system state (static)
 void _Hyd_River_Profile::switch_applied_flag_boundary_table(QSqlDatabase *ptr_database, const _sys_system_id id, const bool flag){
@@ -2238,6 +2653,90 @@ void _Hyd_River_Profile::copy_results(QSqlDatabase *ptr_database, const _sys_sys
 	catch(Error msg){
 		throw msg;
 	}
+}
+//Copy the instationary results of a given system id to another one in database table
+void _Hyd_River_Profile::copy_instat_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest) {
+	//the table is set (the name and the column names) and allocated
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+	int glob_id = 0;
+	glob_id = _Hyd_River_Profile::erg_instat_table->maximum_int_of_column(_Hyd_River_Profile::erg_instat_table->get_column_name(label::glob_id), ptr_database) + 1;
+
+	QSqlQueryModel model;
+	ostringstream test_filter;
+	test_filter << "SELECT ";
+	test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(label::glob_id);
+	test_filter << " from " << _Hyd_River_Profile::erg_instat_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(label::areastate_id) << " = " << src.area_state;
+	test_filter << " AND ";
+	test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(label::measure_id) << " = " << src.measure_nr;
+
+	//submit it to the datbase
+	Data_Base::database_request(&model, test_filter.str(), ptr_database);
+	if (model.lastError().isValid() == true) {
+		Error msg;
+		msg.set_msg("_Hyd_River_Profile::copy_instat_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << _Hyd_River_Profile::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << model.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	test_filter.str("");
+
+	QSqlQueryModel model1;
+
+	ostringstream cout;
+	cout << "Copy " << model.rowCount() << " instationary results of the river profile(s) to the new measure state..." << endl;
+	Sys_Common_Output::output_hyd->output_txt(&cout);
+	for (int i = 0; i < model.rowCount(); i++) {
+		if (i % 1000 == 0 && i > 0) {
+			cout << "Copy profile's results " << i << " to " << i + 1000 << "..." << endl;
+			Sys_Common_Output::output_hyd->output_txt(&cout);
+		}
+		test_filter.str("");
+		test_filter << "INSERT INTO " << _Hyd_River_Profile::erg_instat_table->get_table_name();
+		test_filter << " SELECT " << glob_id << " , ";
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::profdata_rvno) << " , ";
+		test_filter << dest.area_state << " , ";
+		test_filter << dest.measure_nr << " , ";
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(label::applied_flag) << " , ";
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " , ";
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(risk_label::sz_break_id) << " , ";
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_h_max) << " , ";
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_s_max) << " , ";
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_v_max) << " , ";
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_q_max) << " , ";
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::data_time) << " , ";
+		test_filter << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_polygon) << "  ";
+		test_filter << " FROM " << _Hyd_River_Profile::erg_instat_table->get_table_name() << " ";
+		test_filter << " WHERE " << _Hyd_River_Profile::erg_instat_table->get_column_name(label::glob_id) << " = ";
+		test_filter << model.record(i).value(_Hyd_River_Profile::erg_instat_table->get_column_name(label::glob_id).c_str()).toInt();
+		Data_Base::database_request(&model1, test_filter.str(), ptr_database);
+		if (model1.lastError().isValid() == true) {
+			Error msg;
+			msg.set_msg("_Hyd_River_Profile::copy_instat_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest)", "Invalid database request", "Check the database", 2, false);
+			ostringstream info;
+			info << "Table Name      : " << _Hyd_River_Profile::erg_instat_table->get_table_name() << endl;
+			info << "Table error info: " << model1.lastError().text().toStdString() << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+		glob_id++;
+	}
+	try {
+		_Hyd_River_Profile::switch_applied_flag_erg_instat_table(ptr_database, src, false);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
 }
 //Copy the boundary condition from the source global profile id to the target (static)
 void _Hyd_River_Profile::copy_boundary_condition(QSqlDatabase *ptr_database, const _sys_system_id base, const int src, const int targ){
@@ -2954,6 +3453,74 @@ void _Hyd_River_Profile::output_max_results(QSqlDatabase *ptr_database, const in
 		msg.output_msg(2);
 	}
 	*glob_id=(*glob_id)+1;
+}
+//Output the instationary calculated results to the database table (erg_table)
+void _Hyd_River_Profile::output_instat_results(QSqlDatabase *ptr_database, const int rv_no, const string polygon_string, int *glob_id, const string break_sc, const string time) {
+
+	//mysql query with the table_model
+	QSqlQueryModel model;
+	//the table is set (the name and the column names) and allocated
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+
+
+	//set the query via a query string
+	ostringstream query_string;
+	query_string << "INSERT INTO  " << _Hyd_River_Profile::erg_instat_table->get_table_name();
+	query_string << " ( ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(label::glob_id) << " , ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::profdata_rvno) << " , ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(label::areastate_id) << " , ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(label::measure_id) << " , ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " , ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(risk_label::sz_break_id) << " , ";
+	//max values
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_q_max) << " , ";
+	//max values from profile type
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_h_max) << " , ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_s_max) << " , ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_v_max) << " , ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::data_time) << " , ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_polygon) << " ) ";
+
+	query_string << " VALUES ( ";
+	query_string << *glob_id << " , ";
+	query_string << rv_no << " , ";
+	query_string << this->system_id.area_state << " , ";
+	query_string << this->system_id.measure_nr << " , ";
+	query_string << this->hyd_sz.get_id() << " , ";
+	query_string << "'" << break_sc << "' , ";
+	//max values
+	query_string << this->get_Q()<< " , ";
+	//max values from profile type
+	query_string << this->typ_of_profile->set_instat_value2string();
+	query_string << time << " , ";
+	query_string << polygon_string << " ) ";
+
+	//submit it to the datbase
+	Data_Base::database_request(&model, query_string.str(), ptr_database);
+
+	if (model.lastError().isValid()) {
+		Warning msg = this->set_warning(3);
+		ostringstream info;
+		info << "Table Name                : " << _Hyd_River_Profile::erg_instat_table->get_table_name() << endl;
+		info << "Table error info          : " << model.lastError().text().toStdString() << endl;
+		info << "Profile number            : " << this->profile_number << endl;
+		msg.make_second_info(info.str());
+		msg.output_msg(2);
+	}
+	*glob_id = (*glob_id) + 1;
+
+
+
+
+
+
 }
 //Check the profiles
 void _Hyd_River_Profile::check_profiles(void){
@@ -3828,12 +4395,18 @@ void _Hyd_River_Profile::delete_data_in_erg_table(QSqlDatabase *ptr_database){
 	//delete the table
 	_Hyd_River_Profile::erg_table->delete_data_in_table(ptr_database);
 }
-//Close and delete the database table for the results of an hydraulic simulation the river profiles (static)
-void _Hyd_River_Profile::close_erg_table(void){
-	if(_Hyd_River_Profile::erg_table!=NULL){
-		delete _Hyd_River_Profile::erg_table;
-		_Hyd_River_Profile::erg_table=NULL;
+//Delete all data in the database table for the instationary results of an hydraulic simulation the river profiles
+void _Hyd_River_Profile::delete_data_in_erg_instat_table(QSqlDatabase *ptr_database) {
+	//the table is set (the name and the column names) and allocated
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database);
 	}
+	catch (Error msg) {
+		throw msg;
+	}
+	//delete the table
+	_Hyd_River_Profile::erg_instat_table->delete_data_in_table(ptr_database);
+
 }
 //Delete the maximum result row in a database table for this profile
 void _Hyd_River_Profile::delete_max_result_row_in_table(QSqlDatabase *ptr_database, const int rv_no, const string break_sc){
@@ -3862,6 +4435,7 @@ void _Hyd_River_Profile::delete_max_result_row_in_table(QSqlDatabase *ptr_databa
 
 	query.exec(query_string.str().c_str());
 }
+
 //set the error
 Error _Hyd_River_Profile::set_error(const int err_type){
 		string place="_Hyd_River_Profile::";

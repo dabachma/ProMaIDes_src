@@ -167,7 +167,7 @@ public:
 	void output_result2paraview(const double timepoint, const int timestep_number);
 
 	///Output the result members per timestep to database
-	void output_result2database(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number);
+	void output_result2database(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number, const string time);
 
 	///Output solver errors for one solver step
 	void output_solver_errors(const double time_point, const int step_counter, const string timestring, const string realtime, const double diff_time, const int total_internal, const int internal_steps);

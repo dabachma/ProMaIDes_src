@@ -429,14 +429,14 @@ private:
 	///Output the calculation steps (time, solversteps etc) of the river models to display/console
 	void output_calculation_steps_rivermodel2display(const double timestep);
 	///Output the calculation steps (time, solversteps etc) of the river models to databse
-	void output_calculation_steps_rivermodel2database(const double timestep);
+	void output_calculation_steps_rivermodel2database(const double timestep, const string time);
 
 	///Output the results of the calculation steps of the floodplain models to file
 	void output_calculation_steps_floodplainmodel2file(const double timestep);
 	///Output the results of the calculation steps of the floodplain models to display/console
 	void output_calculation_steps_floodplainmodel2display(const double timestep);
 	///Output the results of the calculation steps of the floodplain models to database
-	void output_calculation_steps_floodplainmodel2database(const double timestep);
+	void output_calculation_steps_floodplainmodel2database(const double timestep, const string time);
 
 	///Clear all not needed data of the models before the solver is initialized
 	void clear_models(void);

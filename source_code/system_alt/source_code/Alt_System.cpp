@@ -1176,6 +1176,7 @@ void Alt_System::delete_measure_database(void){
 		}
 		Hyd_Boundary_Szenario_Management::delete_scenario(&this->qsqldatabase, this->switch_state_id);
 		_Hyd_River_Profile::delete_results_by_system_state(&this->qsqldatabase,this->switch_state_id);
+		_Hyd_River_Profile::delete_instat_results_by_system_state(&this->qsqldatabase, this->switch_state_id);
 		Hyd_Element_Floodplain::delete_data_in_erg_table(&this->qsqldatabase,this->switch_state_id);
 		_Hyd_River_Profile::delete_boundary_cond_by_system_state(&this->qsqldatabase,this->switch_state_id);
 		Hyd_Element_Floodplain::delete_boundary_cond_by_system_state(&this->qsqldatabase,this->switch_state_id);
@@ -1680,6 +1681,7 @@ void Alt_System::implement_new_hyd_boundary_scenarios(void){
 		//delete the rest
 		Hyd_Boundary_Szenario_Management::delete_scenario(&this->qsqldatabase, this->general_alt_infos.id);
 		_Hyd_River_Profile::delete_results_by_system_state(&this->qsqldatabase,this->general_alt_infos.id);
+		_Hyd_River_Profile::delete_instat_results_by_system_state(&this->qsqldatabase, this->general_alt_infos.id);
 		Hyd_Element_Floodplain::delete_data_in_erg_table(&this->qsqldatabase,this->general_alt_infos.id);
 		_Hyd_River_Profile::delete_boundary_cond_by_system_state(&this->qsqldatabase,this->general_alt_infos.id);
 		Hyd_Element_Floodplain::delete_boundary_cond_by_system_state(&this->qsqldatabase,this->general_alt_infos.id);

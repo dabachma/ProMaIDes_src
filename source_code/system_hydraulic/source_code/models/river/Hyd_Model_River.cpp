@@ -1709,6 +1709,35 @@ void Hyd_Model_River::output_result2paraview_2d(const double timepoint, const in
 	output.close();
 
 }
+//Output the result members per timestep to paraview as 2d
+void Hyd_Model_River::output_result2database_2d(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number, const string time) {
+
+
+	//the table is set (the name and the column names) and allocated
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	int glob_id = _Hyd_River_Profile::erg_instat_table->maximum_int_of_column(_Hyd_River_Profile::erg_instat_table->get_column_name(label::glob_id), ptr_database) + 1;
+
+	//polygon string
+	string poly_buffer;
+	this->set_river_section_first_profile();
+	poly_buffer = this->river_section_polygon.get_polygon2sql_string();
+	this->inflow_river_profile.output_instat_results(ptr_database, this->Param_RV.RVNumber, poly_buffer, &glob_id, break_sz, time);
+
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+		this->set_river_section_polygon(i);
+		poly_buffer = river_section_polygon.get_polygon2sql_string();
+		this->river_profiles[i].output_instat_results(ptr_database, this->Param_RV.RVNumber, poly_buffer, &glob_id, break_sz, time);
+	}
+	this->set_river_section_polygon(this->number_inbetween_profiles);
+	poly_buffer = river_section_polygon.get_polygon2sql_string();
+	this->outflow_river_profile.output_instat_results(ptr_database, this->Param_RV.RVNumber, poly_buffer, &glob_id, break_sz, time);
+
+}
 //output solver errors
 void Hyd_Model_River::output_solver_errors(const double time_point, const int step_counter, const string timestring, const string realtime, const double diff_time, const int total_internal, const int internal_steps){
 

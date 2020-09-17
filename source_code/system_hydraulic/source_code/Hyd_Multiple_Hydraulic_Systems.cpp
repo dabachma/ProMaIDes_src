@@ -465,6 +465,7 @@ void Hyd_Multiple_Hydraulic_Systems::delete_hydraulic_boundary_scenarios(const i
 	if(Sys_Project::get_project_type()!=_sys_project_type::proj_dam){
 		_Hyd_River_Profile::delete_boundary_cond_by_scenario(&this->qsqldatabase,id);
 		_Hyd_River_Profile::delete_results_by_scenario(&this->qsqldatabase,id);
+		_Hyd_River_Profile::delete_instat_results_by_scenario(&this->qsqldatabase, id);
 		Hyd_Element_Floodplain::delete_boundary_cond_by_scenario(&this->qsqldatabase,id);
 		Hyd_Instationary_Boundary::delete_boundary_curve_by_scenario(&this->qsqldatabase,id);
 	}

@@ -90,6 +90,9 @@ public:
 	///Pointer to the table for the results of an hydraulic simulation for the river elements
 	/**This pointer is allocated with set_erg_table(QSqlDatabase *ptr_database) and deleted with close_erg_table(void) */
 	static Tables *erg_table;
+	///Pointer to the table for the instationary results of an hydraulic simulation for the river elements
+	/**This pointer is allocated with set_erg_table(QSqlDatabase *ptr_database) and deleted with close_erg_table(void) */
+	static Tables *erg_instat_table;
 	///Pointer to the table for the profile data in a database
 	/**This pointer is allocated with set_profile_table(QSqlDatabase *ptr_database) and deleted with close_erg_table(void) */
 	static Tables *profile_table;
@@ -151,6 +154,17 @@ public:
 	static void create_erg_table(QSqlDatabase *ptr_database);
 	///Set the database table for the maximum results of an hydraulic simulation for the river profiles: it sets the table name and the name of the columns and allocate them
 	static void set_erg_table(QSqlDatabase *ptr_database);
+	///Close and delete the database table for the results of an hydraulic simulation the river profiles
+	static void close_erg_table(void);
+
+	///Create the database table for the instationary results of an hydraulic simulation for the river profiles
+	static void create_erg_instat_table(QSqlDatabase *ptr_database);
+	///Set the database table for the instationary results of an hydraulic simulation for the river profiles: it sets the table name and the name of the columns and allocate them
+	static void set_erg_instat_table(QSqlDatabase *ptr_database, const bool not_close = false);
+	///Close and delete the database table for the instationary results of an hydraulic simulation the river profiles
+	static void close_erg_instat_table(void);
+
+
 	///Delete the results data in the maximum result database table for a given boundary scenario
 	static void delete_results_by_scenario(QSqlDatabase *ptr_database, const int sc_id);
 	///Delete the results data in the maximum result database table for a given system state
@@ -159,6 +173,16 @@ public:
 	static void delete_results_in_table(QSqlDatabase *ptr_database, const _sys_system_id id, const string break_sz, const bool like_flag=false);
 	///Delete the results data in the maximum result database table for specific parameters
 	static void delete_results_in_table(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz,const string break_sz, const bool like_flag=false);
+	
+	///Delete the instationary results data in the maximum result database table for a given boundary scenario
+	static void delete_instat_results_by_scenario(QSqlDatabase *ptr_database, const int sc_id);
+	///Delete the instationary results data in the maximum result database table for a given system state
+	static void delete_instat_results_by_system_state(QSqlDatabase *ptr_database, const _sys_system_id id);
+	///Delete the instationary results data in the maximum result database table for specific parameters
+	static void delete_instat_results_in_table(QSqlDatabase *ptr_database, const _sys_system_id id, const string break_sz, const bool like_flag = false);
+	///Delete the instationaryresults data in the maximum result database table for specific parameters
+	static void delete_instat_results_in_table(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag = false);
+	
 	///Delete the profiles and appending data by a system id
 	static void delete_profile_in_table(QSqlDatabase *ptr_database, const _sys_system_id id);
 
@@ -196,6 +220,12 @@ public:
 	static void switch_applied_flag_erg_table(QSqlDatabase *ptr_database, const _sys_system_id id, const bool flag);
 	///Switch the applied-flag for the 1-d results in the database table for a defined system state
 	static void switch_applied_flag_erg_table(QSqlDatabase *ptr_database, const _sys_system_id id, const int hyd_sc, const bool flag);
+
+	///Switch the applied-flag for the 1-d instationary results in the database table for a defined system state
+	static void switch_applied_flag_erg_instat_table(QSqlDatabase *ptr_database, const _sys_system_id id, const bool flag);
+	///Switch the applied-flag for the 1-d instationbary results in the database table for a defined system state
+	static void switch_applied_flag_erg_instat_table(QSqlDatabase *ptr_database, const _sys_system_id id, const int hyd_sc, const bool flag);
+
 	///Switch the applied-flag for the boundary condition in the database table for a defined system state
 	static void switch_applied_flag_boundary_table(QSqlDatabase *ptr_database, const _sys_system_id id, const bool flag);
 	///Switch the applied-flag for the boundary condition in the database table for a defined system state
@@ -203,6 +233,9 @@ public:
 
 	///Copy the results of a given system id to another one in database table
 	static void copy_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest);
+
+	///Copy the instationary results of a given system id to another one in database table
+	static void copy_instat_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest);
 
 	///Copy the boundary condition from the source global profile id to the target
 	static void copy_boundary_condition(QSqlDatabase *ptr_database, const _sys_system_id base, const int src, const int targ);
@@ -368,6 +401,9 @@ public:
 	void output_max_results2csvfile(ofstream *file);
 	///Output the maximum calculated results to the database table (erg_table)
 	void output_max_results(QSqlDatabase *ptr_database, const int rv_no, const string polygon_string, int *glob_id, const string break_sc);
+	///Output the instationary calculated results to the database table (erg_table)
+	void output_instat_results(QSqlDatabase *ptr_database, const int rv_no, const string polygon_string, int *glob_id, const string break_sc, const string time);
+
 
 	///Check the profiles
 	void check_profiles(void);
@@ -635,11 +671,15 @@ private:
 	static void close_bridge_table(void);
 	///Delete all data in the database table for the results of an hydraulic simulation the river profiles
 	static void delete_data_in_erg_table(QSqlDatabase *ptr_database);
-	///Close and delete the database table for the results of an hydraulic simulation the river profiles
-	static void close_erg_table(void);
+
+
+	///Delete all data in the database table for the instationary results of an hydraulic simulation the river profiles
+	static void delete_data_in_erg_instat_table(QSqlDatabase *ptr_database);
+
 
 	///Delete the maximum result row in a database table for this profile
 	void delete_max_result_row_in_table(QSqlDatabase *ptr_database, const int rv_no, const string break_sc);
+
 
 	///Set error(s)
 	Error set_error(const int err_type);

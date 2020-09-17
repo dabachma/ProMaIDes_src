@@ -194,6 +194,9 @@ public:
 	///Set the maximum result values of profile type to a string for the transfer into a database table (_Hyd_River_Profile)
 	string set_maximum_value2string(void);
 
+	///Set the instationary result values of profile type to a string for the transfer into a database table (_Hyd_River_Profile)
+	string set_instat_value2string(void);
+
 
 	///Set the actuel flow specific values with a given area from tables
 	virtual void set_actuel_profilevalues_by_table(const double area)=0;

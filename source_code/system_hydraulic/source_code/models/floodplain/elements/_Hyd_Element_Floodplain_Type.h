@@ -147,8 +147,8 @@ public:
 
 	///Calculate the variation of the global waterlevel over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 	virtual void calculate_ds_dt(void);
-	///Calculate the flow velocities over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
-	virtual void calculate_v(const double sin_value, const double cos_value);
+	///Calculate the flow velocities over time for output (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
+	virtual void calculate_v_out(const double sin_value, const double cos_value);
 	///Add a value to the the variation of the global waterlevel over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 	virtual void add_ds_dt(const double value);
 
@@ -159,6 +159,12 @@ public:
 	virtual double get_flowvelocity_vx(void);
 	///Get the flow velocity in y-direction
 	virtual double get_flowvelocity_vy(void);
+
+	///Get the flow velocity in x-direction for output
+	virtual double get_flowvelocity_vx_out(void);
+	///Get the flow velocity in y-direction for output
+	virtual double get_flowvelocity_vy_out(void);
+
 	///Get the total flow velocity
 	virtual double get_flowvelocity_vtotal(void);
 	///Get the if the element is wet

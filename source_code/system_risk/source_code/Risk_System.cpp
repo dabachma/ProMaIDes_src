@@ -4929,6 +4929,7 @@ void Risk_System::calculate_scenario_based_risk(void){
 			cout << "A scenario base risk calculation is not possible! The hydraulic results are deleted from database table."<<endl;
 			cout << "See the warning for further information."<<endl;
 			_Hyd_River_Profile::delete_results_in_table(&this->qsqldatabase, this->system_id, buffer.get_hydraulic_boundary_scenario().get_id(), buffer.get_break_scenario_string());
+			_Hyd_River_Profile::delete_instat_results_in_table(&this->qsqldatabase, this->system_id, buffer.get_hydraulic_boundary_scenario().get_id(), buffer.get_break_scenario_string());
 			Hyd_Element_Floodplain::delete_results_in_table(&this->qsqldatabase, this->system_id,buffer.get_hydraulic_boundary_scenario().get_id(), buffer.get_break_scenario_string());
 			Sys_Common_Output::output_risk->output_txt(&cout);
 		}
@@ -6075,6 +6076,7 @@ void Risk_System::delete_risk_data(void){
 			cout << " Deleting appending HYD-results data in database..."<<endl;
 			Sys_Common_Output::output_risk->output_txt(&cout);
 			_Hyd_River_Profile::delete_results_in_table(&this->qsqldatabase, this->system_id, "SC%", true);
+			_Hyd_River_Profile::delete_instat_results_in_table(&this->qsqldatabase, this->system_id, "SC%", true);
 			Hyd_Element_Floodplain::delete_results_in_table(&this->qsqldatabase, this->system_id, "SC%", true);
 			_Hyd_Coupling_Dikebreak::delete_data_in_result_table(&this->qsqldatabase, this->system_id, "SC%", true);
 			Hyd_Coupling_RV2FP_Merged::delete_data_max_h_table(&this->qsqldatabase, this->system_id, "SC%", true);
@@ -6121,6 +6123,7 @@ void Risk_System::delete_risk_data(void){
 			Sys_Common_Output::output_risk->output_txt(&cout);
 			Hyd_Coupling_RV2FP_Merged::delete_data_max_h_table(&this->qsqldatabase, this->system_id, "CA%", true);
 			_Hyd_River_Profile::delete_results_in_table(&this->qsqldatabase, this->system_id, "CA%", true);
+			_Hyd_River_Profile::delete_instat_results_in_table(&this->qsqldatabase, this->system_id, "CA%", true);
 			Hyd_Element_Floodplain::delete_results_in_table(&this->qsqldatabase, this->system_id, "CA%", true);
 			_Hyd_Coupling_Dikebreak::delete_data_in_result_table(&this->qsqldatabase, this->system_id, "CA%", true);
 		}

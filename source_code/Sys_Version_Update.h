@@ -39,8 +39,11 @@ public:
 	///Check and update the hydraulic global parameter table with output settings (3.9.2020)
 	void check_update_hyd_table_global_param(QSqlDatabase *ptr_database, const string project_file);
 
-	///Check and update the hydraulic table for instationary floodplain resulzs (7.9.2020)
+	///Check and update the hydraulic table for instationary floodplain results (7.9.2020)
 	void check_update_hyd_table_instat_results(QSqlDatabase *ptr_database);
+
+	///Check and update the hydraulic table for instationary river results (16.9.2020)
+	void check_update_hyd_table_instat_results_rv(QSqlDatabase *ptr_database);
 
 private:
 	///Set error(s)

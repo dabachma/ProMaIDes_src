@@ -836,6 +836,16 @@ string _Hyd_River_Profile_Type::set_maximum_value2string(void){
 	buffer=query_string.str();
 	return buffer;
 }
+//Set the instationary result values of profile type to a string for the transfer into a database table (_Hyd_River_Profile)
+string _Hyd_River_Profile_Type::set_instat_value2string(void) {
+	string buffer;
+	ostringstream query_string;
+	query_string << this->h_value << " , ";
+	query_string << this->s_value << " , ";
+	query_string << this->v_value << " , ";
+	buffer = query_string.str();
+	return buffer;
+}
 //Set the actuel flow velocity by a given discharge and the corresponding froude-number
 void _Hyd_River_Profile_Type::set_actuel_flowvelocity(const double discharge){
 	if(this->area2calc<=constant::area_epsilon){

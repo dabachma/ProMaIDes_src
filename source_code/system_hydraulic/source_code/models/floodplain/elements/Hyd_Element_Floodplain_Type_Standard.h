@@ -62,8 +62,8 @@ public:
 
 	///Calculate the variation of the global waterlevel over time
 	void calculate_ds_dt(void);
-	///Calculate the flow velocities over time 
-	void calculate_v(const double sin_value, const double cos_value);
+	///Calculate the flow velocities over time for output
+	void calculate_v_out(const double sin_value, const double cos_value);
 	///Set a value to the the variation of the global waterlevel over time
 	void set_ds2dt_value(const double value);
 
@@ -73,6 +73,10 @@ public:
 	double get_flowvelocity_vx(void);
 	///Get the flow velocity in y-direction
 	double get_flowvelocity_vy(void);
+	///Get the flow velocity in x-direction for output
+	double get_flowvelocity_vx_out(void);
+	///Get the flow velocity in y-direction for output
+	double get_flowvelocity_vy_out(void);
 	///Get the total flow velocity
 	double get_flowvelocity_vtotal(void);
 	///Get the if the element is wet
@@ -260,6 +264,10 @@ private:
     float v_x;
 	///Flow velocity in y-direction [result variables]
     float v_y;
+	///Flow velocity in x-direction for output [result variables]
+	float v_x_out;
+	///Flow velocity in y-direction for output [result variables]
+	float v_y_out;
 	///Total flow velocity [result variables]
     float v_total;
 	///Flag if the element is wet [result variables]

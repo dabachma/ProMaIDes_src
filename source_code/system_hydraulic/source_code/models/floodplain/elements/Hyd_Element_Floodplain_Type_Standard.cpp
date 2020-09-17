@@ -31,6 +31,8 @@ Hyd_Element_Floodplain_Type_Standard::Hyd_Element_Floodplain_Type_Standard(void)
 	this->ds_dt_value=0.0;
 	this->v_x=0.0;
 	this->v_y=0.0;
+	this->v_x_out = 0.0;
+	this->v_y_out = 0.0;
 	this->v_total=0.0;
 	this->wet_flag=false;
 	this->time_wet_start=0.0;
@@ -222,7 +224,7 @@ double Hyd_Element_Floodplain_Type_Standard::get_h_value(void){
 }
 //Calculate the variation of the global waterlevel over time
 void Hyd_Element_Floodplain_Type_Standard::calculate_ds_dt(void){
-
+	//TODO TIME???
 	//flow in x-direction
 	if(this->flow_data.no_flow_x_flag!=true){
 		if(this->flow_data.poleni_flag_x==false){
@@ -246,26 +248,26 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_ds_dt(void){
 
 }
 ///Calculate the flow velocities over time 
-void Hyd_Element_Floodplain_Type_Standard::calculate_v(const double sin_value, const double cos_value) {
+void Hyd_Element_Floodplain_Type_Standard::calculate_v_out(const double sin_value, const double cos_value) {
 	//x-direction
 	if (this->element_x_minus != NULL){
-		this->v_x = (this->v_x + this->element_x_minus->element_type->get_flowvelocity_vx())*0.5;
+		this->v_x_out = (this->v_x + this->element_x_minus->element_type->get_flowvelocity_vx())*0.5;
 	}
 	else {
-		this->v_x = (this->v_x + 0.0)*0.5;
+		this->v_x_out = (this->v_x + 0.0)*0.5;
 	}
 
 	//y-direction
 	if (this->element_y_minus != NULL) {
-		this->v_y = (this->v_y + this->element_y_minus->element_type->get_flowvelocity_vy())*0.5;
+		this->v_y_out = (this->v_y + this->element_y_minus->element_type->get_flowvelocity_vy())*0.5;
 	}
 	else {
-		this->v_y = (this->v_y + 0.0)*0.5;
+		this->v_y_out = (this->v_y + 0.0)*0.5;
 	}
 
 	//turning
-	this->v_x = cos_value * this->v_x + sin_value * this->v_y;
-	this->v_y = cos_value * this->v_y - sin_value * this->v_x;
+	this->v_x_out = cos_value * this->v_x_out + sin_value * this->v_y_out;
+	this->v_y_out = cos_value * this->v_y_out - sin_value * this->v_x_out;
 
 
 }
@@ -284,6 +286,14 @@ double Hyd_Element_Floodplain_Type_Standard::get_flowvelocity_vx(void){
 //Get the flow velocity in y-direction
 double Hyd_Element_Floodplain_Type_Standard::get_flowvelocity_vy(void){
 	return this->v_y;
+}
+//Get the flow velocity in x-direction for output
+double Hyd_Element_Floodplain_Type_Standard::get_flowvelocity_vx_out(void) {
+	return this->v_x_out;
+}
+//Get the flow velocity in y-direction for output
+double Hyd_Element_Floodplain_Type_Standard::get_flowvelocity_vy_out(void) {
+	return this->v_y_out;
 }
 //Get the total flow velocity
 double Hyd_Element_Floodplain_Type_Standard::get_flowvelocity_vtotal(void){
@@ -753,8 +763,8 @@ void Hyd_Element_Floodplain_Type_Standard::set_instat_value2querystring(ostrings
 	*query_string << this->get_h_value()<< " , ";
 	*query_string << this->get_s_value() << " , ";
 	*query_string << this->get_ds2dt_value() << " , ";
-	*query_string << this->get_flowvelocity_vx() << " , ";
-	*query_string << this->get_flowvelocity_vy() << " , ";
+	*query_string << this->get_flowvelocity_vx_out() << " , ";
+	*query_string << this->get_flowvelocity_vy_out() << " , ";
 	*query_string << this->get_flowvelocity_vtotal() << " , ";
 	*query_string << this->get_h_value() *this->get_flowvelocity_vtotal() << " , ";
 }
@@ -768,6 +778,8 @@ void Hyd_Element_Floodplain_Type_Standard::reset_hydrobalance_maxvalues(void){
 	this->v_total=0.0;
 	this->v_x=0.0;
 	this->v_y=0.0;
+	this->v_x_out = 0.0;
+	this->v_y_out = 0.0;
 	this->ds_dt_value=0.0;
 	this->wet_flag=false;
 	this->time_wet_start=0.0;
@@ -1311,16 +1323,16 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_maximum_values(const double
 		this->max_ds_dt.maximum=abs(this->ds_dt_value);
 		this->max_ds_dt.time_point=time_point;
 	}
-	if(abs(this->v_x)>this->max_v_x.maximum){
-		this->max_v_x.maximum=abs(this->v_x);
+	if(abs(this->v_x_out)>abs(this->max_v_x.maximum)){
+		this->max_v_x.maximum=this->v_x_out;
 		this->max_v_x.time_point=time_point;
 	}
-	if(abs(this->v_y)>this->max_v_y.maximum){
-		this->max_v_y.maximum=abs(this->v_y);
+	if(abs(this->v_y_out)>abs(this->max_v_y.maximum)){
+		this->max_v_y.maximum=this->v_y_out;
 		this->max_v_y.time_point=time_point;
 	}
 	//calculate the total velocity
-	this->v_total=pow((pow(this->v_x,2.0)+pow(this->v_y,2.0)),0.5);
+	this->v_total=pow((pow(this->v_x_out,2.0)+pow(this->v_y_out,2.0)),0.5);
 	//maximum of total velocity
 	if(abs(this->v_total)>this->max_v_total.maximum){
 		this->max_v_total.maximum=abs(this->v_total);

@@ -384,7 +384,7 @@ void Sys_Version_Update::check_update_hyd_table_global_param(QSqlDatabase *ptr_d
 	Hyd_Param_Global::close_table();
 
 }
-//Check and update the hydraulic table for instationary floodplain resulzs (7.9.2020)
+//Check and update the hydraulic table for instationary floodplain results (7.9.2020)
 void Sys_Version_Update::check_update_hyd_table_instat_results(QSqlDatabase *ptr_database) {
 	if (Sys_Project::get_project_type() == _sys_project_type::proj_dam ||
 		Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
@@ -424,6 +424,51 @@ void Sys_Version_Update::check_update_hyd_table_instat_results(QSqlDatabase *ptr
 	
 
 	Hyd_Element_Floodplain::close_erg_instat_table();
+
+}
+///Check and update the hydraulic table for instationary river results (16.9.2020)
+void Sys_Version_Update::check_update_hyd_table_instat_results_rv(QSqlDatabase *ptr_database) {
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_dam ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
+	bool error = false;
+	//check it
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (_Hyd_River_Profile::erg_instat_table->table_name.found_flag == false) {
+			_Hyd_River_Profile::close_erg_instat_table();
+			_Hyd_River_Profile::create_erg_instat_table(ptr_database);
+
+		}
+	}
+
+
+
+	_Hyd_River_Profile::close_erg_instat_table();
+
+	//make indizes for max results tabele
+	//the table is set (the name and the column names) and allocated
+	try {
+		_Hyd_River_Profile::set_erg_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+
+	_Hyd_River_Profile::erg_table->create_spatial_index2column(ptr_database, _Hyd_River_Profile::erg_table->get_column_name(hyd_label::elemdata_polygon));
+
+
+	_Hyd_River_Profile::close_erg_table();
 
 }
 //____________

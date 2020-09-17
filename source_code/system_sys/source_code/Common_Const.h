@@ -2104,6 +2104,8 @@ namespace hyd_label{
 
 	///Keyword for the database table name of the profile result data of a river model (Hyd_Model_River)
 	const string tab_rvprof_erg_max("HYD_RIVER_PROFILE_MAX_RESULTS");
+	///Keyword for the database table name of the profile instationary result data of a river model (Hyd_Model_River)
+	const string tab_rvprof_erg_instat("HYD_RIVER_PROFILE_INSTAT_RESULTS");
 	///Keyword for the database table column of the profile result data of a river model: local maximal waterlevel in the profile [m] (Hyd_Model_River, _Hyd_River_Profile_Type)
 	const string proferg_h_max("H_WATERLEVEL");
 	///Keyword for the database table column of the profile result data of a river model: global maximal waterlevel in the profile [m] (Hyd_Model_River, _Hyd_River_Profile_Type)

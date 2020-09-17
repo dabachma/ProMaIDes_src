@@ -1085,6 +1085,13 @@ void Hyd_Model_Floodplain::make_hyd_balance_max(const double time_point){
 	double delta_t=time_point-this->old_time_point_syncron;
 	this->old_time_point_syncron=time_point;
 
+	//Recalc velocities TODO
+	double sin_value = sin(this->Param_FP.angle*constant::Cpi / 180.0);
+	double cos_value = cos(this->Param_FP.angle*constant::Cpi / 180.0);
+	for (int i = this->NEQ - 1; i >= 0; i--) {
+	    this->floodplain_elems[i].element_type->calculate_v_out(sin_value, cos_value);
+	}
+
 	for(int i=0;i<this->NEQ;i++){
 		this->floodplain_elems[i].element_type->calc_max_values(time_point, this->Param_FP.FPWet);
 	}
@@ -1107,7 +1114,7 @@ void Hyd_Model_Floodplain::reset_solver(void){
 //solve_model
 void Hyd_Model_Floodplain::solve_model(const double next_time_point, const string system_id){
 	try{
-        //Update the optimalized data
+       
 		this->update_opt_data_by_elems();
 		this->calc_set_max_step_size(next_time_point);
 
@@ -1120,9 +1127,9 @@ void Hyd_Model_Floodplain::solve_model(const double next_time_point, const strin
                 this->floodplain_elems[i].get_elem_type()==_hyd_elem_type::DIKELINE_ELEM){
                     this->floodplain_elems[i].element_type->set_solver_result_value(this->results_real[counter]);
                     //TEST: change the abs tolerance according to number of wet elements
-                    if(this->floodplain_elems[i].element_type->get_h_value()>0.0){
-                        counter_wet++;
-                    }
+                    //if(this->floodplain_elems[i].element_type->get_h_value()>0.0){
+                      //  counter_wet++;
+                   // }
                 counter++;
             }
 
@@ -1768,7 +1775,7 @@ void Hyd_Model_Floodplain::output_result2tecplot(const double timepoint, const i
 			counter_endl=0;
 			this->tecplot_output << endl;
 		}
-		this->tecplot_output << this->floodplain_elems[i].element_type->get_flowvelocity_vx()<< "  ";
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_flowvelocity_vx_out()<< "  ";
 		counter_endl++;
 	}
 	counter_endl=0;
@@ -1780,7 +1787,7 @@ void Hyd_Model_Floodplain::output_result2tecplot(const double timepoint, const i
 			counter_endl=0;
 			this->tecplot_output << endl;
 		}
-		this->tecplot_output << this->floodplain_elems[i].element_type->get_flowvelocity_vy()<< "  ";
+		this->tecplot_output << this->floodplain_elems[i].element_type->get_flowvelocity_vy_out()<< "  ";
 		counter_endl++;
 	}
 	counter_endl=0;
@@ -2033,7 +2040,7 @@ void Hyd_Model_Floodplain::output_result2paraview(const double timepoint, const 
 	
 }
 //Output the result members per timestep to database
-void Hyd_Model_Floodplain::output_result2database(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number) {
+void Hyd_Model_Floodplain::output_result2database(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number, const string time) {
 
 
 	//evaluate the global identifier
@@ -2054,16 +2061,16 @@ void Hyd_Model_Floodplain::output_result2database(QSqlDatabase *ptr_database, co
 	string buffer_data;
 
 	 //time string
-	string time;
-	stringstream buff_t;
-	tm time_struct;
+	//string time;
+	//stringstream buff_t;
+	//tm time_struct;
 
-	functions::convert_seconds2datestruct(timepoint, &time_struct);
-	buff_t << "'19" << time_struct.tm_year << "-" << setw(2) << setfill('0') << time_struct.tm_mon + 1;
-	buff_t << "-" << setw(2) << setfill('0') << time_struct.tm_mday << " ";
-	buff_t << setw(2) << setfill('0') << time_struct.tm_hour << ":";
-	buff_t << setw(2) << setfill('0') << time_struct.tm_min << ":" << setw(2) << setfill('0')<< time_struct.tm_sec << "'";
-	time = buff_t.str();
+	//functions::convert_seconds2datestruct(timepoint, &time_struct);
+	//buff_t << "'19" << time_struct.tm_year << "-" << setw(2) << setfill('0') << time_struct.tm_mon + 1;
+	//buff_t << "-" << setw(2) << setfill('0') << time_struct.tm_mday << " ";
+	//buff_t << setw(2) << setfill('0') << time_struct.tm_hour << ":";
+	//buff_t << setw(2) << setfill('0') << time_struct.tm_min << ":" << setw(2) << setfill('0')<< time_struct.tm_sec << "'";
+	//time = buff_t.str();
 
 
 
@@ -3908,16 +3915,12 @@ void Hyd_Model_Floodplain::update_elems_by_opt_data(void){
 		}
 	}
 
+	//TODO TIME???
 	for(int i=0; i< this->NEQ; i++){
 		this->floodplain_elems[i].element_type->calculate_ds_dt();
 	}
 
-	//Recalc velocities TODO
-	double sin_value = sin(this->Param_FP.angle*constant::Cpi / 180.0);
-	double cos_value = cos(this->Param_FP.angle*constant::Cpi / 180.0);
-	for (int i = this->NEQ-1; i >= 0 ; i--) {
-		this->floodplain_elems[i].element_type->calculate_v(sin_value, cos_value);
-	}
+
 
 
 
