@@ -4544,8 +4544,8 @@ void Main_Wid::import_hyd_basesystem_file2database(void){
 			HydGui_System_Filechooser_Dia dialog;
 			ostringstream txt;
 			txt<< "Choose the global file of the HYD-system (.ilm). This system "<< endl;
-			txt <<"will be the base system for all HYD-boundary szenarios, which will be defined"<< endl;
-			txt <<"later. The id of the boundary szenario will be 1."<< endl;
+			txt <<"will be the base system for all HYD-boundary scenarios, which will be defined"<< endl;
+			txt <<"later. The id of the boundary scenario will be 1."<< endl;
 			dialog.set_txt(txt.str());
 			bool flag=dialog.start_dialog();
 			string buffer=dialog.get_file_name();

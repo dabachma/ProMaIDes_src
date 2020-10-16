@@ -37,13 +37,8 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="tab_data_gis">
-       <attribute name="title">
-        <string>&amp;GIS</string>
-       </attribute>
-      </widget>
       <widget class="QWidget" name="tab_data_data">
        <attribute name="title">
         <string>&amp;DATA</string>
@@ -765,7 +760,7 @@
    <property name="minimumSize">
     <size>
      <width>145</width>
-     <height>156</height>
+     <height>161</height>
     </size>
    </property>
    <property name="toolTip">
@@ -954,7 +949,7 @@
    <property name="minimumSize">
     <size>
      <width>145</width>
-     <height>156</height>
+     <height>161</height>
     </size>
    </property>
    <property name="toolTip">
@@ -980,13 +975,8 @@
         <enum>QTabWidget::South</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
-       <widget class="QWidget" name="tab_tree_gis">
-        <attribute name="title">
-         <string>&amp;GIS</string>
-        </attribute>
-       </widget>
        <widget class="QWidget" name="tab_tree_data">
         <attribute name="title">
          <string>&amp;DATA</string>

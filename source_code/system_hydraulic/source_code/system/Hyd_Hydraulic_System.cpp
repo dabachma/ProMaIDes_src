@@ -568,7 +568,7 @@ void Hyd_Hydraulic_System::check_hyd_database_tables(void){
 			this->set_start_warning_number();
 			//global
 			ostringstream cout;
-			cout << "Check global hydraulic boundary szenario database table..." << endl ;
+			cout << "Check global hydraulic boundary scenario database table..." << endl ;
 			Sys_Common_Output::output_hyd->output_txt(&cout,false, false);
 			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 			Hyd_Boundary_Szenario_Management::set_table(&this->database);
