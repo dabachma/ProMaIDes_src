@@ -1185,6 +1185,8 @@ void Fpl_Mc_Sim::make_mc_test_random(Fpl_Check_Distribution *random_checker, Fpl
 	ostringstream cout;
 	time_t start,end;//begin and end-time of mc-simulation
 	double counter_output=0.01;//for the advance to output
+		//reinitialize the random generator
+	_Fpl_Distribution_Class::reinit_random();
 
 	try{	
 		//change mc-settings by the chekcer settings

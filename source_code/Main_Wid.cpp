@@ -8158,8 +8158,9 @@ void Main_Wid::uncheck_status_display(bool flag){
 void Main_Wid::about(void){
 	ostringstream text;
     text << "This is version "<<Sys_Project::get_version_number()<<" produced at "<<Sys_Project::get_version_date() <<"\n(Protection Measures against Inundation Desicion Support)"<<endl;
-    text << "Produced by the Daniel Bachmann and the IWW-Team"<< endl;
-    text << "Copyright by Daniel Bachmann"<< endl;
+    text << "Produced by the AG FRM of the University of applied scienes Magdeburg-Stendal and the IWW of RWTH Aachen University"<< endl;
+    text << "Copyright by AG FRM (HS-M), IWW (RWTH) 2008-2020"<< endl;
+	text << "It is distributed under a 3-clause BSD license (https://promaides.myjetbrains.com/youtrack/articles/PMID-A-34/License)" << endl;
     QMessageBox::about(this,"About ProMaIDeS",text.str().c_str());
 }
 //Open the firefox browser with the main-page of the developer's dokumentation (menu help)

@@ -211,7 +211,7 @@ bool Hyd_Multiple_Hydraulic_Systems::ask_file_profile_conversion_dialog(void){
 	buffer << "Choose the file(s), where the data of profile to river DGM-W conversion are stored."<<endl;
 	this->profil_import_dia->set_main_text_label(buffer.str());
 	buffer.str("");
-	this->profil_import_dia->set_window_title("Choose HYD-raster file(s)");
+	this->profil_import_dia->set_window_title("Choose profile points to convert to DEM-river...");
 	this->profil_import_dia->get_ptr_file_browser(0)->set_text_label("Profile points for conversion");
 	this->profil_import_dia->get_ptr_file_browser(0)->set_tooltip("Here the data (x, y, z) of the profile points is stored. This points are interpolated to the streamlines.");
 
