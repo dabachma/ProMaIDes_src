@@ -7,11 +7,11 @@ FplGui_Random_Check_Dia::FplGui_Random_Check_Dia(QWidget *parent): QDialog(paren
 	this->setupUi(this);
 
 	this->spinBox_number_runs->setMinimum(100);
-	this->spinBox_number_runs->setMaximum(5000000);
+	this->spinBox_number_runs->setMaximum(100000000);
 	this->spinBox_number_runs->setValue(100000);
 	this->spinBox_number_runs->setSingleStep(5000);
 	this->spinBox_number_class->setMinimum(10);
-	this->spinBox_number_class->setMaximum(1000);
+	this->spinBox_number_class->setMaximum(10000);
 	this->spinBox_number_class->setValue(500);
 	this->spinBox_number_class->setSingleStep(50);
 

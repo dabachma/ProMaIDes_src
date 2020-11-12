@@ -419,9 +419,10 @@ void Hyd_Coupling_Point_RV2FP::transfer_coupling_characteristics(const bool left
 		else{
 			this->transfer_coupling_characteristics_rightbank();
 		}
-		if(abs(this->distance_down<=constant::meter_epsilon)){
-			this->coupling_flag=false;
-		}
+		//Daniel ok? If this is used no direct in coupling is possible
+		//if(abs(this->distance_down)<=constant::meter_epsilon){
+			//this->coupling_flag=false;
+		//}
 	}
 	else{
 		this->coupling_flag=false;

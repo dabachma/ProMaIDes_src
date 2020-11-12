@@ -878,15 +878,15 @@ bool Hyd_Model_Floodplain::intercept_model(Hyd_Model_River *river_model){
 
 		}
 		//set the element, where the inflow and outflow profile is to river elements
-		////inflow
+		////inflow changed Daniel 12.11.2020
 		int index=this->raster.find_elem_index_by_point(river_model->river_midline.get_first_point());
 		if(index>=0){
-			this->floodplain_elems[index].set_element_type(river_model->river_midline.get_element_type());
+			//this->floodplain_elems[index].set_element_type(river_model->river_midline.get_element_type());
 		}
 		//outflow
 		index=this->raster.find_elem_index_by_point(river_model->river_midline.get_last_point());
 		if(index>=0){
-			this->floodplain_elems[index].set_element_type(river_model->river_midline.get_element_type());
+			//this->floodplain_elems[index].set_element_type(river_model->river_midline.get_element_type());
 		}
 		return intercept_flag=true;
 	}

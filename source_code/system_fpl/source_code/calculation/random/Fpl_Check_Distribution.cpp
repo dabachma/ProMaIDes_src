@@ -2,7 +2,7 @@
 //#include "Fpl_Check_Distribution.h"
 
 //Default constructor
-Fpl_Check_Distribution::Fpl_Check_Distribution(void):max_storing(5000001){
+Fpl_Check_Distribution::Fpl_Check_Distribution(void):max_storing(10000001){
 	this->gen_result=NULL;
 	this->number_gen_run=0;
 	this->step_interval=0.0;

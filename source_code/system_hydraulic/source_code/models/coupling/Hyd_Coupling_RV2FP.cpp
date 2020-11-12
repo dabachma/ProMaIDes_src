@@ -45,7 +45,24 @@ void Hyd_Coupling_RV2FP::init_coupling(void){
 
 		//fill the list with the floodplain elements
 		this->floodplain_model->raster.assign_elements2couplingpointlist(&this->list_left);
+		if (this->list_left.get_number_couplings() <= 1) {
+			Error msg = this->set_error(0);
+			ostringstream info;
+			info << "1d-river model name and id: " << this->river_model->Param_RV.get_river_name()<<"   "<< this->river_model->Param_RV.get_river_number()<< endl;
+			info << "2d-floodplain model name and id: " << this->floodplain_model->Param_FP.get_floodplain_name()<< "   " << this->floodplain_model->Param_FP.get_floodplain_number()<< endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+
 		this->floodplain_model->raster.assign_elements2couplingpointlist(&this->list_right);
+		if (this->list_right.get_number_couplings() <= 1) {
+			Error msg = this->set_error(1);
+			ostringstream info;
+			info << "1d-river model name and id: " << this->river_model->Param_RV.get_river_name() << "   " << this->river_model->Param_RV.get_river_number() << endl;
+			info << "2d-floodplain model name and id: " << this->floodplain_model->Param_FP.get_floodplain_name() << "   " << this->floodplain_model->Param_FP.get_floodplain_number() << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
 
 		//add the relevant points of the defining polysegment
 		this->list_left.add_relevant_polysegment_points(&(this->floodplain_model->raster.geometrical_bound));
@@ -145,3 +162,35 @@ bool Hyd_Coupling_RV2FP::get_is_merged(void){
 }
 //____________
 //private
+//set the error
+Error Hyd_Coupling_RV2FP::set_error(const int err_type) {
+	string place = "Hyd_Coupling_RV2FP::";
+	string help;
+	string reason;
+	int type = 0;
+	bool fatal = false;
+	stringstream info;
+	Error msg;
+	switch (err_type) {
+	case 0://not enough interceptions
+		place.append("init_coupling(void)");
+		reason = "There are no or just 1 inteception point of the left river boudnary line with the 2d-raster elements";
+		help = "The river should have at least 2 interceptions with the 2d-raster elements; extend the river model or reduce the 2d-element size";
+		type = 16;
+		break;
+	case 1://not enough interceptions
+		place.append("init_coupling(void)");
+		reason = "There are no or just 1 inteception point of the right river boudnary line with the 2d-raster elements";
+		help = "The river should have at least 2 interceptions with the 2d-raster elements; extend the river model or reduce the 2d-element size";
+		type = 16;
+		break;
+	default:
+		place.append("set_error(const int err_type)");
+		reason = "Unknown flag!";
+		help = "Check the flags";
+		type = 6;
+	}
+	msg.set_msg(place, reason, help, type, fatal);
+	msg.make_second_info(info.str());
+	return msg;
+}

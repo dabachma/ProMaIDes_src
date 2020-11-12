@@ -81,6 +81,8 @@ private:
 	bool is_merged_flag;
 
 	//methods
+	///Set error(s)
+	Error set_error(const int err_type);
 
 };
 #endif
