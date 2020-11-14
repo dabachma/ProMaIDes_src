@@ -1835,6 +1835,7 @@ void Hyd_Model_River::output_result_max2csv(void) {
 		this->tecplot_output << ",CVol_DB_Le_in" << label::cubicmeter;
 		this->tecplot_output << ",CVol_DB_Le_out" << label::cubicmeter;
 		this->tecplot_output << ",CVol_DB_Ri_in" << label::cubicmeter;
+		this->tecplot_output << ",CVol_DB_Ri_out" << label::cubicmeter;
 		this->tecplot_output << ",CVol_tot_in" << label::cubicmeter;
 		this->tecplot_output << ",CVol_tot_out" << label::cubicmeter;
 		this->tecplot_output << ",Qmax" << label::qm_per_sec;

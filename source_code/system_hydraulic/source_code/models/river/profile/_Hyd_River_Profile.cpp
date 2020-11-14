@@ -3341,7 +3341,7 @@ void _Hyd_River_Profile::output_max_results2csvfile(ofstream *file) {
 	sum = this->coupling_1d_volume.volume_in + this->structure_coupling_volume.volume_in +
 		this->left_bank_overflow_volume.volume_in + this->right_bank_overflow_volume.volume_in +
 		this->left_dikebreak_coupling_volume.volume_in + this->right_dikebreak_coupling_volume.volume_in;
-	*file << P(1) << FORMAT_FIXED_REAL << sum << W(15);
+	*file << P(1) << FORMAT_FIXED_REAL << sum << W(15) << ",";
 	sum = this->coupling_1d_volume.volume_out + this->structure_coupling_volume.volume_out +
 		this->left_bank_overflow_volume.volume_out + this->right_bank_overflow_volume.volume_out +
 		this->left_dikebreak_coupling_volume.volume_out + this->right_dikebreak_coupling_volume.volume_out;
