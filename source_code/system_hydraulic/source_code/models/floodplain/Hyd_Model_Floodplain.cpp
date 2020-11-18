@@ -1560,6 +1560,7 @@ void Hyd_Model_Floodplain::output_geometrie2paraview(void) {
 	this->tecplot_output << "DATASET STRUCTURED_GRID" << endl;
 	this->tecplot_output << "DIMENSIONS " << this->Param_FP.FPNofX + 1 << " " << this->Param_FP.FPNofY + 1 << " 1" << endl;
 	this->tecplot_output << "POINTS " << (this->Param_FP.FPNofX + 1)*(this->Param_FP.FPNofY + 1) << " double" << endl;
+	this->tecplot_output << FORMAT_FIXED_REAL << setprecision(2);
 
 	//output raster
 	for (int i = 0; i < this->raster.get_number_raster_points(); i++) {
@@ -2122,7 +2123,7 @@ void Hyd_Model_Floodplain::output_result2database(QSqlDatabase *ptr_database, co
 		query_data.str("");
 		counter = 0;
 		if (query_buff.lastError().isValid()) {
-			Warning msg = this->set_warning(3);
+			Warning msg = this->set_warning(4);
 			ostringstream info;
 			info << "Table Name                : " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << endl;
 			info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
@@ -4908,6 +4909,12 @@ Warning Hyd_Model_Floodplain::set_warning(const int warn_type){
 			reason="Can not submit the result element data of the HYD raster to the database";
 			help="Check the database";
 			type=2;
+			break;
+		case 4://result datas can not submitted
+			place.append("output_result2database(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number, const string time)");
+			reason = "Can not submit the result element data of the HYD raster to the database";
+			help = "Check the database";
+			type = 2;
 			break;
 
 		default:

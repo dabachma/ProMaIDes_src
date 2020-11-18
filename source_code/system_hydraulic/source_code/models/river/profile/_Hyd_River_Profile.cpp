@@ -3506,7 +3506,7 @@ void _Hyd_River_Profile::output_instat_results(QSqlDatabase *ptr_database, const
 	Data_Base::database_request(&model, query_string.str(), ptr_database);
 
 	if (model.lastError().isValid()) {
-		Warning msg = this->set_warning(3);
+		Warning msg = this->set_warning(9);
 		ostringstream info;
 		info << "Table Name                : " << _Hyd_River_Profile::erg_instat_table->get_table_name() << endl;
 		info << "Table error info          : " << model.lastError().text().toStdString() << endl;
@@ -4641,6 +4641,12 @@ Warning _Hyd_River_Profile::set_warning(const int warn_type){
 			help="Check the abrupt fails setting of the profile and the FPL-section";
 			reaction="The abrupt fail setting of the FPL-section is relevant";
 			type=23;
+			break;
+		case 9://result datas can not submitted
+			place.append("output_instat_results(QSqlDatabase *ptr_database, const int rv_no, const string polygon_string, int *glob_id, const string break_sc, const string time)");
+			reason = "Can not submit the results data of the river profile to the database";
+			help = "Check the database";
+			type = 2;
 			break;
 		default:
 			place.append("set_warning(const int warn_type)");

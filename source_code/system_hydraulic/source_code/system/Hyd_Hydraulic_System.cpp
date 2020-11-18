@@ -2761,10 +2761,10 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 
 	//output the results of the river models to file
 	this->output_calculation_steps_rivermodel2file(this->internal_time);
-	this->output_calculation_steps_rivermodel2database(this->internal_time, time);
+	
 	//output the results of the floodplain models to file
 	this->output_calculation_steps_floodplainmodel2file(this->internal_time);
-	this->output_calculation_steps_floodplainmodel2database(this->internal_time, time);
+	
 
 	//output the break results per step to file
 	this->coupling_managment.output_coupling_calculation_steps2file(this->internal_time);
@@ -2778,7 +2778,9 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 	this->waitloop_output_calculation2display();
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 	this->output_calculation_steps_rivermodel2display(this->internal_time);
+	this->output_calculation_steps_rivermodel2database(this->internal_time, time);
 	this->output_calculation_steps_floodplainmodel2display(this->internal_time);
+	this->output_calculation_steps_floodplainmodel2database(this->internal_time, time);
 	if(Hyd_Hydraulic_System::qt_thread_applied==true){
 		Sys_Common_Output::output_hyd->insert_separator(0);
 	}
