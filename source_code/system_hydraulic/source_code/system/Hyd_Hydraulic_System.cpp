@@ -2941,6 +2941,9 @@ void Hyd_Hydraulic_System::output_calculation_steps_rivermodel2display(const dou
 }
 //Output the calculation steps (time, solversteps etc) of the river models to databse
 void Hyd_Hydraulic_System::output_calculation_steps_rivermodel2database(const double timestep, const string time) {
+	if (this->database_is_set == false) {
+		return;
+	}
 	//delete results
 	if (this->timestep_counter == 0) {
 		_Hyd_River_Profile::delete_instat_results_in_table(&this->database, this->system_id, this->hyd_sz.get_id(), this->break_sz);
@@ -2997,6 +3000,9 @@ void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2display(cons
 }
 //Output the results of the calculation steps of the floodplain models to database
 void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2database(const double timestep, const string time) {
+	if (this->database_is_set == false) {
+		return;
+	}
 	//delete results
 	if (this->timestep_counter == 0) {
 		Hyd_Element_Floodplain::delete_data_in_instat_erg_table(&this->database, this->system_id, this->hyd_sz.get_id(), this->break_sz);

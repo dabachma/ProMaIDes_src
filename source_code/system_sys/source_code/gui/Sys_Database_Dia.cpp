@@ -66,10 +66,10 @@ void Sys_Database_Dia::set_predef_parameter2dialog(_sys_database_params params){
 	this->ui.editUsername->setText(params.user_name.c_str());
 	this->ui.editPassword->setText(params.password.c_str());
 	if(params.driver_type==_sys_driver_type::MYSQL){
-		this->ui.drivercombo->setCurrentIndex(0);
+		this->ui.drivercombo->setCurrentIndex(1);
 	}
 	else if(params.driver_type==_sys_driver_type::POSTGRESQL){
-		this->ui.drivercombo->setCurrentIndex(1);
+		this->ui.drivercombo->setCurrentIndex(0);
 	}
 	else if(params.driver_type==_sys_driver_type::UNKNOWN_DR){
 		this->ui.drivercombo->setCurrentIndex(2);

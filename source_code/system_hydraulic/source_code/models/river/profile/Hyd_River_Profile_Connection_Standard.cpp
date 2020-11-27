@@ -2162,8 +2162,8 @@ Error Hyd_River_Profile_Connection_Standard::set_error(const int err_type){
 			break;
 		case 9://z min coordinate of profile before a bridge type is greater than 0.5*the minimal local bridge height
 			place.append("check_profiles(_Hyd_River_Profile *upstream_profile, _Hyd_River_Profile *downstream_profile)");
-			info <<"The global z min coordinate of the profile before a bridge profile must be below the z min coordinate +"<<0.5*constant::min_height_bridge << label::m <<" of the bridge profile;";
-			info <<" for numerical reasons" <<endl;
+			info << "The global z min coordinate of the profile before a bridge profile must be below the z min coordinate +"<<0.5*constant::min_height_bridge << label::m <<" of the bridge profile;";
+			info <<" for numerical reasons";
 			reason=info.str();
 			info.str("");
 			info.clear();
@@ -2179,7 +2179,7 @@ Error Hyd_River_Profile_Connection_Standard::set_error(const int err_type){
 		case 11://z min coordinate of profile after a bridge type is greater than 0.5*the minimal local bridge height
 			place.append("check_profiles(_Hyd_River_Profile *upstream_profile, _Hyd_River_Profile *downstream_profile)");
 			info <<"The global z min coordinate of the profile after a bridge profile must be below the z min coordinate +"<<0.5*constant::min_height_bridge << label::m <<" of the bridge profile;";
-			info <<" for numerical reasons" <<endl;
+			info <<" for numerical reasons";
 			reason=info.str();
 			info.str("");
 			info.clear();

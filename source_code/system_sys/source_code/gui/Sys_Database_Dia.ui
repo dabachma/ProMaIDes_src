@@ -47,7 +47,7 @@
       <x>12</x>
       <y>41</y>
       <width>377</width>
-      <height>22</height>
+      <height>26</height>
      </rect>
     </property>
     <layout class="QHBoxLayout">
@@ -69,7 +69,7 @@
       <x>12</x>
       <y>170</y>
       <width>377</width>
-      <height>22</height>
+      <height>26</height>
      </rect>
     </property>
     <layout class="QHBoxLayout">
@@ -95,7 +95,7 @@
       <x>12</x>
       <y>127</y>
       <width>377</width>
-      <height>22</height>
+      <height>26</height>
      </rect>
     </property>
     <layout class="QHBoxLayout">
@@ -117,7 +117,7 @@
       <x>12</x>
       <y>256</y>
       <width>377</width>
-      <height>28</height>
+      <height>30</height>
      </rect>
     </property>
     <layout class="QHBoxLayout">
@@ -146,7 +146,7 @@
       <x>12</x>
       <y>84</y>
       <width>377</width>
-      <height>22</height>
+      <height>26</height>
      </rect>
     </property>
     <layout class="QHBoxLayout">
@@ -181,13 +181,13 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>230</y>
       <width>381</width>
-      <height>22</height>
+      <height>24</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -215,17 +215,7 @@
       <widget class="QComboBox" name="drivercombo">
        <item>
         <property name="text">
-         <string>QMYSQL</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
          <string>QPSQL</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>UNKWON_DR</string>
         </property>
        </item>
       </widget>
@@ -239,7 +229,7 @@
      <x>10</x>
      <y>320</y>
      <width>407</width>
-     <height>28</height>
+     <height>30</height>
     </rect>
    </property>
    <layout class="QHBoxLayout">
