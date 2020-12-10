@@ -21,7 +21,7 @@ HydGui_River_Member_Wid::HydGui_River_Member_Wid(DataRole role, QWidget *parent)
 	// RIVER_NUMBER
 	this->ui.river_number->set_label_text("River Number");
 	this->ui.river_number->set_tooltip("");
-	this->ui.river_number->set_range(0, 3);
+	this->ui.river_number->set_range(0, 9999);
 
 	// ONED_OUTPUT
 	this->ui.oned_output->set_label_text("Full path to 1D Output File");

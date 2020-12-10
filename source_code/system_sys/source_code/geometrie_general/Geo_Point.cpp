@@ -300,7 +300,7 @@ void Geo_Point::output_members(ostringstream *cout){
 }
 //Output the coordinate members to display/console
 void Geo_Point::output_coor_members(ostringstream *cout){
-	*cout<< this->x_coordinate <<", " << this->y_coordinate <<endl;
+	*cout<< FORMAT_FIXED_REAL << P(3) << this->x_coordinate <<", " << this->y_coordinate <<endl;
 }
 //Get a string for inserting a point to a sql-database (static)
 string Geo_Point::get_point2sql_string(const double x_coor, const double y_coor){

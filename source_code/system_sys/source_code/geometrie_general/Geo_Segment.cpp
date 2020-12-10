@@ -195,7 +195,7 @@ void Geo_Segment::calc_interception(Geo_Straight_Line *interception_line, _geo_i
 		my_interception->interception_flag=true;
 		my_interception->indefinite_flag=false;
 		my_interception->interception_point.set_point_coordinate(x_value, y_value);
-		//check if interception point is on the segment
+		//check if interception point is on the segment and on line
 		if(this->calc_interception_point_on_segment(&my_interception->interception_point)==true){//is on segment
 			return;
 		}

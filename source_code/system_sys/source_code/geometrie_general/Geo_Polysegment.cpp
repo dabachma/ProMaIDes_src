@@ -199,7 +199,7 @@ double Geo_Polysegment::get_distance_along_polysegment(Geo_Point * check_point){
 	if(index_segment==-1){
 		Error msg=this->set_error(3);
 		ostringstream info;
-		info << "Given point: x " << check_point->get_xcoordinate() << " y " << check_point->get_ycoordinate() << endl;
+		info << FORMAT_FIXED_REAL << P(3)<< "Given point: x " << check_point->get_xcoordinate() << " y " << check_point->get_ycoordinate() << endl;
 		msg.make_second_info(info.str());
 		throw msg;
 	}
@@ -316,6 +316,48 @@ _geo_interception_point Geo_Polysegment::calc_last_interception(Geo_Straight_Lin
 			buffer2.index_is_intercept=-1;
 			buffer2.index_point_is_intercepted=-1;
 			buffer2.line_interception=intercept_point;
+			buffer.set_new_point(&buffer2);
+		}
+	}
+	return buffer.get_last_point().line_interception;
+
+}
+//Calculate the first _geo_interception_point with a Geo_Segment
+_geo_interception_point Geo_Polysegment::calc_first_interception(Geo_Segment *my_line) {
+	_geo_interception_point intercept_point;
+	//init the intercept point
+	intercept_point.indefinite_flag = false;
+	intercept_point.interception_flag = false;
+	intercept_point.interception_point.set_point_name(label::interception_point);
+
+	for (int i = 0; i < this->number_segments; i++) {
+		//set the points to a segment
+		this->my_segment[i].calc_interception(my_line, &intercept_point);
+		if (intercept_point.interception_flag == true) {
+			return intercept_point;
+		}
+	}
+	return intercept_point;
+}
+//Calculate the last _geo_interception_point with a Geo_Segment
+_geo_interception_point Geo_Polysegment::calc_last_interception(Geo_Segment *my_line) {
+	_geo_interception_point intercept_point;
+	//init the intercept point
+	intercept_point.indefinite_flag = false;
+	intercept_point.interception_flag = false;
+	intercept_point.interception_point.set_point_name(label::interception_point);
+	Geo_Interception_Point_List buffer;
+
+	for (int i = 0; i < this->number_segments; i++) {
+		//set the points to a segment
+		this->my_segment[i].calc_interception(my_line, &intercept_point);
+		if (intercept_point.interception_flag == true) {
+			_geo_multisegment_interception buffer2;
+			buffer2.distance = 0.0;
+			buffer2.index_intercepts = -1;
+			buffer2.index_is_intercept = -1;
+			buffer2.index_point_is_intercepted = -1;
+			buffer2.line_interception = intercept_point;
 			buffer.set_new_point(&buffer2);
 		}
 	}

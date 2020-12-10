@@ -201,7 +201,7 @@ void Hyd_Coupling_Point_RV2FP::output_header_setted_member(ostringstream *cout){
 //Output the setted members
 void Hyd_Coupling_Point_RV2FP::output_setted_members(ostringstream *cout){
 	*cout <<W(8) << this->river_profile_index_up << "," << W(10) << this->river_profile_index_down << ",";
-	*cout <<W(10) << this->floodplain_index << W(10) << this->floodplain_elem_index << ",";
+	*cout <<W(10) << this->floodplain_index << W(10)<<"," << this->floodplain_elem_index << ",";
 	*cout <<W(15) << functions::convert_boolean2string(this->coupling_flag) << ",";
 	*cout <<W(15) << functions::convert_boolean2string(this->overflow_flag) << ",";
 	*cout <<W(15) <<P(2)<< FORMAT_FIXED_REAL << this->distance_down << ",";

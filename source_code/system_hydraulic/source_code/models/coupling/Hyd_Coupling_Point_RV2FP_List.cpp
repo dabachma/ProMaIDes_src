@@ -181,6 +181,14 @@ Hyd_Coupling_Point_RV2FP* Hyd_Coupling_Point_RV2FP_List::find_coupling_point(con
 				point->set_point_coordinate(x_coor, y_coor);
 				point->set_distance_up(&(this->points[i]));
 				point->set_distance_down(&(this->points[i-1]));
+				//ostringstream cout;
+
+				//this->points[i].output_coor_members(&cout);
+				//this->points[i-1].output_coor_members(&cout);
+				//point->output_coor_members(&cout);
+				//Sys_Common_Output::output_hyd->output_txt(&cout);
+
+
 				break;
 			}
 			else{
@@ -214,11 +222,14 @@ void Hyd_Coupling_Point_RV2FP_List::insert_constricting_coupling_points(const do
 	//point which will be insert downstream of the structure/junction
 	Hyd_Coupling_Point_RV2FP insert_downstream;
 
+	
 	//set and find for the downstream inserting point
+	
 	point_downstream= this->find_coupling_point((mid_point->get_total_distance_along_polysegment()+width*0.5), &insert_downstream);
 	//set and find for the upstream inserting point
+	
 	point_upstream= this->find_coupling_point((mid_point->get_total_distance_along_polysegment()-width*0.5), &insert_upstream);
-
+	
 	//normally not possible
 	if(point_upstream==NULL && point_downstream ==NULL){
 		return;
@@ -286,6 +297,10 @@ void Hyd_Coupling_Point_RV2FP_List::insert_constricting_coupling_points(const do
 	}
 	
 	else{
+		//check if the inflow is inbetween two floodplain models; no additional points are set
+		if (point_upstream == point_downstream) {
+			return;
+		}
 		//downstream
 		insert_downstream.set_couplingpoint_members(point_downstream);
 		insert_downstream.set_stop_break_flag();

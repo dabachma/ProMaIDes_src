@@ -77,6 +77,11 @@ public:
 	///Calculate the last _geo_interception_point with a Geo_Straight_Line
 	_geo_interception_point calc_last_interception(Geo_Straight_Line *my_line);
 
+	///Calculate the first _geo_interception_point with a Geo_Segment
+	_geo_interception_point calc_first_interception(Geo_Segment *my_line);
+	///Calculate the last _geo_interception_point with a Geo_Segment
+	_geo_interception_point calc_last_interception(Geo_Segment *my_line);
+
 	///Calculate the interception points with a Geo_Segement and fill the Geo_Interception_Point_List 
     void calculate_segment_interception(Geo_Interception_Point_List *intercept_list, Geo_Segment *check_segment);
 	

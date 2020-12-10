@@ -121,6 +121,7 @@ void Hyd_Coupling_RV2RV::init_coupling(void){
 			this->outflow_rv_model->outflow_river_profile.set_h_outflow_is_given();
 			//calculate the distances
 			this->calculate_distances_inflow(this->inflow_rv_model->get_river_section_polygon(river_section_index), this->outflow_rv_model->get_river_midline_last_section());
+			
 			//calculate the factors
 			this->calculate_mid_factors();
 			//check the connection
@@ -247,8 +248,16 @@ void Hyd_Coupling_RV2RV::insert_junction_inflow_point2RV2FPlist(Hyd_Coupling_Poi
 			return;
 		};
 		this->inflow_point.set_total_distance_along_polysegment(this->distance2river_begin_inflow);
+		//ostringstream cout;
+		//
+		//this->inflow_point.output_coor_members(&cout);
+		//Sys_Common_Output::output_hyd->output_txt(&cout);
 		//it is the right list=> insert the junction
+		
+		//list->output_setted_members(&cout);
+		//Sys_Common_Output::output_hyd->output_txt(&cout);
 		list->insert_constricting_coupling_points(this->outflow_rv_model->outflow_river_profile.typ_of_profile->get_width_end_start_profile(), &this->inflow_point);
+
 	}
 	catch(Error msg){
 		ostringstream info;
@@ -298,6 +307,12 @@ void Hyd_Coupling_RV2RV::calculate_distances_inflow(Hyd_Floodplain_Polygon *rive
 		return;
 	}
 	
+	//ostringstream cout;
+	//Sys_Common_Output::output_hyd->output_txt(&cout);
+	//river_section_polygon->output_point_members(&cout);
+	//river_section_midline->output_point_members(&cout);
+	//Sys_Common_Output::output_hyd->output_txt(&cout);
+
 	Geo_Interception_Point_List list;
 	//there must be one or two interception point
 	river_section_polygon->calculate_segment_interception(&list, river_section_midline);
@@ -340,47 +355,71 @@ void Hyd_Coupling_RV2RV::calculate_distances_inflow(Hyd_Floodplain_Polygon *rive
 	//segment is intercepted
 	//upstream
 	else if(key_point.index_is_intercept==0){
+		//Error
+		Error msg = this->set_error(1);
+		ostringstream info;
+		info << "River midline is intercepting the upstream profile of the inflow river"<< endl;
+		info << "Check the river polygon points in QGIS of river " << this->inflow_rv_model->Param_RV.get_river_name() <<endl;
+		river_section_polygon->output_point_members(&info);
+		info << "Check the river midline points in QGIS of river " << this->outflow_rv_model->Param_RV.get_river_name()<< endl;
+		river_section_midline->output_point_members(&info);
+		msg.make_second_info(info.str());
+		throw msg;
+
+
 		//decide which side
-		Geo_Interception_Point_List list1;
-		_geo_interception_point point1;
-		//left side
-		point1=this->inflow_rv_model->river_leftline.calc_last_interception(river_section_midline);
-		if(point1.interception_flag==true){
-			this->left_flag_inflow=true;
-			this->total_distance_inflow=this->inflow_rv_model->river_leftline.my_segment[this->index_inflow_profile_upwards].get_distance();
-			this->distance_inflow_downwards=this->total_distance_inflow;	
-			this->distance2river_begin_inflow=this->inflow_rv_model->river_leftline.get_distance_along_polysegment(&point1.interception_point);
-		}
-		else{
-			//right side
-			point1=this->inflow_rv_model->river_rightline.calc_last_interception(river_section_midline);
-			this->left_flag_inflow=false;
-			this->total_distance_inflow=this->inflow_rv_model->river_rightline.my_segment[this->index_inflow_profile_upwards].get_distance();
-			this->distance_inflow_downwards=this->total_distance_inflow;	
-			this->distance2river_begin_inflow=this->inflow_rv_model->river_rightline.get_distance_along_polysegment(&point1.interception_point);
-		}
+		//Geo_Interception_Point_List list1;
+		//_geo_interception_point point1;
+		////left side
+		//point1=this->inflow_rv_model->river_leftline.calc_last_interception(river_section_midline);
+		//if(point1.interception_flag==true){
+		//	this->left_flag_inflow=true;
+		//	this->total_distance_inflow=this->inflow_rv_model->river_leftline.my_segment[this->index_inflow_profile_upwards].get_distance();
+		//	this->distance_inflow_downwards=this->total_distance_inflow;	
+		//	this->distance2river_begin_inflow=this->inflow_rv_model->river_leftline.get_distance_along_polysegment(&point1.interception_point);
+		//}
+		//else{
+		//	//right side
+		//	point1=this->inflow_rv_model->river_rightline.calc_last_interception(river_section_midline);
+		//	this->left_flag_inflow=false;
+		//	this->total_distance_inflow=this->inflow_rv_model->river_rightline.my_segment[this->index_inflow_profile_upwards].get_distance();
+		//	this->distance_inflow_downwards=this->total_distance_inflow;	
+		//	this->distance2river_begin_inflow=this->inflow_rv_model->river_rightline.get_distance_along_polysegment(&point1.interception_point);
+		//}
 	}
 	//downstream
 	else if(key_point.index_is_intercept==2){
-		//decide which side
-		Geo_Interception_Point_List list1;
-		_geo_interception_point point1;
-		//left side
-		point1=this->inflow_rv_model->river_leftline.calc_last_interception(river_section_midline);
-		if(point1.interception_flag==true){
-			this->left_flag_inflow=true;
-			this->total_distance_inflow=this->inflow_rv_model->river_leftline.my_segment[this->index_inflow_profile_upwards].get_distance();
-			this->distance_inflow_downwards=0.0;	
-			this->distance2river_begin_inflow=this->inflow_rv_model->river_leftline.get_distance_along_polysegment(&point1.interception_point);
-		}
-		else{
-			//right side
-			point1=this->inflow_rv_model->river_rightline.calc_last_interception(river_section_midline);
-			this->left_flag_inflow=false;
-			this->total_distance_inflow=this->inflow_rv_model->river_rightline.my_segment[this->index_inflow_profile_upwards].get_distance();
-			this->distance_inflow_downwards=0.0;	
-			this->distance2river_begin_inflow=this->inflow_rv_model->river_rightline.get_distance_along_polysegment(&point1.interception_point);
-		}
+		//Error
+		Error msg = this->set_error(1);
+		ostringstream info;
+		info << "River midline is intercepting the downstream profile of the inflow river" << endl;
+		info << "Check the river polygon points in QGIS of river " << this->inflow_rv_model->Param_RV.get_river_name() << endl;
+		river_section_polygon->output_point_members(&info);
+		info << "Check the river midline points in QGIS of river " << this->outflow_rv_model->Param_RV.get_river_name() << endl;
+		river_section_midline->output_point_members(&info);
+		msg.make_second_info(info.str());
+		throw msg;
+
+
+		////decide which side
+		//Geo_Interception_Point_List list1;
+		//_geo_interception_point point1;
+		////left side
+		//point1=this->inflow_rv_model->river_leftline.calc_last_interception(river_section_midline);
+		//if(point1.interception_flag==true){
+		//	this->left_flag_inflow=true;
+		//	this->total_distance_inflow=this->inflow_rv_model->river_leftline.my_segment[this->index_inflow_profile_upwards].get_distance();
+		//	this->distance_inflow_downwards=0.0;	
+		//	this->distance2river_begin_inflow=this->inflow_rv_model->river_leftline.get_distance_along_polysegment(&point1.interception_point);
+		//}
+		//else{
+		//	//right side
+		//	point1=this->inflow_rv_model->river_rightline.calc_last_interception(river_section_midline);
+		//	this->left_flag_inflow=false;
+		//	this->total_distance_inflow=this->inflow_rv_model->river_rightline.my_segment[this->index_inflow_profile_upwards].get_distance();
+		//	this->distance_inflow_downwards=0.0;	
+		//	this->distance2river_begin_inflow=this->inflow_rv_model->river_rightline.get_distance_along_polysegment(&point1.interception_point);
+		//}
 	}
 	//right bank
 	else if(key_point.index_is_intercept==1){
@@ -492,6 +531,12 @@ string place="Hyd_Coupling_RV2RV::";
 			help="Check the coupling profiles";
 			info << "Index river inflow profile " << this->index_inflow_profile_upwards << endl;
 			type=16;
+			break;
+		case 1://midline is intercepting profile
+			place.append("calculate_distances_inflow(Hyd_Floodplain_Polygon *river_section_polygon, Geo_Segment *river_section_midline)");
+			reason = "The river midline of the outflow river is intercepting a profile of the inflow river";
+			help = "Check the river midline ot the outflow river and the profiles of the inflow river";
+			type = 16;
 			break;
 		default:
 			place.append("set_error(const int err_type)");
