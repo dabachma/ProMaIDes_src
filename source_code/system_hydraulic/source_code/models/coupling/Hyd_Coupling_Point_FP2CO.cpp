@@ -154,7 +154,7 @@ void Hyd_Coupling_Point_FP2CO::set_couplingpoint_members(Hyd_Coupling_Point_FP2C
 void Hyd_Coupling_Point_FP2CO::output_header_setted_member(ostringstream *cout){
 	*cout <<W(10) << "I_co-line" << W(10) << "I_fp" << W(15) << "I_fp_elem" << W(15)<< "Coupling"<< W(15) << "Overflow"<< W(15)<<"Dist_up" << label::m <<W(15)<< "Dist_down" << label::m;
 	*cout << W(15)<< "abs_Height" << label::m << W(15) << "Dist_begin" <<label::m ;
-	*cout << W(15)<< "x" << label::m << W(17) << "y" <<label::m;
+	*cout << W(15)<< "x" << label::m << W(17) << "y" <<label::m << W(15) << "mid base point height" << label::m << W(17) << "fixed base point height" << label::m << W(17) << "Coastline index" << label::no_unit;
 	*cout<< endl;
 	Sys_Common_Output::output_hyd->output_txt(cout,true);
 }
@@ -170,6 +170,9 @@ void Hyd_Coupling_Point_FP2CO::output_setted_members(ostringstream *cout){
 	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->distance_along_polysegment ;
 	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->x_coordinate ;
 	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->y_coordinate ;
+	*cout << W(21) << P(2) << FORMAT_FIXED_REAL << this->get_mid_basepoint_height();
+	*cout << W(21) << P(2) << FORMAT_FIXED_REAL << this->get_fixed_basepoint_height();
+	*cout << W(21) << P(2) << FORMAT_FIXED_REAL << this->coastdikeline_index;
 	*cout<< endl;
 	Sys_Common_Output::output_hyd->output_txt(cout,true);
 }
@@ -260,6 +263,7 @@ void Hyd_Coupling_Point_FP2CO::transfer_coupling_characteristics(void){
 	this->coastdikeline_height=this->coastdikeline_height+(1.0-distance_point_up/total_point_distance)*this->ptr_upstream_point->get_abs_height();
 
 
+
 	//set absolute height
 	if(this->coastdikeline_height<=this->floodplain_elem->get_z_value()){
 		this->coastdikeline_height=this->floodplain_elem->get_z_value();
@@ -279,6 +283,12 @@ void Hyd_Coupling_Point_FP2CO::transfer_coupling_characteristics(void){
 		this->mid_basepoint=(1.0-distance_point_down/total_point_distance)*this->ptr_downstream_point->get_base_height();
 		this->mid_basepoint=this->mid_basepoint+(1.0-distance_point_up/total_point_distance)*this->ptr_upstream_point->get_base_height();
 		this->mid_basepoint_point=this->mid_basepoint;
+		if (abs(distance_point_up + distance_point_down - total_point_distance +0.001)> 0.1 ) {
+			//Add Warning
+
+
+		}
+
 		if(this->mid_basepoint<=this->floodplain_elem->get_z_value()){
 			this->mid_basepoint=this->floodplain_elem->get_z_value();
 		}

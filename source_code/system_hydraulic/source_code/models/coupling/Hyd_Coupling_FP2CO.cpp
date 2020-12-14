@@ -47,13 +47,18 @@ void Hyd_Coupling_FP2CO::init_coupling(void){
 		this->list.set_defining_polysegment(&(this->coast_model->coastline_polysegment));
 		//fill the list with the floodplain elements
 		this->floodplain_model->raster.assign_elements2couplingpointlist(&this->list);
+
 		//add the relevant points of the defining polysegment
 		this->list.add_relevant_polysegment_points(&(this->floodplain_model->raster.geometrical_bound));
+		
+
+
 		//sort it along the defining line
 		this->list.sort_distance_along_polysegment();
 		this->list.calculate_alldistance_up_down();
 		//transfer the infos to the coupling points
 		this->list.transfer_informations2points();
+
 	}
 	catch(Error msg){
 		ostringstream info;

@@ -148,9 +148,13 @@ bool Hyd_Coupling_Point_FP2CO_List::find_distance2related_point(const int relate
 	//search for the profile index
 	for(int i=1; i< this->number; i++){
 		if(this->points[i].get_ptr_downstream_point()!=NULL){
-			if(this->points[i].get_ptr_downstream_point()->get_number()==related_point_index){
-				*distance=this->points[i].get_total_distance_along_polysegment();
+
+			//if(this->points[i].get_ptr_downstream_point()->get_number()==related_point_index){
+			//must be realted to the dikeline point index not to the coupling points imdex!!
+			if (this->points[i].coastdikeline_index == related_point_index) {
+				*distance=this->points[i-1].get_total_distance_along_polysegment();
 				found_flag=true;
+				return found_flag;
 			}
 		}
 	}
@@ -549,6 +553,7 @@ void Hyd_Coupling_Point_FP2CO_List::add_additional_coupling_points(void){
 	Hyd_Coupling_Point_FP2CO buffer;
 	
 
+
 	for(int i=1; i< number_start; i++){
 
 		dist=this->points[i].get_distance_down();
@@ -576,13 +581,17 @@ void Hyd_Coupling_Point_FP2CO_List::add_additional_coupling_points(void){
 	}
 
 
+
 	//sort it along the defining line
 	this->sort_distance_along_polysegment();
+
 	//calculate the distances
 	this->calculate_alldistance_up_down();
+
 	
 	//transfer the infos to the coupling points
 	this->transfer_informations2points();
+
 
 
 

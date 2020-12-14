@@ -187,6 +187,10 @@ void Hyd_Coupling_FP2CO_Dikebreak::set_additional_coupling_point(Hyd_Coupling_FP
 	if(couplings==NULL){
 		return;
 	}
+	
+	couplings->output_setted_coupling_points();
+	
+
 	double distance=0.0;
 	Hyd_Coupling_Point_FP2CO new_point;
 	Hyd_Coupling_Point_FP2CO *next_point;

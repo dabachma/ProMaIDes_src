@@ -1442,6 +1442,12 @@ void Hyd_Coupling_Management::insert_breaks2FP2COlist(void){
 		for (int i=0; i< this->number_fp2co_dikebreak; i++){
 			this->coupling_fp2co_dikebreak[i].set_additional_coupling_point(&(this->coupling_merged_fp2co[0]));
 		}
+		//TODO
+		if (this->number_fp2co_dikebreak > 0) {
+			this->coupling_merged_fp2co[0].list.sort_distance_along_polysegment();
+			this->coupling_merged_fp2co[0].list.calculate_alldistance_up_down();
+			this->coupling_merged_fp2co[0].list.transfer_informations2points();
+		}
 	}
 }
 //Insert additional coupling points for a finer coupling discretisation to the merged FP2CO point list

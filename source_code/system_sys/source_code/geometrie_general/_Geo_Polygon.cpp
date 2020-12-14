@@ -1424,7 +1424,7 @@ void _Geo_Polygon::check_points(Geo_Point *points){
 			Error msg=this->set_error(2);
 			ostringstream info;
 			info<< "Pointnumbers: " << i << " to " << i+1 << endl;
-			info<< "x           : " << points[i].get_xcoordinate() << endl;
+			info<< "x           : " << FORMAT_FIXED_REAL << P(2) << points[i].get_xcoordinate() << endl;
 			info<< "y           : " << points[i].get_ycoordinate() << endl;
 			msg.make_second_info(info.str());
 			throw msg;
@@ -1436,7 +1436,7 @@ void _Geo_Polygon::check_points(Geo_Point *points){
 			Error msg=this->set_error(2);
 			ostringstream info;
 			info<< "Last point to the first point" << endl;
-			info<< "x           : " << points[0].get_xcoordinate() << endl;
+			info<< "x           : " << FORMAT_FIXED_REAL << P(2) << points[0].get_xcoordinate() << endl;
 			info<< "y           : " << points[0].get_ycoordinate() << endl;
 			msg.make_second_info(info.str());
 			throw msg;
