@@ -109,6 +109,12 @@ void Hyd_Element_Floodplain_Type_River::set_connected_element(_hyd_neighbouring_
 			this->connected_elem_dir=_hyd_neighbouring_direction::MINUS_X_DIR;
 		}
 	}
+
+	//reset all if height difference is to much
+	if (height_diff_min > constant::max_height_diff) {
+		this->connected_elem = NULL;
+		this->connected_elem_dir = _hyd_neighbouring_direction::Y_DIR;
+	}
 }
 //Calculate the maximum values and the wet duration
 void Hyd_Element_Floodplain_Type_River::calc_max_values(const double time_point, const double wet_boundary){

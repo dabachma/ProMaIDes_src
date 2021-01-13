@@ -209,6 +209,9 @@ namespace constant{
 	///Number of the Krylow-Subspace for the cvode solver
 	const int krylow_subspace=5;
 
+	///Maximum height differences for connected river elements
+	const double max_height_diff = 1.0;
+
 	///Default value for a maximum breach width [m]
 	const double maximum_breach_width=200.0;
 

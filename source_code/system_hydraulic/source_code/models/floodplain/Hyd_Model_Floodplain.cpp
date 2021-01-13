@@ -1881,7 +1881,7 @@ void Hyd_Model_Floodplain::output_result2bluekenue(const double timepoint, const
         txt <<":Angle " <<this->Param_FP.angle<< endl;
         //output attributes
 
-        txt <<":AttributeName  1 waterlevel" << endl;
+        txt <<":AttributeName  1 h" << endl;
         txt <<":AttributeUnits 1 " <<(label::m).c_str()<< endl;
         txt <<":AttributeName  2 v_tot" << endl;
         txt <<":AttributeUnits 2 " <<label::m_per_sec.c_str()<< endl;

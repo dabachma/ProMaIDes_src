@@ -2,7 +2,7 @@
 #include "Hyd_Headers_Precompiled.h"
 
 //constructor
-Hyd_Param_RV::Hyd_Param_RV(void):default_rel_tol(5.0e-7),default_abs_tol(5.0e-7){
+Hyd_Param_RV::Hyd_Param_RV(void):default_rel_tol(1.0e-7),default_abs_tol(1.0e-8){
 	this->RVName=label::not_set;
 	this->RVNumber = -1;
 

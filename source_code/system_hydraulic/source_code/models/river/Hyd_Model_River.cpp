@@ -1680,7 +1680,7 @@ void Hyd_Model_River::output_result2paraview_2d(const double timepoint, const in
 	output << endl;
 
 	buff_unit = " vtot_";
-	buff_unit += label::m;
+	buff_unit += label::m_per_sec;
 	buff_unit = functions::clean_white_space(&buff_unit);
 	output << "SCALARS" << "  " << buff_unit << " double" << endl;
 	output << "LOOKUP_TABLE default" << endl;
@@ -1693,7 +1693,7 @@ void Hyd_Model_River::output_result2paraview_2d(const double timepoint, const in
 	output << endl;
 
 	buff_unit = " Q_";
-	buff_unit += label::m;
+	buff_unit += label::qm_per_sec;
 	buff_unit = functions::clean_white_space(&buff_unit);
 	output << "SCALARS" << "  " << buff_unit << " double" << endl;
 	output << "LOOKUP_TABLE default" << endl;
@@ -1839,7 +1839,7 @@ void Hyd_Model_River::output_result_max2csv(void) {
 		this->tecplot_output << ",CVol_tot_in" << label::cubicmeter;
 		this->tecplot_output << ",CVol_tot_out" << label::cubicmeter;
 		this->tecplot_output << ",Qmax" << label::qm_per_sec;
-		this->tecplot_output << ",t[Qmax]" << label::sec;
+		this->tecplot_output << ",t(Qmax)" << label::sec;
 		this->tecplot_output << endl;
 
 		//inflow profile
@@ -1930,7 +1930,7 @@ void Hyd_Model_River::output_result_max2paraview2d(void) {
 	}
 
 	//output celldata
-	this->tecplot_output << "CELL_DATA " << this->number_inbetween_profiles + 1 << endl;
+	this->tecplot_output << FORMAT_FIXED_REAL << P(2) << "CELL_DATA " << this->number_inbetween_profiles + 1 << endl;
 	string buff_unit;
 
 	buff_unit = " h_max_";

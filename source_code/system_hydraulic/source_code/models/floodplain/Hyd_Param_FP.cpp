@@ -2,7 +2,7 @@
 #include "Hyd_Headers_Precompiled.h"
 
 //constructor
-Hyd_Param_FP::Hyd_Param_FP(void):default_rel_tol(1.0e-6),default_abs_tol(1.0e-5),default_wet_bound(1.0e-3){
+Hyd_Param_FP::Hyd_Param_FP(void):default_rel_tol(1.0e-8),default_abs_tol(1.0e-5),default_wet_bound(1.0e-3){
 
 	this->FPName=label::not_set;	
 	this->FPNumber=-1;
