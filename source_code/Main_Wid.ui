@@ -450,6 +450,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="action_developer_guide"/>
+    <addaction name="action_Community_of_Users"/>
     <addaction name="action_About"/>
    </widget>
    <widget class="QMenu" name="menu_DAM_system">
@@ -1193,7 +1194,7 @@
   </action>
   <action name="action_developer_guide">
    <property name="text">
-    <string>&amp;Developer's Guide</string>
+    <string>&amp;Guides</string>
    </property>
   </action>
   <action name="action_hyd_check_file">
@@ -1920,6 +1921,11 @@
   <action name="action_generate_dgm_from_profile">
    <property name="text">
     <string>&amp;Generate DGM-W from profile...</string>
+   </property>
+  </action>
+  <action name="action_Community_of_Users">
+   <property name="text">
+    <string>Community of Users</string>
    </property>
   </action>
  </widget>

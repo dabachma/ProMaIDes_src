@@ -234,7 +234,8 @@ void Main_Wid::slot_connect(void){
 
 	//menu help
 	QObject::connect(this->action_About,SIGNAL(triggered()), this, SLOT(about()));
-	QObject::connect(this->action_developer_guide,SIGNAL(triggered()), this, SLOT(open_developer_doku()));
+	QObject::connect(this->action_developer_guide,SIGNAL(triggered()), this, SLOT(open_doku()));
+	QObject::connect(this->action_Community_of_Users, SIGNAL(triggered()), this, SLOT(open_com_users()));
 
 	//Send a that a deleting of data is in action an refresh the data-tree view
 	QObject::connect(this,SIGNAL(send_delete2refresh_data_view()), this->treeWidget_data, SLOT(refresh_tree()));
@@ -8157,23 +8158,70 @@ void Main_Wid::uncheck_status_display(bool flag){
 //Message with the "about"-text (menu help)
 void Main_Wid::about(void){
 	ostringstream text;
-    text << "This is version "<<Sys_Project::get_version_number()<<" produced at "<<Sys_Project::get_version_date() <<"\n(Protection Measures against Inundation Desicion Support)"<<endl;
-    text << "Produced by the AG FRM of the University of applied scienes Magdeburg-Stendal and the IWW of RWTH Aachen University"<< endl;
-    text << "Copyright by AG FRM (HS-M), IWW (RWTH) 2008-2020"<< endl;
-	text << "It is distributed under a 3-clause BSD license (https://promaides.myjetbrains.com/youtrack/articles/PMID-A-34/License)" << endl;
-    QMessageBox::about(this,"About ProMaIDeS",text.str().c_str());
+	text << "ProMaIDes (Protection Measures against Inundation Desicion Support). <br><br>" << endl;
+    text << "This is version "<<Sys_Project::get_version_number()<<" produced at "<<Sys_Project::get_version_date() <<".<br><br>"<<endl;
+    text << "Produced by the <a href ='https://tinyurl.com/agfrm77'>AG FRM</a> of the University of applied sciences Magdeburg-Stendal<br> and the <a href ='https://www.iww.rwth-aachen.de/go/id/lygz/?lidx=1'>IWW</a> of RWTH Aachen University.<br><br>"<< endl;
+    text << "Copyright by AG FRM (HS-M), IWW (RWTH) 2008-2020.<br>"<< endl;
+	text << "It is distributed under <a href='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-34/License'>a 3-clause BSD license</a>." << endl;
+	QString buff;
+	buff = text.str().c_str();
+
+	QMessageBox msgBox(this);
+	msgBox.setWindowTitle("About ProMaIDeS");
+	msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
+	msgBox.setText(buff);
+	msgBox.setStandardButtons(QMessageBox::Ok);
+	msgBox.exec();
+	
+
 }
-//Open the firefox browser with the main-page of the developer's dokumentation (menu help)
-void Main_Wid::open_developer_doku(void){
-	proc_developer_doku.close();
+//Open the available online guides (menu help)
+void Main_Wid::open_doku(void){
 
-	ostringstream path_prog;
-	path_prog<< "C:/Program Files (x86)/Mozilla Firefox/firefox.exe";
-	QStringList list_arg;
+	ostringstream text;
+	text << "ProMaIDes (Protection Measures against Inundation Desicion Support). <br><br>" << endl;
+	text << "Please follow our online manuals:<br><br>" << endl;
+	text << " - <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-7/General'>General information</a> <br>" << endl;
+	text << " - <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-1/Theory-guide'>Theory guide</a> <br>" << endl;
+	text << " - <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-5/Application-guide'>Application guide</a> <br>" << endl;
+	text << " - <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-12/Development-guide'>Development guide</a> <br>" << endl;
+	text << " - <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMDP-A-31/General'>Guide to ProMaIDes Helpers</a> <br>" << endl;
 
-	list_arg<<"file:///L:/daniel/work/promaides/doku/html/index.html";
+	QString buff;
+	buff = text.str().c_str();
 
-	proc_developer_doku.start(path_prog.str().c_str(), list_arg);
+	QMessageBox msgBox(this);
+	msgBox.setWindowTitle("Help ProMaIDeS");
+	msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
+	msgBox.setText(buff);
+	msgBox.setStandardButtons(QMessageBox::Ok);
+	msgBox.exec();
+
+	//proc_developer_doku.close();
+
+	//ostringstream path_prog;
+	//path_prog<< "C:/Program Files (x86)/Mozilla Firefox/firefox.exe";
+	//QStringList list_arg;
+
+	//list_arg<<"file:///L:/daniel/work/promaides/doku/html/index.html";
+
+	//proc_developer_doku.start(path_prog.str().c_str(), list_arg);
+}
+//Open the Community of users (menu help)
+void Main_Wid::open_com_users(void) {
+	ostringstream text;
+	text << "ProMaIDes (Protection Measures against Inundation Desicion Support). <br><br>" << endl;
+	text << "Interested in more information; please join our <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-33/Community-of-users'>community of users</a>.<br>" << endl;
+
+	QString buff;
+	buff = text.str().c_str();
+
+	QMessageBox msgBox(this);
+	msgBox.setWindowTitle("Community of users ProMaIDeS");
+	msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
+	msgBox.setText(buff);
+	msgBox.setStandardButtons(QMessageBox::Ok);
+	msgBox.exec();
 }
 //Allocate the table view for the database tables
 void Main_Wid::allocate_db_table_view(void){

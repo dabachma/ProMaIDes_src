@@ -61,58 +61,55 @@
 //define the mainpage for doxygen
 /** \mainpage
 
-\author Daniel Bachmann and others
-\author produced by the University of applied sciences Magdeburg-Stendal and the Institute of Hydraulic Engineering (IWW), RWTH Aachen University
-\version 0.0.7
-\date 2020
 
-ProMaIDes (<b>Pro</b>tection<b>M</b>easures <b>a</b>gainst <b>I</b>nnundation <b>De</b>sicionsupport<b>S</b>ystem) is a modular organized tool
-dealing with the evaluation of floodprotection measures as possible alternatives. The evaluation of the alternatives
-is done via two main categories of criteria:
-	-# the flood dependent criteria: These are determined via the risk approach: \f$ risk:=damage \cdot probability \f$.
-	This catergory of crteria is directly related to a flood event.
-	-# the flood independent criteria: These are caused due to a measure implementation to the catchment are, e.g. econimic cost for a measure. They are not
-	related to an flood event.
+\author Produced by the <a href ='https://tinyurl.com/agfrm77'>AG FRM</a> of the University of applied sciences Magdeburg-Stendal and the <a href ='https://www.iww.rwth-aachen.de/go/id/lygz/?lidx=1'>IWW</a> of RWTH Aachen University.
+\version 0.0.8
+\date 2021
 
-To compare and rank the user implemented measures with the help of the evaluated criteria, a decision analysis is required (MADM).
+Please follow also our online manuals:
+	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-7/General'>General information</a> <br>
+	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-1/Theory-guide'>Theory guide</a> <br> 
+	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-5/Application-guide'>Application guide</a> <br> 
+	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-12/Development-guide'>Development guide</a> <br> 
+	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMDP-A-31/General'>Guide to ProMaIDes Helpers</a> <br> 
 
-ProMaIDes represents a profound tool for the above mentioned analysis, which are:
-	- Probability analysis of the floodprotection line (flood dependent criteria),
-	- Analysis of primary consequences, the hydraulic analysis (flood dependent criteria),
-	- Analysis of secondary consequences, damage analysis (flood dependent criteria),
-	- Combining risk analysis (flood dependent criteria),
-	- Cost analysis (flood independent criteria),
-	- Decision support (criteria evaluation and measures ranking).
+ProMaIDes (<b>Pro</b>tection<b>M</b>easures <b>a</b>gainst <b>I</b>nnundation <b>De</b>sicionsupport<b>S</b>ystem) is a modular designed opne software package for a rsik-based
+evaluation of flood risk mitigation measures.
 
-From the computational point of view, the tool is therefore devided into corresponding modules:
-	- <b>SYS</b>tem module (\ref sys): This module comprises classe, which are used from all other modules.
+
+From the computational/programming point of view, the tool is devided into modules:
+	- <b>SYS</b>tem module (\ref sys): This module comprises classes, which are used from all other modules.
 	Examples are classes for the GUI, output, exceptions, database management, project management etc.
 	As a sub-module gemetrical classes are implemented (GEO_). This classes are used for geometrical
-	calculation, with points, lines, rays, polygons etc.
-	- <b>F</b>lood<b>P</b>rotection<b>L</b>ine module (\ref fpl): This modul deals with the evaluation
-	of the failure probability of floodprotection measures along the river, e.g. dikes, walls etc. The base
-	calculation is a probabilistic Monte-Carlo analysis combined with a fault-tree analysis. The first analysis
-	models the probabilistic distribution of the relevant input parameter, like material-parameter or applied
-	stresses. The second one combines the specific failure mode of a section type (dike, wall etc.) to
-	one failure probability. Further information are given in the main class Fpl_Calculation.
-	- <b>HYD</b>raulic module (\ref hyd): The aim of this modul is the evaluation of the primary consequences
-	due to a flood event. Resulting parameters of this analysis are the waterlevel, the flow velocity,
-	the flood duration etc. of the innundated area. The analysis is based on a coupled numerical models. These models
-	represents floodplains (2d) or rivers (1d). The coupling between these models, defined by exchange discharge, simulates the natural interaction
-	between rivers and floodplains.
+	calculation, like points, lines, rays, polygons etc.
+
+	- <b>F</b>lood<b>P</b>rotection<b>L</b>ine module (\ref fpl): The objective of the reliability analysis is to quantify the failure probability of flood protection measures along the river or the coast line, e.g. dikes, walls etc.. 
+	The probability of the complementary event (non-failure event) describes the reliability of a structure. 
+	The base calculations are a probabilistic Monte-Carlo analysis combined with a fault-tree analysis. 
+	The first analysis (Monte-Carlo analysis) models the probabilistic distribution of the relevant input parameter, like material-parameter or applied stresses.
+	The second one (fault-tree analysis) combines the specific failure mode of a specific section type (e.g. dike, wall etc.) to one failure probability. 
+	Further information are given in the main class Fpl_Calculation.
+
+	- <b>HYD</b>raulic module (\ref hyd): The objective of the hydrodynamic analysis is to transform the characteristics of a discharge /storm event into hydraulic variables of 
+	the subsystems river and hinterland while taking into consideration the morphological characteristics of the area under investigation. In principle, this transformation is 
+	based on hydrodynamic laws which gets solvable by numerical methods. 
+	The implemented submodels represents in the real world floodplains (2d-floodpain model), rivers (1d-river models) and the coastal area. 
+	The natural interaction between rivers, coast and floodplains are modelled by a coupling of these submodels.
 	For the solution of the numerical problem, 1d as well as 2d, the c-vode solver package is implemented as a
 	sub-module of the hydaulic modul. Further information of the solver modul are given in
 	https://computation.llnl.gov/casc/sundials/documentation/cv_guide.pdf. The main class of the hydraulic modul
-	is Hyd_Hydraulic_System and for multi-threading application Hyd_Multiple_Hydraulic_System, where detailed
+	is Hyd_Hydraulic_System and for multi-threading application Hyd_Multiple_Hydraulic_System, where further detailed
 	information are given.
-	- <b>DAM</b>age module (\ref dam): This modules evaluates the secundary damages due to a flood event. Different
-	aspects of secondary damages are considered:
-		- direkt economic damages (ECN), further distinguished in mobile and immobile damages
-		- ecologic damges (ECO), further distinguished in biotope-type damages and due to soil erosion,
-		- damages to people (POP), further distinguished in endangered and affected people and
-		- psycho-social damages (PYS), further distinguished in different criteria.
-	Required generated input data are the result data of the hydraulic analysis. Further information are given in
+
+	- <b>DAM</b>age module (\ref dam): The aim of the analysis of the consequences is to transform the given hydraulic values of a flood event into consequences to people, assets, infrastructure etc.. This transformation enables a direct statement about the consequences of a flood event.
+	Different categories of consequences are implemented within ProMaIdes:
+		- direct economic damages (ECN), further distinguished in mobile and immobile damages
+		- ecological damages (ECO), further distinguished in biotope-type damages and due to soil erosion,
+		- consequences to people (POP), further distinguished in endangered and affected people and
+		- psycho-social consequences (PYS), further distinguished in different criteria.
+	Required input data are the result data of the hydraulic analysis (HYD-module \ref hyd). Further information are given in
 	the main class Dam_Damage_System.
+
 	- <b>RISK</b> (\ref risk): The risk modules combines the result values of the probability calculation and the damage
 	analysis to the risk. Three risk approaches are distinguished:
 		- the nobreak risk approach, where is presumed that no failure occurs in the flood protection line. The
@@ -124,21 +121,24 @@ From the computational point of view, the tool is therefore devided into corresp
 		- the catchment area approach, where the failure probability are integrated via a fragility curve. By a
 		combination of hydraulic, failure- and non-failure probability and the event dependend damages the risk
 		is evaluated on the catchment area scale. Further information are given in the main class Risk_System.
+
 	- <b>ALT</b>ernative module (\ref alt): This module handles the implementation of measures into the system. This
 	measure can be group into the three sub-systems of FPL, HYD and DAM. Further information are given in the main class Alt_System.
+
 	- <b>COST</b> module (\ref cost): This module handles and calculate the cost due to a measure's
 	implementation into the system. This can be economical cost as well as area requirement for a measrue.
 	Further information are given in the main class Cost_System.
-	- <b>M</b>ulti<b>A</b>ttribute<b>D</b>ecision<b>M</b>ethod module (\ref madm): The obejective
+
+	- <b>M</b>ulti<b>A</b>ttribute<b>D</b>ecision<b>M</b>ethod module (\ref madm): The objective
 	of this module is the ranking of the user-defined alternatives. This analysis is based on the decision matrix,
-	where the alternatives are evaluated with the above mentioned criteria. Mathematical algorithms are used for
-	the ranking of the alternatives. Examples are the SAW- of the Electree-approach. Thus, the decision
+	where the alternatives are evaluated with criteria. Mathematical algorithms are used for
+	the ranking of the alternatives. Examples are the SAW-, TOPSIS or the ELECTRE-approach. Thus, the decision
 	process is supported and gets an objective base. Further information are given in the main class Madm_System.
+
 These moduls can be used independent from each other: a probabilistic analysis can be performed without
 any hydraulic calculations. Some moduls, like the damage- or the risk-moduls, requires data input, which is generated by other moduls.
 Thus, an independent use of this moduls is not possible.
-The data management of ProMaIDes is based in databases. Implemented are the connection to
-a mysql-database or a postgre-database. 
+The data management of ProMaIDes is based in databases. Implemented and maintained is the connection to a PostgreSQL-database. 
 
 */
 
@@ -905,8 +905,10 @@ private slots:
 
 	///Message with the "about"-text (menu help)
 	void about(void);
-	///Open the firefox browser with the main-page of the developer's dokumentation (menu help)
-	void open_developer_doku(void);
+	///Open the available online guides (menu help)
+	void open_doku(void);
+	///Open the Community of users (menu help)
+	void open_com_users(void);
 
 private:
 	//member
