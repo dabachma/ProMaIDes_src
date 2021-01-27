@@ -21,9 +21,10 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E049B693-FE07-3FD5-8442-9C262EADBB20}</ProjectGuid>
     <RootNamespace>fpl_system</RootNamespace>
-    <Keyword>Qt4VSv1.0</Keyword>
+    <Keyword>QtVS_v303</Keyword>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -63,15 +64,9 @@
     <PrimaryOutput>fpl_system</PrimaryOutput>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <PropertyGroup Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">
-    <QtMsBuild>$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
-  </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
   </Target>
-  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
-    <Import Project="$(QtMsBuild)\qt.props" />
-  </ImportGroup>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
@@ -86,44 +81,67 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fpl_system</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">fpl_system</TargetName>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreImportLibrary>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fpl_system</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">fpl_system</TargetName>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreImportLibrary>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>debug\</OutDir>
+    <IntDir>debug\</IntDir>
+    <TargetName>fpl_system</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>fpl_system</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>release\</OutDir>
+    <IntDir>release\</IntDir>
+    <TargetName>fpl_system</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>fpl_system</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="QtSettings">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="QtSettings">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\calculation;source_code\gui;source_code\calculation\performance;source_code\calculation\random;source_code\calculation\section_fpl;source_code\calculation\section_fpl\geometrie_dike;source_code\calculation\section_fpl\mechanisms;source_code\calculation\section_fpl\mechanisms\dike;source_code\calculation\section_fpl\mechanisms\highground;source_code\calculation\section_fpl\mechanisms\wave_generation;source_code\calculation\section_fpl\mechanisms\slope_stability;source_code\calculation\section_fpl\mechanisms\landside_resistance;source_code\calculation\section_fpl\mechanisms\dune;source_code\calculation\section_fpl\mechanisms\gate;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;../../debug/;../../debug_hyd/;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;release;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -msse -msse2 -msse3 - -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\calculation;source_code\gui;source_code\calculation\performance;source_code\calculation\random;source_code\calculation\section_fpl;source_code\calculation\section_fpl\geometrie_dike;source_code\calculation\section_fpl\mechanisms;source_code\calculation\section_fpl\mechanisms\dike;source_code\calculation\section_fpl\mechanisms\highground;source_code\calculation\section_fpl\mechanisms\wave_generation;source_code\calculation\section_fpl\mechanisms\slope_stability;source_code\calculation\section_fpl\mechanisms\landside_resistance;source_code\calculation\section_fpl\mechanisms\dune;source_code\calculation\section_fpl\mechanisms\gate;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;..\..\debug;../../debug_hyd/;release;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>None</DebugInformationFormat>
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Fpl_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Fpl_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\fpl_system.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -143,40 +161,38 @@
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</Define>
       <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_fpl/$(Configuration)/moc_predefs.h</Include>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
       <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;.\source_code;.\source_code\calculation;.\source_code\gui;.\source_code\calculation\performance;.\source_code\calculation\random;.\source_code\calculation\section_fpl;.\source_code\calculation\section_fpl\geometrie_dike;.\source_code\calculation\section_fpl\mechanisms;.\source_code\calculation\section_fpl\mechanisms\dike;.\source_code\calculation\section_fpl\mechanisms\highground;.\source_code\calculation\section_fpl\mechanisms\wave_generation;.\source_code\calculation\section_fpl\mechanisms\slope_stability;.\source_code\calculation\section_fpl\mechanisms\landside_resistance;.\source_code\calculation\section_fpl\mechanisms\dune;.\source_code\calculation\section_fpl\mechanisms\gate;.\..\system_sys\source_code;.\..\system_sys\source_code\exceptions;.\..\system_sys\source_code\geometrie_general;.\..\system_sys\source_code\database;.\..\system_sys\source_code\gui;.\..\system_sys;.\..\system_hydraulic;.\..\system_hydraulic\source_code;.\..\system_hydraulic\source_code\general;.\..\system_hydraulic\source_code\models;.\..\system_hydraulic\source_code\solver;.\..\system_hydraulic\source_code\system;.\..\system_hydraulic\source_code\szenario;.\..\system_hydraulic\source_code\gui;.\..\system_hydraulic\source_code\models\coupling;.\..\system_hydraulic\source_code\models\floodplain;.\..\system_hydraulic\source_code\models\floodplain\elements;.\..\system_hydraulic\source_code\models\river;.\..\system_hydraulic\source_code\models\river\profile;.\..\system_hydraulic\source_code\models\coast;.\..\..\debug;.\..\..\debug_hyd;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;.\release;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc</IncludePath>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
     </QtMoc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\calculation;source_code\gui;source_code\calculation\performance;source_code\calculation\random;source_code\calculation\section_fpl;source_code\calculation\section_fpl\geometrie_dike;source_code\calculation\section_fpl\mechanisms;source_code\calculation\section_fpl\mechanisms\dike;source_code\calculation\section_fpl\mechanisms\highground;source_code\calculation\section_fpl\mechanisms\wave_generation;source_code\calculation\section_fpl\mechanisms\slope_stability;source_code\calculation\section_fpl\mechanisms\landside_resistance;source_code\calculation\section_fpl\mechanisms\dune;source_code\calculation\section_fpl\mechanisms\gate;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;../../debug/;../../debug_hyd/;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;release;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -msse -msse2 -msse3 - -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\calculation;source_code\gui;source_code\calculation\performance;source_code\calculation\random;source_code\calculation\section_fpl;source_code\calculation\section_fpl\geometrie_dike;source_code\calculation\section_fpl\mechanisms;source_code\calculation\section_fpl\mechanisms\dike;source_code\calculation\section_fpl\mechanisms\highground;source_code\calculation\section_fpl\mechanisms\wave_generation;source_code\calculation\section_fpl\mechanisms\slope_stability;source_code\calculation\section_fpl\mechanisms\landside_resistance;source_code\calculation\section_fpl\mechanisms\dune;source_code\calculation\section_fpl\mechanisms\gate;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;..\..\debug;../../debug_hyd/;release;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>None</DebugInformationFormat>
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Fpl_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Fpl_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\fpl_system.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;NDEBUG;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -196,20 +212,17 @@
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;WIN64;%(PreprocessorDefinitions)</Define>
       <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_fpl/$(Configuration)/moc_predefs.h</Include>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
       <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;.\source_code;.\source_code\calculation;.\source_code\gui;.\source_code\calculation\performance;.\source_code\calculation\random;.\source_code\calculation\section_fpl;.\source_code\calculation\section_fpl\geometrie_dike;.\source_code\calculation\section_fpl\mechanisms;.\source_code\calculation\section_fpl\mechanisms\dike;.\source_code\calculation\section_fpl\mechanisms\highground;.\source_code\calculation\section_fpl\mechanisms\wave_generation;.\source_code\calculation\section_fpl\mechanisms\slope_stability;.\source_code\calculation\section_fpl\mechanisms\landside_resistance;.\source_code\calculation\section_fpl\mechanisms\dune;.\source_code\calculation\section_fpl\mechanisms\gate;.\..\system_sys\source_code;.\..\system_sys\source_code\exceptions;.\..\system_sys\source_code\geometrie_general;.\..\system_sys\source_code\database;.\..\system_sys\source_code\gui;.\..\system_sys;.\..\system_hydraulic;.\..\system_hydraulic\source_code;.\..\system_hydraulic\source_code\general;.\..\system_hydraulic\source_code\models;.\..\system_hydraulic\source_code\solver;.\..\system_hydraulic\source_code\system;.\..\system_hydraulic\source_code\szenario;.\..\system_hydraulic\source_code\gui;.\..\system_hydraulic\source_code\models\coupling;.\..\system_hydraulic\source_code\models\floodplain;.\..\system_hydraulic\source_code\models\floodplain\elements;.\..\system_hydraulic\source_code\models\river;.\..\system_hydraulic\source_code\models\river\profile;.\..\system_hydraulic\source_code\models\coast;.\..\..\debug;.\..\..\debug_hyd;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;.\release;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc</IncludePath>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
     </QtMoc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -219,27 +232,26 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\calculation;source_code\gui;source_code\calculation\performance;source_code\calculation\random;source_code\calculation\section_fpl;source_code\calculation\section_fpl\geometrie_dike;source_code\calculation\section_fpl\mechanisms;source_code\calculation\section_fpl\mechanisms\dike;source_code\calculation\section_fpl\mechanisms\highground;source_code\calculation\section_fpl\mechanisms\wave_generation;source_code\calculation\section_fpl\mechanisms\slope_stability;source_code\calculation\section_fpl\mechanisms\landside_resistance;source_code\calculation\section_fpl\mechanisms\dune;source_code\calculation\section_fpl\mechanisms\gate;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;../../debug/;../../debug_hyd/;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;debug;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -msse -msse2 -msse3 - -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\calculation;source_code\gui;source_code\calculation\performance;source_code\calculation\random;source_code\calculation\section_fpl;source_code\calculation\section_fpl\geometrie_dike;source_code\calculation\section_fpl\mechanisms;source_code\calculation\section_fpl\mechanisms\dike;source_code\calculation\section_fpl\mechanisms\highground;source_code\calculation\section_fpl\mechanisms\wave_generation;source_code\calculation\section_fpl\mechanisms\slope_stability;source_code\calculation\section_fpl\mechanisms\landside_resistance;source_code\calculation\section_fpl\mechanisms\dune;source_code\calculation\section_fpl\mechanisms\gate;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;..\..\debug;../../debug_hyd/;debug;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Fpl_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ObjectFileName>debug\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Fpl_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\fpl_system.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)\fpl_system.lib</OutputFile>
@@ -253,46 +265,42 @@
     <ResourceCompile>
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
-    <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</Define>
-      <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
-      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
-      <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;.\source_code;.\source_code\calculation;.\source_code\gui;.\source_code\calculation\performance;.\source_code\calculation\random;.\source_code\calculation\section_fpl;.\source_code\calculation\section_fpl\geometrie_dike;.\source_code\calculation\section_fpl\mechanisms;.\source_code\calculation\section_fpl\mechanisms\dike;.\source_code\calculation\section_fpl\mechanisms\highground;.\source_code\calculation\section_fpl\mechanisms\wave_generation;.\source_code\calculation\section_fpl\mechanisms\slope_stability;.\source_code\calculation\section_fpl\mechanisms\landside_resistance;.\source_code\calculation\section_fpl\mechanisms\dune;.\source_code\calculation\section_fpl\mechanisms\gate;.\..\system_sys\source_code;.\..\system_sys\source_code\exceptions;.\..\system_sys\source_code\geometrie_general;.\..\system_sys\source_code\database;.\..\system_sys\source_code\gui;.\..\system_sys;.\..\system_hydraulic;.\..\system_hydraulic\source_code;.\..\system_hydraulic\source_code\general;.\..\system_hydraulic\source_code\models;.\..\system_hydraulic\source_code\solver;.\..\system_hydraulic\source_code\system;.\..\system_hydraulic\source_code\szenario;.\..\system_hydraulic\source_code\gui;.\..\system_hydraulic\source_code\models\coupling;.\..\system_hydraulic\source_code\models\floodplain;.\..\system_hydraulic\source_code\models\floodplain\elements;.\..\system_hydraulic\source_code\models\river;.\..\system_hydraulic\source_code\models\river\profile;.\..\system_hydraulic\source_code\models\coast;.\..\..\debug;.\..\..\debug_hyd;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;.\debug;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc</IncludePath>
-    </QtMoc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_fpl/$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\calculation;source_code\gui;source_code\calculation\performance;source_code\calculation\random;source_code\calculation\section_fpl;source_code\calculation\section_fpl\geometrie_dike;source_code\calculation\section_fpl\mechanisms;source_code\calculation\section_fpl\mechanisms\dike;source_code\calculation\section_fpl\mechanisms\highground;source_code\calculation\section_fpl\mechanisms\wave_generation;source_code\calculation\section_fpl\mechanisms\slope_stability;source_code\calculation\section_fpl\mechanisms\landside_resistance;source_code\calculation\section_fpl\mechanisms\dune;source_code\calculation\section_fpl\mechanisms\gate;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;../../debug/;../../debug_hyd/;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;debug;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -msse -msse2 -msse3 - -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\calculation;source_code\gui;source_code\calculation\performance;source_code\calculation\random;source_code\calculation\section_fpl;source_code\calculation\section_fpl\geometrie_dike;source_code\calculation\section_fpl\mechanisms;source_code\calculation\section_fpl\mechanisms\dike;source_code\calculation\section_fpl\mechanisms\highground;source_code\calculation\section_fpl\mechanisms\wave_generation;source_code\calculation\section_fpl\mechanisms\slope_stability;source_code\calculation\section_fpl\mechanisms\landside_resistance;source_code\calculation\section_fpl\mechanisms\dune;source_code\calculation\section_fpl\mechanisms\gate;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;..\..\debug;../../debug_hyd/;debug;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Fpl_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ObjectFileName>debug\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Fpl_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\fpl_system.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)\fpl_system.lib</OutputFile>
@@ -306,22 +314,19 @@
     <ResourceCompile>
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
-    <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;WIN64;%(PreprocessorDefinitions)</Define>
-      <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
-      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
-      <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;.\source_code;.\source_code\calculation;.\source_code\gui;.\source_code\calculation\performance;.\source_code\calculation\random;.\source_code\calculation\section_fpl;.\source_code\calculation\section_fpl\geometrie_dike;.\source_code\calculation\section_fpl\mechanisms;.\source_code\calculation\section_fpl\mechanisms\dike;.\source_code\calculation\section_fpl\mechanisms\highground;.\source_code\calculation\section_fpl\mechanisms\wave_generation;.\source_code\calculation\section_fpl\mechanisms\slope_stability;.\source_code\calculation\section_fpl\mechanisms\landside_resistance;.\source_code\calculation\section_fpl\mechanisms\dune;.\source_code\calculation\section_fpl\mechanisms\gate;.\..\system_sys\source_code;.\..\system_sys\source_code\exceptions;.\..\system_sys\source_code\geometrie_general;.\..\system_sys\source_code\database;.\..\system_sys\source_code\gui;.\..\system_sys;.\..\system_hydraulic;.\..\system_hydraulic\source_code;.\..\system_hydraulic\source_code\general;.\..\system_hydraulic\source_code\models;.\..\system_hydraulic\source_code\solver;.\..\system_hydraulic\source_code\system;.\..\system_hydraulic\source_code\szenario;.\..\system_hydraulic\source_code\gui;.\..\system_hydraulic\source_code\models\coupling;.\..\system_hydraulic\source_code\models\floodplain;.\..\system_hydraulic\source_code\models\floodplain\elements;.\..\system_hydraulic\source_code\models\river;.\..\system_hydraulic\source_code\models\river\profile;.\..\system_hydraulic\source_code\models\coast;.\..\..\debug;.\..\..\debug_hyd;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;.\debug;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc</IncludePath>
-    </QtMoc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_fpl/$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
     <Link>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
@@ -408,77 +413,29 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="source_code\gui\FplGui_Check_Disttype_Mean_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\FplGui_Check_Disttype_Triangle_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\FplGui_Detailed_Result_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\FplGui_Faulttree_Dike_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\FplGui_Faulttree_Dune_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\FplGui_Faulttree_Gate_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\FplGui_Frc_Values_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\FplGui_Prob_Result_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\FplGui_Random_Check_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\FplGui_Section_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\FplGui_System_Member_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <ClInclude Include="source_code\calculation\section_fpl\mechanisms\dike\Fpl_Bursting_Slice.h" />
     <QtMoc Include="source_code\Fpl_Calculation.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Fpl_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Fpl_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <ClInclude Include="source_code\calculation\random\Fpl_Check_Distribution.h" />
     <ClInclude Include="source_code\calculation\section_fpl\geometrie_dike\Fpl_Cub_Dike_Crest.h" />
@@ -699,8 +656,8 @@ echo #include "Fpl_Headers_Precompiled.h"&gt;&gt;source_code\Fpl_Headers_Precomp
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -fpermissive -msse -msse2 -msse3 -O2 - -Zi -MDd -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -fpermissive -msse -msse2 -msse3 -O2 - -Zi -MDd -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -fpermissive -O2 -Zi -MDd -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -fpermissive -O2 -Zi -MDd -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generate moc_predefs.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generate moc_predefs.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">debug\moc_predefs.h;%(Outputs)</Outputs>
@@ -710,8 +667,8 @@ echo #include "Fpl_Headers_Precompiled.h"&gt;&gt;source_code\Fpl_Headers_Precomp
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -fpermissive -msse -msse2 -msse3 -O2 - -O2 -MD -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -fpermissive -msse -msse2 -msse3 -O2 - -O2 -MD -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -fpermissive -O2 -O2 -MD -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -fpermissive -O2 -O2 -MD -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generate moc_predefs.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generate moc_predefs.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">release\moc_predefs.h;%(Outputs)</Outputs>
@@ -719,84 +676,29 @@ echo #include "Fpl_Headers_Precompiled.h"&gt;&gt;source_code\Fpl_Headers_Precomp
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </CustomBuild>
-    <ClInclude Include="ui_FplGui_Check_Disttype_Mean_Dia.h" />
-    <ClInclude Include="ui_FplGui_Check_Disttype_Triangle_Dia.h" />
-    <ClInclude Include="ui_FplGui_Detailed_Result_Wid.h" />
-    <ClInclude Include="ui_FplGui_Faulttree_Dike_Wid.h" />
-    <ClInclude Include="ui_FplGui_Faulttree_Dune_Wid.h" />
-    <ClInclude Include="ui_FplGui_Faulttree_Gate_Wid.h" />
-    <ClInclude Include="ui_FplGui_Frc_Values_Dia.h" />
-    <ClInclude Include="ui_FplGui_Prob_Result_Wid.h" />
-    <ClInclude Include="ui_FplGui_Random_Check_Dia.h" />
-    <ClInclude Include="ui_FplGui_Section_Dia.h" />
-    <ClInclude Include="ui_FplGui_System_Member_Wid.h" />
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source_code\gui\FplGui_Check_Disttype_Mean_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_FplGui_Check_Disttype_Mean_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_FplGui_Check_Disttype_Mean_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_FplGui_Check_Disttype_Mean_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_FplGui_Check_Disttype_Mean_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\FplGui_Check_Disttype_Triangle_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_FplGui_Check_Disttype_Triangle_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_FplGui_Check_Disttype_Triangle_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_FplGui_Check_Disttype_Triangle_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_FplGui_Check_Disttype_Triangle_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\FplGui_Detailed_Result_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_FplGui_Detailed_Result_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_FplGui_Detailed_Result_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_FplGui_Detailed_Result_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_FplGui_Detailed_Result_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\FplGui_Faulttree_Dike_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_FplGui_Faulttree_Dike_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_FplGui_Faulttree_Dike_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_FplGui_Faulttree_Dike_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_FplGui_Faulttree_Dike_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\FplGui_Faulttree_Dune_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_FplGui_Faulttree_Dune_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_FplGui_Faulttree_Dune_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_FplGui_Faulttree_Dune_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_FplGui_Faulttree_Dune_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\FplGui_Faulttree_Gate_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_FplGui_Faulttree_Gate_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_FplGui_Faulttree_Gate_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_FplGui_Faulttree_Gate_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_FplGui_Faulttree_Gate_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\FplGui_Frc_Values_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_FplGui_Frc_Values_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_FplGui_Frc_Values_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_FplGui_Frc_Values_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_FplGui_Frc_Values_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\FplGui_Prob_Result_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_FplGui_Prob_Result_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_FplGui_Prob_Result_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_FplGui_Prob_Result_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_FplGui_Prob_Result_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\FplGui_Random_Check_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_FplGui_Random_Check_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_FplGui_Random_Check_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_FplGui_Random_Check_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_FplGui_Random_Check_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\FplGui_Section_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_FplGui_Section_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_FplGui_Section_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_FplGui_Section_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_FplGui_Section_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\FplGui_System_Member_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_FplGui_System_Member_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_FplGui_System_Member_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_FplGui_System_Member_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_FplGui_System_Member_Wid.h</OutputFile>
     </QtUic>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -804,9 +706,4 @@ echo #include "Fpl_Headers_Precompiled.h"&gt;&gt;source_code\Fpl_Headers_Precomp
     <Import Project="$(QtMsBuild)\qt.targets" />
   </ImportGroup>
   <ImportGroup Label="ExtensionTargets" />
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties Qt5Version_x0020_Win32="msvc2017" Qt5Version_x0020_x64="msvc2017_64" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>

@@ -21,9 +21,10 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{62E014AA-6D16-3777-AC20-EC920E76ECA4}</ProjectGuid>
     <RootNamespace>system_sys</RootNamespace>
-    <Keyword>Qt4VSv1.0</Keyword>
+    <Keyword>QtVS_v303</Keyword>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -63,15 +64,9 @@
     <PrimaryOutput>system_sys</PrimaryOutput>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <PropertyGroup Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">
-    <QtMsBuild>$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
-  </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
   </Target>
-  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
-    <Import Project="$(QtMsBuild)\qt.props" />
-  </ImportGroup>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
@@ -86,29 +81,51 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">system_sys</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">system_sys</TargetName>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreImportLibrary>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">system_sys</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">system_sys</TargetName>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreImportLibrary>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>debug\</OutDir>
+    <IntDir>debug\</IntDir>
+    <TargetName>system_sys</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>system_sys</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>release\</OutDir>
+    <IntDir>release\</IntDir>
+    <TargetName>system_sys</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>system_sys</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="QtSettings">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="QtSettings">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\database;source_code\exceptions;source_code\geometrie_general;source_code\gui;source_code\gui\resources;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;release;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\database;source_code\exceptions;source_code\geometrie_general;source_code\gui;source_code\gui\resources;release;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -116,14 +133,15 @@
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Sys_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Sys_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\system_sys.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -143,32 +161,28 @@
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</Define>
       <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/$(Configuration)/moc_predefs.h</Include>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
       <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;.\source_code;.\source_code\database;.\source_code\exceptions;.\source_code\geometrie_general;.\source_code\gui;.\source_code\gui\resources;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;.\release;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc</IncludePath>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
     </QtMoc>
     <QtRcc>
-      <OutputFile>$(Configuration)\qrc_%(Filename).cpp</OutputFile>
-      <QTDIR>$(QTDIR)</QTDIR>
       <Compression>default</Compression>
       <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtRccDir>$(Configuration)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
     </QtRcc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\database;source_code\exceptions;source_code\geometrie_general;source_code\gui;source_code\gui\resources;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;release;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\database;source_code\exceptions;source_code\geometrie_general;source_code\gui;source_code\gui\resources;release;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -176,14 +190,15 @@
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Sys_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Sys_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\system_sys.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;NDEBUG;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -203,27 +218,23 @@
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;WIN64;%(PreprocessorDefinitions)</Define>
       <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/$(Configuration)/moc_predefs.h</Include>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
       <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;.\source_code;.\source_code\database;.\source_code\exceptions;.\source_code\geometrie_general;.\source_code\gui;.\source_code\gui\resources;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;.\release;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc</IncludePath>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
     </QtMoc>
     <QtRcc>
-      <OutputFile>$(Configuration)\qrc_%(Filename).cpp</OutputFile>
-      <QTDIR>$(QTDIR)</QTDIR>
       <Compression>default</Compression>
       <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtRccDir>$(Configuration)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
     </QtRcc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -233,7 +244,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\database;source_code\exceptions;source_code\geometrie_general;source_code\gui;source_code\gui\resources;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;debug;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\database;source_code\exceptions;source_code\geometrie_general;source_code\gui;source_code\gui\resources;debug;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -241,19 +252,18 @@
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Sys_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <Optimization>Disabled</Optimization>
+      <ObjectFileName>debug\</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Sys_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\system_sys.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)\system_sys.lib</OutputFile>
@@ -268,32 +278,28 @@
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</Define>
       <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/$(Configuration)/moc_predefs.h</Include>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
       <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;.\source_code;.\source_code\database;.\source_code\exceptions;.\source_code\geometrie_general;.\source_code\gui;.\source_code\gui\resources;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;.\debug;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc</IncludePath>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
     </QtMoc>
     <QtRcc>
-      <OutputFile>$(Configuration)\qrc_%(Filename).cpp</OutputFile>
       <Compression>default</Compression>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtRccDir>$(Configuration)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
     </QtRcc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\database;source_code\exceptions;source_code\geometrie_general;source_code\gui;source_code\gui\resources;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;debug;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\database;source_code\exceptions;source_code\geometrie_general;source_code\gui;source_code\gui\resources;debug;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -301,19 +307,18 @@
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Sys_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <Optimization>Disabled</Optimization>
+      <ObjectFileName>debug\</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Sys_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\system_sys.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)\system_sys.lib</OutputFile>
@@ -328,27 +333,23 @@
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;WIN64;%(PreprocessorDefinitions)</Define>
       <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/$(Configuration)/moc_predefs.h</Include>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
       <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;.\source_code;.\source_code\database;.\source_code\exceptions;.\source_code\geometrie_general;.\source_code\gui;.\source_code\gui\resources;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;.\debug;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc</IncludePath>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
     </QtMoc>
     <QtRcc>
-      <OutputFile>$(Configuration)\qrc_%(Filename).cpp</OutputFile>
       <Compression>default</Compression>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtRccDir>$(Configuration)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
     </QtRcc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -465,114 +466,42 @@
     <ClInclude Include="source_code\geometrie_general\Geo_Straight_Line.h" />
     <ClInclude Include="source_code\database\Sys_AES_Algo.h" />
     <QtMoc Include="source_code\gui\Sys_Base_Edit_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Base_Expand_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Check_Combobox_Model.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Check_Combobox_View.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_ComboBox_Delegate.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <ClInclude Include="source_code\Sys_Common_Output.h" />
     <QtMoc Include="source_code\gui\Sys_CurveSettings_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Custom_Plot_Picker.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <ClInclude Include="source_code\database\Sys_Database_Browser.h" />
     <QtMoc Include="source_code\gui\Sys_Database_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Database_File_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\database\Sys_Database_Project_Tree_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\database\Sys_Database_Projectbrowser_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Delete_Logfile_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Diverse_Text_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_DoubleSpinBox_Delegate.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\exceptions\Sys_Exception_Sender.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/exceptions/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/exceptions/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/exceptions/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/exceptions/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Export_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_File_Tree_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Filechooser_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <CustomBuild Include="source_code\Sys_Headers_Precompiled.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo /*-------------------------------------------------------------------- &gt;source_code\Sys_Headers_Precompiled.h.cpp
@@ -709,232 +638,84 @@ echo #include "Sys_Headers_Precompiled.h"&gt;&gt;source_code\Sys_Headers_Precomp
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code\Sys_Headers_Precompiled.h.cpp;%(Outputs)</Outputs>
     </CustomBuild>
     <QtMoc Include="source_code\gui\Sys_Letter_Button.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Member_Bool_BaseWid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Member_Dbl_BaseWid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Member_Dbl_Prec_BaseWid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Member_Enum_BaseWid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Member_Int_BaseWid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Member_ScientificDbl_BaseWid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Member_ScientificInt_BaseWid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Member_String_BaseWid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\Sys_Memory_Count.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Multi_CheckBox_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Multi_Filechooser_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Multipathsettings_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_New_Project_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_One_Filechooser_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\Sys_Output_Division.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Output_Flag_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Output_Logfile_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_PlotSettings_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Plot_Frame.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Plot_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\Sys_Project.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\Sys_Project_Copier.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\exceptions\Sys_Reconnect_Db_Dia.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/exceptions/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/exceptions/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/exceptions/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/exceptions/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_SpinBox_Delegate.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Sql_Help_Condition_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Sql_Help_Row_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Sql_Table_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\database\Sys_Sqlmodel_Loader.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/database/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Status_Bar_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Text_Browser_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Text_Searcher_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\Sys_Thread_Closing_Manager.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <QtMoc Include="source_code\gui\Sys_Welcome_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <ClInclude Include="source_code\Tables.h" />
     <ClInclude Include="source_code\exceptions\Warning.h" />
     <ClInclude Include="source_code\geometrie_general\_Geo_Geometrie.h" />
     <ClInclude Include="source_code\geometrie_general\_Geo_Polygon.h" />
     <QtMoc Include="source_code\gui\_Sys_Abstract_Base_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <ClInclude Include="source_code\_Sys_Common_System.h" />
     <QtMoc Include="source_code\gui\_Sys_Data_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
     <ClInclude Include="source_code\exceptions\_Sys_Exception.h" />
     <QtMoc Include="source_code\gui\_Sys_Result_Summary_Wid.h">
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
-      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">source_code/Sys_Headers_Precompiled.h;../source_code/gui/%(Filename)%(Extension)</ForceInclude>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -958,8 +739,8 @@ echo #include "Sys_Headers_Precompiled.h"&gt;&gt;source_code\Sys_Headers_Precomp
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -Zi -MDd -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -Zi -MDd -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -Zi -MDd -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -Zi -MDd -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generate moc_predefs.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generate moc_predefs.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">debug\moc_predefs.h;%(Outputs)</Outputs>
@@ -969,8 +750,8 @@ echo #include "Sys_Headers_Precompiled.h"&gt;&gt;source_code\Sys_Headers_Precomp
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -O2 -MD -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -O2 -MD -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generate moc_predefs.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generate moc_predefs.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">release\moc_predefs.h;%(Outputs)</Outputs>
@@ -978,259 +759,79 @@ echo #include "Sys_Headers_Precompiled.h"&gt;&gt;source_code\Sys_Headers_Precomp
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </CustomBuild>
-    <ClInclude Include="ui_Sys_Base_Edit_Dia.h" />
-    <ClInclude Include="ui_Sys_Base_Expand_Wid.h" />
-    <ClInclude Include="ui_Sys_CurveSettings_Wid.h" />
-    <ClInclude Include="ui_Sys_Database_Dia.h" />
-    <ClInclude Include="ui_Sys_Database_File_Dia.h" />
-    <ClInclude Include="ui_Sys_Database_Projectbrowser_Wid.h" />
-    <ClInclude Include="ui_Sys_Delete_Logfile_Dia.h" />
-    <ClInclude Include="ui_Sys_Export_Dia.h" />
-    <ClInclude Include="ui_Sys_FallTree_BaseWid.h" />
-    <ClInclude Include="ui_Sys_File_Tree_Wid.h" />
-    <ClInclude Include="ui_Sys_Filechooser_Dia.h" />
-    <ClInclude Include="ui_Sys_Member_Bool_BaseWid.h" />
-    <ClInclude Include="ui_Sys_Member_Dbl_BaseWid.h" />
-    <ClInclude Include="ui_Sys_Member_Dbl_Prec_BaseDia.h" />
-    <ClInclude Include="ui_Sys_Member_Dbl_Prec_BaseWid.h" />
-    <ClInclude Include="ui_Sys_Member_Enum_BaseWid.h" />
-    <ClInclude Include="ui_Sys_Member_Int_BaseWid.h" />
-    <ClInclude Include="ui_Sys_Member_ScientificDbl_BaseWid.h" />
-    <ClInclude Include="ui_Sys_Member_ScientificInt_BaseWid.h" />
-    <ClInclude Include="ui_Sys_Member_String_BaseWid.h" />
-    <ClInclude Include="ui_Sys_Multi_Filechooser_Dia.h" />
-    <ClInclude Include="ui_Sys_Multipathsettings_Dia.h" />
-    <ClInclude Include="ui_Sys_New_Project_Dia.h" />
-    <ClInclude Include="ui_Sys_One_Filechooser_Wid.h" />
-    <ClInclude Include="ui_Sys_Output_Flag_Dia.h" />
-    <ClInclude Include="ui_Sys_Output_Logfile_Dia.h" />
-    <ClInclude Include="ui_Sys_PlotSettings_Dia.h" />
-    <ClInclude Include="ui_Sys_Plot_Frame.h" />
-    <ClInclude Include="ui_Sys_Result_Summary_Wid.h" />
-    <ClInclude Include="ui_Sys_Sql_Help_Condition_Wid.h" />
-    <ClInclude Include="ui_Sys_Sql_Help_Row_Wid.h" />
-    <ClInclude Include="ui_Sys_Status_Bar_Wid.h" />
-    <ClInclude Include="ui_Sys_Text_Browser_Wid.h" />
-    <ClInclude Include="ui_Sys_Text_Searcher_Wid.h" />
-    <ClInclude Include="ui_Sys_Welcome_Wid.h" />
-    <ClInclude Include="ui__Sys_Abstract_Base_Wid.h" />
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source_code\gui\Sys_Base_Edit_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Base_Edit_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Base_Edit_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Base_Edit_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Base_Edit_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Base_Expand_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Base_Expand_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Base_Expand_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Base_Expand_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Base_Expand_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_CurveSettings_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_CurveSettings_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_CurveSettings_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_CurveSettings_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_CurveSettings_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Database_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Database_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Database_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Database_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Database_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Database_File_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Database_File_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Database_File_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Database_File_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Database_File_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\database\Sys_Database_Projectbrowser_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Database_Projectbrowser_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Database_Projectbrowser_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Database_Projectbrowser_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Database_Projectbrowser_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Delete_Logfile_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Delete_Logfile_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Delete_Logfile_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Delete_Logfile_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Delete_Logfile_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Export_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Export_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Export_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Export_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Export_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_FallTree_BaseWid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_FallTree_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_FallTree_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_FallTree_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_FallTree_BaseWid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_File_Tree_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_File_Tree_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_File_Tree_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_File_Tree_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_File_Tree_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Filechooser_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Filechooser_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Filechooser_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Filechooser_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Filechooser_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Member_Bool_BaseWid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Member_Bool_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Member_Bool_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Member_Bool_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Member_Bool_BaseWid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Member_Dbl_BaseWid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Member_Dbl_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Member_Dbl_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Member_Dbl_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Member_Dbl_BaseWid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Member_Dbl_Prec_BaseDia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Member_Dbl_Prec_BaseDia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Member_Dbl_Prec_BaseDia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Member_Dbl_Prec_BaseDia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Member_Dbl_Prec_BaseDia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Member_Dbl_Prec_BaseWid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Member_Dbl_Prec_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Member_Dbl_Prec_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Member_Dbl_Prec_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Member_Dbl_Prec_BaseWid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Member_Enum_BaseWid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Member_Enum_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Member_Enum_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Member_Enum_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Member_Enum_BaseWid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Member_Int_BaseWid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Member_Int_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Member_Int_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Member_Int_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Member_Int_BaseWid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Member_ScientificDbl_BaseWid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Member_ScientificDbl_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Member_ScientificDbl_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Member_ScientificDbl_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Member_ScientificDbl_BaseWid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Member_ScientificInt_BaseWid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Member_ScientificInt_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Member_ScientificInt_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Member_ScientificInt_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Member_ScientificInt_BaseWid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Member_String_BaseWid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Member_String_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Member_String_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Member_String_BaseWid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Member_String_BaseWid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Multi_Filechooser_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Multi_Filechooser_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Multi_Filechooser_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Multi_Filechooser_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Multi_Filechooser_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Multipathsettings_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Multipathsettings_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Multipathsettings_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Multipathsettings_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Multipathsettings_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_New_Project_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_New_Project_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_New_Project_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_New_Project_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_New_Project_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_One_Filechooser_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_One_Filechooser_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_One_Filechooser_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_One_Filechooser_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_One_Filechooser_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Output_Flag_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Output_Flag_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Output_Flag_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Output_Flag_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Output_Flag_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Output_Logfile_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Output_Logfile_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Output_Logfile_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Output_Logfile_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Output_Logfile_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_PlotSettings_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_PlotSettings_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_PlotSettings_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_PlotSettings_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_PlotSettings_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Plot_Frame.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Plot_Frame.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Plot_Frame.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Plot_Frame.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Plot_Frame.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Result_Summary_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Result_Summary_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Result_Summary_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Result_Summary_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Result_Summary_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Sql_Help_Condition_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Sql_Help_Condition_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Sql_Help_Condition_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Sql_Help_Condition_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Sql_Help_Condition_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Sql_Help_Row_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Sql_Help_Row_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Sql_Help_Row_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Sql_Help_Row_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Sql_Help_Row_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Status_Bar_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Status_Bar_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Status_Bar_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Status_Bar_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Status_Bar_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Text_Browser_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Text_Browser_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Text_Browser_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Text_Browser_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Text_Browser_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Text_Searcher_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Text_Searcher_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Text_Searcher_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Text_Searcher_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Text_Searcher_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\Sys_Welcome_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_Sys_Welcome_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_Sys_Welcome_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_Sys_Welcome_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_Sys_Welcome_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\_Sys_Abstract_Base_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui__Sys_Abstract_Base_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui__Sys_Abstract_Base_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui__Sys_Abstract_Base_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui__Sys_Abstract_Base_Wid.h</OutputFile>
     </QtUic>
   </ItemGroup>
   <ItemGroup>
@@ -1363,9 +964,4 @@ echo #include "Sys_Headers_Precompiled.h"&gt;&gt;source_code\Sys_Headers_Precomp
     <Import Project="$(QtMsBuild)\qt.targets" />
   </ImportGroup>
   <ImportGroup Label="ExtensionTargets" />
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties Qt5Version_x0020_Win32="msvc2017" Qt5Version_x0020_x64="msvc2017_64" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>

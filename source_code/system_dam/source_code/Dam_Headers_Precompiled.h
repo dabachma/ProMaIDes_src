@@ -93,6 +93,14 @@
 //simple-counting information in a simple counting point
 #include "Dam_Sc_Point.h"
 
+//CI
+//management of CI
+#include "_Dam_CI_Element.h"
+#include "Dam_CI_Element_List.h"
+#include "Dam_CI_Point.h"
+#include "Dam_CI_Polygon.h"
+#include "Dam_CI_System.h"
+
 //psycho-social
 //managing system
 #include "Dam_Pys_System.h"

@@ -21,9 +21,10 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{75DFDC1C-C6ED-359A-8DB4-16F94145BA64}</ProjectGuid>
     <RootNamespace>dam_system</RootNamespace>
-    <Keyword>Qt4VSv1.0</Keyword>
+    <Keyword>QtVS_v303</Keyword>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -63,15 +64,9 @@
     <PrimaryOutput>dam_system</PrimaryOutput>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <PropertyGroup Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">
-    <QtMsBuild>$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
-  </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
   </Target>
-  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
-    <Import Project="$(QtMsBuild)\qt.props" />
-  </ImportGroup>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
@@ -86,29 +81,51 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">dam_system</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">dam_system</TargetName>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreImportLibrary>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">dam_system</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">dam_system</TargetName>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreImportLibrary>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>debug\</OutDir>
+    <IntDir>debug\</IntDir>
+    <TargetName>dam_system</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>dam_system</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>release\</OutDir>
+    <IntDir>release\</IntDir>
+    <TargetName>dam_system</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>dam_system</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
   </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="QtSettings">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="QtSettings">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;xml;sql;gui;svg;widgets;printsupport</QtModules>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\economic;source_code\general;source_code\ecologic;source_code\psycho_social;source_code\people;source_code\simple_count;source_code\gui;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;../../debug/;../../debug_hyd/;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;release;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\economic;source_code\CI;source_code\general;source_code\ecologic;source_code\psycho_social;source_code\people;source_code\simple_count;source_code\gui;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;..\..\debug;../../debug_hyd/;release;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -116,14 +133,15 @@
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Dam_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Dam_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\dam_system.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -143,25 +161,22 @@
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</Define>
       <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/$(Configuration)/moc_predefs.h</Include>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
       <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;C:/QT/5.12.1/MSVC2017_64/mkspecs/win32-msvc;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam;C:/Qwt/Qwt-6.1.0/src;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/economic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/ecologic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/psycho_social;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/people;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/simple_count;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/exceptions;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/geometrie_general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/database;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/solver;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/system;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/szenario;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/coupling;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/floodplain;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/floodplain/elements;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/river;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/river/profile;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/coast;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/debug;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/debug_hyd;C:/QT/5.12.1/MSVC2017_64/include;C:/QT/5.12.1/MSVC2017_64/include/QtSvg;C:/QT/5.12.1/MSVC2017_64/include/QtPrintSupport;C:/QT/5.12.1/MSVC2017_64/include/QtWidgets;C:/QT/5.12.1/MSVC2017_64/include/QtGui;C:/QT/5.12.1/MSVC2017_64/include/QtANGLE;C:/QT/5.12.1/MSVC2017_64/include/QtSql;C:/QT/5.12.1/MSVC2017_64/include/QtXml;C:/QT/5.12.1/MSVC2017_64/include/QtCore;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt</IncludePath>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
     </QtMoc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\economic;source_code\general;source_code\ecologic;source_code\psycho_social;source_code\people;source_code\simple_count;source_code\gui;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;../../debug/;../../debug_hyd/;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;release;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\economic;source_code\CI;source_code\general;source_code\ecologic;source_code\psycho_social;source_code\people;source_code\simple_count;source_code\gui;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;..\..\debug;../../debug_hyd/;release;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -169,14 +184,15 @@
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Dam_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Dam_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\dam_system.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;NDEBUG;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -196,20 +212,17 @@
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_NO_DEBUG;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;WIN64;%(PreprocessorDefinitions)</Define>
       <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/$(Configuration)/moc_predefs.h</Include>
       <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
       <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;C:/QT/5.12.1/MSVC2017_64/mkspecs/win32-msvc;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam;C:/Qwt/Qwt-6.1.0/src;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/economic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/ecologic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/psycho_social;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/people;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/simple_count;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/exceptions;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/geometrie_general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/database;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/solver;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/system;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/szenario;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/coupling;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/floodplain;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/floodplain/elements;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/river;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/river/profile;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/coast;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/debug;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/debug_hyd;C:/QT/5.12.1/MSVC2017_64/include;C:/QT/5.12.1/MSVC2017_64/include/QtSvg;C:/QT/5.12.1/MSVC2017_64/include/QtPrintSupport;C:/QT/5.12.1/MSVC2017_64/include/QtWidgets;C:/QT/5.12.1/MSVC2017_64/include/QtGui;C:/QT/5.12.1/MSVC2017_64/include/QtANGLE;C:/QT/5.12.1/MSVC2017_64/include/QtSql;C:/QT/5.12.1/MSVC2017_64/include/QtXml;C:/QT/5.12.1/MSVC2017_64/include/QtCore;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt</IncludePath>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
     </QtMoc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -219,7 +232,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\economic;source_code\general;source_code\ecologic;source_code\psycho_social;source_code\people;source_code\simple_count;source_code\gui;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;../../debug/;../../debug_hyd/;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;debug;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\economic;source_code\CI;source_code\general;source_code\ecologic;source_code\psycho_social;source_code\people;source_code\simple_count;source_code\gui;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;..\..\debug;../../debug_hyd/;debug;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -227,19 +240,18 @@
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Dam_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ObjectFileName>debug\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Dam_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\dam_system.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)\dam_system.lib</OutputFile>
@@ -253,26 +265,23 @@
     <ResourceCompile>
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
-    <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</Define>
-      <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
-      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
-      <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;C:/QT/5.12.1/MSVC2017_64/mkspecs/win32-msvc;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam;C:/Qwt/Qwt-6.1.0/src;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/economic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/ecologic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/psycho_social;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/people;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/simple_count;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/exceptions;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/geometrie_general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/database;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/solver;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/system;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/szenario;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/coupling;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/floodplain;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/floodplain/elements;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/river;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/river/profile;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/coast;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/debug;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/debug_hyd;C:/QT/5.12.1/MSVC2017_64/include;C:/QT/5.12.1/MSVC2017_64/include/QtSvg;C:/QT/5.12.1/MSVC2017_64/include/QtPrintSupport;C:/QT/5.12.1/MSVC2017_64/include/QtWidgets;C:/QT/5.12.1/MSVC2017_64/include/QtGui;C:/QT/5.12.1/MSVC2017_64/include/QtANGLE;C:/QT/5.12.1/MSVC2017_64/include/QtSql;C:/QT/5.12.1/MSVC2017_64/include/QtXml;C:/QT/5.12.1/MSVC2017_64/include/QtCore;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt</IncludePath>
-    </QtMoc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\economic;source_code\general;source_code\ecologic;source_code\psycho_social;source_code\people;source_code\simple_count;source_code\gui;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;../../debug/;../../debug_hyd/;$(QTDIR)\include;$(QTDIR)\include\QtSvg;$(QTDIR)\include\QtPrintSupport;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtCore;debug;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;C:\Qwt\Qwt-6.1.0\src;source_code;source_code\economic;source_code\CI;source_code\general;source_code\ecologic;source_code\psycho_social;source_code\people;source_code\simple_count;source_code\gui;..\system_sys\source_code;..\system_sys\source_code\exceptions;..\system_sys\source_code\geometrie_general;..\system_sys\source_code\database;..\system_sys\source_code\gui;..\system_sys;..\system_hydraulic;..\system_hydraulic\source_code;..\system_hydraulic\source_code\general;..\system_hydraulic\source_code\models;..\system_hydraulic\source_code\solver;..\system_hydraulic\source_code\system;..\system_hydraulic\source_code\szenario;..\system_hydraulic\source_code\gui;..\system_hydraulic\source_code\models\coupling;..\system_hydraulic\source_code\models\floodplain;..\system_hydraulic\source_code\models\floodplain\elements;..\system_hydraulic\source_code\models\river;..\system_hydraulic\source_code\models\river\profile;..\system_hydraulic\source_code\models\coast;..\..\debug;../../debug_hyd/;debug;C:\VulkanSDK\1.0.51.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -280,19 +289,18 @@
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ForcedIncludeFiles>source_code\Dam_Headers_Precompiled.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ObjectFileName>debug\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>source_code\Dam_Headers_Precompiled.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)\dam_system.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)\dam_system.lib</OutputFile>
@@ -306,22 +314,19 @@
     <ResourceCompile>
       <PreprocessorDefinitions>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
-    <QtMoc>
-      <QTDIR>$(QTDIR)</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>_CONSOLE;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;QWT_DLL;QT_SVG_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_SQL_LIB;QT_XML_LIB;QT_CORE_LIB;WIN64;%(PreprocessorDefinitions)</Define>
-      <CompilerFlavor>msvc</CompilerFlavor>
-      <Include>./$(Configuration)/moc_predefs.h</Include>
-      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
-      <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;C:/QT/5.12.1/MSVC2017_64/mkspecs/win32-msvc;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam;C:/Qwt/Qwt-6.1.0/src;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/economic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/ecologic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/psycho_social;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/people;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/simple_count;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/exceptions;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/geometrie_general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/database;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_sys;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/general;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/solver;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/system;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/szenario;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/gui;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/coupling;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/floodplain;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/floodplain/elements;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/river;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/river/profile;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_hydraulic/source_code/models/coast;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/debug;C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/debug_hyd;C:/QT/5.12.1/MSVC2017_64/include;C:/QT/5.12.1/MSVC2017_64/include/QtSvg;C:/QT/5.12.1/MSVC2017_64/include/QtPrintSupport;C:/QT/5.12.1/MSVC2017_64/include/QtWidgets;C:/QT/5.12.1/MSVC2017_64/include/QtGui;C:/QT/5.12.1/MSVC2017_64/include/QtANGLE;C:/QT/5.12.1/MSVC2017_64/include/QtSql;C:/QT/5.12.1/MSVC2017_64/include/QtXml;C:/QT/5.12.1/MSVC2017_64/include/QtCore;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt</IncludePath>
-    </QtMoc>
     <QtUic>
-      <QTDIR>$(QTDIR)</QTDIR>
       <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
     </QtUic>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>C:/Users/Daniel Bachmann/Documents/2_Forschung/4_promaides/5_programming/source_code/system_dam/$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
     <Link>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
@@ -343,6 +348,10 @@
     <ClCompile Include="source_code\gui\DamGui_Result_Wid.cpp" />
     <ClCompile Include="source_code\gui\DamGui_Sc_Point_Wid.cpp" />
     <ClCompile Include="source_code\gui\DamGui_Sc_Subcategory_Wid.cpp" />
+    <ClCompile Include="source_code\CI\Dam_CI_Element_List.cpp" />
+    <ClCompile Include="source_code\CI\Dam_CI_Point.cpp" />
+    <ClCompile Include="source_code\CI\Dam_CI_Polygon.cpp" />
+    <ClCompile Include="source_code\CI\Dam_CI_System.cpp" />
     <ClCompile Include="source_code\Dam_Damage_System.cpp" />
     <ClCompile Include="source_code\economic\Dam_Ecn_Damage_Function.cpp" />
     <ClCompile Include="source_code\economic\Dam_Ecn_Element.cpp" />
@@ -378,6 +387,7 @@
     <ClCompile Include="source_code\simple_count\Dam_Sc_Subcategory.cpp" />
     <ClCompile Include="source_code\simple_count\Dam_Sc_System.cpp" />
     <ClCompile Include="source_code\general\_Dam_2value_Function.cpp" />
+    <ClCompile Include="source_code\CI\_Dam_CI_Element.cpp" />
     <ClCompile Include="source_code\general\_Dam_Element.cpp" />
     <ClCompile Include="source_code\general\_Dam_System.cpp" />
   </ItemGroup>
@@ -409,6 +419,10 @@
     <QtMoc Include="source_code\gui\DamGui_Sc_Point_Wid.h">
     </QtMoc>
     <ClInclude Include="source_code\gui\DamGui_Sc_Subcategory_Wid.h" />
+    <ClInclude Include="source_code\CI\Dam_CI_Element_List.h" />
+    <ClInclude Include="source_code\CI\Dam_CI_Point.h" />
+    <ClInclude Include="source_code\CI\Dam_CI_Polygon.h" />
+    <ClInclude Include="source_code\CI\Dam_CI_System.h" />
     <QtMoc Include="source_code\Dam_Damage_System.h">
     </QtMoc>
     <ClInclude Include="source_code\economic\Dam_Ecn_Damage_Function.h" />
@@ -579,6 +593,7 @@ echo #include "Dam_Headers_Precompiled.h"&gt;&gt;source_code\Dam_Headers_Precomp
     <ClInclude Include="source_code\simple_count\Dam_Sc_Subcategory.h" />
     <ClInclude Include="source_code\simple_count\Dam_Sc_System.h" />
     <ClInclude Include="source_code\general\_Dam_2value_Function.h" />
+    <ClInclude Include="source_code\CI\_Dam_CI_Element.h" />
     <ClInclude Include="source_code\general\_Dam_Element.h" />
     <ClInclude Include="source_code\general\_Dam_System.h" />
   </ItemGroup>
@@ -623,91 +638,31 @@ echo #include "Dam_Headers_Precompiled.h"&gt;&gt;source_code\Dam_Headers_Precomp
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </CustomBuild>
-    <ClInclude Include="ui_DamGui_Ecn_Func_Wid.h" />
-    <ClInclude Include="ui_DamGui_Eco_Btype_Func_Wid.h" />
-    <ClInclude Include="ui_DamGui_Eco_Btype_Wid.h" />
-    <ClInclude Include="ui_DamGui_Eco_Soil_Cost_Wid.h" />
-    <ClInclude Include="ui_DamGui_Eco_Soil_Erosion_Wid.h" />
-    <ClInclude Include="ui_DamGui_Number_Raster_Dia.h" />
-    <ClInclude Include="ui_DamGui_Pop_Function_Wid.h" />
-    <ClInclude Include="ui_DamGui_Pys_Categories_Wid.h" />
-    <ClInclude Include="ui_DamGui_Raster_Dia.h" />
-    <ClInclude Include="ui_DamGui_Raster_Wid.h" />
-    <ClInclude Include="ui_DamGui_Result_Wid.h" />
-    <ClInclude Include="ui_DamGui_Sc_Point_Wid.h" />
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source_code\gui\DamGui_Ecn_Func_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Ecn_Func_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Ecn_Func_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Ecn_Func_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Ecn_Func_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\DamGui_Eco_Btype_Func_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Eco_Btype_Func_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Eco_Btype_Func_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Eco_Btype_Func_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Eco_Btype_Func_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\DamGui_Eco_Btype_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Eco_Btype_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Eco_Btype_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Eco_Btype_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Eco_Btype_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\DamGui_Eco_Soil_Cost_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Eco_Soil_Cost_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Eco_Soil_Cost_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Eco_Soil_Cost_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Eco_Soil_Cost_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\DamGui_Eco_Soil_Erosion_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Eco_Soil_Erosion_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Eco_Soil_Erosion_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Eco_Soil_Erosion_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Eco_Soil_Erosion_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\DamGui_Number_Raster_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Number_Raster_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Number_Raster_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Number_Raster_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Number_Raster_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\DamGui_Pop_Function_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Pop_Function_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Pop_Function_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Pop_Function_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Pop_Function_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\DamGui_Pys_Categories_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Pys_Categories_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Pys_Categories_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Pys_Categories_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Pys_Categories_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\DamGui_Raster_Dia.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Raster_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Raster_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Raster_Dia.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Raster_Dia.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\DamGui_Raster_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Raster_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Raster_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Raster_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Raster_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\DamGui_Result_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Result_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Result_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Result_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Result_Wid.h</OutputFile>
     </QtUic>
     <QtUic Include="source_code\gui\DamGui_Sc_Point_Wid.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ui_DamGui_Sc_Point_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_DamGui_Sc_Point_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ui_DamGui_Sc_Point_Wid.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_DamGui_Sc_Point_Wid.h</OutputFile>
     </QtUic>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -715,9 +670,4 @@ echo #include "Dam_Headers_Precompiled.h"&gt;&gt;source_code\Dam_Headers_Precomp
     <Import Project="$(QtMsBuild)\qt.targets" />
   </ImportGroup>
   <ImportGroup Label="ExtensionTargets" />
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties Qt5Version_x0020_x64="$(DefaultQtVersion)" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>

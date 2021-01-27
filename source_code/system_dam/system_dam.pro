@@ -9,7 +9,7 @@ CONFIG += thread
 CONFIG += staticlib
 CONFIG  += c++11
 QMAKE_CXXFLAGS += -fpermissive -O2 
-
+CONFIG += x86_64
 
 #make precompiled headers
 PRECOMPILED_HEADER = source_code/Dam_Headers_Precompiled.h
@@ -30,7 +30,8 @@ TARGET = dam_system
 
 DEPENDPATH += . \
               source_code \                               
-              source_code/economic \                      
+              source_code/economic \
+				source_code/CI \ 			  
               source_code/general \                       
               source_code/ecologic \                      
               source_code/psycho_social \                 
@@ -63,6 +64,7 @@ DEPENDPATH += . \
 INCLUDEPATH += . \
                source_code \
                source_code/economic \
+			   source_code/CI \ 
                source_code/general \
                source_code/ecologic \
                source_code/psycho_social \
@@ -125,6 +127,11 @@ HEADERS += source_code/Dam_Damage_System.h \
 					 source_code/simple_count/Dam_Sc_Point_Manager.h \
 					 source_code/simple_count/Dam_Sc_Subcategory.h \
 					 source_code/simple_count/Dam_Sc_Point.h \
+					 source_code/CI/_Dam_CI_Element.h \
+					 source_code/CI/Dam_CI_Point.h \
+					 source_code/CI/Dam_CI_Polygon.h \
+					 source_code/CI/Dam_CI_System.h\
+					 source_code/CI/Dam_CI_Element_List.h\
 					 source_code/psycho_social/Dam_Pys_System.h \
 					 source_code/psycho_social/Dam_Pys_Raster.h \
 					 source_code/psycho_social/Dam_Pys_Function.h \
@@ -144,7 +151,7 @@ HEADERS += source_code/Dam_Damage_System.h \
 					 source_code/gui/DamGui_Raster_Wid.h\
 					 source_code/gui/DamGui_Raster_Dia.h\
 					 source_code/gui/DamGui_Sc_Point_Wid.h\
-					 source_code/gui/DamGui_Sc_Subcategory_Wid.h
+					 source_code/gui/DamGui_Sc_Subcategory_Wid.h\
 					        
 FORMS+=    source_code/gui/DamGui_Result_Wid.ui \
 					 source_code/gui/DamGui_Number_Raster_Dia.ui \
@@ -190,6 +197,11 @@ SOURCES += source_code/Dam_Damage_System.cpp \
 					 source_code/simple_count/Dam_Sc_Point_Manager.cpp \
 					 source_code/simple_count/Dam_Sc_Subcategory.cpp \
 					 source_code/simple_count/Dam_Sc_Point.cpp \
+					 source_code/CI/_Dam_CI_Element.cpp \
+					 source_code/CI/Dam_CI_Point.cpp \
+					 source_code/CI/Dam_CI_Polygon.cpp \
+					 source_code/CI/Dam_CI_System.cpp\
+					 source_code/CI/Dam_CI_Element_List.cpp\
 					 source_code/psycho_social/Dam_Pys_System.cpp \
 					 source_code/psycho_social/Dam_Pys_Raster.cpp \
 					 source_code/psycho_social/Dam_Pys_Function.cpp \
