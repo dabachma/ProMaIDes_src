@@ -42,10 +42,8 @@ Sys_Data_Tree_Wid::Sys_Data_Tree_Wid(QWidget *parent) : QWidget(parent){
 	QAction *refreshAction = new QAction(tr("Refresh"), this->data_tree);
 	QObject::connect(refreshAction, SIGNAL(triggered()), SLOT(refresh_tree()));
 	this->data_tree->addAction(refreshAction);
-	//action show in gis
-	QAction *show_gis =new QAction(tr("Show in GIS"), this->data_tree);
-	QObject::connect(show_gis, SIGNAL(triggered()), SLOT(show_gis_widget()));
-	this->data_tree->addAction(show_gis);
+	
+
 	//action collapse all
 	QAction *act_collapse =new QAction(tr("Collapse all"), this->data_tree);
 	QObject::connect(act_collapse, SIGNAL(triggered()), this, SLOT(collapse_all_branch()));

@@ -14,6 +14,7 @@
 
 //dam libs
 #include "Dam_Eco_System.h"
+#include "Dam_CI_System.h"
 #include "Dam_Ecn_System.h"
 #include "Dam_People_System.h"
 #include "Dam_Sc_System.h"
@@ -68,6 +69,11 @@ enum _dam_thread_type{
 	dam_imp_sc_point,
 	///Thread for deleting all simple counting data in database
 	dam_del_sc,
+
+	///Thread for an import of the CI data from file to database
+	dam_imp_ci_data,
+	///Thread for deleting all CI-data in database
+	dam_del_ci,
 
 	///Thread to output the statistic of the damage system
 	dam_sys_stat,
@@ -194,6 +200,9 @@ public:
 
 	///Simple-counting damage system
 	Dam_Sc_System sc_sys;
+
+	///CI damage system
+	Dam_CI_System ci_sys;
 
 	///Psycho-social damage system
 	Dam_Pys_System pys_sys;

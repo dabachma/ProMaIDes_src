@@ -80,6 +80,8 @@ private:
 
 	///Get complete table name for the sql-query
 	string get_table_name_sql(QTreeWidgetItem *item);
+	///Get complete table name for the sql-query without schema name
+	string get_table_name_no_schema(QTreeWidgetItem *item);
 
 	//members
 	///Tree-widget to displaying the tables and the module folders

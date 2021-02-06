@@ -45,8 +45,6 @@ Data_Base::Data_Base(const string con_filename){
 	Sys_Memory_Count::self()->add_mem(sizeof(Data_Base), _sys_system_modules::SYS_SYS);//count the memory
 
 }
-
-
 //Constructor with a given database connection parameters
 Data_Base::Data_Base(const string hostname, const string databasename, const string username, const string pass_word, const string driver){
 	//set the members
@@ -241,6 +239,7 @@ void Data_Base::output_members(void){
 	buffer=this->password.substr(str_length-2,str_length);
 	cout << buffer << endl;
 	cout <<" Name of the tables file     : " << Tables::get_table_file_name() << endl;
+	cout <<" Connections option(s)       : " << this->database.connectOptions().toStdString() << endl;
 	Sys_Common_Output::output_system->output_txt(&cout);
 	Sys_Common_Output::output_system->rewind_userprefix();
 }
@@ -618,12 +617,54 @@ void Data_Base::database_tables(QStringList *table_list, QSqlDatabase *ptr_datab
 void Data_Base::database_table_columns(QSqlRecord *columns, QString table_name, QSqlDatabase *ptr_database){
 	my_locker.lock();
 	(*columns)=ptr_database->record(table_name);
+
+
+
 	if(ptr_database->lastError().isValid()==true || columns->count()<=0){
 		Data_Base::database_check_connection(ptr_database);
 		//renew the sql-command
 		(*columns)=ptr_database->record(table_name);
 	}
 	my_locker.unlock();
+}
+//Get a list of existing columns of a database table in the database by an query (thread safe, due to lockinq with QMutex); please use this function instead of database_table_columns(...) (static)
+void Data_Base::database_table_columns_query(QSqlRecord *columns, string schema_name, string table_name, QSqlDatabase *ptr_database) {
+
+	
+	QSqlQuery my_query(*ptr_database);
+	ostringstream query_string;
+	query_string << "SELECT column_name FROM information_schema.columns WHERE table_schema = '"<< schema_name<<"'";
+	query_string << " AND table_name = '" << table_name << "'";
+
+	
+
+	Data_Base::database_request(&my_query, query_string.str(), ptr_database);
+
+
+
+
+	if (my_query.lastError().isValid() == true) {
+		Error msg;
+		msg.set_msg("database_table_columns_query(QSqlRecord *columns, QString schema_name, QString table_name, QSqlDatabase *ptr_database)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << table_name << endl;
+		info << "View error info: " << my_query.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	
+	my_query.first();
+	//transfer data to record
+	do {
+		QSqlField buffer;
+		buffer.setName(my_query.record().value(0).toString());
+		buffer.setValue(my_query.record().value(0).toString());
+		
+		columns->append(buffer);
+		
+
+	} while (my_query.next() == true);
+
 }
 //Convert the driver name into an enumerator of the driver types (static)
 _sys_driver_type Data_Base::convert_txt2drivertype(const string txt){
@@ -655,6 +696,7 @@ void Data_Base::open_database(void){
 	this->database.setDatabaseName(this->database_name.c_str());
 	this->database.setUserName(this->user_name.c_str());
 	this->driver_type=this->convert_txt2drivertype(this->driver_name);
+	this->database.setConnectOptions("requiressl=1");
 
 	if(this->password==label::not_set){
 		//open dialog
@@ -696,6 +738,11 @@ void Data_Base::open_database(void){
 
 
 		this->database.open();
+		//wrong connections
+		if (!this->database.open()) {
+			this->database.setConnectOptions(); // clear options
+			this->database.open();
+		}
 		this->connection_ok=this->database.isOpen();
 		counter++;
 		if(counter==2){

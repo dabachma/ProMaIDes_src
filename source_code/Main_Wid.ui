@@ -189,7 +189,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_System">
@@ -598,6 +598,17 @@
      <addaction name="action_import_hyd_res_base"/>
      <addaction name="action_add_hyd_res"/>
     </widget>
+    <widget class="QMenu" name="menu_dam_CI">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;Critical Infrastructure</string>
+     </property>
+     <addaction name="action_CI_Import"/>
+     <addaction name="action_CI_delete"/>
+     <addaction name="action_CI_connect"/>
+    </widget>
     <addaction name="menu_import_HYD_results"/>
     <addaction name="action_delete_hyd_results"/>
     <addaction name="separator"/>
@@ -606,6 +617,7 @@
     <addaction name="menu_dam_pop"/>
     <addaction name="menu_dam_pys"/>
     <addaction name="menu_dam_sc"/>
+    <addaction name="menu_dam_CI"/>
     <addaction name="separator"/>
     <addaction name="menu_dam_system"/>
     <addaction name="separator"/>
@@ -760,8 +772,8 @@
   <widget class="Sys_Dock_Widget" name="dockWidget_outtxt">
    <property name="minimumSize">
     <size>
-     <width>145</width>
-     <height>161</height>
+     <width>157</width>
+     <height>187</height>
     </size>
    </property>
    <property name="toolTip">
@@ -949,8 +961,8 @@
   <widget class="Sys_Dock_Widget" name="dockWidget_tree_view">
    <property name="minimumSize">
     <size>
-     <width>145</width>
-     <height>161</height>
+     <width>157</width>
+     <height>187</height>
     </size>
    </property>
    <property name="toolTip">
@@ -1926,6 +1938,21 @@
   <action name="action_Community_of_Users">
    <property name="text">
     <string>Community of Users</string>
+   </property>
+  </action>
+  <action name="action_CI_Import">
+   <property name="text">
+    <string>&amp;Import...</string>
+   </property>
+  </action>
+  <action name="action_CI_delete">
+   <property name="text">
+    <string>&amp;CI delete...</string>
+   </property>
+  </action>
+  <action name="action_CI_connect">
+   <property name="text">
+    <string>&amp;CI connect</string>
    </property>
   </action>
  </widget>

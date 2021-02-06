@@ -93,6 +93,7 @@ DEPENDPATH += . \
               ../system_dam \
               ../system_dam/source_code \
               ../system_dam/source_code/economic \
+			  ../system_dam/source_code/CI \
               ../system_dam/source_code/general \
               ../system_dam/source_code/ecologic \
               ../system_dam/source_code/psycho_social \
@@ -159,6 +160,7 @@ INCLUDEPATH += . \
                ../system_dam \
                ../system_dam/source_code \
                ../system_dam/source_code/economic \
+			   ../system_dam/source_code/CI \
                ../system_dam/source_code/general \
                ../system_dam/source_code/ecologic \
                ../system_dam/source_code/psycho_social \

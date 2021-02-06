@@ -676,7 +676,7 @@ int _Hyd_River_Profile_Type::get_points_x_y_glob(Geo_Point **my_points){
 string _Hyd_River_Profile_Type::get_polyline2sql_string(void){
 	ostringstream buff;
 	buff << FORMAT_FIXED_REAL << P(3);
-	buff << " GEOMFROMTEXT('LINESTRING(";
+	buff << " ST_GEOMFROMTEXT('LINESTRING(";
 	for(int i=0; i< this->number_points-1; i++){
 		buff<<this->points[i].get_global_x_y_coordinates().get_xcoordinate() << "  ";
 		buff<<this->points[i].get_global_x_y_coordinates().get_ycoordinate()<< ", ";

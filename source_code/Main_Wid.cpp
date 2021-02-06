@@ -473,10 +473,18 @@ void Main_Wid::slot_connect_dam(void){
 	QObject::connect(this->action_imp_points, SIGNAL(triggered()), this, SLOT(import_sc_points()));
 	//Import the simple counting subcategories from a file to database (menu dam/SimpleCounting/Import)
 	QObject::connect(this->action_imp_subcategory, SIGNAL(triggered()), this, SLOT(import_sc_subcategories()));
-	//Delete all simple counting data in the database to database (menu dam/SimpleCounting/)
+	//Delete all simple counting data in the database (menu dam/SimpleCounting/)
 	QObject::connect(this->action_sc_delete, SIGNAL(triggered()), this, SLOT(delete_all_sc_dam()));
 	//Connect the simple counting points (menu dam/SimpleCounting/)
 	QObject::connect(this->action_sc_connect, SIGNAL(triggered()), this, SLOT(connect_sc_points()));
+
+	//CI
+	//Import the CI data to database (menu dam/Critical Infrastructure/Import)
+	QObject::connect(this->action_CI_Import, SIGNAL(triggered()), this, SLOT(import_CI_data()));
+	//Delete all CI data in the database (menu dam/Critical Infrastructure/)
+	QObject::connect(this->action_CI_delete, SIGNAL(triggered()), this, SLOT(delete_all_CI_dam()));
+	//Connect the CI data (menu dam/Critical Infrastructure/)
+	QObject::connect(this->action_CI_connect, SIGNAL(triggered()), this, SLOT(connect_CI_data()));
 
 	//system
 	//check the damage system (menu dam/System/)
@@ -868,6 +876,7 @@ void Main_Wid::enable_menu_project_open(const bool new_project){
 			this->menu_dam_pys->setEnabled(false);
 			this->menu_dam_pop->setEnabled(false);
 			this->menu_dam_sc->setEnabled(false);
+			this->menu_dam_CI->setEnabled(false);
 			this->action_dam_connect->setEnabled(false);
 			//fpl
 			this->action_fpl_import_file->setEnabled(false);
@@ -1251,6 +1260,7 @@ void Main_Wid::menu_enable_checkdb(void){
 			this->menu_dam_pys->setEnabled(true);
 			this->menu_pys_imp->setEnabled(true);
 			this->menu_dam_sc->setEnabled(true);
+			this->menu_dam_CI->setEnabled(true);
 		}
 		this->menu_dam_system->setEnabled(true);
 		this->action_check_dam_tables->setEnabled(true);
@@ -1331,6 +1341,7 @@ void Main_Wid::menu_enable_checkdb(void){
 		this->menu_dam_pys->setEnabled(false);
 		this->menu_pys_imp->setEnabled(false);
 		this->menu_dam_sc->setEnabled(false);
+		this->menu_dam_CI->setEnabled(false);
 		this->menu_dam_system->setEnabled(false);
 		this->action_check_dam_tables->setEnabled(false);
 		//menu sys
@@ -1399,6 +1410,7 @@ void Main_Wid::check_hyd_thread_is_running(void){
 		this->action_connect_raster_eco->setEnabled(false);
 		this->action_connect_raster_pys->setEnabled(false);
 		this->action_sc_connect->setEnabled(false);
+		this->action_CI_connect->setEnabled(false);
 
 		//fpl
 		this->menu_fpl2hyd->setEnabled(false);
@@ -1443,6 +1455,7 @@ void Main_Wid::check_hyd_thread_is_running(void){
 			this->action_connect_raster_eco->setEnabled(true);
 			this->action_connect_raster_pys->setEnabled(true);
 			this->action_sc_connect->setEnabled(true);
+			this->action_CI_connect->setEnabled(true);
 		}
 		//fpl
 		if(this->fpl_thread_running()==false ){
@@ -1527,6 +1540,7 @@ void Main_Wid::check_dam_thread_is_running(void){
 		this->menu_dam_pop->setEnabled(false);
 		this->menu_dam_pys->setEnabled(false);
 		this->menu_dam_sc->setEnabled(false);
+		this->menu_dam_CI->setEnabled(false);
 		this->menu_dam_system->setEnabled(false);
 		this->action_check_dam_tables->setEnabled(false);
 		this->menu_import_HYD_results->setEnabled(false);
@@ -1554,6 +1568,7 @@ void Main_Wid::check_dam_thread_is_running(void){
 			this->menu_dam_pys->setEnabled(true);
 			this->menu_pys_imp->setEnabled(true);
 			this->menu_dam_sc->setEnabled(true);
+			this->menu_dam_CI->setEnabled(true);
 			if(Sys_Project::get_project_type()==_sys_project_type::proj_dam){
 				this->menu_import_HYD_results->setEnabled(true);
 				this->action_delete_hyd_results->setEnabled(true);
@@ -1572,6 +1587,7 @@ void Main_Wid::check_dam_thread_is_running(void){
 			this->action_connect_raster_eco->setEnabled(true);
 			this->action_connect_raster_pys->setEnabled(true);
 			this->action_sc_connect->setEnabled(true);
+			this->action_CI_connect->setEnabled(true);
 		}
 
 		Sys_Common_Output::output_dam->reset_userprefix();
@@ -3128,6 +3144,7 @@ void Main_Wid::read_existing_project(void){
 			this->version_update.check_update_hyd_table_global_param(this->system_database->get_database(), this->project_manager.get_project_file_name());
 			this->version_update.check_update_hyd_table_instat_results(this->system_database->get_database());
 			this->version_update.check_update_hyd_table_instat_results_rv(this->system_database->get_database());
+			this->version_update.check_update_hyd_view_bound2elements_profile(this->system_database->get_database());
 		}
 		catch(Error msg){
 			msg.output_msg(0);
@@ -3802,6 +3819,7 @@ void Main_Wid::check_change_risk_state(bool flag){
 		this->menu_dam_pys->setEnabled(!flag);
 		this->menu_dam_pop->setEnabled(!flag);
 		this->menu_dam_sc->setEnabled(!flag);
+		this->menu_dam_CI->setEnabled(!flag);
 		this->action_dam_connect->setEnabled(!flag);
 		//fpl
 		this->action_fpl_import_file->setEnabled(!flag);
@@ -6280,6 +6298,142 @@ void Main_Wid::connect_sc_points(void){
 	this->dam_calc->start();
 	this->check_dam_thread_is_running();
 }
+//Import the CI data to database (menu dam/Critical Infrastructure/Import)
+void Main_Wid::import_CI_data(void) {
+	try {
+		this->allocate_damage_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	//ask for input files
+	if (this->dam_calc->ci_sys.ask_file_CI_data(this) == false) {
+		this->delete_damage_system();
+		return;
+	};
+	//todo
+	int number = 0;
+	try {
+		QSqlQueryModel results;
+		//number = Dam_Sc_Point::select_relevant_points_database(&results, this->system_database->get_database(), this->system_state.get_sys_system_id(), false);
+	}
+	catch (Error msg) {
+		msg.output_msg(4);
+		this->delete_damage_system();
+		return;
+	}
+	if (number != 0) {
+		Sys_Diverse_Text_Dia dialog2;
+		ostringstream txt;
+		//txt << number << " existing simple counting points in the database will be deleted." << endl;
+		//txt << "Do you want to continue?" << endl;
+		dialog2.set_dialog_question(txt.str());
+		bool flag2 = dialog2.start_dialog();
+		if (flag2 == false) {
+			this->delete_damage_system();
+			return;
+		}
+	}
+
+	this->dam_calc->set_thread_type(_dam_thread_type::dam_imp_ci_data);
+
+	//connect the thread when is finished
+	QObject::connect(this->dam_calc, SIGNAL(finished()), this, SLOT(thread_dam_calc_finished()));
+	this->action_stop_dam_calc->setEnabled(true);
+
+	this->dam_calc->set_ptr2database(this->system_database->get_database());
+	this->reset_exception_new_action();
+	//start calculation
+	this->dam_calc->start();
+	this->check_dam_thread_is_running();
+
+
+}
+//Delete all CI data in the database (menu dam/Critical Infrastructure/)
+void Main_Wid::delete_all_CI_dam(void) {
+	try {
+		this->allocate_damage_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	
+	if (this->dam_calc->ci_sys.ask_deleting_flag(this) == false) {
+		this->delete_damage_system();
+		return;
+	}
+
+	
+	Sys_Diverse_Text_Dia dialog2;
+	ostringstream txt;
+	txt << "The selected CI data in the database will be deleted:" << endl << endl;
+	txt << this->dam_calc->ci_sys.get_deleting_text() << endl;
+	txt << "Do you want to continue?" << endl;
+	dialog2.set_dialog_question(txt.str());
+	bool flag2 = dialog2.start_dialog();
+	if (flag2 == false) {
+		this->delete_damage_system();
+		return;
+	}
+
+	this->dam_calc->set_thread_type(_dam_thread_type::dam_del_ci);
+
+	//connect the thread when is finished
+	QObject::connect(this->dam_calc, SIGNAL(finished()), this, SLOT(thread_dam_calc_finished()));
+	this->action_stop_dam_calc->setEnabled(true);
+
+	this->dam_calc->set_ptr2database(this->system_database->get_database());
+	this->reset_exception_new_action();
+	//start calculation
+	this->dam_calc->start();
+	this->check_dam_thread_is_running();
+}
+//Connect the CI data(menu dam /Critical Infrastructure/)
+void Main_Wid::connect_CI_data(void) {
+	if (Hyd_Boundary_Szenario_Management::check_base_scenario_is_set(this->system_database->get_database()) == false) {
+		Sys_Diverse_Text_Dia dialog2(true);
+		ostringstream txt;
+		txt << "A HYD-base scenario must be set before a connection of the psycho-social DAM-raster can be established!" << endl;
+		dialog2.set_dialog_question(txt.str());
+		dialog2.start_dialog();
+		return;
+	}
+	QSqlQueryModel model;
+	//Todo
+	//if (Dam_Sc_Point::select_relevant_points_database(&model, this->system_database->get_database(), this->system_state.get_sys_system_id(), false) <= 0) {
+	//	Sys_Diverse_Text_Dia dialog2(true);
+	//	ostringstream txt;
+	//	txt << "There are no CI data set in database for connection!" << endl;
+	//	dialog2.set_dialog_question(txt.str());
+	//	dialog2.start_dialog();
+	//	return;
+	//}
+	try {
+		this->allocate_damage_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+
+	this->dam_calc->set_thread_type(_dam_thread_type::dam_sys_connect);
+	
+	this->dam_calc->set_specific_raster_type(_dam_raster_types::ci_ci_total);
+
+	//connect the thread when is finished
+	QObject::connect(this->dam_calc, SIGNAL(finished()), this, SLOT(thread_dam_calc_finished()));
+	this->action_stop_dam_calc->setEnabled(true);
+
+	this->dam_calc->set_ptr2database(this->system_database->get_database());
+	this->reset_exception_new_action();
+	//start calculation
+	this->dam_calc->start();
+	this->check_dam_thread_is_running();
+
+}
+
 //Check the damage system (menu dam/System/)
 void Main_Wid::check_damage_system(void){
 	try{
@@ -7637,6 +7791,7 @@ void Main_Wid::thread_measure_implement_is_finished(void){
 		this->menu_dam_pys->setEnabled(false);
 		this->menu_dam_pop->setEnabled(false);
 		this->menu_dam_sc->setEnabled(false);
+		this->menu_dam_CI->setEnabled(false);
 		this->action_dam_connect->setEnabled(false);
 		//fpl
 		this->action_fpl_import_file->setEnabled(false);
@@ -7714,6 +7869,7 @@ void Main_Wid::thread_measure_switch_is_finished(void){
 	this->menu_dam_pys->setEnabled(false);
 	this->menu_dam_pop->setEnabled(false);
 	this->menu_dam_sc->setEnabled(false);
+	this->menu_dam_CI->setEnabled(false);
 	this->action_dam_connect->setEnabled(false);
 	//fpl
 	this->action_fpl_import_file->setEnabled(false);

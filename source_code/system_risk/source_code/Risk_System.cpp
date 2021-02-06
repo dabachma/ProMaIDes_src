@@ -7378,7 +7378,7 @@ void Risk_System::calc_detailed_result_element_ecn(_risk_risk_results *total){
 					query_data << 0.0 <<" , ";
 			}
 	
-			query_data << "GEOMFROMTEXT('"<< buff_str<<"')";
+			query_data << "ST_GeomFromText('"<< buff_str<<"')";
 
 			query_data << " ) ,";
 
@@ -7502,7 +7502,7 @@ void Risk_System::calc_detailed_result_element_eco_btype(_risk_risk_results *tot
 					query_data << 0.0 <<" , ";
 			}
 	
-			query_data << "GEOMFROMTEXT('"<< buff_str<<"')";
+			query_data << "ST_GeomFromText('"<< buff_str<<"')";
 
 			query_data << " ) ,";
 
@@ -7626,7 +7626,7 @@ void Risk_System::calc_detailed_result_element_eco_soil(_risk_risk_results *tota
 					query_data << 0.0 <<" , ";
 			}
 	
-			query_data << "GEOMFROMTEXT('"<< buff_str<<"')";
+			query_data << "ST_GeomFromText('"<< buff_str<<"')";
 
 			query_data << " ) ,";
 
@@ -7774,7 +7774,7 @@ void Risk_System::calc_detailed_result_element_pop(_risk_risk_results *total){
 				query_data << 0.0 <<" , ";
 			}
 	
-			query_data << "GEOMFROMTEXT('"<< buff_str<<"')";
+			query_data << "ST_GeomFromText('"<< buff_str<<"')";
 
 			query_data << " ) ,";
 
@@ -7995,7 +7995,7 @@ void Risk_System::calc_detailed_result_element_pys(_risk_risk_results *total){
 				query_data << 0.0 <<" , ";
 			}
 
-			query_data << "GEOMFROMTEXT('"<< buff_str<<"')";
+			query_data << "ST_GeomFromText('"<< buff_str<<"')";
 
 			query_data << " ) ,";
 
@@ -8181,7 +8181,7 @@ void Risk_System::calc_detailed_result_point_sc(_risk_risk_results *total){
 				query_data << 0.0 <<" , ";
 			}
 
-			query_data << "GEOMFROMTEXT('"<< buff_str<<"')";
+			query_data << "ST_GeomFromText('"<< buff_str<<"')";
 
 			query_data << " ) ,";
 

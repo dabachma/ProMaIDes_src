@@ -1580,7 +1580,7 @@ string Hyd_Coupling_FP2CO_Dikebreak::get_breach_polyline(void){
 	//produce the string
 	ostringstream buff;
 	buff << FORMAT_FIXED_REAL << P(3);
-	buff << " GEOMFROMTEXT('LINESTRING(";
+	buff << " ST_GEOMFROMTEXT('LINESTRING(";
 	for(int i=0; i< number-1; i++){
 		buff<<point[i].get_xcoordinate() << "  ";
 		buff<<point[i].get_ycoordinate()<< ", ";

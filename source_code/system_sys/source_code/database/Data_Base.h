@@ -138,8 +138,11 @@ public:
 	static void database_submit(QSqlTableModel *table_model);
 	///Get a list of existing tables in the database (thread safe, due to lockinq with QMutex)
 	static void database_tables(QStringList *table_list, QSqlDatabase *ptr_database);
-	///Get a list of existing columns of a database table in the database (thread safe, due to lockinq with QMutex)
+	///Get a list of existing columns of a database table in the database (thread safe, due to lockinq with QMutex); problems with newer postgre database version (5.2.2021); columns is always zero
 	static void database_table_columns(QSqlRecord *columns, QString table_name, QSqlDatabase *ptr_database);
+
+	///Get a list of existing columns of a database table in the database by an query (thread safe, due to lockinq with QMutex); please use this function instead of database_table_columns(...) 
+	static void database_table_columns_query(QSqlRecord *columns, string schema_name,  string table_name, QSqlDatabase *ptr_database);
 
 	///Convert the driver name into an enumerator of the driver types
 	static _sys_driver_type convert_txt2drivertype(const string txt);

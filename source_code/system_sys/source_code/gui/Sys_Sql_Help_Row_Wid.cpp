@@ -18,7 +18,7 @@ Sys_Sql_Help_Row_Wid::Sys_Sql_Help_Row_Wid(QWidget *parent): QWidget(parent){
 	tip<<"eg.1  *                    all columns are selected"<<endl;
 	tip<<"eg.2  col1, col2           col1 and col2 are selected"<<endl;
 	tip<<"eg.3  col1+col2, col2      sum of col1+col2 and col3 are selected"<<endl;
-	tip<<"eg.4  AsText(Geo_col)      Geometrical data are slected as text"<<endl;
+	tip<<"eg.4  ST_AsText(Geo_col)      Geometrical data are slected as text"<<endl;
 	tip<<"eg.5  SUM(col1), AVG(col2) Aggregation of col1 as sum and col2 as average"<<endl;
 
 	this->textEdit_sql->setToolTip(tip.str().c_str());

@@ -125,6 +125,8 @@ public:
 
 	///Create the database table for the boundary element data
 	static void create_element_boundary_table(QSqlDatabase *ptr_database);
+	///Create the database view for the connection of boundary ids and the floodplain elements
+	static void create_bound2elems_view(QSqlDatabase *ptr_database);
 	///Set the database table for the boundary element data: it sets the table name and the name of the columns and allocate them
 	static void set_element_boundary_table(QSqlDatabase *ptr_database);
 	///Delete the boundary condition data in the database table for a given boundary scenario

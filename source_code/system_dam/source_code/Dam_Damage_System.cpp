@@ -70,6 +70,8 @@ void Dam_Damage_System::output_member(void){
 	this->pys_sys.output_members();
 	//simple-counting
 	this->sc_sys.output_members();
+	//CI
+	this->ci_sys.output_members();
 
 	Sys_Common_Output::output_dam->rewind_userprefix();
 }
@@ -213,6 +215,11 @@ a connection between the hydraulic data and the damage data.
 				this->sc_sys.intercept_hydraulic2damage(my_hyd.my_fpmodels, my_hyd.global_parameters.get_number_floodplain_model(), &this->qsqldatabase, this->system_id);
 				Dam_Damage_System::check_stop_thread_flag();
 			}
+			//ci 
+			if (this->specific_raster_type == _dam_raster_types::all_raster || this->specific_raster_type == _dam_raster_types::ci_ci_total) {
+				this->sc_sys.intercept_hydraulic2damage(my_hyd.my_fpmodels, my_hyd.global_parameters.get_number_floodplain_model(), &this->qsqldatabase, this->system_id);
+				Dam_Damage_System::check_stop_thread_flag();
+			}
 		}
 		emit send_hyd_thread_runs(false);
 		Dam_Damage_System::hyd_thread_runs=false;
@@ -313,6 +320,13 @@ void Dam_Damage_System::run(void){
 				break;
 			case(_dam_thread_type::dam_del_sc):
 				this->sc_sys.del_damage_data_database(&this->qsqldatabase);
+				break;
+			//CI
+			case(_dam_thread_type::dam_imp_ci_data):
+				this->ci_sys.ci_data_file2database(&this->qsqldatabase);
+				break;
+			case(_dam_thread_type::dam_del_ci):
+				this->ci_sys.del_ci_data_database(&this->qsqldatabase);
 				break;
 
 			//pys
@@ -1559,6 +1573,7 @@ void Dam_Damage_System::output_result_members2database(QSqlDatabase *ptr_databas
 }
 //Create the database table for the results of the damage calculation (static)
 void Dam_Damage_System::create_erg_table(QSqlDatabase *ptr_database){
+		//Todo add CI
 		if(Dam_Damage_System::erg_table==NULL){
 			ostringstream cout;
 			cout << "Create damage result database table..." << endl ;

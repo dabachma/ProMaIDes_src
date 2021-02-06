@@ -123,6 +123,7 @@ void Sys_Database_Project_Tree_Wid::on_tree_itemClicked(QTreeWidgetItem *item, i
 		this->previous_activated=item;
 
 		string buffer=this->get_table_name_sql(item);
+	
         emit tableClicked(buffer.c_str());
     }
 
@@ -431,5 +432,15 @@ string Sys_Database_Project_Tree_Wid::get_table_name_sql(QTreeWidgetItem *item){
 		buff << functions::convert_string2lower_case(item->parent()->text(0).toStdString()) << "_";
 		buff << item->text(0).toStdString();
 	}
+	return buff.str();
+}
+
+//Get complete table name for the sql-query without schema name
+string Sys_Database_Project_Tree_Wid::get_table_name_no_schema(QTreeWidgetItem *item) {
+	ostringstream buff;
+
+	buff << functions::convert_string2lower_case(item->parent()->text(0).toStdString()) << "_";
+	buff << item->text(0).toStdString();
+
 	return buff.str();
 }

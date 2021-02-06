@@ -1021,6 +1021,68 @@ void _Hyd_River_Profile::create_profile_boundary_table(QSqlDatabase *ptr_databas
 	_Hyd_River_Profile::close_boundary_table();
 	}
 }
+//Create the database view for the connection of boundary ids and theriver profiles (static)
+void _Hyd_River_Profile::create_bound2profile_view(QSqlDatabase *ptr_database) {
+	//Set tables
+	ostringstream cout;
+	//the table is set (the name and the column names) and allocated
+	try {
+		_Hyd_River_Profile::set_profile_table(ptr_database);
+		_Hyd_River_Profile::set_profile_boundary_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+
+	cout << "Create database view to river profile element with boundary conditions..." << endl;
+	Sys_Common_Output::output_hyd->output_txt(&cout);
+	//make specific input for this class
+	const string view_name = hyd_label::view_rvprofile2bound;
+
+	QSqlQueryModel query;
+
+	ostringstream query_string;
+	query_string << "CREATE VIEW ";
+	query_string << Sys_Project::get_complete_project_database_schemata_name() << "." << hyd_label::view_rvprofile2bound;
+	query_string << " AS SELECT ";
+	query_string << "row_number() over() AS Id" << " , ";
+	query_string << _Hyd_River_Profile::profile_table->get_column_name_table(hyd_label::profdata_glob_id) << " , ";
+	query_string << _Hyd_River_Profile::profile_table->get_column_name_table(hyd_label::profdata_rvno) << " , ";
+	query_string << _Hyd_River_Profile::boundary_table->get_column_name_table(label::areastate_id) << " , ";
+	query_string << _Hyd_River_Profile::boundary_table->get_column_name_table(label::measure_id) << " , ";
+	query_string << _Hyd_River_Profile::boundary_table->get_column_name_table(hyd_label::sz_bound_id) << " , ";
+	query_string << _Hyd_River_Profile::boundary_table->get_column_name_table(label::applied_flag) << " , ";
+
+	query_string << _Hyd_River_Profile::boundary_table->get_column_name_table(hyd_label::bounddata_stat) << " , ";
+	query_string << _Hyd_River_Profile::boundary_table->get_column_name_table(hyd_label::bounddata_value) << " , ";
+	query_string << _Hyd_River_Profile::boundary_table->get_column_name_table(hyd_label::bounddata_type) << " , ";
+
+	query_string << _Hyd_River_Profile::profile_table->get_column_name_table(hyd_label::profdata_polyline) << "  ";
+
+	query_string << " FROM ";
+	query_string << _Hyd_River_Profile::boundary_table->get_table_name() << "  ";
+	query_string << " JOIN ";
+	query_string << _Hyd_River_Profile::profile_table->get_table_name() << "  ";
+	query_string << " ON ";
+	query_string << _Hyd_River_Profile::boundary_table->get_column_name_table(hyd_label::profdata_glob_id) << "  ";
+	query_string << " = ";
+	query_string << _Hyd_River_Profile::profile_table->get_column_name_table(hyd_label::profdata_glob_id) << "  ";
+
+
+	Data_Base::database_request(&query, query_string.str(), ptr_database);
+	if (query.lastError().isValid() == true) {
+		Error msg;
+		msg.set_msg("create_bound2profile_view(QSqlDatabase *ptr_database)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "View Name      : " << hyd_label::view_rvprofile2bound << endl;
+		info << "View error info: " << query.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+}
 //Create the database table for the wallbreak profile data (static)
 void _Hyd_River_Profile::create_profile_wallbreak_table(QSqlDatabase *ptr_database){
 	if(_Hyd_River_Profile::wallbreak_table==NULL){

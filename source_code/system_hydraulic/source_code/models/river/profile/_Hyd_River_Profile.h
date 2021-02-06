@@ -143,6 +143,9 @@ public:
 	static int get_max_glob_id_prof_table(QSqlDatabase *ptr_database);
 	///Create the database table for the boundary profile data
 	static void create_profile_boundary_table(QSqlDatabase *ptr_database);
+	///Create the database view for the connection of boundary ids and theriver profiles (static)
+	static void create_bound2profile_view(QSqlDatabase *ptr_database);
+
 	///Create the database table for the wallbreak profile data
 	static void create_profile_wallbreak_table(QSqlDatabase *ptr_database);
 	///Create the database table for the dikebreak profile data

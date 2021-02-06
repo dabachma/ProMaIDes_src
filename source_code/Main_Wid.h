@@ -149,7 +149,7 @@ This class produced the main window of the application. The main window consists
 	- data view consisting of:
 		- data tree,
 		- database browser ,
-		- gis data view,
+		-f ile brower and viewer
 	- output display for the modules and
 	- status bar.
 
@@ -734,10 +734,17 @@ private slots:
 	void import_sc_points(void);
 	///Import the simple counting subcategories from a file to database (menu dam/SimpleCounting/Import)
 	void import_sc_subcategories(void);
-	///Delete all simple counting data in the database to database (menu dam/SimpleCounting/)
+	///Delete all simple counting data in the database (menu dam/SimpleCounting/)
 	void delete_all_sc_dam(void);
 	///Connect the simple counting points (menu dam/SimpleCounting/)
 	void connect_sc_points(void);
+
+	///Import the CI data to database (menu dam/Critical Infrastructure/Import)
+	void import_CI_data(void);
+	///Delete all CI data in the database (menu dam/Critical Infrastructure/)
+	void delete_all_CI_dam(void);
+	///Connect the CI data(menu dam/Critical Infrastructure/)
+	void connect_CI_data(void);
 
 	///Check the damage system (menu dam/System/)
 	void check_damage_system(void);

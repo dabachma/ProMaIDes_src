@@ -290,7 +290,9 @@ void Sys_Database_Projectbrowser_Wid::set_row_name2helper(QString table_name){
 		
 	QSqlRecord column;
 	if(table_name.isEmpty()==false){
-		Data_Base::database_table_columns(&column, table_name, this->ptr_database);
+		//Data_Base::database_table_columns(&column, table_name, this->ptr_database);
+		QString buff = table_name.split('.').at(1);
+		Data_Base::database_table_columns_query(&column, Sys_Project::get_complete_project_database_schemata_name(), buff.toStdString(), this->ptr_database);
 	}
 
 	QStringList buffer;

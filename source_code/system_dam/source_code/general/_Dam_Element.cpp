@@ -61,7 +61,7 @@ string _Dam_Element::get_elem_ploy_string(const double mid_x, const double mid_y
 
     ostringstream buff;
     buff << FORMAT_FIXED_REAL << P(3);
-    buff << " GEOMFROMTEXT('POLYGON((";
+    buff << " ST_GeomFromText('POLYGON((";
 
     buff<<mid_x-half_width_x << "  ";
     buff<<mid_y-half_width_y << ",  ";

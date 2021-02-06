@@ -511,12 +511,14 @@ void Hyd_Hydraulic_System::create_hyd_database_tables(void){
 		_Hyd_River_Profile::create_profile_dikebreak_table(&this->database);
 		_Hyd_River_Profile::create_profile_wallbreak_table(&this->database);
 		_Hyd_River_Profile_Type::create_profile_point_table(&this->database);
+		_Hyd_River_Profile::create_bound2profile_view(&this->database);
 
 		//floodplan model
 		Hyd_Model_Floodplain::create_table(&this->database);
 		//floodplain elements
 		Hyd_Element_Floodplain::create_table(&this->database);
 		Hyd_Element_Floodplain::create_element_boundary_table(&this->database);
+		Hyd_Element_Floodplain::create_bound2elems_view(&this->database);
 
 		//geometrical structures
 		Hyd_Floodplain_Polysegment::create_table(&this->database);

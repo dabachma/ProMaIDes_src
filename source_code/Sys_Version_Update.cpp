@@ -471,6 +471,38 @@ void Sys_Version_Update::check_update_hyd_table_instat_results_rv(QSqlDatabase *
 	_Hyd_River_Profile::close_erg_table();
 
 }
+//Check and update the hydraulic view for boundary conditions to floodplain elements / river profile (3.2.2021)
+void Sys_Version_Update::check_update_hyd_view_bound2elements_profile(QSqlDatabase *ptr_database) {
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_dam ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
+	bool error = false;
+	//check it
+	try {
+		Hyd_Element_Floodplain::create_bound2elems_view(ptr_database);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//check it
+	error = false;
+	try {
+		_Hyd_River_Profile::create_bound2profile_view(ptr_database);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+
+
+
+
+
+}
 //____________
 //private
 //Set error(s)

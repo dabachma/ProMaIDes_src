@@ -45,6 +45,9 @@ public:
 	///Check and update the hydraulic table for instationary river results (16.9.2020)
 	void check_update_hyd_table_instat_results_rv(QSqlDatabase *ptr_database);
 
+	///Check and update the hydraulic view for boundary conditions to floodplain elements / river profile (3.2.2021)
+	void check_update_hyd_view_bound2elements_profile(QSqlDatabase *ptr_database);
+
 private:
 	///Set error(s)
 	Error set_error(const int err_type);

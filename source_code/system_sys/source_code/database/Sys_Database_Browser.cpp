@@ -85,7 +85,7 @@ string Sys_Database_Browser::get_inserting_polygon_filter(const string column_na
 	filter_buff << "update " << this->my_tablename;
 	filter_buff << FORMAT_FIXED_REAL << P(3);
 	//\todo postgre specif text
-	filter_buff << " set "  << column_name << "=" << "GEOMFROMTEXT('POLYGON((";
+	filter_buff << " set "  << column_name << "=" << "ST_GEOMFROMTEXT('POLYGON((";
 
 
 	for(int i=0; i< polygon->get_number_points(); i++){
@@ -109,7 +109,7 @@ string Sys_Database_Browser::get_inserting_polyline_filter(const string column_n
 	filter_buff << "update " << this->my_tablename;
 	filter_buff << FORMAT_FIXED_REAL << P(3);
 
-	filter_buff << " set "  << column_name << "=" << "GEOMFROMTEXT('LINESTRING(";
+	filter_buff << " set "  << column_name << "=" << "ST_GEOMFROMTEXT('LINESTRING(";
 
 	for(int i=0; i< polyline->get_number_segments(); i++){
 		filter_buff<<polyline->my_segment[i].point1.get_xcoordinate() << "  ";
@@ -132,7 +132,7 @@ string Sys_Database_Browser::get_inserting_polyline_filter(const string column_n
 	filter_buff << "update " << this->my_tablename;
 	filter_buff << FORMAT_FIXED_REAL << P(3);
 	
-	filter_buff << " set "  << column_name << "=" << "GEOMFROMTEXT('LINESTRING(";
+	filter_buff << " set "  << column_name << "=" << "ST_GEOMFROMTEXT('LINESTRING(";
 	
 	for(int i=0; i< number-1; i++){
 		filter_buff<<points[i].get_xcoordinate() << "  ";

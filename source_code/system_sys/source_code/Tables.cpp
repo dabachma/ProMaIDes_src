@@ -347,6 +347,8 @@ bool Tables::create_non_existing_tables(const string name, _Sys_data_tab_column 
 		}
 	}
 
+	//QThread::sleep(2);
+
 	//expand the tables file
 	ostringstream file_txt;
 	file_txt << sys_label::table_begin<<   "  #auto_generated"<<endl;
@@ -790,7 +792,8 @@ bool Tables::check_names(QSqlDatabase *ptr_database){
 		if(tables.at(i).toStdString()==buffer_name){
 			//get the column names in the database table
 			//column=(ptr_database->record(tables.at(i)));
-			Data_Base::database_table_columns(&column, tables.at(i), ptr_database);
+			//Data_Base::database_table_columns(&column, tables.at(i), ptr_database); //replace function
+			Data_Base::database_table_columns_query(&column, Sys_Project::get_complete_project_database_schemata_name() , table_name.name, ptr_database);
 
 			this->table_name.found_flag=true;
 			try{

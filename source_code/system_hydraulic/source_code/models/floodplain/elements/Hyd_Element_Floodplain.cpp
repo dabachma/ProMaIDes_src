@@ -2453,6 +2453,70 @@ void Hyd_Element_Floodplain::create_element_boundary_table(QSqlDatabase *ptr_dat
 	Hyd_Element_Floodplain::close_boundary_table();
 	}
 }
+//Create the database view for the connection of boundary ids and the floodplain elements (static)
+void Hyd_Element_Floodplain::create_bound2elems_view(QSqlDatabase *ptr_database) {
+	//Set tables
+	ostringstream cout;
+	//the table is set (the name and the column names) and allocated
+	try {
+		Hyd_Element_Floodplain::set_element_boundary_table(ptr_database);
+		Hyd_Element_Floodplain::set_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+
+	cout << "Create database view to floodplain model element with boundary conditions..." << endl;
+	Sys_Common_Output::output_hyd->output_txt(&cout);
+	//make specific input for this class
+	const string view_name = hyd_label::view_fpelem2bound;
+
+	QSqlQueryModel query;
+
+	ostringstream query_string;
+	query_string << "CREATE VIEW ";
+	query_string << Sys_Project::get_complete_project_database_schemata_name() << "." << hyd_label::view_fpelem2bound;
+	query_string << " AS SELECT ";
+	query_string << "row_number() over() AS Id" << " , ";
+	query_string << Hyd_Element_Floodplain::elem_table->get_column_name_table(hyd_label::elemdata_glob_id) << " , ";
+	query_string << Hyd_Element_Floodplain::elem_table->get_column_name_table(hyd_label::elemdata_fpno) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name_table(label::areastate_id) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name_table(label::measure_id) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name_table(hyd_label::sz_bound_id) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name_table(label::applied_flag) << " , ";
+
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name_table(hyd_label::bounddata_stat) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name_table(hyd_label::bounddata_value) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name_table(hyd_label::bounddata_type) << " , ";
+
+	query_string << Hyd_Element_Floodplain::elem_table->get_column_name_table(hyd_label::elemdata_polygon) << "  ";
+	
+	query_string << " FROM ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_table_name() << "  ";
+	query_string << " JOIN ";
+	query_string << Hyd_Element_Floodplain::elem_table->get_table_name() << "  ";
+	query_string << " ON ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name_table(hyd_label::elemdata_glob_id) << "  ";
+	query_string << " = ";
+	query_string << Hyd_Element_Floodplain::elem_table->get_column_name_table(hyd_label::elemdata_glob_id) << "  ";
+
+
+
+
+	Data_Base::database_request(&query, query_string.str(), ptr_database);
+	if (query.lastError().isValid() == true) {
+		Error msg;
+		msg.set_msg("Hyd_Element_Floodplain::create_bound2elems_view(QSqlDatabase *ptr_database)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "View Name      : " << hyd_label::view_fpelem2bound << endl;
+		info << "View error info: " << query.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+}
 //Set the database table for the boundary element data: it sets the table name and the name of the columns and allocate them (static)
 void Hyd_Element_Floodplain::set_element_boundary_table(QSqlDatabase *ptr_database){
 	if(Hyd_Element_Floodplain::boundary_table==NULL){

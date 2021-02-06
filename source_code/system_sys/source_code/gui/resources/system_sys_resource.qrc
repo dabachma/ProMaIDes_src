@@ -32,6 +32,7 @@
     <file alias="eco_soil_icon">icons/iww/16x16/eco_soil.png</file>
     <file alias="pys_icon">icons/iww/16x16/pys.png</file>
     <file alias="sc_icon">icons/iww/16x16/sc.png</file>
+	<file alias="ci_icon">icons/iww/16x16/ci.png</file>
     <file alias="pop_icon">icons/iww/16x16/pop.png</file>
     <file>welcome_wid_v1.png</file>
     <file alias="save_icon">icons/general/saveas.png</file>

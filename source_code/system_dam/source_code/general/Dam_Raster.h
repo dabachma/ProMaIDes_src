@@ -65,6 +65,9 @@ enum _dam_raster_types{
 	///Simple counting points
 	sc_sc_total,
 
+	///CI-data
+	ci_ci_total,
+
 	//hydraulic results
 	///Relative waterlevel h [m]
 	hyd_waterlevel,

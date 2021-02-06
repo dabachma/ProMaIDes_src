@@ -1364,7 +1364,7 @@ bool _Geo_Polygon::get_point_inside(Geo_Point *point_inside){
 string _Geo_Polygon::get_polygon2sql_string(void){
 	ostringstream buff;
 	buff << FORMAT_FIXED_REAL << P(3);
-	buff << " GEOMFROMTEXT('POLYGON((";
+	buff << " ST_GEOMFROMTEXT('POLYGON((";
 	for(int i=0; i< this->get_number_points(); i++){
 		buff<<this->get_point(i)->get_xcoordinate() << "  ";
 		buff<<this->get_point(i)->get_ycoordinate()<< ", ";

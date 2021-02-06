@@ -1957,6 +1957,10 @@ namespace hyd_label{
 	const string tab_fpelem_erg_instat("HYD_FLOODPLAIN_ELEM_INSTAT_RESULT");
 	///Keyword for the database view name of the element instationary result data of a floodplain model (Hyd_Element_Floodplain)
 	const string view_fpelem_erg_instat("HYD_FLOODPLAIN_ELEM_INSTAT_RES_VIEW");
+	///Keyword for the database view name of the connection of elements to boundary conditions (Hyd_Element_Floodplain)
+	const string view_fpelem2bound("HYD_FLOODPLAIN_ELEM_BOUND_VIEW");
+	///Keyword for the database view name of the connection of elements to boundary conditions (Hyd_Element_Floodplain)
+	const string view_rvprofile2bound("HYD_RIVER_PROFILE_BOUND_VIEW");
 	///Keyword for the database table column of the element result data of a floodplain model: local maximal waterlevel in an element [m] (Hyd_Element_Floodplain, _Hyd_Element_Floodplain_Type)
 	const string elemerg_h_max("WATERLEVEL");
 	///Keyword for the database table column of the element result data of a floodplain model: global maximal waterlevel in an element [m] (Hyd_Element_Floodplain, _Hyd_Element_Floodplain_Type)
@@ -2731,8 +2735,26 @@ namespace dam_label{
 	const string category_id("CAT_ID");
 	///Keyword for the database table column of the category for the simple-counting /psycho-social damage calculation: Name of the category [-] (Dam_Sc_Point, Dam_Pys_Category)
 	const string category_name("CAT_NAME");
-	
 
+	///Keyword for the database table column of the sector for CI damage calculation: Identifier of the sector[-] (Dam_CI_Point, Dam_CI_Polygon)
+	const string sector_id("SEC_ID");
+	///Keyword for the database table column of the sector for CI damage calculation: Number of end user in polygon [dependent to sector] (Dam_CI_Polygon)
+	const string end_user("END_USER");
+	///Keyword for the database table column of the category for the CI damage calculation: Name of the sector [-] (Dam_CI_Point, Dam_CI_Polygon)
+	const string sector_name("SEC_NAME");
+	///Keyword for the database table column of the category for the CI damage calculation: Level in the sector [-] (Dam_CI_Point, Dam_CI_Polygon)
+	const string sector_level("SEC_LEVEL");
+	///Keyword for the database table column of the category for the CI damage calculation: if the CI-Element is end of the cascade [-] (Dam_CI_Point, Dam_CI_Polygon)
+	const string final_flag("FINAL_FLAG");
+
+	///Keyword for the database table name of the CI point data (Dam_CI_Point)
+	const string tab_ci_point("DAM_CI_POINT");
+	///Keyword for the database table name of the CI polygon data (Dam_CI_Polygon)
+	const string tab_ci_polygon("DAM_CI_POLYGON");
+	///Keyword for the database table name of the CI polygon point data (Dam_CI_Polygon)
+	const string tab_ci_polygon_point("DAM_CI_POLYGON_POINT");
+	///Keyword for the database table name of the CI connection data (Dam_CI_Element_List)
+	const string tab_ci_connection("DAM_CI_CONNECTION");
 
 	///Keyword for the database table name of the simple-counting point data (Dam_Sc_Point)
 	const string tab_sc_point("DAM_SC_POINT");
@@ -2740,8 +2762,10 @@ namespace dam_label{
 	const string sc_score("SC_SCORE");
 	///Keyword for the database table column of the simple-counting point data: Boundary value for an impact; the impact is specified by the waterlevel [-] (Dam_Sc_Point)
 	const string boundary_value("BOUNDARY_VALUE");
-	///Keyword for the database table column of the simple-counting point data: Point name [-] (Dam_Sc_Point)
+	///Keyword for the database table column of the simple-counting point data: Point name [-] (Dam_Sc_Point, Dam CI_Point)
 	const string point_name("POINT_NAME");
+	///Keyword for the database table column of the CI polygon data: Polygon name [-] (Dam_CI_Polygon)
+	const string polygon_name("POLYGON_NAME");
 	///Keyword for the database table column of the simple-counting point data: Identifier of the subcategory [-] (Dam_Sc_Point)
 	const string subcategory_id("SUBCAT_ID");
 	///Keyword for the database table column of the simple-counting point data: geometrical point (Dam_Sc_Point)

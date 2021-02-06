@@ -306,7 +306,7 @@ void Geo_Point::output_coor_members(ostringstream *cout){
 string Geo_Point::get_point2sql_string(const double x_coor, const double y_coor){
 	ostringstream buff;
 	buff << FORMAT_FIXED_REAL << P(3);
-	buff << " GEOMFROMTEXT('POINT( ";
+	buff << " ST_GEOMFROMTEXT('POINT( ";
 	buff << x_coor << "  " << y_coor;
 	buff << ")') ";
 	return buff.str();
