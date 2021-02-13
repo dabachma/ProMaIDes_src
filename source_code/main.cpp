@@ -50,20 +50,20 @@ int main(int argc, char *argv[]){
     //qt-macro for inititalize the resources which are stored in a static library
         Q_INIT_RESOURCE(system_sys_resource);
         Q_INIT_RESOURCE(hydroxygen);
+		//set lib path
         QStringList buff;
-        buff.append("./platforms");
-        buff.append("./");
-        buff.append("./sqldrivers");
-
-        buff.append("./imageformats");
+        buff.append(QCoreApplication::applicationDirPath().append("/platforms"));
+        buff.append(QCoreApplication::applicationDirPath().append("/"));
+        buff.append(QCoreApplication::applicationDirPath().append("/sqldrivers"));
+        buff.append(QCoreApplication::applicationDirPath().append("/imageformats"));
+		
         QCoreApplication::setLibraryPaths(buff);
-
-       // app.setStyle(QStyleFactory::create("Windows"));
-        // app.setStyle(QStyleFactory::create("WindowsXP"));
-         //app.setStyle(QStyleFactory::create("Fusion"));
-        //set it directly
-       // app.setStyleSheet( "QMainWindow,  QAbstractItemView,   QTreeView::branch,  QTabBar::tab{         color: #EAEAEA;         background: #333333;          font-size: 9pt; } QAbstractItemView::item:selected {         color: #EAEAEA;         background-color: #151515; } QScrollBar {      border: none;      background: #333333;      height: 6px;      width: 6px;      margin: 0px; } QScrollBar::handle{      background: #494949;      min-width: 10px;      min-height: 10px; } QScrollBar::add-line,  QScrollBar::sub-line {      background: none;      border: none; } QScrollBar::add-page, QScrollBar::sub-page {      background: none; } QTreeView::branch:closed:adjoins-item:has-children {      background:  solid #777777;      margin: 6px;      height: 6px;      width: 6px;      border-radius: 3px; } QTabBar::tab:selected {      font: bold;      border-color: #9B9B9B;      border-bottom-color: #C2C7CB;  } QTabBar::tab:!selected {      margin-top: 2px;  } QHeaderView::section {      background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,                                        stop:0 #616161, stop: 0.5 #505050,                                        stop: 0.6 #434343, stop:1 #656565);      color: white;      padding-left: 4px;      border: 1px solid #6c6c6c; } QToolBar {      border-style: solid;      border-style: outset;      color: #EAEAEA;      background: #333333;      font-size: 9pt; } QPlainTextEdit {   background-color: #272822; /* This is the editor background */ } ");
-
+		//try to change style; no effect!
+		//QApplication::setStyle(QStyleFactory::create("Fusion"));
+       //app.setStyle(QStyleFactory::create("Windows"));
+       //app.setStyle(QStyleFactory::create("windowsvista"));
+       //app.setStyle(QStyleFactory::create("Fusion"));
+       
 
 
 

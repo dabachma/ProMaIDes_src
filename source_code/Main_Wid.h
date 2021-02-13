@@ -17,6 +17,7 @@
 #include <QMetaType>
 #include <QTimer>
 #include <QProcess>
+#include <QStyleFactory>
 
 //system sys
 #include "Data_Base.h"
@@ -490,8 +491,11 @@ private slots:
 	///Set a new path (menu/sys/project)
 	void set_new_path(void);
 
+
 	///Close the application (menu SYS)
 	void my_close(void);
+
+
 	///Close the widget for closing the threads
 	void close_thread_finished(_sys_close_types close_type);
 
@@ -930,6 +934,9 @@ private:
 	void allocate_db_table_view(void);
 	///Delete the table view for the database tables
 	void delete_db_table_view(void);
+
+	///restore th widget settings
+	void readSettings(void);
 
 	///Handles the close event by the close-button of the main-widget
 	void closeEvent(QCloseEvent *close);

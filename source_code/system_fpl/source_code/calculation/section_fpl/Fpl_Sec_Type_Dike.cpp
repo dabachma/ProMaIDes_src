@@ -1859,7 +1859,7 @@ void Fpl_Sec_Type_Dike::output_reliability(const string seepage_file, const stri
 			this->piping_schmertmann_event->output_determ_results();
 		}
 	}
-	//slope stability landside
+	//slope stability landside TODO
 	bool header_done=false;
 	int zone_counter=0;
 	if(this->slope_stability_landside_event!=NULL){
@@ -1885,7 +1885,7 @@ void Fpl_Sec_Type_Dike::output_reliability(const string seepage_file, const stri
 
 	Sys_Common_Output::output_fpl->rewind_userprefix();
 }
-//Output the geometry to tecplot
+//Output the geometry to tecplot TODO
 void Fpl_Sec_Type_Dike::output_geometry2tecplot(ofstream *output){
 	//output the zone header
 	*output  << P(4) << FORMAT_FIXED_REAL;
@@ -4360,85 +4360,87 @@ void Fpl_Sec_Type_Dike::make_geometrical_outer_dike_polysegment(void){
 	}
 }
 //Create the geometrical outer boundary of the dike as polygon
-void Fpl_Sec_Type_Dike::make_geometrical_outer_dike_polygon(void){
+void Fpl_Sec_Type_Dike::make_geometrical_outer_dike_polygon(void) {
 	//make the polysegment
 	//count the number of points, the first and the last are points horizontal to the waterside dike toe/landside dike toe
 	int number_points;
-	number_points=3+this->foreland.get_number_segments()+this->waterside_cubature.get_number_segments()+this->crest_cubature.get_number_segments()+
-		this->landside_cubature.get_number_segments()+this->hinterland.get_number_segments();
+	number_points = 3 + this->foreland.get_number_segments() + this->waterside_cubature.get_number_segments() + this->crest_cubature.get_number_segments() +
+		this->landside_cubature.get_number_segments() + this->hinterland.get_number_segments();
 
 	//allocate a buffer for the points
-	Geo_Point *buffer=NULL;
-	try{
-		buffer=new Geo_Point[number_points];
+	Geo_Point *buffer = NULL;
+	try {
+		buffer = new Geo_Point[number_points];
 	}
-	catch(bad_alloc &t){
-		Error msg=this->set_error(26);
+	catch (bad_alloc &t) {
+		Error msg = this->set_error(26);
 		ostringstream info;
-		info<< "Info bad alloc: " << t.what() << endl;
+		info << "Info bad alloc: " << t.what() << endl;
 		msg.make_second_info(info.str());
 		throw msg;
 	}
 
 	//set the point buffer
-	double y_min=-10000.0;
+	double y_min = -10000.0;
 
 	Geo_Point_List buff_list;
-	for(int i=0; i< this->number_material_zones; i++){
+	for (int i = 0; i < this->number_material_zones; i++) {
 		buff_list.set_new_points(&this->material_zones[i]);
 	}
-	if(this->number_material_zones>0){
-		y_min=buff_list.get_smallest_y();
+	if (this->number_material_zones > 0) {
+		y_min = buff_list.get_smallest_y();
 	}
 	//set the first point
-	int counter=0;
-	if(this->foreland.get_number_segments()==0){
+	int counter = 0;
+	if (this->foreland.get_number_segments() == 0) {
 		buffer[counter].set_point_x_coordinate(this->waterside_cubature.get_segment(0)->point1.get_xcoordinate());
 		buffer[counter].set_point_y_coordinate(y_min);
 	}
-	else{
+	else {
 		buffer[counter].set_point_x_coordinate(this->foreland.get_segment(0)->point1.get_xcoordinate());
 		buffer[counter].set_point_y_coordinate(y_min);
 	}
 	counter++;
 	//foreland
-	for(int i=0; i< this->foreland.get_number_segments();i++){
-		buffer[counter]=this->foreland.get_segment(i)->point1;
+	for (int i = 0; i < this->foreland.get_number_segments(); i++) {
+		buffer[counter] = this->foreland.get_segment(i)->point1;
 		counter++;
 	}
 	//waterside cubature
-	for(int i=0; i< this->waterside_cubature.get_number_segments();i++){
-		buffer[counter]=this->waterside_cubature.get_segment(i)->point1;
+	for (int i = 0; i < this->waterside_cubature.get_number_segments(); i++) {
+		buffer[counter] = this->waterside_cubature.get_segment(i)->point1;
 		counter++;
 	}
 	//crest
-	buffer[counter]=this->crest_cubature.get_segment()->point1;
+	buffer[counter] = this->crest_cubature.get_segment()->point1;
 	counter++;
 	//landside cubature
-	for(int i=0; i< this->landside_cubature.get_number_segments();i++){
-		buffer[counter]=this->landside_cubature.get_segment(i)->point1;
+	for (int i = 0; i < this->landside_cubature.get_number_segments(); i++) {
+		buffer[counter] = this->landside_cubature.get_segment(i)->point1;
 		counter++;
 	}
 	//hinterland
-	for(int i=0; i< this->hinterland.get_number_segments();i++){
-		buffer[counter]=this->hinterland.get_segment(i)->point1;
+	for (int i = 0; i < this->hinterland.get_number_segments(); i++) {
+		buffer[counter] = this->hinterland.get_segment(i)->point1;
 		counter++;
 	}
 	//set the two last point
-	if(this->hinterland.get_number_segments()==0){
-		buffer[counter]=this->landside_cubature.get_segment(this->landside_cubature.get_number_segments()-1)->point2;
+	if (this->hinterland.get_number_segments() == 0) {
+		buffer[counter] = this->landside_cubature.get_segment(this->landside_cubature.get_number_segments() - 1)->point2;
 		counter++;
-		buffer[counter].set_point_x_coordinate(this->landside_cubature.get_segment(this->landside_cubature.get_number_segments()-1)->point2.get_xcoordinate());
+		buffer[counter].set_point_x_coordinate(this->landside_cubature.get_segment(this->landside_cubature.get_number_segments() - 1)->point2.get_xcoordinate());
 		buffer[counter].set_point_y_coordinate(y_min);
 		counter++;
 	}
-	else{
-		buffer[counter]=this->hinterland.get_segment(this->hinterland.get_number_segments()-1)->point2;
+	else {
+		buffer[counter] = this->hinterland.get_segment(this->hinterland.get_number_segments() - 1)->point2;
 		counter++;
-		buffer[counter].set_point_x_coordinate(this->hinterland.get_segment(this->hinterland.get_number_segments()-1)->point2.get_xcoordinate());
+		buffer[counter].set_point_x_coordinate(this->hinterland.get_segment(this->hinterland.get_number_segments() - 1)->point2.get_xcoordinate());
 		buffer[counter].set_point_y_coordinate(y_min);
 		counter++;
 	}
+
+
 	//
 	//set the polysegment
 	try{
@@ -4500,10 +4502,15 @@ void Fpl_Sec_Type_Dike::calc_area_cubature(void){
 	if(buffer[counter-1].get_ycoordinate()<0.0){
 		buffer[counter].set_point_coordinate(buffer[0].get_xcoordinate(),buffer[counter-1].get_ycoordinate());
 	}
+	else if (buffer[counter - 1].get_ycoordinate() == 0.0) {
+		buffer[counter].set_point_coordinate(buffer[counter - 1].get_xcoordinate()/2, 0.0);
+	}
 	else{
 		buffer[counter].set_point_coordinate(buffer[counter-1].get_xcoordinate(),buffer[0].get_ycoordinate());
 	}
 	
+
+
 
 	Geo_Simple_Polygon buff_poly;
 	//set the polysegment
@@ -4663,7 +4670,7 @@ void Fpl_Sec_Type_Dike::reset_random_flag(void){
 		this->material_variable_zones[i].reset_random_flag();
 	}
 }
-//Output the seepage line to tecplot
+//Output the seepage line to tecplot todo
 void Fpl_Sec_Type_Dike::output_seepage2tecplot(const string seepage_file){
 	//first calculate the seepage line for output
 	Fpl_Seepage_Line_Point_List buff_ascending;
@@ -4708,17 +4715,17 @@ void Fpl_Sec_Type_Dike::output_seepage2tecplot(const string seepage_file){
 	tecplot_output << P(4) << FORMAT_FIXED_REAL;
 
 	tecplot_output <<"#######seepage landside########"<<endl;
-	if(this->foreland.get_number_segments()>0){
+	//if(this->foreland.get_number_segments()>0){
 		tecplot_output << endl << "ZONE T= "<< "\" Seepage landside \" "<< " I = " << buff_ascending.count_number_inside_points()<< endl;
 		buff_ascending.output_members2tecplot(&tecplot_output, &this->outer_polysegment);
-	}
+	//}
 	tecplot_output.flush();
 
 	tecplot_output <<"#######seepage waterside########"<<endl;
-	if(this->foreland.get_number_segments()>0){
+	//if(this->foreland.get_number_segments()>0){
 		tecplot_output << endl << "ZONE T= "<< "\" Seepage waterside \" "<< " I = " << buff_descending.count_number_inside_points()<< endl;
 		buff_descending.output_members2tecplot(&tecplot_output, &this->outer_polysegment);
-	}
+	//}
 	tecplot_output.flush();
 
 	//close the file

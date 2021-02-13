@@ -139,10 +139,19 @@ Main_Wid::Main_Wid(int argc, char *argv[]){
 	//approximated memory for the main-widget
     Sys_Memory_Count::self()->add_mem((int)1024*1024*69.0,_sys_system_modules::SYS_SYS);//count the memory
 
-	this->action_developer_guide->setEnabled(false);
-#ifdef development
+
 	this->action_developer_guide->setEnabled(true);
-#endif
+
+	//ostringstream cout;
+
+	//QStringList buff = QStyleFactory::keys();
+
+	//for (int i = 0; i < buff.count(); i++) {
+	//	cout << buff.at(i).toStdString() << endl;
+	//}
+
+	//
+	//Sys_Common_Output::output_system->output_txt(&cout, false);
 
 
 }
@@ -8396,6 +8405,13 @@ void Main_Wid::delete_db_table_view(void){
 		this->database_table_view=NULL;
 	}
 }
+//restore th widget settings
+void Main_Wid::readSettings(void)
+{
+	QSettings settings("AG_FRM", "MyProMaIDes");
+	restoreGeometry(settings.value("geometry").toByteArray());
+	restoreState(settings.value("windowState").toByteArray());
+}
 //Handles the close event by the close-button of the main-widget
 void Main_Wid::closeEvent(QCloseEvent *close){
 	if(this->close_flag==false && this->closing_thread==NULL){
@@ -8407,6 +8423,11 @@ void Main_Wid::closeEvent(QCloseEvent *close){
 	}
 
 	if(this->close_flag==true){
+		QSettings settings("AG_FRM", "MyProMaIDes");
+		settings.setValue("geometry", saveGeometry());
+		settings.setValue("windowState", saveState());
+		QMainWindow::closeEvent(close);
+
 		close->accept();
 		this->close();
 	}
