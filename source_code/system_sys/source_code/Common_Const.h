@@ -1684,6 +1684,8 @@ namespace hyd_label{
 	//profile table types
 	///String for the river profile table type: waterlevel dependent to area (Hyd_Tables)
 	const string Waterlevel_table("x= area; y=Waterlevel");
+	///String for the river profile table type: width dependent to area (Hyd_Tables)
+	const string Width_table("x= area; y=Width");
 	///String for the river profile table type: Conveyance of the left bank dependent to area (Hyd_Tables)
 	const string Conveyance_table_left("x= area; y=Conveyance of left bank");
 	///String for the river profile table type: Conveyance of the main channel dependent to area (Hyd_Tables)
@@ -2129,6 +2131,8 @@ namespace hyd_label{
 	const string proferg_hmax_rb_break("BREAK_RIGHT_BANK_WATERLEVEL");
 	///Keyword for the database table column of the profile result data of a river model: maximal flow velocity in the profile [m/s] (Hyd_Model_River, _Hyd_River_Profile_Type)
 	const string proferg_v_max("VELOCITY");
+	///Keyword for the database table column of the profile result data of a river model: maximal width in the profile [m] (Hyd_Model_River, _Hyd_River_Profile_Type)
+	const string proferg_width_max("WIDTH");
 	///Keyword for the database table column of the profile result data of a river model: duration, during the profile is wet [s] (Hyd_Model_River, _Hyd_River_Profile_Type)
 	const string proferg_dur_wet("WET_DURATION");
 	///Keyword for the database table column of the profile result data of a river model: duration, during the profile is dry [s] (Hyd_Model_River, _Hyd_River_Profile_Type)

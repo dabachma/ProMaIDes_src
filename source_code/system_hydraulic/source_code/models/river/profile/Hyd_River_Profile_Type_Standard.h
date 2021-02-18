@@ -57,6 +57,9 @@ public:
 	///Get the waterlevel by a given area from table 
 	virtual double get_waterlevel_from_table(const double area);
 
+	///Get the width by a given area from table 
+	virtual double get_width_from_table(const double area);
+
 	///Set the actuel flow specific values with a given waterlevel from tables
 	virtual void set_actuel_profilevalues_by_waterlevel(const double global_waterlevel);
 
@@ -136,6 +139,8 @@ private:
 	void calculate_table_values(const double delta_x);
 	///Calculate the area with the generated Hyd_Profile_Segment for the table generation
 	double calculate_area2table(const int no_intersect_segments, Hyd_Profile_Segment *intersect_segments);
+	///Calculate the width with the generated Hyd_Profile_Segment for the table generation
+	double calculate_width2table(const int no_intersect_segments, Hyd_Profile_Segment *intersect_segments);
 	///Calculate the hydraulic_radius with the generated Hyd_Profile_Segment for the table generation
 	double calculate_hydraulic_radius2table(const int no_intersect_segments, Hyd_Profile_Segment *intersect_segments);
 	///Calculate the conveyance with the generated Hyd_Profile_Segment for the table generation

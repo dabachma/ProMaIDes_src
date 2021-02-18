@@ -9,6 +9,7 @@ Hyd_River_Profile_Type_Standard::Hyd_River_Profile_Type_Standard(void){
 	this->c_right_table.set_table_type(hyd_label::Conveyance_table_right);
 	this->c_mid_table.set_table_type(hyd_label::Conveyance_table_mid);
 	this->h_table.set_table_type(hyd_label::Waterlevel_table);
+	this->width_table.set_table_type(hyd_label::Width_table);
 	this->area_table.set_table_type(hyd_label::Area_table);
 	
 
@@ -70,12 +71,14 @@ void Hyd_River_Profile_Type_Standard::calc_alloc_tables(const double delta_x, Hy
 	//allocate the depending values of the table
 	try{
 		this->area_table.allocate_dependent_values(number_table_points);
+		this->width_table.allocate_dependent_values(number_table_points);
 		this->h_table.allocate_dependent_values(number_table_points);
 		this->c_mid_table.allocate_dependent_values(number_table_points);
 		this->c_left_table.allocate_dependent_values(number_table_points);
 		this->c_right_table.allocate_dependent_values(number_table_points);
 
 		this->area_table.set_independent_values(&this->h_table);
+		this->width_table.set_independent_values(&this->area_table);
 		this->h_table.set_independent_values(&this->area_table);
 		this->c_mid_table.set_independent_values(&this->area_table);
 		this->c_left_table.set_independent_values(&this->area_table);
@@ -111,6 +114,7 @@ void Hyd_River_Profile_Type_Standard::generate_plot(QWidget *parent){
 void Hyd_River_Profile_Type_Standard::output_tables(void){
 	ostringstream cout;
 	this->area_table.output_table(&cout);
+	this->width_table.output_table(&cout);
 	this->c_left_table.output_table(&cout);
 	this->c_mid_table.output_table(&cout);
 	this->c_right_table.output_table(&cout);
@@ -209,6 +213,13 @@ double Hyd_River_Profile_Type_Standard::get_waterlevel_from_table(const double a
 		}
 	return buffer;
 }
+//Get the width by a given area from table 
+double Hyd_River_Profile_Type_Standard::get_width_from_table(const double area) {
+	double buffer = 0.0;
+	buffer = this->width_table.get_interpolated_values(area);
+
+	return buffer;
+}
 ///Set the actuel flow specific values with a given waterlevel from tables
 void Hyd_River_Profile_Type_Standard::set_actuel_profilevalues_by_waterlevel(const double global_waterlevel){
 	this->zero_outflow_reduction_flag=false;
@@ -227,6 +238,7 @@ void Hyd_River_Profile_Type_Standard::set_actuel_profilevalues_by_waterlevel(con
 			this->area2calc=this->solved_area;
 		}
 		this->set_actual_conveyance_by_table(this->area2calc);
+		this->width = this->width_table.get_interpolated_values(this->area2calc);
 	}
 	catch(Error msg){
 		throw msg;	
@@ -1030,6 +1042,7 @@ void Hyd_River_Profile_Type_Standard::generate_intersected_area_segments(const i
 void Hyd_River_Profile_Type_Standard::calculate_table_values(const double delta_x){
 	//set first values
 	this->area_table.set_values(0,0.0);
+	this->width_table.set_values(0, 0.0);
 	this->c_left_table.set_values(0,0.0);
 	this->c_mid_table.set_values(0,0.0);
 	this->c_right_table.set_values(0,0.0);
@@ -1049,6 +1062,7 @@ void Hyd_River_Profile_Type_Standard::calculate_table_values(const double delta_
 	double area_left=0.0;
 	double area_mid=0.0;
 	double area_right=0.0;
+	double width = 0.0;
 
 	//this->generate_plot(NULL);
 
@@ -1059,6 +1073,9 @@ void Hyd_River_Profile_Type_Standard::calculate_table_values(const double delta_
 		//set the waterlevel to table
 		this->h_table.set_values(i,(double)i*delta_x+this->global_z_min);
 
+	
+		
+
 		//left bank
 		if(this->left_bank_profile[0]!=this->left_bank_profile[1]){
 			this->generate_intersected_area_segments(this->no_left_bank_segments, this->left_bank_profile, &no_intersected_segments, &intersected_segments);
@@ -1066,10 +1083,11 @@ void Hyd_River_Profile_Type_Standard::calculate_table_values(const double delta_
 		else{
 			no_intersected_segments=0;
 		}
-		//calculate the area 
+		//calculate the area and width
 		if(no_intersected_segments!=0){
 			area_left=this->calculate_area2table(no_intersected_segments, intersected_segments);
 			this->c_left_table.set_values(i, this->calculate_conveyance2table(no_intersected_segments, intersected_segments, area_left));
+			width = width + this->calculate_width2table(no_intersected_segments, intersected_segments);
 		}
 
 		//main channel
@@ -1079,10 +1097,11 @@ void Hyd_River_Profile_Type_Standard::calculate_table_values(const double delta_
 		else{
 			no_intersected_segments=0;
 		}
-		//calculate the area 
+		//calculate the area and width
 		if(no_intersected_segments!=0){
 			area_mid=this->calculate_area2table(no_intersected_segments, intersected_segments);
 			this->c_mid_table.set_values(i, this->calculate_conveyance2table(no_intersected_segments, intersected_segments, area_mid));
+			width = width + this->calculate_width2table(no_intersected_segments, intersected_segments);
 		}
 		//for develepment and check the calculated area with a plot
 		/*HydGui_Profile_Plot test;
@@ -1098,10 +1117,11 @@ void Hyd_River_Profile_Type_Standard::calculate_table_values(const double delta_
 		else{
 			no_intersected_segments=0;
 		}
-		//calculate the area 
+		//calculate the area and width
 		if(no_intersected_segments!=0){
 			area_right=this->calculate_area2table(no_intersected_segments, intersected_segments);
 			this->c_right_table.set_values(i, this->calculate_conveyance2table(no_intersected_segments, intersected_segments, area_right));
+			width = width + this->calculate_width2table(no_intersected_segments, intersected_segments);
 		}
 
 		//area to table
@@ -1110,7 +1130,10 @@ void Hyd_River_Profile_Type_Standard::calculate_table_values(const double delta_
 		area_left=0.0;
 		area_mid=0.0;
 		area_right=0.0;
-
+		//width to table
+		this->width_table.set_values(i, width);
+		//reset width
+		width = 0.0;
 
 	
 
@@ -1134,6 +1157,7 @@ void Hyd_River_Profile_Type_Standard::calculate_table_values(const double delta_
 	if(no_intersected_segments!=0){
 		area_left=this->calculate_area2table(no_intersected_segments, intersected_segments);
 		this->c_left_table.set_values(this->number_table_points-1, this->calculate_conveyance2table(no_intersected_segments, intersected_segments, area_left));
+		width = width + this->calculate_width2table(no_intersected_segments, intersected_segments);
 	}
 
 	//main channel
@@ -1146,6 +1170,7 @@ void Hyd_River_Profile_Type_Standard::calculate_table_values(const double delta_
 	if(no_intersected_segments!=0){
 		area_mid=this->calculate_area2table(no_intersected_segments, intersected_segments);
 		this->c_mid_table.set_values(this->number_table_points-1, this->calculate_conveyance2table(no_intersected_segments, intersected_segments, area_mid));
+		width = width + this->calculate_width2table(no_intersected_segments, intersected_segments);
 	}
 
 	//right bank
@@ -1158,10 +1183,13 @@ void Hyd_River_Profile_Type_Standard::calculate_table_values(const double delta_
 	if(no_intersected_segments!=0){
 		area_right=this->calculate_area2table(no_intersected_segments, intersected_segments);
 		this->c_right_table.set_values(this->number_table_points-1, this->calculate_conveyance2table(no_intersected_segments, intersected_segments, area_right));
+		width = width + this->calculate_width2table(no_intersected_segments, intersected_segments);
 	}
 
 	//set the area
 	this->area_table.set_values(this->number_table_points-1, area_left+area_mid+area_right);
+
+	this->width_table.set_values(this->number_table_points - 1, width);
 	
 
 	//delete the waterlevel
@@ -1186,6 +1214,17 @@ double Hyd_River_Profile_Type_Standard::calculate_area2table(const int no_inters
 
 
 	return area/2.0;
+}
+//Calculate the width with the generated Hyd_Profile_Segment for the table generation
+double Hyd_River_Profile_Type_Standard::calculate_width2table(const int no_intersect_segments, Hyd_Profile_Segment *intersect_segments) {
+	double width = 0.0;
+	if (no_intersect_segments > 1) {
+		width = intersect_segments[no_intersect_segments - 1].point1.get_xcoordinate() - intersect_segments[0].point1.get_xcoordinate();
+	}
+	
+	return width;
+
+
 }
 //calculate hydraulic_radius
 double Hyd_River_Profile_Type_Standard::calculate_hydraulic_radius2table(const int no_intersect_segments, Hyd_Profile_Segment *intersect_segments){

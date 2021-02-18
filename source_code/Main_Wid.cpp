@@ -141,6 +141,8 @@ Main_Wid::Main_Wid(int argc, char *argv[]){
 
 
 	this->action_developer_guide->setEnabled(true);
+	//restore windows settings
+	this->readSettings();
 
 	//ostringstream cout;
 
@@ -3152,8 +3154,9 @@ void Main_Wid::read_existing_project(void){
 			this->version_update.check_update_hyd_table_elem_result_smax(this->system_database->get_database(), this->project_manager.get_project_file_name());
 			this->version_update.check_update_hyd_table_global_param(this->system_database->get_database(), this->project_manager.get_project_file_name());
 			this->version_update.check_update_hyd_table_instat_results(this->system_database->get_database());
-			this->version_update.check_update_hyd_table_instat_results_rv(this->system_database->get_database());
+			this->version_update.check_update_hyd_table_instat_results_rv(this->system_database->get_database(), this->project_manager.get_project_file_name());
 			this->version_update.check_update_hyd_view_bound2elements_profile(this->system_database->get_database());
+			
 		}
 		catch(Error msg){
 			msg.output_msg(0);

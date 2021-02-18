@@ -1520,6 +1520,27 @@ void Hyd_Model_River::output_result2tecplot_2d(const double timepoint, const int
 		this->tecplot_output_2d << this->outflow_river_profile.typ_of_profile->get_actual_flow_velocity() << "  ";
 		this->tecplot_output_2d << endl << endl;
 
+
+		//width
+		counter_endl = 0;
+		this->tecplot_output_2d << "#width " << label::m << " CELLCENTERED No. " << this->Param_RV.RVNofProf - 1 << endl;
+		counter_endl = 0;
+		for (int i = 0; i < this->number_inbetween_profiles; i++) {
+			if (counter_endl == 5) {
+				counter_endl = 0;
+				this->tecplot_output_2d << endl;
+			}
+			this->tecplot_output_2d << this->river_profiles[i].typ_of_profile->get_width() << "  ";
+			counter_endl++;
+		}
+		if (counter_endl == 5) {
+			counter_endl = 0;
+			this->tecplot_output_2d << endl;
+		}
+		//outflow profile
+		this->tecplot_output_2d << this->outflow_river_profile.typ_of_profile->get_width() << "  ";
+		this->tecplot_output_2d << endl << endl;
+
 	}
 }
 ///Output the result members per timestep to csv as 1d
@@ -1553,6 +1574,7 @@ void Hyd_Model_River::output_result2csv_1d(const double timepoint, const int tim
 			output_csv <<" h (local) " << label::m << ",";
 			output_csv <<" v " << label::m_per_sec << ",";
 			output_csv <<" fr " << label::no_unit << ",";
+			output_csv << " width " << label::m << ",";
 			output_csv <<" q " << label::qm_per_sec;
 			output_csv <<  endl;
 		}
@@ -1705,6 +1727,19 @@ void Hyd_Model_River::output_result2paraview_2d(const double timepoint, const in
 	output << this->outflow_river_profile.get_Q() << "  ";
 	output << endl;
 
+	buff_unit = " width_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		output << this->river_profiles[i].typ_of_profile->get_width() << "  ";
+	}
+	//outflow profile
+	output << this->outflow_river_profile.typ_of_profile->get_width() << "  ";
+	output << endl;
+
 	output.clear();
 	output.close();
 
@@ -1824,6 +1859,8 @@ void Hyd_Model_River::output_result_max2csv(void) {
 		this->tecplot_output << " ,was_dry " << label::no_unit;
 		this->tecplot_output << " ,t(dry) " << label::sec;
 		this->tecplot_output << " ,t(wet) " << label::sec;
+		this->tecplot_output << ",width_max" << label::m;
+		this->tecplot_output << ",t(width_max)" << label::sec;
 		this->tecplot_output << ",CVol_1D_in" << label::cubicmeter;
 		this->tecplot_output << ",CVol_1D_out" << label::cubicmeter;
 		this->tecplot_output << ",CVol_Struc_in" << label::cubicmeter;
@@ -1840,6 +1877,7 @@ void Hyd_Model_River::output_result_max2csv(void) {
 		this->tecplot_output << ",CVol_tot_out" << label::cubicmeter;
 		this->tecplot_output << ",Qmax" << label::qm_per_sec;
 		this->tecplot_output << ",t(Qmax)" << label::sec;
+
 		this->tecplot_output << endl;
 
 		//inflow profile
@@ -1970,6 +2008,19 @@ void Hyd_Model_River::output_result_max2paraview2d(void) {
 	}
 	//outflow profile
 	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_max_vtot().maximum << "  ";
+	this->tecplot_output << endl;
+
+	buff_unit = " width_max_";
+	buff_unit += label::m;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	this->tecplot_output << "SCALARS" << "  " << buff_unit << " double" << endl;
+	this->tecplot_output << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->number_inbetween_profiles; i++) {
+
+		this->tecplot_output << this->river_profiles[i].typ_of_profile->get_max_width().maximum << "  ";
+	}
+	//outflow profile
+	this->tecplot_output << this->outflow_river_profile.typ_of_profile->get_max_width().maximum << "  ";
 	this->tecplot_output << endl;
 
 	
@@ -3665,6 +3716,7 @@ void Hyd_Model_River::init_tecplot_output(void){
 				this->tecplot_output << " \"" << " h (local) " << label::m <<   "\"";
 				this->tecplot_output <<	" \"" <<  " v " << label::m_per_sec << "\"";
 				this->tecplot_output <<	" \"" <<  " fr " << label::no_unit << "\"";
+				this->tecplot_output << " \"" << " width " << label::m << "\"";
 				this->tecplot_output << " \"" << " q " << label::qm_per_sec << "\" ";
 				
 				this->tecplot_output <<  endl << endl;
@@ -3742,6 +3794,8 @@ void Hyd_Model_River::output_maximum_results2tecplot(void){
 		this->tecplot_output<< "\"   \"" << " was_dry " << label::no_unit;
 		this->tecplot_output<<   "\"   \"" << " t(dry) " << label::sec;
 		this->tecplot_output<<   "\"   \"" << " t(wet) " << label::sec;
+		this->tecplot_output << "\"   \"" << " width_max " << label::m;
+		this->tecplot_output << "\"   \"" << " t(width_max) " << label::sec;
 		this->tecplot_output<<  "\"   \"" <<"CVol_1D_in" << label::cubicmeter;
 		this->tecplot_output<<  "\"   \"" <<"CVol_1D_out" << label::cubicmeter ;
 		this->tecplot_output<<  "\"   \"" <<"CVol_Struc_in" << label::cubicmeter ;

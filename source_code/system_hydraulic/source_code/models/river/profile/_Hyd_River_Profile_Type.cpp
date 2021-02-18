@@ -39,6 +39,10 @@ _Hyd_River_Profile_Type::_Hyd_River_Profile_Type(void): increment_max_height(2.0
 	this->v_value_max.maximum=0.0;
 	this->v_value_max.time_point=0.0;
 
+	this->width = 0.0;;
+	this->width_value_max.maximum=0.0;
+	this->width_value_max.maximum = 0.0;
+
 
 	this->froude_no=0.0;
 
@@ -736,6 +740,11 @@ void _Hyd_River_Profile_Type::calculate_maximum_values(const double time_point){
 	else{
 		this->wet_duration=wet_duration+delta_t;
 	}
+	//width
+	if (this->width > this->width_value_max.maximum) {
+		this->width_value_max.maximum = this->width;
+		this->width_value_max.time_point = time_point;
+	}
 
 }
 //output the result members
@@ -744,7 +753,8 @@ void _Hyd_River_Profile_Type::output_result_members_timestep(ostringstream *cout
 	*cout << W(11) <<this->s_value;
 	*cout << W(11) <<this->h_value;
 	*cout << W(11) <<this->v_value;	
-	*cout << W(11) <<this->froude_no;	
+	*cout << W(11) <<this->froude_no;
+	*cout << W(11) << this->width;
 }
 //Output the result members each internal timestep to file
 void _Hyd_River_Profile_Type::output_result_members_timestep(ofstream *file){
@@ -755,6 +765,7 @@ void _Hyd_River_Profile_Type::output_result_members_timestep(ofstream *file){
 	*file << W(12) << P(5) <<FORMAT_FIXED_REAL <<this->h_value ;
 	*file << W(12) << P(4) <<FORMAT_FIXED_REAL <<this->v_value ;
 	*file << W(12) << P(4) <<FORMAT_FIXED_REAL <<this->froude_no ;
+	*file << W(12) << P(4) << FORMAT_FIXED_REAL << this->width;
 }
 ///Output the result members each internal timestep to csv file
 void _Hyd_River_Profile_Type::output_result_members_timestep2csv(ofstream *file) {
@@ -765,6 +776,7 @@ void _Hyd_River_Profile_Type::output_result_members_timestep2csv(ofstream *file)
 	*file << W(12) << P(5) << FORMAT_FIXED_REAL << this->h_value << ",";
 	*file << W(12) << P(4) << FORMAT_FIXED_REAL << this->v_value << ",";
 	*file << W(12) << P(4) << FORMAT_FIXED_REAL << this->froude_no << ",";
+	*file << W(12) << P(4) << FORMAT_FIXED_REAL << this->width << ",";
 }
 //Output the header for the maximum result output to console/display 
 void _Hyd_River_Profile_Type::output_header_max_results(ostringstream *cout){
@@ -777,6 +789,8 @@ void _Hyd_River_Profile_Type::output_header_max_results(ostringstream *cout){
 	*cout << "was_dry" << label::no_unit<<W(10);
 	*cout << "t(dry)" << label::sec<<W(10);
 	*cout << "t(wet)" << label::sec<<W(15);
+	*cout << "width_max" << label::m << W(10);
+	*cout << "t(width_max)" << label::sec << W(10);
 
 }
 //Output the maximum result output to console/display 
@@ -790,6 +804,8 @@ void _Hyd_River_Profile_Type::output_max_results(ostringstream *cout){
 	*cout <<this->was_dry_flag << W(14);
 	*cout << P(0) << FORMAT_FIXED_REAL<<this->dry_duration<< W(16);
 	*cout << P(0) << FORMAT_FIXED_REAL<<this->wet_duration<< W(15);
+	*cout << P(2) << FORMAT_FIXED_REAL << this->width_value_max.maximum << W(14) << ",";
+	*cout << P(0) << FORMAT_FIXED_REAL << this->width_value_max.time_point << W(14) << ",";
 
 }
 //Output the maximum result output to a given file 
@@ -806,6 +822,8 @@ void _Hyd_River_Profile_Type::output_max_results2file(ofstream *file){
 	*file <<this->was_dry_flag << W(12);
 	*file << P(0) << FORMAT_FIXED_REAL<<this->dry_duration<< W(14);
 	*file << P(0) << FORMAT_FIXED_REAL<<this->wet_duration<< W(14);
+	*file << P(2) << FORMAT_FIXED_REAL << this->width_value_max.maximum << W(14) << ",";
+	*file << P(0) << FORMAT_FIXED_REAL << this->width_value_max.time_point << W(14) << ",";
 }
 //Output the maximum result output to a csv file 
 void _Hyd_River_Profile_Type::output_max_results2csvfile(ofstream *file) {
@@ -821,6 +839,8 @@ void _Hyd_River_Profile_Type::output_max_results2csvfile(ofstream *file) {
 	*file << this->was_dry_flag << W(12) << ",";
 	*file << P(0) << FORMAT_FIXED_REAL << this->dry_duration << W(14) << ",";
 	*file << P(0) << FORMAT_FIXED_REAL << this->wet_duration << W(14) << ",";
+	*file << P(2) << FORMAT_FIXED_REAL << this->width_value_max.maximum << W(14) << ",";
+	*file << P(0) << FORMAT_FIXED_REAL << this->width_value_max.time_point << W(14) << ",";
 
 }
 //Set the maximum result values of profile type to a string for the transfer into a database table (_Hyd_River_Profile)
@@ -831,6 +851,7 @@ string _Hyd_River_Profile_Type::set_maximum_value2string(void){
 	query_string << this->s_value_max.maximum << " , " ;
 	query_string << this->h_value_max.time_point << " , " ;
 	query_string << this->v_value_max.maximum << " , " ;
+	query_string << this->width_value_max.maximum << " , ";
 	query_string << this->wet_duration << " , " ;
 	query_string << this->dry_duration << " , " ;
 	buffer=query_string.str();
@@ -843,6 +864,7 @@ string _Hyd_River_Profile_Type::set_instat_value2string(void) {
 	query_string << this->h_value << " , ";
 	query_string << this->s_value << " , ";
 	query_string << this->v_value << " , ";
+	query_string << this->width << " , ";
 	buffer = query_string.str();
 	return buffer;
 }
@@ -934,6 +956,10 @@ void _Hyd_River_Profile_Type::reset_result_max_values(void){
 	this->area2calc=0.0;
 	this->stab_discharge=0.0;
 
+	this->width = 0.0;;
+	this->width_value_max.maximum = 0.0;
+	this->width_value_max.maximum = 0.0;
+
 
 	this->v_energy=0.0;
 	this->v_energy_old=0.0;
@@ -982,8 +1008,10 @@ void _Hyd_River_Profile_Type::clone_profile_type(_Hyd_River_Profile_Type *prof_t
 	//copy tables
 	this->area_table.clone_tables(&prof_type->area_table);
 	this->h_table.clone_tables(&prof_type->h_table);
+	this->width_table.clone_tables(&prof_type->width_table);
 	this->area_table.set_independent_values(&this->h_table);
 	this->h_table.set_independent_values(&this->area_table);
+	this->width_table.set_independent_values(&this->area_table);
 
 }
 //Channel type to text (static)
@@ -1020,6 +1048,12 @@ _hyd_max_values _Hyd_River_Profile_Type::get_max_h(void) {
 	return  this->h_value_max;
 
 }
+//Get width_max-value
+_hyd_max_values _Hyd_River_Profile_Type::get_max_width(void) {
+
+	return  this->width_value_max;
+
+}
 //Get s_max-value
 _hyd_max_values _Hyd_River_Profile_Type::get_max_s(void) {
 
@@ -1035,6 +1069,10 @@ _hyd_max_values _Hyd_River_Profile_Type::get_max_vtot(void) {
 ///Get h-value
 double _Hyd_River_Profile_Type::get_h(void) {
 	return this->h_value;
+}
+///Get width-value
+double _Hyd_River_Profile_Type::get_width(void) {
+	return this->width;
 }
 ///Get s-value
 double _Hyd_River_Profile_Type::get_s(void) {
@@ -1071,6 +1109,7 @@ void _Hyd_River_Profile_Type::set_actual_waterlevel_by_table(const double area){
 			this->s_value=this->global_z_min;
 			this->area2calc=0.0;
 		}
+		this->width = this->width_table.get_interpolated_values(area);
 
 	}
 	catch(Error msg){

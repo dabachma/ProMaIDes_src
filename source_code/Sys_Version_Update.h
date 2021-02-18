@@ -43,12 +43,15 @@ public:
 	void check_update_hyd_table_instat_results(QSqlDatabase *ptr_database);
 
 	///Check and update the hydraulic table for instationary river results (16.9.2020)
-	void check_update_hyd_table_instat_results_rv(QSqlDatabase *ptr_database);
+	void check_update_hyd_table_instat_results_rv(QSqlDatabase *ptr_database, const string project_file);
 
 	///Check and update the hydraulic view for boundary conditions to floodplain elements / river profile (3.2.2021)
 	void check_update_hyd_view_bound2elements_profile(QSqlDatabase *ptr_database);
 
 private:
+	///Check and update the text of the hydraulic table of the hydraulic river profile result members; width_max is introduced (18.02.2021)
+	void check_update_hyd_table_river_result_width(QSqlDatabase *ptr_database, const string project_file);
+
 	///Set error(s)
 	Error set_error(const int err_type);
 };

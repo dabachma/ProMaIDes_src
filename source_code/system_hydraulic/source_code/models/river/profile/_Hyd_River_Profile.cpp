@@ -1253,7 +1253,7 @@ void _Hyd_River_Profile::create_erg_table(QSqlDatabase *ptr_database){
 		Sys_Common_Output::output_hyd->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name=hyd_label::tab_rvprof_erg_max;
-		const int num_col=32;
+		const int num_col=33;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for(int i=0; i< num_col; i++){
@@ -1340,70 +1340,74 @@ void _Hyd_River_Profile::create_erg_table(QSqlDatabase *ptr_database){
 		tab_col[15].type=sys_label::tab_col_type_double;
 		tab_col[15].default_value="0.0";
 
-		tab_col[16].name=hyd_label::proferg_dur_wet;
-		tab_col[16].type=sys_label::tab_col_type_double;
-		tab_col[16].unsigned_flag=true;
-		tab_col[16].default_value="0.0";
+		tab_col[16].name = hyd_label::proferg_width_max;
+		tab_col[16].type = sys_label::tab_col_type_double;
+		tab_col[16].default_value = "0.0";
 
-		tab_col[17].name=hyd_label::proferg_dur_dry;
+		tab_col[17].name=hyd_label::proferg_dur_wet;
 		tab_col[17].type=sys_label::tab_col_type_double;
 		tab_col[17].unsigned_flag=true;
 		tab_col[17].default_value="0.0";
 
-		tab_col[18].name=hyd_label::proferg_cv_rv_in;
+		tab_col[18].name=hyd_label::proferg_dur_dry;
 		tab_col[18].type=sys_label::tab_col_type_double;
+		tab_col[18].unsigned_flag=true;
 		tab_col[18].default_value="0.0";
 
-		tab_col[19].name=hyd_label::proferg_cv_rv_out;
+		tab_col[19].name=hyd_label::proferg_cv_rv_in;
 		tab_col[19].type=sys_label::tab_col_type_double;
 		tab_col[19].default_value="0.0";
 
-		tab_col[20].name=hyd_label::proferg_cv_struc_in;
+		tab_col[20].name=hyd_label::proferg_cv_rv_out;
 		tab_col[20].type=sys_label::tab_col_type_double;
 		tab_col[20].default_value="0.0";
 
-		tab_col[21].name=hyd_label::proferg_cv_struc_out;
+		tab_col[21].name=hyd_label::proferg_cv_struc_in;
 		tab_col[21].type=sys_label::tab_col_type_double;
 		tab_col[21].default_value="0.0";
 
-		tab_col[22].name=hyd_label::proferg_cv_l_ov_in;
+		tab_col[22].name=hyd_label::proferg_cv_struc_out;
 		tab_col[22].type=sys_label::tab_col_type_double;
 		tab_col[22].default_value="0.0";
 
-		tab_col[23].name=hyd_label::proferg_cv_l_ov_out;
+		tab_col[23].name=hyd_label::proferg_cv_l_ov_in;
 		tab_col[23].type=sys_label::tab_col_type_double;
 		tab_col[23].default_value="0.0";
 
-		tab_col[24].name=hyd_label::proferg_cv_r_ov_in;
+		tab_col[24].name=hyd_label::proferg_cv_l_ov_out;
 		tab_col[24].type=sys_label::tab_col_type_double;
 		tab_col[24].default_value="0.0";
 
-		tab_col[25].name=hyd_label::proferg_cv_r_ov_out;
+		tab_col[25].name=hyd_label::proferg_cv_r_ov_in;
 		tab_col[25].type=sys_label::tab_col_type_double;
 		tab_col[25].default_value="0.0";
 
-		tab_col[26].name=hyd_label::proferg_cv_l_db_in;
+		tab_col[26].name=hyd_label::proferg_cv_r_ov_out;
 		tab_col[26].type=sys_label::tab_col_type_double;
 		tab_col[26].default_value="0.0";
 
-		tab_col[27].name=hyd_label::proferg_cv_l_db_out;
+		tab_col[27].name=hyd_label::proferg_cv_l_db_in;
 		tab_col[27].type=sys_label::tab_col_type_double;
 		tab_col[27].default_value="0.0";
 
-		tab_col[28].name=hyd_label::proferg_cv_r_db_in;
+		tab_col[28].name=hyd_label::proferg_cv_l_db_out;
 		tab_col[28].type=sys_label::tab_col_type_double;
 		tab_col[28].default_value="0.0";
 
-		tab_col[29].name=hyd_label::proferg_cv_r_db_out;
+		tab_col[29].name=hyd_label::proferg_cv_r_db_in;
 		tab_col[29].type=sys_label::tab_col_type_double;
 		tab_col[29].default_value="0.0";
 
-		tab_col[30].name=hyd_label::proferg_q_max;
+		tab_col[30].name=hyd_label::proferg_cv_r_db_out;
 		tab_col[30].type=sys_label::tab_col_type_double;
 		tab_col[30].default_value="0.0";
 
-		tab_col[31].name=hyd_label::proferg_polygon;
-		tab_col[31].type=sys_label::tab_col_type_polygon;
+		tab_col[31].name=hyd_label::proferg_q_max;
+		tab_col[31].type=sys_label::tab_col_type_double;
+		tab_col[31].default_value="0.0";
+
+		tab_col[32].name=hyd_label::proferg_polygon;
+		tab_col[32].type=sys_label::tab_col_type_polygon;
 
 		try{
 			_Hyd_River_Profile::erg_table= new Tables();
@@ -1451,12 +1455,12 @@ void _Hyd_River_Profile::close_erg_table(void) {
 	}
 }
 //Set the database table for the results of an hydraulic simulation for the river profiles: it sets the table name and the name of the columns and allocate them (static)
-void _Hyd_River_Profile::set_erg_table(QSqlDatabase *ptr_database){
+void _Hyd_River_Profile::set_erg_table(QSqlDatabase *ptr_database, const bool not_close){
 	if(_Hyd_River_Profile::erg_table==NULL){
 		//make specific input for this class
 		const string tab_id_name=hyd_label::tab_rvprof_erg_max;
 
-		string tab_id_col[32];
+		string tab_id_col[33];
 		tab_id_col[0]=hyd_label::profdata_rvno;
 		tab_id_col[1]=hyd_label::profdata_prof_id;
 		tab_id_col[2]=label::areastate_id;
@@ -1489,6 +1493,7 @@ void _Hyd_River_Profile::set_erg_table(QSqlDatabase *ptr_database){
 		tab_id_col[29]=hyd_label::proferg_hmax_lb_break;
 		tab_id_col[30]=hyd_label::proferg_hmax_rb_break;
 		tab_id_col[31]=hyd_label::proferg_s_max;
+		tab_id_col[32] = hyd_label::proferg_width_max;
 
 		try{
 			_Hyd_River_Profile::erg_table= new Tables(tab_id_name, tab_id_col, sizeof(tab_id_col)/sizeof(tab_id_col[0]));
@@ -1503,7 +1508,9 @@ void _Hyd_River_Profile::set_erg_table(QSqlDatabase *ptr_database){
 			throw msg;
 		}
 		catch(Error msg){
-			_Hyd_River_Profile::close_erg_table();
+			if (not_close == false) {
+				_Hyd_River_Profile::close_erg_table();
+			}
 			throw msg;
 		}
 	}
@@ -1516,7 +1523,7 @@ void _Hyd_River_Profile::create_erg_instat_table(QSqlDatabase *ptr_database) {
 		Sys_Common_Output::output_hyd->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name = hyd_label::tab_rvprof_erg_instat;
-		const int num_col = 13;
+		const int num_col = 14;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for (int i = 0; i < num_col; i++) {
@@ -1574,17 +1581,21 @@ void _Hyd_River_Profile::create_erg_instat_table(QSqlDatabase *ptr_database) {
 		tab_col[9].type = sys_label::tab_col_type_double;
 		tab_col[9].default_value = "0.0";
 
-
-		tab_col[10].name = hyd_label::proferg_q_max;
+		tab_col[10].name = hyd_label::proferg_width_max;
 		tab_col[10].type = sys_label::tab_col_type_double;
 		tab_col[10].default_value = "0.0";
 
-		tab_col[11].name = hyd_label::data_time;
-		tab_col[11].type = sys_label::tab_col_type_string;
-		tab_col[11].default_value = "";
 
-		tab_col[12].name = hyd_label::proferg_polygon;
-		tab_col[12].type = sys_label::tab_col_type_polygon;
+		tab_col[11].name = hyd_label::proferg_q_max;
+		tab_col[11].type = sys_label::tab_col_type_double;
+		tab_col[11].default_value = "0.0";
+
+		tab_col[12].name = hyd_label::data_time;
+		tab_col[12].type = sys_label::tab_col_type_string;
+		tab_col[12].default_value = "";
+
+		tab_col[13].name = hyd_label::proferg_polygon;
+		tab_col[13].type = sys_label::tab_col_type_polygon;
 
 		try {
 			_Hyd_River_Profile::erg_instat_table = new Tables();
@@ -1632,7 +1643,7 @@ void _Hyd_River_Profile::set_erg_instat_table(QSqlDatabase *ptr_database, const 
 		//make specific input for this class
 		const string tab_id_name = hyd_label::tab_rvprof_erg_instat;
 
-		string tab_id_col[13];
+		string tab_id_col[14];
 		tab_id_col[0] = label::glob_id;
 		tab_id_col[1] = hyd_label::profdata_rvno;
 		tab_id_col[2]= label::areastate_id;
@@ -1646,6 +1657,7 @@ void _Hyd_River_Profile::set_erg_instat_table(QSqlDatabase *ptr_database, const 
 		tab_id_col[10] = hyd_label::proferg_q_max;
 		tab_id_col[11] = hyd_label::proferg_polygon;
 		tab_id_col[12] = hyd_label::data_time;
+		tab_id_col[13] = hyd_label::proferg_width_max;
 
 
 
@@ -3410,6 +3422,7 @@ void _Hyd_River_Profile::output_max_results2csvfile(ofstream *file) {
 	*file << P(1) << FORMAT_FIXED_REAL << sum << W(15) << ",";
 	*file << P(2) << FORMAT_FIXED_REAL << this->q_value_max.maximum << W(15) << ",";
 	*file << P(0) << FORMAT_FIXED_REAL << this->q_value_max.time_point;
+
 	*file << endl;
 
 }
@@ -3465,6 +3478,7 @@ void _Hyd_River_Profile::output_max_results(QSqlDatabase *ptr_database, const in
 	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_s_max) <<" , ";
 	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_t_hmax) <<" , ";
 	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_v_max) <<" , ";
+	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_width_max) << " , ";
 	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_dur_wet) <<" , ";
 	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_dur_dry) <<" , ";
 	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_polygon) <<" ) ";
@@ -3547,6 +3561,7 @@ void _Hyd_River_Profile::output_instat_results(QSqlDatabase *ptr_database, const
 	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_h_max) << " , ";
 	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_s_max) << " , ";
 	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_v_max) << " , ";
+	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_width_max) << " , ";
 	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::data_time) << " , ";
 	query_string << _Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_polygon) << " ) ";
 
@@ -3611,6 +3626,7 @@ void _Hyd_River_Profile::output_result_members_per_timestep_header(void){
 	cout << "h" <<label::m<< W(10);
 	cout << "v" << label::m_per_sec<<W(10);
 	cout << "fr" << label::no_unit <<W(10);
+	cout << "width" << label::m<< W(10);
 	cout << "q" << label::qm_per_sec;
 	cout << endl;
 	Sys_Common_Output::output_hyd->output_txt(&cout,true);

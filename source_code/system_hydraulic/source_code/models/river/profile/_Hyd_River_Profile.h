@@ -156,7 +156,7 @@ public:
 	///Create the database table for the maximum results of an hydraulic simulation for the river profiles
 	static void create_erg_table(QSqlDatabase *ptr_database);
 	///Set the database table for the maximum results of an hydraulic simulation for the river profiles: it sets the table name and the name of the columns and allocate them
-	static void set_erg_table(QSqlDatabase *ptr_database);
+	static void set_erg_table(QSqlDatabase *ptr_database, const bool not_close = false);
 	///Close and delete the database table for the results of an hydraulic simulation the river profiles
 	static void close_erg_table(void);
 

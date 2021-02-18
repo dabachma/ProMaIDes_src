@@ -427,7 +427,7 @@ void Sys_Version_Update::check_update_hyd_table_instat_results(QSqlDatabase *ptr
 
 }
 ///Check and update the hydraulic table for instationary river results (16.9.2020)
-void Sys_Version_Update::check_update_hyd_table_instat_results_rv(QSqlDatabase *ptr_database) {
+void Sys_Version_Update::check_update_hyd_table_instat_results_rv(QSqlDatabase *ptr_database, const string project_file) {
 	if (Sys_Project::get_project_type() == _sys_project_type::proj_dam ||
 		Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
 		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
@@ -454,8 +454,9 @@ void Sys_Version_Update::check_update_hyd_table_instat_results_rv(QSqlDatabase *
 
 
 	_Hyd_River_Profile::close_erg_instat_table();
+	this->check_update_hyd_table_river_result_width(ptr_database, project_file);
 
-	//make indizes for max results tabele
+	//make indizes for max results table
 	//the table is set (the name and the column names) and allocated
 	try {
 		_Hyd_River_Profile::set_erg_table(ptr_database);
@@ -496,15 +497,73 @@ void Sys_Version_Update::check_update_hyd_view_bound2elements_profile(QSqlDataba
 	catch (Error msg) {
 		error = true;
 	}
+}
+//____________
+//private
+//Check and update the text of the hydraulic table of the hydraulic river profile result members; width_max is introduced (18.02.2021)
+void Sys_Version_Update::check_update_hyd_table_river_result_width(QSqlDatabase *ptr_database, const string project_file) {
 
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
 
+	bool error = false;
 
+	//check if columns exists for max results table
+	try {
+		_Hyd_River_Profile::set_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//width
+	bool exists = false;
+	for (int i = 0; i < _Hyd_River_Profile::erg_table->get_number_col(); i++) {
+		if ((_Hyd_River_Profile::erg_table->get_ptr_col())[i].id == hyd_label::proferg_width_max) {
+			exists = (_Hyd_River_Profile::erg_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_rvprof_erg_max, hyd_label::proferg_width_max, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_rvprof_erg_max, hyd_label::proferg_width_max);
+	}
+
+	_Hyd_River_Profile::close_erg_table();
+
+	error = false;
+
+	//check if columns exists for results per timestep table
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//width
+	exists = false;
+	for (int i = 0; i < _Hyd_River_Profile::erg_instat_table->get_number_col(); i++) {
+		if ((_Hyd_River_Profile::erg_instat_table->get_ptr_col())[i].id == hyd_label::proferg_width_max) {
+			exists = (_Hyd_River_Profile::erg_instat_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_rvprof_erg_instat, hyd_label::proferg_width_max, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_rvprof_erg_instat, hyd_label::proferg_width_max);
+	}
+
+	_Hyd_River_Profile::close_erg_instat_table();
 
 
 
 }
-//____________
-//private
 //Set error(s)
 Error Sys_Version_Update::set_error(const int err_type){
 	string place="Sys_Version_Update::";

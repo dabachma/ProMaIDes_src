@@ -77,6 +77,8 @@ void Hyd_River_Profile_Type_Weir::set_actuel_profilevalues_by_waterlevel(const d
 			this->area2calc=this->solved_area;
 		}
 		this->set_actual_conveyance_by_table(this->s_value);
+
+		this->width = this->width_table.get_interpolated_values(this->area2calc);
 	}
 	catch(Error msg){
 		throw msg;	
@@ -88,6 +90,7 @@ void Hyd_River_Profile_Type_Weir::output_tables(void){
 	this->c_left_table.output_table(&cout);
 	this->c_right_table.output_table(&cout);
 	this->h_table.output_table(&cout);
+	this->width_table.output_table(&cout);
 	for (int i=0; i< this->no_mid_segments; i++){
 		cout << "Table for Segmentno. " << i << endl;
 		this->weir_discharge_table[i].output_table(&cout);
@@ -124,6 +127,7 @@ double Hyd_River_Profile_Type_Weir::calculate_actual_discharge(_Hyd_River_Profil
 	try{
 		this->solved_area=this->area_table.get_interpolated_values(this->s_value);
 		this->area2calc=this->solved_area;
+		this->width = this->width_table.get_interpolated_values(this->area2calc);
 
 	}
 	catch(Error msg){

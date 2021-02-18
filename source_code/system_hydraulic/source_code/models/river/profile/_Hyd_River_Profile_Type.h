@@ -79,6 +79,8 @@ public:
 	Hyd_Tables area_table;
 	///Table in which the global waterlevel (s) is stored dependent from the area
 	Hyd_Tables h_table;
+	//Table in which the width is stored dependent from the area
+	Hyd_Tables width_table;
 
 	///Pointer to the table for the profile point data in a database
 	static Tables *profile_point_table;
@@ -263,6 +265,8 @@ public:
 
 	///Get h_max-value
 	_hyd_max_values get_max_h(void);
+	///Get width_max-value
+	_hyd_max_values get_max_width(void);
 	///Get s_max-value
 	_hyd_max_values get_max_s(void);
 	///Get max vtot-value
@@ -270,6 +274,8 @@ public:
 
 	///Get h-value
 	double get_h(void);
+	///Get width-value
+	double get_width(void);
 	///Get s-value
 	double get_s(void);
 	///Get vtot-value
@@ -329,6 +335,11 @@ protected:
 	double dry_duration;
 	///Duration how long the profile was dry
 	double wet_duration;
+
+	///Width of the water surface
+	double width;
+	///The maximum width for this profile during calculation and the corresponding point in time
+	_hyd_max_values width_value_max;
 
 	///The Froude-number for this profile; the calculation is done approximatly for a rectangular profile (fr=v/(g*h)^0.5)
 	double froude_no;
