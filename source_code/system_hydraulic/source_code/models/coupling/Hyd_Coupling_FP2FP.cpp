@@ -59,8 +59,8 @@ void Hyd_Coupling_FP2FP::init_coupling(void){
 		this->list.transfer_informations2points();
 
 		////output for development
-		/*ostringstream cout;
-		this->list.output_setted_members(&cout);*/
+		//ostringstream cout;
+		//this->list.output_setted_members(&cout);
 
 	}
 	catch(Error msg){
@@ -196,5 +196,8 @@ void Hyd_Coupling_FP2FP::set_defining_polysegment(void){
 	}
 	//set the defining polysegment to the list
 	this->list.set_defining_polysegment(&this->defining_polysegment);
+
+	//check for development
+	//this->defining_polysegment.output_members();
 	
 }

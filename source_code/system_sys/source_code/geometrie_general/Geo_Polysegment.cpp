@@ -199,7 +199,10 @@ double Geo_Polysegment::get_distance_along_polysegment(Geo_Point * check_point){
 	if(index_segment==-1){
 		Error msg=this->set_error(3);
 		ostringstream info;
-		info << FORMAT_FIXED_REAL << P(3)<< "Given point: x " << check_point->get_xcoordinate() << " y " << check_point->get_ycoordinate() << endl;
+		info << FORMAT_FIXED_REAL << P(5)<< "Given point: x " << check_point->get_xcoordinate() << " y " << check_point->get_ycoordinate() << endl;
+		this->output_members(&info);
+
+
 		msg.make_second_info(info.str());
 		throw msg;
 	}

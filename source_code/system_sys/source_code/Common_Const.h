@@ -175,7 +175,7 @@ namespace constant{
 	///Epsilon boundary to check a value which is numerically greater than zero
 	const double zero_epsilon=1.0e-8;
 	///Epsilon boundary to check equality in meter (e.g. coordinates, waterlevels)
-	const double meter_epsilon=1.0e-4;
+	const double meter_epsilon=2.0e-4;
 	///Epsilon boundary to check equality of percentage value (e.g. relative areas)
 	const double percentage_epsilon=1.0e-4;
 	///Epsilon boundary to check equality of degree value (e.g. angle)

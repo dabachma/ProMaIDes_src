@@ -522,6 +522,7 @@ void _Geo_Polygon::calculate_polysegment_interception(Geo_Interception_Point_Lis
 					buffer.distance=check_polysegment->get_distance_along_polysegment(&(buffer.line_interception.interception_point));
 				}
 				catch(Error msg){
+					
 					throw msg;
 				}
 				intercept_list->set_new_point(&buffer);

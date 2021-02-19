@@ -1311,10 +1311,10 @@ void Hyd_Floodplain_Polysegment::output_members(void){
 		Sys_Common_Output::output_hyd->output_txt(&cout,true);
 		double sum_dist=0.0;
 		for(int i=0; i< this->number_segments; i++){
-			cout << W(3)<< i <<","<< W(12) << P(2)<< FORMAT_FIXED_REAL<< this->my_segment[i].point1.get_xcoordinate() << ",";
-			cout << W(13) << P(2) << FORMAT_FIXED_REAL<< this->my_segment[i].point1.get_ycoordinate() << ",";
-			cout << W(13) << P(2) << FORMAT_FIXED_REAL<< this->my_segment[i].point2.get_xcoordinate() << ",";
-			cout << W(13) << P(2) << FORMAT_FIXED_REAL<< this->my_segment[i].point2.get_ycoordinate() << ",";
+			cout << W(3)<< i <<","<< W(12) << P(5)<< FORMAT_FIXED_REAL<< this->my_segment[i].point1.get_xcoordinate() << ",";
+			cout << W(13) << P(5) << FORMAT_FIXED_REAL<< this->my_segment[i].point1.get_ycoordinate() << ",";
+			cout << W(13) << P(5) << FORMAT_FIXED_REAL<< this->my_segment[i].point2.get_xcoordinate() << ",";
+			cout << W(13) << P(5) << FORMAT_FIXED_REAL<< this->my_segment[i].point2.get_ycoordinate() << ",";
 			if(this->line_points!=NULL){
 				cout << W(13) << P(2) << FORMAT_FIXED_REAL<< this->line_points[i].get_abs_height() << ",";
 			}

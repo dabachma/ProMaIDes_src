@@ -526,6 +526,8 @@ void Hyd_Floodplain_Raster::assign_elements2couplingpointlist(Hyd_Coupling_Point
 	try{
 		//first delete the interception list of the defining polysegment
 		list->get_defining_polysegment()->intercept_list.delete_list();
+		//for debug
+		//list->get_defining_polysegment()->output_members();
 		//fill it with the interception points
 		for(int i=0; i< this->number_polygons; i++){
 			//set the polygon
