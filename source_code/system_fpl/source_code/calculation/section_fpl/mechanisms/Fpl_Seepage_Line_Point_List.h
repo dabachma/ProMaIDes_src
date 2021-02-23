@@ -46,6 +46,11 @@ public:
 	///Output members to tecplot
 	void output_members2tecplot(ofstream *file_name, Geo_Polysegment *cubature);
 
+	///Output members to paraview
+	void output_members2paraview(ofstream *file_name, Geo_Polysegment *cubature, const int before, const int after);
+	///Output members to excel
+	void output_members2excel(ofstream *file_name, Geo_Polysegment *cubature, const int before, const int after);
+
 	///Count the number of points inside the section body#
 	int count_number_inside_points(void);
 

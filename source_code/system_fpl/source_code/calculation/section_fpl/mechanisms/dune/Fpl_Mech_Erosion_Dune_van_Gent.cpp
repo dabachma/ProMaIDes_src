@@ -323,6 +323,143 @@ void Fpl_Mech_Erosion_Dune_van_Gent::output_results2tecplot(const string new_pro
 	//close the file
 	output.close();
 }
+//Output the new profile shape to paraview
+void Fpl_Mech_Erosion_Dune_van_Gent::output_results2paraview(const string new_profile) {
+	//open the file
+	ofstream output;
+	output.open(new_profile.c_str());
+	if (output.is_open() == false) {
+		Error msg = this->set_error(3);
+		ostringstream info;
+		info << "Filename : " << new_profile << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	output << P(4) << FORMAT_FIXED_REAL;
+	//header
+	output <<"x,";
+	int count_col_tot = 1;
+	output << "z_new_profile,";
+	count_col_tot++;
+	output << "waterlevel";
+	count_col_tot++;
+
+	output << endl;
+	output.flush();
+	int counter_col_before = 0;
+	int counter_col_after = count_col_tot - 1;
+
+	//output points
+	double x_coor = 0.0;
+	double y_coor = 0.0;
+
+	counter_col_after--;
+	for (int i = 1; i < this->new_shape_poly.get_number_points() - 1; i++) {
+		x_coor = this->new_shape_poly.get_point(i)->get_xcoordinate();
+		y_coor = this->new_shape_poly.get_point(i)->get_ycoordinate();
+		output << x_coor << ",";
+		functions::add_seperator_csv("NAN,", &output, counter_col_before);
+		output << y_coor;
+		functions::add_seperator_csv(",NAN", &output, counter_col_after);
+		output << endl;
+
+		output.flush();
+	}
+	counter_col_before++;
+
+	counter_col_after--;
+	//output waterlevel
+	x_coor = this->new_shape_poly.get_point(1)->get_xcoordinate();
+	y_coor = this->one2one_line.point1.get_ycoordinate();
+	output << x_coor << ",";
+	functions::add_seperator_csv("NAN,", &output, counter_col_before);
+	output << y_coor;
+	functions::add_seperator_csv(",NAN", &output, counter_col_after);
+	output << endl;
+
+	x_coor = this->one2one_line.point1.get_xcoordinate();
+	y_coor = this->one2one_line.point1.get_ycoordinate();
+	output << x_coor << ",";
+	functions::add_seperator_csv("NAN,", &output, counter_col_before);
+	output << y_coor;
+	functions::add_seperator_csv("NAN,", &output, counter_col_after);
+	output << endl;
+	counter_col_before++;
+
+
+	//close the file
+	output.close();
+
+}
+//Output the new profile shape to excel
+void Fpl_Mech_Erosion_Dune_van_Gent::output_results2excel(const string new_profile) {
+	//open the file
+	ofstream output;
+	output.open(new_profile.c_str());
+	if (output.is_open() == false) {
+		Error msg = this->set_error(4);
+		ostringstream info;
+		info << "Filename : " << new_profile << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	output << P(4) << FORMAT_FIXED_REAL;
+	//header
+	output << "x;";
+	int count_col_tot = 1;
+	output << "z_new_profile;";
+	count_col_tot++;
+	output << "waterlevel";
+	count_col_tot++;
+
+	output << endl;
+	output.flush();
+	int counter_col_before = 0;
+	int counter_col_after = count_col_tot - 1;
+
+	//output points
+	double x_coor = 0.0;
+	double y_coor = 0.0;
+
+	counter_col_after--;
+	for (int i = 1; i < this->new_shape_poly.get_number_points() - 1; i++) {
+		x_coor = this->new_shape_poly.get_point(i)->get_xcoordinate();
+		y_coor = this->new_shape_poly.get_point(i)->get_ycoordinate();
+		output << x_coor << ";";
+		functions::add_seperator_csv(";", &output, counter_col_before);
+		output << y_coor;
+		functions::add_seperator_csv(";", &output, counter_col_after);
+		output << endl;
+
+		output.flush();
+	}
+	counter_col_before++;
+
+	counter_col_after--;
+	//output waterlevel
+	x_coor = this->new_shape_poly.get_point(1)->get_xcoordinate();
+	y_coor = this->one2one_line.point1.get_ycoordinate();
+	output << x_coor << ";";
+	functions::add_seperator_csv(";", &output, counter_col_before);
+	output << y_coor;
+	functions::add_seperator_csv(";", &output, counter_col_after);
+	output << endl;
+
+	x_coor = this->one2one_line.point1.get_xcoordinate();
+	y_coor = this->one2one_line.point1.get_ycoordinate();
+	output << x_coor << ";";
+	functions::add_seperator_csv(";", &output, counter_col_before);
+	output << y_coor;
+	functions::add_seperator_csv(";", &output, counter_col_after);
+	output << endl;
+	counter_col_before++;
+
+
+	//close the file
+	output.close();
+}
 //Calculate the mechanism
 bool Fpl_Mech_Erosion_Dune_van_Gent::calculate_mechanism(const bool random_calculation, const double waterlevel, double wave_height, double wave_period, const double water_density, const double section_direction, const double wave_direction){
 	this->failure=0;
@@ -964,6 +1101,18 @@ Error Fpl_Mech_Erosion_Dune_van_Gent::set_error(const int err_type){
 			reason="Could not open the file for the tecplot output (new dune profile results) of the FPL-section";
 			help="Check the file";
 			type=5;
+			break;
+		case 3://could not open the tecplot file
+			place.append("output_results2paraview(const string new_profile)");
+			reason = "Could not open the file for the paraview output (new dune profile results) of the FPL-section";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 4://could not open the tecplot file
+			place.append("output_results2excel(const string new_profile)");
+			reason = "Could not open the file for the excel output (new dune profile results) of the FPL-section";
+			help = "Check the file";
+			type = 5;
 			break;
 		default:
 			place.append("set_error(const int err_type)");

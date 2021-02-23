@@ -61,7 +61,7 @@ Fpl_Section::~Fpl_Section(void){
 //_______________
 //public
 //Read in the fpl-section from file
-void Fpl_Section::read_section_per_file(const string file_section, const bool flag_frc_sim){
+void Fpl_Section::read_section_per_file(const string file_section, const bool flag_frc_sim, QSqlDatabase *ptr_database){
 	int line_counter=0;
 	QFile ifile;
 
@@ -110,6 +110,7 @@ void Fpl_Section::read_section_per_file(const string file_section, const bool fl
 
 		try{
 			this->allocate_section_type();
+			this->type_of_section->set_output_control_flags(ptr_database);
 		}
 		catch(Error msg){
 			throw msg;
@@ -184,6 +185,8 @@ void Fpl_Section::read_section_per_file(const string file_section, const bool fl
 			}
 			catch(Error msg){
 				this->output_geometry2tecplot();
+				this->output_geometry2excel();
+				this->output_geometry2paraview();
 				Sys_Common_Output::output_fpl->rewind_userprefix();
 				ifile.close();
 				ostringstream info;
@@ -1367,8 +1370,12 @@ void Fpl_Section::input_section_total_perdatabase(const QSqlQueryModel *results,
 		Sys_Common_Output::output_fpl->set_userprefix(&prefix);
 		//allocate the type
 		this->allocate_section_type();
+		this->type_of_section->set_output_control_flags(ptr_database);
 		this->type_of_section->set_input(this->id_section, this->flag_frc_sim, ptr_database);
 		this->output_geometry2tecplot();
+		this->output_geometry2excel();
+		this->output_geometry2paraview();
+
 	}
 	catch(Error msg){
 		ostringstream info;
@@ -1452,24 +1459,28 @@ void Fpl_Section::output_members(void){
 //Output the deterministic reliability of the section
 void Fpl_Section::output_reliability(void){
 	if(this->type_of_section!=NULL){
-		ostringstream buffer_seepage;
-		if(this->type==_fpl_section_types::dune_sec){
-			buffer_seepage << this->output_folder<<"NEWPROFILE_"<<this->id_section<<"_"<<this->section_name<<".dat";
-		}
-		else{
-			buffer_seepage << this->output_folder<<"SEEPAGE_"<<this->id_section<<"_"<<this->section_name<<".dat";
-		}
-		ostringstream buffer_slope;
-		buffer_slope << this->output_folder<<"SLOPE_"<<this->id_section<<"_"<<this->section_name<<".dat";
-
-		this->type_of_section->output_reliability(buffer_seepage.str(),buffer_slope.str() );
+		
+		this->type_of_section->output_reliability(this->output_folder, this->id_section, this->section_name);
 	}
 }
 //Output the section geometry to a tecplot file
 void Fpl_Section::output_geometry2tecplot(void){
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().tec_output == false) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+	//check folder
+	string folder_buff;
+	folder_buff=Fpl_Section::check_generate_folder("tecplot",&this->output_folder);
+
+
 	//create name
 	ostringstream buffer;
-	buffer << this->output_folder<<"GEO_"<<this->id_section<<"_"<<this->section_name<<".dat";
+	buffer << folder_buff <<"GEO_TEC_"<<this->id_section<<"_"<<this->section_name<<".dat";
 
 	//get the file name
 	string filename;
@@ -1505,6 +1516,102 @@ void Fpl_Section::output_geometry2tecplot(void){
 
 	//close the file
 	tecplot_output.close();
+}
+//Output the section geometry to a paraview file
+void Fpl_Section::output_geometry2paraview(void) {
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().para_output == false){
+			return;
+		}
+	}
+	else {
+		return;
+	}
+
+	//check folder
+	string folder_buff;
+	folder_buff = Fpl_Section::check_generate_folder("paraview", &this->output_folder);
+	//create name
+	ostringstream buffer;
+	buffer << folder_buff << "GEO_PARA_" << this->id_section << "_" << this->section_name << ".csv";
+
+	//get the file name
+	string filename;
+	filename = buffer.str();
+	//open the file
+	ofstream tecplot_output;
+	tecplot_output.open(filename.c_str());
+	if (tecplot_output.is_open() == false) {
+		Error msg = this->set_error(27);
+		ostringstream info;
+		info << "Filename : " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+	if (type_of_section != NULL) {
+		this->type_of_section->output_geometry2paraview(&tecplot_output);
+	}
+
+	//close the file
+	tecplot_output.close();
+
+
+}
+//Output the section geometry to a excel file
+void Fpl_Section::output_geometry2excel(void) {
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().excel_output == false) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+	//check folder
+	string folder_buff;
+	folder_buff = Fpl_Section::check_generate_folder("excel", &this->output_folder);
+	//create name
+	ostringstream buffer;
+	buffer << folder_buff << "GEO_EXCEL_" << this->id_section << "_" << this->section_name << ".csv";
+
+	//get the file name
+	string filename;
+	filename = buffer.str();
+	//open the file
+	ofstream tecplot_output;
+	tecplot_output.open(filename.c_str());
+	if (tecplot_output.is_open() == false) {
+		Error msg = this->set_error(28);
+		ostringstream info;
+		info << "Filename : " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+
+	if (type_of_section != NULL) {
+		this->type_of_section->output_geometry2excel(&tecplot_output);
+	}
+
+	//close the file
+	tecplot_output.close();
+
+}
+//Check and generate folder (static)
+string Fpl_Section::check_generate_folder(const string folder_name, string *path) {
+	QDir my_dir;
+	ostringstream buffer;
+	buffer << *path<<folder_name<<"/";
+	if (my_dir.exists(buffer.str().c_str()) == false) {
+		my_dir.mkdir(buffer.str().c_str());
+		
+	}
+	return buffer.str();
+
+
 }
 //Output result members to database table
 void Fpl_Section::output_result2table(QSqlDatabase *ptr_database, _fpl_simulation_type simulation_type, const int counter_mc_sim){
@@ -3638,6 +3745,18 @@ Error Fpl_Section::set_error(const int err_type){
 			reason="The start-station have to be smallrt than the end-station, because there are increasing station in dikeline direction";
 			help="Check the stations parameter start/end";
 			type=27;
+			break;
+		case 27://could not open the paraview file
+			place.append("output_geometrie2paraview(void)");
+			reason = "Could not open the file for the ParaView output (geometry) of the FPL-section";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 28://could not open the excel file
+			place.append("output_geometrie2excel(void)");
+			reason = "Could not open the file for the Excel output (geometry) of the FPL-section";
+			help = "Check the file";
+			type = 5;
 			break;
 		default:
 			place.append("set_error(const int err_type)");

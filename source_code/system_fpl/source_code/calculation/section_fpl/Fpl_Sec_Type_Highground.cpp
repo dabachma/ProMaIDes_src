@@ -130,7 +130,7 @@ void Fpl_Sec_Type_Highground::output_member(void){
 	this->height.output_member();
 }
 //Output the reliability of the fault tree mechanisms for a deterministic calculation to display/console
-void Fpl_Sec_Type_Highground::output_reliability(const string , const string ){
+void Fpl_Sec_Type_Highground::output_reliability(string , const int , const string ){
 	ostringstream cout;
 	ostringstream prefix;
 	prefix << "RES"<<"> ";

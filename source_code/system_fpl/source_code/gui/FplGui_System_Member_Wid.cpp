@@ -83,6 +83,21 @@ FplGui_System_Member_Wid::FplGui_System_Member_Wid(DataRole role, QWidget *paren
 	string types_3[] = {fpl_label::seepage_min_base_land, fpl_label::seepage_min_one_third};
 	this->ui.seepage_min_waterlevel->set_items(types_3, 2);
 
+	//output control
+	this->ui.output_tecplot->set_label_text("Tecplot");
+	this->ui.output_tecplot->set_tooltip("Activate it for generation of tecplot output files (deterministic)");
+	this->ui.output_tecplot->set_value(false);
+
+	this->ui.output_paraview->set_label_text("ParaView");
+	this->ui.output_paraview->set_tooltip("Activate it for generation of ParaView output files (deterministic)");
+	this->ui.output_paraview->set_value(true);
+
+	this->ui.output_excel->set_label_text("Excel");
+	this->ui.output_excel->set_tooltip("Activate it for generation of Excel output files (deterministic)");
+	this->ui.output_excel->set_value(true);
+	
+
+
 	DATA_ROLE_CONSTRUCTOR_STUFF();
 	//count the memory
 	ADD_MEM(FplGui_System_Member_Wid, _sys_system_modules::FPL_SYS);
@@ -116,6 +131,12 @@ void FplGui_System_Member_Wid::set_editable(const bool state) {
 	//seepage
 	this->ui.seepage_max_waterlevel->set_editable(state);
 	this->ui.seepage_min_waterlevel->set_editable(state);
+
+	//output
+	this->ui.output_tecplot->set_editable(state);
+	this->ui.output_paraview->set_editable(state);
+	this->ui.output_excel->set_editable(state);
+
 }
 //Set all members of the widget, similar to a copy constructor
 void FplGui_System_Member_Wid::set_member(_Sys_Abstract_Base_Wid *ptr) {
@@ -150,6 +171,19 @@ void FplGui_System_Member_Wid::set_member(_Sys_Abstract_Base_Wid *ptr) {
 	this->ui.seepage_min_waterlevel->set_editable(true);
 	this->ui.seepage_min_waterlevel->set_current_value(other->ui.seepage_min_waterlevel->get_current_index());
 	this->ui.seepage_min_waterlevel->set_editable(false);
+
+	//output
+	this->ui.output_tecplot->set_editable(true);
+	this->ui.output_tecplot->set_value(other->ui.output_tecplot->get_value());
+	this->ui.output_tecplot->set_editable(false);
+
+	this->ui.output_paraview->set_editable(true);
+	this->ui.output_paraview->set_value(other->ui.output_paraview->get_value());
+	this->ui.output_paraview->set_editable(false);
+
+	this->ui.output_excel->set_editable(true);
+	this->ui.output_excel->set_value(other->ui.output_excel->get_value());
+	this->ui.output_excel->set_editable(false);
 			
 }
 //Set default values
@@ -176,6 +210,10 @@ void FplGui_System_Member_Wid::set_default_values(void) {
 	//seepage
 	this->ui.seepage_max_waterlevel->set_current_value(0);
 	this->ui.seepage_min_waterlevel->set_current_value(0);
+	//output
+	this->ui.output_tecplot->set_value(false);
+	this->ui.output_paraview->set_value(true);
+	this->ui.output_excel->set_value(true);
 }
 //Set the member of the widget
 void FplGui_System_Member_Wid::set_member(QSqlDatabase *ptr_database){
@@ -213,6 +251,15 @@ void FplGui_System_Member_Wid::set_member(QSqlDatabase *ptr_database){
 		this->ui.seepage_min_waterlevel->set_editable(true);
 		this->ui.seepage_min_waterlevel->set_current_value(buffer_2.seepage_calc_min);
 		this->ui.seepage_min_waterlevel->set_editable(false);
+
+		//output
+		output_control buffer3;
+		Fpl_Mc_Sim::get_output_control_from_table(ptr_database, &buffer3);
+
+		this->ui.output_tecplot->set_value(buffer3.tec_output);
+		this->ui.output_paraview->set_value(buffer3.para_output);
+		this->ui.output_excel->set_value(buffer3.excel_output);
+
 	}
 	catch(Error msg){
 		msg.output_msg(0);
@@ -531,9 +578,13 @@ void FplGui_System_Member_Wid::transfer_members2database(FplGui_System_Member_Wi
 		msg.output_msg(0);	
 	}
 	query_string.str("");
-
-
-
+	
+	//output
+	output_control buffer3;
+	buffer3.excel_output = dialog->ui.output_excel->get_value();
+	buffer3.para_output = dialog->ui.output_paraview->get_value();
+	buffer3.tec_output = dialog->ui.output_tecplot->get_value();
+	Fpl_Mc_Sim::set_output_control2table(ptr_database, buffer3);
 
 
 

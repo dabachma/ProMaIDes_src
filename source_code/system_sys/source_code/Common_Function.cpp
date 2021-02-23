@@ -495,5 +495,11 @@ string functions::make_complete_output_path(const string path, const string fold
 
 	return my_str;
 }
-//For binary output of vtk-files (paraview)
+//Add seperator for csv-output
+void functions::add_seperator_csv(const string sep, ofstream *output, const int number) {
+	for (int i = 0; i < number; i++) {
+		*output << sep;
+	}
+
+}
 

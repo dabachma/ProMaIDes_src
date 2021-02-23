@@ -339,8 +339,172 @@ void Fpl_Mc_Sim::set_predefined_data2control_table(QSqlDatabase *ptr_database){
 	query_string.str("");
 	id_glob++;
 
+	//Keystring for the output setting to tecplot   
+	query_string << " VALUES ( ";
+	query_string << id_glob << " , ";
+	query_string << "'" << fpl_control_param::output_tecplot<< "'" << " , ";
+	query_string << fpl_control_param::output_tecplot_def << " , ";
+	query_string << "'Tecplot output required 1 := true ; 0 := false'" << " ) ";
+	total << query_string_fix.str() << query_string.str();
+	Data_Base::database_request(&model, total.str(), ptr_database);
+	total.str("");
+	query_string.str("");
+	id_glob++;
+
+	//Keystring for the output setting to paraview   
+	query_string << " VALUES ( ";
+	query_string << id_glob << " , ";
+	query_string << "'" << fpl_control_param::output_paraview << "'" << " , ";
+	query_string << fpl_control_param::output_paraview_def << " , ";
+	query_string << "'ParaView output required 1 := true ; 0 := false'" << " ) ";
+	total << query_string_fix.str() << query_string.str();
+	Data_Base::database_request(&model, total.str(), ptr_database);
+	total.str("");
+	query_string.str("");
+	id_glob++;
+
+	//Keystring for the output setting to excel  
+	query_string << " VALUES ( ";
+	query_string << id_glob << " , ";
+	query_string << "'" << fpl_control_param::output_excel << "'" << " , ";
+	query_string << fpl_control_param::output_excel_def << " , ";
+	query_string << "'Excel output required 1 := true ; 0 := false'" << " ) ";
+	total << query_string_fix.str() << query_string.str();
+	Data_Base::database_request(&model, total.str(), ptr_database);
+	total.str("");
+	query_string.str("");
+	id_glob++;
+
+
+
 	Fpl_Seepage_Calculator_Dike::set_predefined_data2control_table(ptr_database, &model, &id_glob, &query_string_fix);
 
+
+}
+///Get output control parameters from table (static)
+void Fpl_Mc_Sim::get_output_control_from_table(QSqlDatabase *ptr_database, output_control *control_flags) {
+	//mysql query with the table_model
+	QSqlTableModel model(0, *ptr_database);
+	int number_result = 0;
+	//the table is set the name and the column names: it is the same than for the mc-parameters
+	try {
+		Fpl_Mc_Sim::set_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+	//give the complet table of control parameters FPL
+	model.setTable(Fpl_Mc_Sim::table->get_table_name().c_str());
+	//set the query; select all in table
+	Data_Base::database_request(&model);
+	//check the query
+	if (model.lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Fpl_Mc_Sim::get_output_control_from_table(QSqlDatabase *ptr_database, output_control *control_flags)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Fpl_Mc_Sim::table->get_table_name() << endl;
+		info << "Table error info: " << model.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	else {
+		number_result = model.rowCount();
+	}
+	//read out the results
+	 //the set of the name-column has to match to this parameter
+	//output
+	if (number_result > 0) {
+		//read out from the search result
+		string buffer;
+		for (int i = 0; i < number_result; i++) {
+			buffer = model.record(i).value((Fpl_Mc_Sim::table->get_column_name(fpl_label::control_name)).c_str()).toString().toStdString();
+			if (buffer == fpl_control_param::output_excel) {
+				control_flags->excel_output = model.record(i).value((Fpl_Mc_Sim::table->get_column_name(fpl_label::control_value)).c_str()).toInt();
+
+			}
+			else if (buffer == fpl_control_param::output_paraview) {
+				control_flags->para_output = model.record(i).value((Fpl_Mc_Sim::table->get_column_name(fpl_label::control_value)).c_str()).toInt();
+
+			}
+			else if (buffer == fpl_control_param::output_tecplot) {
+				control_flags->tec_output = model.record(i).value((Fpl_Mc_Sim::table->get_column_name(fpl_label::control_value)).c_str()).toInt();
+
+			}
+		}
+	}
+
+
+
+}
+///Set output control parameters to table (static)
+void Fpl_Mc_Sim::set_output_control2table(QSqlDatabase *ptr_database, output_control control_flags) {
+	//the table is set (the name and the column names) and allocated
+	try {
+		Fpl_Mc_Sim::set_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+
+	QSqlQueryModel query;
+	ostringstream query_string;
+
+	//output
+	query_string << "UPDATE ";
+	query_string << Fpl_Mc_Sim::table->get_table_name();
+	query_string << " SET ";
+	query_string << Fpl_Mc_Sim::table->get_column_name(fpl_label::control_value) << " = '" << int(control_flags.excel_output) << "' ";
+	query_string << " WHERE ";
+	query_string << Fpl_Mc_Sim::table->get_column_name(fpl_label::control_name) << " = '" << fpl_control_param::output_excel << "'";
+	Data_Base::database_request(&query, query_string.str(), ptr_database);
+	if (query.lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Fpl_Mc_Sim::set_output_control2table(QSqlDatabase *ptr_database, output_control control_flags)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Fpl_Mc_Sim::table->get_table_name() << endl;
+		info << "Table error info: " << query.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	query_string.str("");
+
+	query_string << "UPDATE ";
+	query_string << Fpl_Mc_Sim::table->get_table_name();
+	query_string << " SET ";
+	query_string << Fpl_Mc_Sim::table->get_column_name(fpl_label::control_value) << " = '" << int(control_flags.para_output) << "' ";
+	query_string << " WHERE ";
+	query_string << Fpl_Mc_Sim::table->get_column_name(fpl_label::control_name) << " = '" << fpl_control_param::output_paraview << "'";
+	Data_Base::database_request(&query, query_string.str(), ptr_database);
+	if (query.lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Fpl_Mc_Sim::set_output_control2table(QSqlDatabase *ptr_database, output_control control_flags)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Fpl_Mc_Sim::table->get_table_name() << endl;
+		info << "Table error info: " << query.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	query_string.str("");
+
+	query_string << "UPDATE ";
+	query_string << Fpl_Mc_Sim::table->get_table_name();
+	query_string << " SET ";
+	query_string << Fpl_Mc_Sim::table->get_column_name(fpl_label::control_value) << " = '" << int(control_flags.tec_output) << "' ";
+	query_string << " WHERE ";
+	query_string << Fpl_Mc_Sim::table->get_column_name(fpl_label::control_name) << " = '" << fpl_control_param::output_tecplot << "'";
+	Data_Base::database_request(&query, query_string.str(), ptr_database);
+	if (query.lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Fpl_Mc_Sim::set_output_control2table(QSqlDatabase *ptr_database, output_control control_flags)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Fpl_Mc_Sim::table->get_table_name() << endl;
+		info << "Table error info: " << query.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	query_string.str("");
 
 }
 ///Close and delete the database table for the calculation data (static)

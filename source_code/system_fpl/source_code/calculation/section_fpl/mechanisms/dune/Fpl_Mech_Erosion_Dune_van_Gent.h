@@ -74,6 +74,10 @@ public:
 	void output_determ_results(void);
 	///Output the new profile shape to tecplot
 	void output_results2tecplot(const string new_profile);
+	///Output the new profile shape to paraview
+	void output_results2paraview(const string new_profile);
+	///Output the new profile shape to excel
+	void output_results2excel(const string new_profile);
 
 	///Calculate the mechanism
 	bool calculate_mechanism(const bool random_calculation, const double waterlevel, double wave_height, double wave_period, const double water_density, const double section_direction, const double wave_direction);

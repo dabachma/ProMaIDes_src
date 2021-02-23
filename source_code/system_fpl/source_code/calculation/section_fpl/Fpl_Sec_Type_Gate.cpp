@@ -80,11 +80,20 @@ void Fpl_Sec_Type_Gate::output_member(void){
 
 }
 //Output the reliability of the fault tree mechanisms for a deterministic calculation to display/console
-void Fpl_Sec_Type_Gate::output_reliability(const string seepage_file, const string slope_file){
+void Fpl_Sec_Type_Gate::output_reliability(string output_folder, const int sec_id, const string sec_name){
 
 }
 //Output the geometry to tecplot
 void Fpl_Sec_Type_Gate::output_geometry2tecplot(ofstream *output){
+
+}
+//Output the geometry to paraview
+void Fpl_Sec_Type_Gate::output_geometry2paraview(ofstream *output) {
+
+
+}
+//Output the geometry to excel
+void Fpl_Sec_Type_Gate::output_geometry2excel(ofstream *output) {
 
 }
 //Output result members of the mechanisms to database table

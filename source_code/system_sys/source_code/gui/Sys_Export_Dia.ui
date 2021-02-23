@@ -49,12 +49,12 @@
      </property>
      <widget class="QRadioButton" name="radioButton_excel_tab">
       <property name="text">
-       <string>output tab separated (e.g. excel)</string>
+       <string>output tab separated (e.g. Excel)</string>
       </property>
      </widget>
      <widget class="QRadioButton" name="radioButton_excel_comma">
       <property name="text">
-       <string>output comma separated (e.g. excel)</string>
+       <string>output comma separated (.csv, e.g. Excel/ParaView)</string>
       </property>
      </widget>
      <widget class="QRadioButton" name="radioButton_tecplot">

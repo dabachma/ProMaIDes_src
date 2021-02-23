@@ -359,7 +359,110 @@ void Fpl_Slip_Circle::output_slices2tecplot(ofstream *output, const bool landsid
 	output->flush();
 
 }
+//Output the slices to paraview
+void Fpl_Slip_Circle::output_slices2paraview(ofstream *output, const bool landside, const int before, const int after) {
+	if (this->relevant_circle == false) {
+		return;
+	}
 
+	if (landside == true) {
+		*output << this->points_cubature.get_ptr_point(0)->get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, before);
+		*output << this->points_cubature.get_ptr_point(0)->get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, after);
+		*output << endl;
+	}
+	else {
+		*output << this->points_cubature.get_ptr_point(1)->get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, before);
+		*output << this->points_cubature.get_ptr_point(1)->get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, after);
+		*output << endl;
+
+	}
+
+
+
+	for (int i = 0; i < this->number_slices; i++) {
+		*output << this->slices[i].get_mid_point()->get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, before);
+		*output	<< this->slices[i].get_mid_point()->get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, after);
+		*output << endl;
+	}
+
+
+	if (landside == true) {
+		*output << this->points_cubature.get_ptr_point(1)->get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, before);
+		*output << this->points_cubature.get_ptr_point(1)->get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, after);
+		*output << endl;
+	}
+	else {
+		*output << this->points_cubature.get_ptr_point(0)->get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, before);
+		*output << this->points_cubature.get_ptr_point(0)->get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, after);
+		*output << endl;
+
+	}
+	output->flush();
+
+
+
+}
+//Output the slices to excel
+void Fpl_Slip_Circle::output_slices2excel(ofstream *output, const bool landside, const int before, const int after) {
+	if (this->relevant_circle == false) {
+		return;
+	}
+
+	if (landside == true) {
+		*output << this->points_cubature.get_ptr_point(0)->get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, before);
+		*output << this->points_cubature.get_ptr_point(0)->get_ycoordinate();
+		functions::add_seperator_csv(";", output, after);
+		*output << endl;
+	}
+	else {
+		*output << this->points_cubature.get_ptr_point(1)->get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, before);
+		*output << this->points_cubature.get_ptr_point(1)->get_ycoordinate();
+		functions::add_seperator_csv(";", output, after);
+		*output << endl;
+
+	}
+
+
+
+	for (int i = 0; i < this->number_slices; i++) {
+		*output << this->slices[i].get_mid_point()->get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, before);
+		*output << this->slices[i].get_mid_point()->get_ycoordinate();
+		functions::add_seperator_csv(";", output, after);
+		*output << endl;
+	}
+
+
+	if (landside == true) {
+		*output << this->points_cubature.get_ptr_point(1)->get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, before);
+		*output << this->points_cubature.get_ptr_point(1)->get_ycoordinate();
+		functions::add_seperator_csv(";", output, after);
+		*output << endl;
+	}
+	else {
+		*output << this->points_cubature.get_ptr_point(0)->get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, before);
+		*output << this->points_cubature.get_ptr_point(0)->get_ycoordinate();
+		functions::add_seperator_csv(";", output, after);
+		*output << endl;
+
+	}
+	output->flush();
+
+}
 //Set the relevant segments of the cubature, which are involved in the slip cricle
 void Fpl_Slip_Circle::set_involved_cubature_segment(Geo_Polysegment *cubature){
 

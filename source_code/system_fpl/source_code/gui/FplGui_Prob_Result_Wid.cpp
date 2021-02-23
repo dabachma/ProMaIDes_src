@@ -157,8 +157,8 @@ void FplGui_Prob_Result_Wid::set_member(QSqlDatabase *ptr_database, const int se
 			x_data=new double [number];
 			y_data=new double [number];
 
-            x_data_h=new double [2];
-            y_data_h=new double [2];
+            x_data_h=new double [number];
+            y_data_h=new double [number];
 		}
 		catch(bad_alloc &t){
 			Error msg=set_error(0);
@@ -187,11 +187,15 @@ void FplGui_Prob_Result_Wid::set_member(QSqlDatabase *ptr_database, const int se
 		this->widget_frc->getPlotPtr()->set_curve_data(2, number, x_data, y_data);
 
         //set structure height
+		for (int i = 0; i < number; i++) {
+			x_data_h[i] = struct_height;
+			y_data_h[i] = 1.0;
+		}
+
         x_data_h[0]=struct_height;
         y_data_h[0]=0;
-        x_data_h[1]=struct_height;
-        y_data_h[1]=1.0;
-        this->widget_frc->getPlotPtr()->set_curve_data(3, 2, x_data_h, y_data_h);
+
+        this->widget_frc->getPlotPtr()->set_curve_data(3, number, x_data_h, y_data_h);
 
 
 		//number generation

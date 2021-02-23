@@ -498,6 +498,107 @@ void Sys_Version_Update::check_update_hyd_view_bound2elements_profile(QSqlDataba
 		error = true;
 	}
 }
+//Check and update the output control parameter for FPL-module (22.2.2021)
+void Sys_Version_Update::check_update_fpl_output_control(QSqlDatabase *ptr_database) {
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_dam || Sys_Project::get_project_type() == _sys_project_type::proj_dam_hyd ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
+
+	try {
+		Fpl_Mc_Sim::set_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+	//check if available
+	QSqlQueryModel results;
+	ostringstream test_filter;
+	test_filter << "Select ";
+	test_filter << " * ";
+	test_filter << " from " << Fpl_Mc_Sim::table->get_table_name();
+	test_filter << " where ";
+	test_filter << Fpl_Mc_Sim::table->get_column_name(fpl_label::control_name) << "= " << "'" << fpl_control_param::output_tecplot << "'";
+
+
+	Data_Base::database_request(&results, test_filter.str(), ptr_database);
+
+	//check the request
+	if (results.lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Sys_Version_Update::check_update_fpl_output_control(QSqlDatabase *ptr_database)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Fpl_Mc_Sim::table->get_table_name() << endl;
+		info << "Table error info: " << results.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	if (results.rowCount() > 0) {
+		Fpl_Mc_Sim::close_table();
+		return;
+	}
+
+
+	//mysql query with the query-class
+	QSqlQuery model(*ptr_database);
+
+	//evaluate the global identifier
+	int id_glob = Fpl_Mc_Sim::table->maximum_int_of_column(Fpl_Mc_Sim::table->get_column_name(fpl_label::glob_id), ptr_database) + 1;
+	ostringstream total;
+
+	//set the query via a query string
+	ostringstream query_string_fix;
+	query_string_fix << "INSERT INTO  " << Fpl_Mc_Sim::table->get_table_name();
+	query_string_fix << " ( ";
+	query_string_fix << Fpl_Mc_Sim::table->get_column_name(fpl_label::glob_id) << " , ";
+	query_string_fix << Fpl_Mc_Sim::table->get_column_name(fpl_label::control_name) << " , ";
+	query_string_fix << Fpl_Mc_Sim::table->get_column_name(fpl_label::control_value) << " , ";
+	query_string_fix << Fpl_Mc_Sim::table->get_column_name(label::description) << " ) ";
+
+	//Keystring for maximal number of a monte-carlo simulations 
+	ostringstream query_string;
+	//Keystring for the output setting to tecplot   
+	query_string << " VALUES ( ";
+	query_string << id_glob << " , ";
+	query_string << "'" << fpl_control_param::output_tecplot << "'" << " , ";
+	query_string << fpl_control_param::output_tecplot_def << " , ";
+	query_string << "'Tecplot output required 1 := true ; 0 := false'" << " ) ";
+	total << query_string_fix.str() << query_string.str();
+	Data_Base::database_request(&model, total.str(), ptr_database);
+	total.str("");
+	query_string.str("");
+	id_glob++;
+
+	//Keystring for the output setting to paraview   
+	query_string << " VALUES ( ";
+	query_string << id_glob << " , ";
+	query_string << "'" << fpl_control_param::output_paraview << "'" << " , ";
+	query_string << fpl_control_param::output_paraview_def << " , ";
+	query_string << "'ParaView output required 1 := true ; 0 := false'" << " ) ";
+	total << query_string_fix.str() << query_string.str();
+	Data_Base::database_request(&model, total.str(), ptr_database);
+	total.str("");
+	query_string.str("");
+	id_glob++;
+
+	//Keystring for the output setting to excel  
+	query_string << " VALUES ( ";
+	query_string << id_glob << " , ";
+	query_string << "'" << fpl_control_param::output_excel << "'" << " , ";
+	query_string << fpl_control_param::output_excel_def << " , ";
+	query_string << "'Excel output required 1 := true ; 0 := false'" << " ) ";
+	total << query_string_fix.str() << query_string.str();
+	Data_Base::database_request(&model, total.str(), ptr_database);
+	total.str("");
+	query_string.str("");
+	id_glob++;
+
+	Fpl_Mc_Sim::close_table();
+
+}
 //____________
 //private
 //Check and update the text of the hydraulic table of the hydraulic river profile result members; width_max is introduced (18.02.2021)

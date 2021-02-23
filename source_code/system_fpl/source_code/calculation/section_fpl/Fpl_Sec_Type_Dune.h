@@ -66,9 +66,13 @@ public:
 	///Output the section members to display/console
 	void output_member(void);
 	///Output the reliability of the fault tree mechanisms for a deterministic calculation to display/console
-	void output_reliability(const string new_shape_file, const string slope_file);
+	void output_reliability(string output_folder, const int sec_id, const string sec_name);
 	///Output the geometry to tecplot
 	void output_geometry2tecplot(ofstream *output);
+	///Output the geometry to paraview
+	void output_geometry2paraview(ofstream *output);
+	///Output the geometry to excel
+	void output_geometry2excel(ofstream *output);
 	///Output result members of the mechanisms to database table
 	void output_result2table(QSqlDatabase *ptr_database, _fpl_simulation_type simulation_type, _sys_system_id id, const int section_id, const int counter_mc_sim);
 

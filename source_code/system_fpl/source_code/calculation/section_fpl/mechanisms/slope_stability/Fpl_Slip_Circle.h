@@ -72,6 +72,10 @@ public:
 
 	///Output the slices to tecplot
 	void output_slices2tecplot(ofstream *output, const bool landside);
+	///Output the slices to paraview
+	void output_slices2paraview(ofstream *output, const bool landside, const int before, const int after);
+	///Output the slices to excel
+	void output_slices2excel(ofstream *output, const bool landside, const int before, const int after);
 
 	///Set the relevant segments of the cubature, which are involved in the slip cricle
 	void set_involved_cubature_segment(Geo_Polysegment *cubature);

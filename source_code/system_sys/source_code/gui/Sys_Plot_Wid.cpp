@@ -546,17 +546,17 @@ void Sys_Plot_Wid::setOutputTypeAsciiTab(void) {
 	ostringstream buffer;
 	
 	//Header
-	buffer << "Title:" << this->title().text().toStdString() << endl;
-	buffer << endl;
+	//buffer << "Title:" << this->title().text().toStdString() << endl;
+	//buffer << endl;
 	for(int j = 0; j < this->number_curve; ++j){
-		buffer << this->curves[j].title().text().toStdString() << "\t\t";
+		buffer << "x_" << this->curves[j].title().text().toStdString() << "\t" << "y_" << this->curves[j].title().text().toStdString() << "\t";
 	}
 	buffer << endl;
-	for(int j = 0; j < this->number_curve; ++j){
-		buffer << QString("X%1").arg(j).toStdString() << "\t" << QString("Y%1").arg(j).toStdString() << "\t";
-	}
-	buffer << endl;
-	asciiFileTab << buffer.str() << endl;
+	//for(int j = 0; j < this->number_curve; ++j){
+	//	buffer << QString("X%1").arg(j).toStdString() << "\t" << QString("Y%1").arg(j).toStdString() << "\t";
+	//}
+	//buffer << endl;
+	asciiFileTab << buffer.str();
 	buffer.str("");
 
 	//Data
@@ -585,17 +585,17 @@ void Sys_Plot_Wid::setOutputTypeAsciiComma(void){
 	ostringstream buffer;
 	
 	//Header
-	buffer << "Title:" << this->title().text().toStdString() << endl;
-	buffer << endl;
+	//buffer << "Title:" << this->title().text().toStdString() << endl;
+	//buffer << endl;
 	for(int j = 0; j < this->number_curve; ++j){
-		buffer << this->curves[j].title().text().toStdString() << ",,";
+		buffer << "x_"<<this->curves[j].title().text().toStdString() << "," << "y_" << this->curves[j].title().text().toStdString() << ",";
 	}
 	buffer << endl;
-	for(int j = 0; j < this->number_curve; ++j){
-		buffer << QString("X%1").arg(j).toStdString() << "," << QString("Y%1").arg(j).toStdString() << ",";
-	}
-	buffer << endl;
-	asciiFileComma << buffer.str() << endl;
+	//for(int j = 0; j < this->number_curve; ++j){
+	//	buffer << QString("X%1").arg(j).toStdString() << "," << QString("Y%1").arg(j).toStdString() << ",";
+	//}
+	//buffer << endl;
+	asciiFileComma << buffer.str();
 	buffer.str("");
 
 	//Data

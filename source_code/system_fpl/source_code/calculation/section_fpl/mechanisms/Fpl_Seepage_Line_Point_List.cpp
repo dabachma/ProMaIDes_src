@@ -107,6 +107,51 @@ void Fpl_Seepage_Line_Point_List::output_members2tecplot(ofstream *file_name, Ge
 	}
 
 }
+//Output members to paraview
+void Fpl_Seepage_Line_Point_List::output_members2paraview(ofstream *file_name, Geo_Polysegment *cubature, const int before, const int after) {
+	Fpl_Seepage_Line_Point_List buffer;
+	//copy them
+	for (int i = 0; i < this->number_points; i++) {
+		buffer.add_new_point(this->points[i].get_x_coordinate(), this->points[i].get_waterlevel(), this->points[i].get_inside_dike_body_flag(), cubature);
+	}
+	//sort them
+	this->sort_list(&buffer);
+	for (int i = 0; i < this->number_points; i++) {
+		if (buffer.get_list_point(i)->get_inside_dike_body_flag() == true) {
+			*file_name << buffer.get_list_point(i)->get_x_coordinate() << ",";
+			functions::add_seperator_csv("NAN,", file_name, before);
+			*file_name << buffer.get_list_point(i)->get_waterlevel();
+			functions::add_seperator_csv(",NAN", file_name, after);
+
+			*file_name<< endl;
+		}
+
+	}
+
+
+}
+//Output members to excel
+void Fpl_Seepage_Line_Point_List::output_members2excel(ofstream *file_name, Geo_Polysegment *cubature, const int before, const int after) {
+	Fpl_Seepage_Line_Point_List buffer;
+	//copy them
+	for (int i = 0; i < this->number_points; i++) {
+		buffer.add_new_point(this->points[i].get_x_coordinate(), this->points[i].get_waterlevel(), this->points[i].get_inside_dike_body_flag(), cubature);
+	}
+	//sort them
+	this->sort_list(&buffer);
+	for (int i = 0; i < this->number_points; i++) {
+		if (buffer.get_list_point(i)->get_inside_dike_body_flag() == true) {
+			*file_name << buffer.get_list_point(i)->get_x_coordinate() << ";";
+			functions::add_seperator_csv(";", file_name, before);
+			*file_name << buffer.get_list_point(i)->get_waterlevel();
+			functions::add_seperator_csv(";", file_name, after);
+
+			*file_name << endl;
+		}
+
+	}
+	
+}
 //Count the number of points inside the section body#
 int Fpl_Seepage_Line_Point_List::count_number_inside_points(void){
 	int counter=0;

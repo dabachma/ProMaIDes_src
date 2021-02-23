@@ -48,6 +48,12 @@ public:
 	///Check and update the hydraulic view for boundary conditions to floodplain elements / river profile (3.2.2021)
 	void check_update_hyd_view_bound2elements_profile(QSqlDatabase *ptr_database);
 
+
+	///Check and update the output control parameter for FPL-module (22.2.2021)
+	void check_update_fpl_output_control(QSqlDatabase *ptr_database);
+
+
+
 private:
 	///Check and update the text of the hydraulic table of the hydraulic river profile result members; width_max is introduced (18.02.2021)
 	void check_update_hyd_table_river_result_width(QSqlDatabase *ptr_database, const string project_file);

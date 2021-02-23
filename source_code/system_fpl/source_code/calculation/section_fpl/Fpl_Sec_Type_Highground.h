@@ -56,7 +56,7 @@ public:
 	///Output the section members to display/console
 	void output_member(void);
 	///Output the reliability of the fault tree mechanisms for a deterministic calculation to display/console
-	void output_reliability(const string seepage_file, const string slope_file);
+	void output_reliability(string output_folder, const int sec_id, const string sec_name);
 
 	///Output the geometry to tecplot
 	void output_geometry2tecplot(ofstream *output);

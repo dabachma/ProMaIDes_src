@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>766</width>
-    <height>736</height>
+    <width>928</width>
+    <height>851</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,8 +54,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>744</width>
-        <height>714</height>
+        <width>904</width>
+        <height>827</height>
        </rect>
       </property>
       <property name="minimumSize">
@@ -124,7 +124,16 @@
           <property name="sizeConstraint">
            <enum>QLayout::SetDefaultConstraint</enum>
           </property>
-          <property name="margin">
+          <property name="leftMargin">
+           <number>9</number>
+          </property>
+          <property name="topMargin">
+           <number>9</number>
+          </property>
+          <property name="rightMargin">
+           <number>9</number>
+          </property>
+          <property name="bottomMargin">
            <number>9</number>
           </property>
           <item>
@@ -444,6 +453,56 @@
          </layout>
         </widget>
        </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="title">
+          <string>Output control</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="Sys_Member_Bool_BaseWid" name="output_tecplot" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Sys_Member_Bool_BaseWid" name="output_paraview" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Sys_Member_Bool_BaseWid" name="output_excel" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -467,6 +526,12 @@
    <class>Sys_Member_Dbl_BaseWid</class>
    <extends>QWidget</extends>
    <header>sys_member_dbl_basewid.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Sys_Member_Bool_BaseWid</class>
+   <extends>QWidget</extends>
+   <header>sys_member_bool_basewid.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

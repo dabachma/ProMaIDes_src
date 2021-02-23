@@ -81,6 +81,17 @@ enum _fpl_mechanism_types{
 	start_waterside_erosion
 };
 
+///struct for the output control parameters
+struct output_control {
+	///Tecplot output
+	bool tec_output;
+	///Paraview output
+	bool para_output;
+	///Excel output
+	bool excel_output;
+
+};
+
 ///Base-class for the section type of the flood-protection line  \ingroup fpl
 /**
 It is represented by a profile of the structure, e.g. dike, wall or mobile wall.
@@ -168,10 +179,21 @@ public:
 	///Output the section members to display/console
 	virtual void output_member(void)=0;
 	///Output the reliability of the fault tree mechanisms for a deterministic calculation to display/console
-	virtual void output_reliability(const string seepage_file, const string slope_file)=0;
+	virtual void output_reliability(string output_folder, const int sec_id, const string sec_name)=0;
 
 	///Output the geometry to tecplot
 	virtual void output_geometry2tecplot(ofstream *output)=0;
+
+	///Output the geometry to paraview
+	virtual void output_geometry2paraview(ofstream *output) = 0;
+	///Output the geometry to excel
+	virtual void output_geometry2excel(ofstream *output) = 0;
+
+	///Get output control flags per table
+	output_control get_output_control_flags(void);
+
+	///Set output control flags
+	void set_output_control_flags(QSqlDatabase *ptr_database);
 
 	///Output result members of the mechanisms to database table
 	virtual void output_result2table(QSqlDatabase *ptr_database, _fpl_simulation_type simulation_type, _sys_system_id id, const int section_id, const int counter_mc_sim)=0;
@@ -188,6 +210,8 @@ public:
 
 protected:
 	//members
+	///Flags to control the section output
+	output_control output_flags;
 
 	///The base point of the structure on the waterside
 	Fpl_Section_Points base_water;
@@ -215,6 +239,8 @@ protected:
 	virtual void init_fault_tree(QSqlDatabase *ptr_database)=0;
 	///Decide if a mechanism is apllied given by the fault tree and allocate the classes for this mechanism
 	virtual void decide_mechanism(const string mechanism_name, const bool application_flag, const bool applied_in_tree)=0;
+
+
 
 
 private:

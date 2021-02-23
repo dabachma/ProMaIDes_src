@@ -95,6 +95,10 @@ public:
 	static void output_header2tecplot(const string slope_file);
 	///Output the search raster and the critical slipe circle to tecplot
 	void output_results2tecplot(const string slope_file, int *zone_counter);
+	///Output the search raster and the critical slipe circle to paraview
+	void output_results2paraview(const string slope_file, int *zone_counter);
+	///Output the search raster and the critical slipe circle to excel
+	void output_results2excel(const string slope_file, int *zone_counter);
 
 	///Check the statistic of the random variables of the mechanism
 	void check_statistic(void);

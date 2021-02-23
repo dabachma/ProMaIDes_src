@@ -294,6 +294,9 @@ namespace functions{
 	///Make output path complete
 	string make_complete_output_path(const string path, const string folder, const string name);
 
+	///Add seperator for csv-output
+	void add_seperator_csv(const string sep, ofstream *output, const int number);
+
 	///For binary output of vtk-files (paraview)
 	template <typename T>
 	void SwapEnd(T& var)

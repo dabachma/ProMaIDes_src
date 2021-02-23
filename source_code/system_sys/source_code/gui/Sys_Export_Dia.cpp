@@ -12,7 +12,7 @@ Sys_Export_Dia::Sys_Export_Dia(QWidget *parent) : QDialog(parent){
 
 	//filter to file chooser
 	ostringstream buffer;
-	buffer <<"Text files (*.txt *.dat);; All files (*)";
+	buffer <<"Text files (*.txt *.dat *.csv);; All files (*)";
 	this->ui.file_chooser->set_filter(buffer.str());
 
 	this->ui.selectAll_checkBox->setChecked(false);

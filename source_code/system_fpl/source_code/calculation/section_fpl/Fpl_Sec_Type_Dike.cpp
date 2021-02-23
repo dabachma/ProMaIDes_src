@@ -1763,7 +1763,7 @@ void Fpl_Sec_Type_Dike::output_member(void){
 	
 }
 //Output the reliability of the fault tree mechanisms for a deterministic calculation to display/console
-void Fpl_Sec_Type_Dike::output_reliability(const string seepage_file, const string slope_file){
+void Fpl_Sec_Type_Dike::output_reliability(string output_folder, const int sec_id, const string sec_name){
 	ostringstream cout;
 	ostringstream prefix;
 	prefix << "RES"<<"> ";
@@ -1859,33 +1859,122 @@ void Fpl_Sec_Type_Dike::output_reliability(const string seepage_file, const stri
 			this->piping_schmertmann_event->output_determ_results();
 		}
 	}
-	//slope stability landside TODO
+	//slope stability landside 
 	bool header_done=false;
 	int zone_counter=0;
 	if(this->slope_stability_landside_event!=NULL){
-		if(this->slope_stability_landside_event->get_2calc_flag()==true){
-			Fpl_Mech_Slope_Stability_Dike::output_header2tecplot(slope_file);
-			header_done=true;
+		if (this->slope_stability_landside_event->get_2calc_flag() == true) {
 			this->slope_stability_landside_event->output_determ_results();
-			this->slope_stability_landside_event->output_results2tecplot(slope_file, &zone_counter);
+			if (this->output_flags.tec_output == true) {
+				//check folder
+				string folder_buff;
+				folder_buff = Fpl_Section::check_generate_folder("tecplot", &output_folder);
+				//create name
+				ostringstream buffer;
+				buffer << folder_buff << "SLOPE_TEC_" << sec_id << "_" << sec_name << ".dat";
+				Fpl_Mech_Slope_Stability_Dike::output_header2tecplot(buffer.str());
+				header_done = true;
+				this->slope_stability_landside_event->output_results2tecplot(buffer.str(), &zone_counter);
+			}
+			if (this->output_flags.para_output == true) {
+				//check folder
+				string folder_buff;
+				folder_buff = Fpl_Section::check_generate_folder("paraview", &output_folder);
+				//create name
+				ostringstream buffer;
+				buffer << folder_buff << "SLOPE_PARA_LS_" << sec_id << "_" << sec_name << ".csv";
+				this->slope_stability_landside_event->output_results2paraview(buffer.str(), &zone_counter);
+			}
+			if (this->output_flags.excel_output == true) {
+				//check folder
+				string folder_buff;
+				folder_buff = Fpl_Section::check_generate_folder("excel", &output_folder);
+				//create name
+				ostringstream buffer;
+				buffer << folder_buff << "SLOPE_EXCEL_LS_" << sec_id << "_" << sec_name << ".csv";
+				this->slope_stability_landside_event->output_results2excel(buffer.str(), &zone_counter);
+			}
 		}
 	}
 	//slope stability waterside
 	if(this->slope_stability_waterside_event!=NULL){
 		if(this->slope_stability_waterside_event->get_2calc_flag()==true){
-			if(header_done==false){
-				Fpl_Mech_Slope_Stability_Dike::output_header2tecplot(slope_file);
-			}
 			this->slope_stability_waterside_event->output_determ_results();
-			this->slope_stability_waterside_event->output_results2tecplot(slope_file, &zone_counter);
+			if (this->output_flags.tec_output == true) {
+				if (header_done == false) {
+					//check folder
+					string folder_buff;
+					folder_buff = Fpl_Section::check_generate_folder("tecplot", &output_folder);
+					//create name
+					ostringstream buffer;
+					buffer << folder_buff << "SLOPE_TEC_" << sec_id << "_" << sec_name << ".dat";
+					Fpl_Mech_Slope_Stability_Dike::output_header2tecplot(buffer.str());
+					this->slope_stability_waterside_event->output_results2tecplot(buffer.str(), &zone_counter);
+				}
+				else {
+					//check folder
+					string folder_buff;
+					folder_buff = Fpl_Section::check_generate_folder("tecplot", &output_folder);
+					//create name
+					ostringstream buffer;
+					buffer << folder_buff << "SLOPE_TEC_" << sec_id << "_" << sec_name << ".dat";
+					this->slope_stability_waterside_event->output_results2tecplot(buffer.str(), &zone_counter);
+				}
+			}
+			if (this->output_flags.para_output == true) {
+				//check folder
+				string folder_buff;
+				folder_buff = Fpl_Section::check_generate_folder("paraview", &output_folder);
+				//create name
+				ostringstream buffer;
+				buffer << folder_buff << "SLOPE_PARA_WS_" << sec_id << "_" << sec_name << ".csv";
+				this->slope_stability_waterside_event->output_results2paraview(buffer.str(), &zone_counter);
+			}
+			if (this->output_flags.excel_output == true) {
+				//check folder
+				string folder_buff;
+				folder_buff = Fpl_Section::check_generate_folder("excel", &output_folder);
+				//create name
+				ostringstream buffer;
+				buffer << folder_buff << "SLOPE_EXCEL_WS_" << sec_id << "_" << sec_name << ".csv";
+				this->slope_stability_waterside_event->output_results2excel(buffer.str(), &zone_counter);
+			}
 		}
 	}
-
-	this->output_seepage2tecplot(seepage_file);
+	if (this->output_flags.tec_output == true) {
+		//check folder
+		string folder_buff;
+		folder_buff = Fpl_Section::check_generate_folder("tecplot", &output_folder);
+		//create name
+		ostringstream buffer;
+		buffer << folder_buff << "SEEPAGE_TEC_" << sec_id << "_" << sec_name << ".dat";
+		
+		this->output_seepage2tecplot(buffer.str());
+	}
+	if (this->output_flags.para_output == true) {
+		//check folder
+		string folder_buff;
+		folder_buff = Fpl_Section::check_generate_folder("paraview", &output_folder);
+		//create name
+		ostringstream buffer;
+		buffer << folder_buff << "SEEPAGE_PARA_" << sec_id << "_" << sec_name << ".csv";
+		
+		this->output_seepage2paraview(buffer.str());
+	}
+	if (this->output_flags.excel_output == true) {
+		//check folder
+		string folder_buff;
+		folder_buff = Fpl_Section::check_generate_folder("excel", &output_folder);
+		//create name
+		ostringstream buffer;
+		buffer << folder_buff << "SEEPAGE_EXCEL_" << sec_id << "_" << sec_name << ".csv";
+		
+		this->output_seepage2excel(buffer.str());
+	}
 
 	Sys_Common_Output::output_fpl->rewind_userprefix();
 }
-//Output the geometry to tecplot TODO
+//Output the geometry to tecplot 
 void Fpl_Sec_Type_Dike::output_geometry2tecplot(ofstream *output){
 	//output the zone header
 	*output  << P(4) << FORMAT_FIXED_REAL;
@@ -1940,6 +2029,343 @@ void Fpl_Sec_Type_Dike::output_geometry2tecplot(ofstream *output){
 	}
 	output->flush();
 	*output<<endl;
+}
+//Output the geometry to paraview
+void Fpl_Sec_Type_Dike::output_geometry2paraview(ofstream *output) {
+	//output the zone header
+	*output << P(4) << FORMAT_FIXED_REAL;
+	//header
+	*output << "x,";
+	int count_col_tot = 1;
+	if(this->foreland.get_number_segments() > 0) {
+		*output << "foreland,";
+		count_col_tot++;
+	}
+	if (this->waterside_cubature.get_number_segments() > 0) {
+		*output << "waterside,";
+		count_col_tot++;
+
+	}
+	if (this->crest_cubature.get_number_segments() > 0) {
+
+		*output << "crest,";
+		count_col_tot++;
+	}
+
+	if (this->landside_cubature.get_number_segments() > 0) {
+		*output << "landside,";
+		count_col_tot++;
+	}
+	if (this->hinterland.get_number_segments() > 0) {
+		*output << "hinterland,";
+		count_col_tot++;
+	}
+	for (int i = 0; i < this->number_material_zones; i++) {
+		*output << this->material_zones[i].get_zone_number() << "_" << this->material_zones[i].get_zone_name();
+		count_col_tot++;
+		if (i < this->number_material_zones - 1) {
+			*output << ",";
+		}
+	}
+	*output << endl;
+	output->flush();
+	int counter_col_before = 0;
+	int counter_col_after = count_col_tot - 1;
+
+	if (this->foreland.get_number_segments() > 0) {
+		counter_col_after--;
+		
+		for (int i = 0; i < this->foreland.get_number_segments(); i++) {
+			*output << this->foreland.get_segment(i)->point1.get_xcoordinate() << ",";
+			functions::add_seperator_csv("NAN,", output, counter_col_before);
+			*output << this->foreland.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(",NAN", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << this->foreland.get_segment(this->foreland.get_number_segments() - 1)->point2.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		*output << this->foreland.get_segment(this->foreland.get_number_segments() - 1)->point2.get_ycoordinate() ;
+		functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	if (this->waterside_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+		
+		for (int i = 0; i < this->waterside_cubature.get_number_segments(); i++) {
+			*output << this->waterside_cubature.get_segment(i)->point1.get_xcoordinate() << ",";
+			functions::add_seperator_csv("NAN,", output, counter_col_before);
+			*output << this->waterside_cubature.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(",NAN", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << waterside_cubature.get_segment(waterside_cubature.get_number_segments() - 1)->point2.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		*output << this->waterside_cubature.get_segment(this->waterside_cubature.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	//crest
+	if (this->crest_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+		*output << this->crest_cubature.get_segment()->point1.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		*output << this->crest_cubature.get_segment()->point1.get_ycoordinate() ;
+		functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+
+		*output << this->crest_cubature.get_segment()->point2.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		 *output << this->crest_cubature.get_segment()->point2.get_ycoordinate() ;
+		 functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+
+	if (this->landside_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+		
+		for (int i = 0; i < this->landside_cubature.get_number_segments(); i++) {
+			*output << this->landside_cubature.get_segment(i)->point1.get_xcoordinate() << ",";
+			functions::add_seperator_csv("NAN,", output, counter_col_before);
+			*output << this->landside_cubature.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(",NAN", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << landside_cubature.get_segment(landside_cubature.get_number_segments() - 1)->point2.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		*output<< this->landside_cubature.get_segment(this->landside_cubature.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	if (this->hinterland.get_number_segments() > 0) {
+		counter_col_after--;
+		
+		for (int i = 0; i < this->hinterland.get_number_segments(); i++) {
+			*output << this->hinterland.get_segment(i)->point1.get_xcoordinate() << ",";
+			functions::add_seperator_csv("NAN,", output, counter_col_before);
+			*output << this->hinterland.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(",NAN", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << this->hinterland.get_segment(this->hinterland.get_number_segments() - 1)->point2.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		*output << this->hinterland.get_segment(this->hinterland.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+
+	//MAt-zones
+	for (int j = 0; j < this->number_material_zones; j++) {
+
+		if (this->material_zones[j].get_number_segments() > 0) {
+			counter_col_after--;
+
+			for (int i = 0; i < this->material_zones[j].get_number_segments(); i++) {
+				*output << this->material_zones[j].get_segment(i)->point1.get_xcoordinate() << ",";
+				functions::add_seperator_csv("NAN,", output, counter_col_before);
+				*output << this->material_zones[j].get_segment(i)->point1.get_ycoordinate();
+				functions::add_seperator_csv(",NAN", output, counter_col_after);
+				*output << endl;
+			}
+
+			*output << this->material_zones[j].get_segment(this->material_zones[j].get_number_segments() - 1)->point2.get_xcoordinate() << ",";
+			functions::add_seperator_csv("NAN,", output, counter_col_before);
+			*output << this->material_zones[j].get_segment(this->material_zones[j].get_number_segments() - 1)->point2.get_ycoordinate();
+			functions::add_seperator_csv(",NAN", output, counter_col_after);
+			*output << endl;
+			counter_col_before++;
+		}
+		output->flush();
+		
+	}
+	
+	
+}
+//Output the geometry to excel
+void Fpl_Sec_Type_Dike::output_geometry2excel(ofstream *output) {
+	//output the zone header
+	*output << P(4) << FORMAT_FIXED_REAL;
+	//header
+	*output << "x;";
+	int count_col_tot = 1;
+	if (this->foreland.get_number_segments() > 0) {
+		*output << "foreland;";
+		count_col_tot++;
+	}
+	if (this->waterside_cubature.get_number_segments() > 0) {
+		*output << "waterside;";
+		count_col_tot++;
+
+	}
+	if (this->crest_cubature.get_number_segments() > 0) {
+
+		*output << "crest;";
+		count_col_tot++;
+	}
+
+	if (this->landside_cubature.get_number_segments() > 0) {
+		*output << "landside;";
+		count_col_tot++;
+	}
+	if (this->hinterland.get_number_segments() > 0) {
+		*output << "hinterland;";
+		count_col_tot++;
+	}
+	for (int i = 0; i < this->number_material_zones; i++) {
+		*output << this->material_zones[i].get_zone_number() << "_" << this->material_zones[i].get_zone_name();
+		count_col_tot++;
+		if (i < this->number_material_zones - 1) {
+			*output << ";";
+		}
+	}
+	*output << endl;
+	output->flush();
+	int counter_col_before = 0;
+	int counter_col_after = count_col_tot - 1;
+
+	if (this->foreland.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->foreland.get_number_segments(); i++) {
+			*output << this->foreland.get_segment(i)->point1.get_xcoordinate() << ";";
+			functions::add_seperator_csv(";", output, counter_col_before);
+			*output << this->foreland.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(";", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << this->foreland.get_segment(this->foreland.get_number_segments() - 1)->point2.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->foreland.get_segment(this->foreland.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	if (this->waterside_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->waterside_cubature.get_number_segments(); i++) {
+			*output << this->waterside_cubature.get_segment(i)->point1.get_xcoordinate() << ";";
+			functions::add_seperator_csv(";", output, counter_col_before);
+			*output << this->waterside_cubature.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(";", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << waterside_cubature.get_segment(waterside_cubature.get_number_segments() - 1)->point2.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->waterside_cubature.get_segment(this->waterside_cubature.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	//crest
+	if (this->crest_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+		*output << this->crest_cubature.get_segment()->point1.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->crest_cubature.get_segment()->point1.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+
+		*output << this->crest_cubature.get_segment()->point2.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->crest_cubature.get_segment()->point2.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+
+	if (this->landside_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->landside_cubature.get_number_segments(); i++) {
+			*output << this->landside_cubature.get_segment(i)->point1.get_xcoordinate() << ";";
+			functions::add_seperator_csv(";", output, counter_col_before);
+			*output << this->landside_cubature.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(";", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << landside_cubature.get_segment(landside_cubature.get_number_segments() - 1)->point2.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->landside_cubature.get_segment(this->landside_cubature.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	if (this->hinterland.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->hinterland.get_number_segments(); i++) {
+			*output << this->hinterland.get_segment(i)->point1.get_xcoordinate() << ";";
+			functions::add_seperator_csv(";", output, counter_col_before);
+			*output << this->hinterland.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(";", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << this->hinterland.get_segment(this->hinterland.get_number_segments() - 1)->point2.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->hinterland.get_segment(this->hinterland.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+
+	//MAt-zones
+	for (int j = 0; j < this->number_material_zones; j++) {
+
+		if (this->material_zones[j].get_number_segments() > 0) {
+			counter_col_after--;
+
+			for (int i = 0; i < this->material_zones[j].get_number_segments(); i++) {
+				*output << this->material_zones[j].get_segment(i)->point1.get_xcoordinate() << ";";
+				functions::add_seperator_csv(";", output, counter_col_before);
+				*output << this->material_zones[j].get_segment(i)->point1.get_ycoordinate();
+				functions::add_seperator_csv(";", output, counter_col_after);
+				*output << endl;
+			}
+
+			*output << this->material_zones[j].get_segment(this->material_zones[j].get_number_segments() - 1)->point2.get_xcoordinate() << ";";
+			functions::add_seperator_csv(";", output, counter_col_before);
+			*output << this->material_zones[j].get_segment(this->material_zones[j].get_number_segments() - 1)->point2.get_ycoordinate();
+			functions::add_seperator_csv(";", output, counter_col_after);
+			*output << endl;
+			counter_col_before++;
+		}
+		output->flush();
+
+	}
+
 }
 //Output result members to database table
 void Fpl_Sec_Type_Dike::output_result2table(QSqlDatabase *ptr_database, _fpl_simulation_type simulation_type, _sys_system_id id, const int section_id, const int counter_mc_sim){
@@ -2759,8 +3185,6 @@ int Fpl_Sec_Type_Dike::select_results_in_database(QSqlQueryModel *results, QSqlD
     return number;
 
 }
-
-
 //Close and delete the database table for the results of the mechanism of the dike section (static)
 void Fpl_Sec_Type_Dike::close_result_table(void){
 	if(Fpl_Sec_Type_Dike::result_table!=NULL){
@@ -4670,7 +5094,7 @@ void Fpl_Sec_Type_Dike::reset_random_flag(void){
 		this->material_variable_zones[i].reset_random_flag();
 	}
 }
-//Output the seepage line to tecplot todo
+//Output the seepage line to tecplot 
 void Fpl_Sec_Type_Dike::output_seepage2tecplot(const string seepage_file){
 	//first calculate the seepage line for output
 	Fpl_Seepage_Line_Point_List buff_ascending;
@@ -4730,6 +5154,130 @@ void Fpl_Sec_Type_Dike::output_seepage2tecplot(const string seepage_file){
 
 	//close the file
 	tecplot_output.close();
+}
+//Output the seepage line to paraview
+void Fpl_Sec_Type_Dike::output_seepage2paraview(const string seepage_file) {
+
+	//first calculate the seepage line for output
+	Fpl_Seepage_Line_Point_List buff_ascending;
+	Fpl_Seepage_Line_Point_List buff_descending;
+	Geo_Point crest_mid = this->crest_cubature.get_segment()->calc_mid_point();
+	//set the mid point to the list...it has always the index 0
+	buff_ascending.add_new_point(crest_mid.get_xcoordinate(), 0.0, true, &this->outer_polysegment);
+	buff_descending.add_new_point(crest_mid.get_xcoordinate(), 0.0, true, &this->outer_polysegment);
+
+	//set some points for the visualisation
+	double x_buff = -1.5;
+
+	do {
+		if (x_buff >= this->outer_polysegment.get_first_point()->get_xcoordinate() && x_buff <= this->outer_polysegment.get_last_point()->get_xcoordinate()) {
+			buff_ascending.add_new_point(x_buff, 0.0, true, &this->outer_polysegment);
+			buff_descending.add_new_point(x_buff, 0.0, true, &this->outer_polysegment);
+		}
+
+		x_buff = x_buff + 0.05;
+	} while (x_buff <= this->base_land.get_xcoordinate() + 1.0);
+
+	this->seepage_calculator.calculate_waterlevel_seepage_line(this->current_waterlevel, &buff_ascending, &buff_descending, true);
+
+
+
+	//open the file
+	ofstream output;
+	output.open(seepage_file.c_str());
+	if (output.is_open() == false) {
+		Error msg = this->set_error(44);
+		ostringstream info;
+		info << "Filename : " << seepage_file << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	output << P(4) << FORMAT_FIXED_REAL;
+	//header
+	output << "x,";
+	int count_col_tot = 1;
+	output << "z_seepage_lanside,";
+	count_col_tot++;
+	output << "z_seepage_waterside";
+	count_col_tot++;
+	output << endl;
+	output.flush();
+	int counter_col_before = 0;
+	int counter_col_after = count_col_tot - 1;
+	counter_col_after--;
+	buff_ascending.output_members2paraview(&output, &this->outer_polysegment, counter_col_before, counter_col_after);
+	counter_col_before++;
+	counter_col_after--;
+	buff_descending.output_members2paraview(&output, &this->outer_polysegment, counter_col_before, counter_col_after);
+	counter_col_before++;
+
+
+	output.flush();
+	//close the file
+	output.close();
+}
+//Output the seepage line to excel
+void Fpl_Sec_Type_Dike::output_seepage2excel(const string seepage_file) {
+
+	//first calculate the seepage line for output
+	Fpl_Seepage_Line_Point_List buff_ascending;
+	Fpl_Seepage_Line_Point_List buff_descending;
+	Geo_Point crest_mid = this->crest_cubature.get_segment()->calc_mid_point();
+	//set the mid point to the list...it has always the index 0
+	buff_ascending.add_new_point(crest_mid.get_xcoordinate(), 0.0, true, &this->outer_polysegment);
+	buff_descending.add_new_point(crest_mid.get_xcoordinate(), 0.0, true, &this->outer_polysegment);
+
+	//set some points for the visualisation
+	double x_buff = -1.5;
+
+	do {
+		if (x_buff >= this->outer_polysegment.get_first_point()->get_xcoordinate() && x_buff <= this->outer_polysegment.get_last_point()->get_xcoordinate()) {
+			buff_ascending.add_new_point(x_buff, 0.0, true, &this->outer_polysegment);
+			buff_descending.add_new_point(x_buff, 0.0, true, &this->outer_polysegment);
+		}
+
+		x_buff = x_buff + 0.05;
+	} while (x_buff <= this->base_land.get_xcoordinate() + 1.0);
+
+	this->seepage_calculator.calculate_waterlevel_seepage_line(this->current_waterlevel, &buff_ascending, &buff_descending, true);
+
+
+
+	//open the file
+	ofstream output;
+	output.open(seepage_file.c_str());
+	if (output.is_open() == false) {
+		Error msg = this->set_error(45);
+		ostringstream info;
+		info << "Filename : " << seepage_file << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	output << P(4) << FORMAT_FIXED_REAL;
+	//header
+	output << "x;";
+	int count_col_tot = 1;
+	output << "z_seepage_lanside;";
+	count_col_tot++;
+	output << "z_seepage_waterside";
+	count_col_tot++;
+	output << endl;
+	output.flush();
+	int counter_col_before = 0;
+	int counter_col_after = count_col_tot - 1;
+	counter_col_after--;
+	buff_ascending.output_members2excel(&output, &this->outer_polysegment, counter_col_before, counter_col_after);
+	counter_col_before++;
+	counter_col_after--;
+	buff_descending.output_members2excel(&output, &this->outer_polysegment, counter_col_before, counter_col_after);
+	counter_col_before++;
+
+
+	output.flush();
+	//close the file
+	output.close();
 }
 //Get a pointer to a material variable zone
 Fpl_Dike_Var_Materialzone* Fpl_Sec_Type_Dike::get_ptr_specified_material_variable_zone(_fpl_zone_type specifier){
@@ -5040,6 +5588,18 @@ Error Fpl_Sec_Type_Dike::set_error(const int err_type){
 			reason="Can not allocate the memory";
 			help="Check the memory";
 			type=10;
+			break;
+		case 44://could not open the paraview file
+			place.append("output_seepage2paraview(const string seepage_file)");
+			reason = "Could not open the file for the paraview output (seepage) of the FPL-section";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 45://could not open the excel file
+			place.append("output_seepage2excel(const string seepage_file)");
+			reason = "Could not open the file for the excel output (seepage) of the FPL-section";
+			help = "Check the file";
+			type = 5;
 			break;
 		default:
 			place.append("set_error(const int err_type)");

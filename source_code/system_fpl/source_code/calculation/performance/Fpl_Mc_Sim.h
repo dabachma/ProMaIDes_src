@@ -103,6 +103,21 @@ namespace fpl_control_param{
 	///Default control parameter: Starting waterlevel [m] for fragility curve simulations
 	const double start_value_def=0.0;
 
+	//output
+	///Keystring for tecplot output 
+	const string output_tecplot("OUTPUT_TECPLOT");
+	///Keystring for paraview output 
+	const string output_paraview("OUTPUT_PARAVIEW");
+	///Keystring for excel output 
+	const string output_excel("OUTPUT_EXCEL");
+
+	///Default control parameter: tecplot output 1 := true ; 0 := false 
+	const int output_tecplot_def = 0;
+	///Default control parameter: paraview output 1 := true ; 0 := false 
+	const int output_paraview_def = 1;
+	///Default control parameter: excel output 1 := true ; 0 := false 
+	const int output_excel_def = 1;
+
 
 };
 
@@ -152,6 +167,11 @@ public:
 	static void close_table(void);
 	///Write the default value of the control parameters into the database table
 	static void set_predefined_data2control_table(QSqlDatabase *ptr_database);
+
+	///Get output control parameters from table
+	static void get_output_control_from_table(QSqlDatabase *ptr_database, output_control *control_flags);
+	///Set output control parameters to table
+	static void set_output_control2table(QSqlDatabase *ptr_database, output_control control_flags);
  
 
 	///Create the database table for the results of a reliability calculation (Mc/Frc)

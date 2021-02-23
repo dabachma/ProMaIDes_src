@@ -496,7 +496,7 @@ bool Fpl_Calculation::ask_restore_default_database(QWidget *parent){
 	my_dia.set_main_text_label(buffer.str());
 	buffer.str("");
 	my_dia.set_window_title("Choose restoring FPL-system default data");
-	my_dia.get_ptr_check_box(0)->setText("Restore FPL-probability calculation parameters");
+	my_dia.get_ptr_check_box(0)->setText("Restore FPL-control parameters");
 	my_dia.get_ptr_check_box(1)->setText("Restore FPL-fault tree");
 	my_dia.get_ptr_check_box(2)->setText("Restore FPL-default variables");
 
@@ -667,7 +667,7 @@ void Fpl_Calculation::import_file2database_prob_params(const QStringList new_fil
 				this->section2calc->set_start_exception_number();
 				this->section2calc->check_input_file_section(this->file_names[i]);
 				//input per file
-				this->section2calc->read_section_per_file(this->file_names[i] ,false);
+				this->section2calc->read_section_per_file(this->file_names[i] ,false, &this->qsqldatabase);
 				Fpl_Calculation::check_stop_thread_flag();
 				//output to display
 				this->section2calc->output_members();
@@ -922,7 +922,7 @@ void Fpl_Calculation::import_file2database(void){
 				this->section2calc->set_start_exception_number();
 				this->section2calc->check_input_file_section(this->file_names[i]);
 				//input per file
-				this->section2calc->read_section_per_file(this->file_names[i] ,false);
+				this->section2calc->read_section_per_file(this->file_names[i] ,false ,&this->qsqldatabase);
 				Fpl_Calculation::check_stop_thread_flag();
 				//check it with existing sections
 				Fpl_Calculation::check_for_identical_section(this->section2calc);
@@ -931,6 +931,8 @@ void Fpl_Calculation::import_file2database(void){
 				this->section2calc->set_section_id(&this->qsqldatabase);
 				this->section2calc->output_members();
 				this->section2calc->output_geometry2tecplot();
+				this->section2calc->output_geometry2excel();
+				this->section2calc->output_geometry2paraview();
 				Fpl_Calculation::check_stop_thread_flag();
 				//transfer it to database
 				this->section2calc->transfer_member2database(&this->qsqldatabase);
@@ -1381,10 +1383,12 @@ void Fpl_Calculation::check_section_file(void){
 				this->allocate_fpl_section();
 				this->section2calc->check_input_file_section(this->file_names[i]);
 				//input per file
-				this->section2calc->read_section_per_file(this->file_names[i] ,false);
+				this->section2calc->read_section_per_file(this->file_names[i] ,false, &this->qsqldatabase);
 				Fpl_Calculation::check_stop_thread_flag();
 				//output to display
 				this->section2calc->output_members();
+				this->section2calc->output_geometry2excel();
+				this->section2calc->output_geometry2paraview();
 				Fpl_Calculation::check_stop_thread_flag();
 				this->section2calc->output_geometry2tecplot();
 			}

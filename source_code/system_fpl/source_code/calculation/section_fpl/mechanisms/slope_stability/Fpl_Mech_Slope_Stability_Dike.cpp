@@ -852,6 +852,260 @@ void Fpl_Mech_Slope_Stability_Dike::output_results2tecplot(const string slope_fi
 	//close the file
 	output.close();
 }
+//Output the search raster and the critical slipe circle to paraview
+void Fpl_Mech_Slope_Stability_Dike::output_results2paraview(const string slope_file, int *zone_counter) {
+
+	//open the file
+	ofstream output;
+	output.open(slope_file.c_str());
+	if (output.is_open() == false) {
+		Error msg = this->set_error(9);
+		ostringstream info;
+		info << "Filename : " << slope_file << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	output << " x,";
+	int count_col_tot = 1;
+
+	output << "Searchraster_points,";
+	count_col_tot++;
+	if (this->relevant_macro_circle != NULL) {
+		output << "Critical_circle_macro_stability_(stability_factor=" << this->stability_macro.get_calculated_mean() << "),";
+		count_col_tot++;
+	}
+	if (this->relevant_micro_circle != NULL) {
+		output << "Critical_circle_micro_stability_(stability_factor=" << this->stability_micro.get_calculated_mean() << ")";
+		count_col_tot++;
+	}
+
+	output << endl;
+	output.flush();
+
+	//points
+	int counter_col_before = 0;
+	int counter_col_after = count_col_tot - 1;
+
+	counter_col_after--;
+	//output points
+	double x_coor = 0.0;
+	double y_coor = 0.0;
+	x_coor = this->x_origin;
+	y_coor = this->y_origin;
+
+	for (int i = 0; i < this->number_x; i++) {
+		if (i == 0) {
+			x_coor = this->x_origin;
+		}
+		else {
+			x_coor = x_coor + this->delta_x;
+		}
+
+		for (int j = 0; j < this->number_y; j++) {
+			if (j == 0) {
+				y_coor = this->y_origin;
+			}
+			else {
+				y_coor = y_coor + this->delta_y;
+			}
+
+			output << x_coor << ",";
+			functions::add_seperator_csv("NAN,", &output, counter_col_before);
+			output<< y_coor;
+			functions::add_seperator_csv(",NAN", &output, counter_col_after);
+			output << endl;
+		}
+		output.flush();
+	}
+
+	counter_col_before++;
+
+	//circle macro
+	counter_col_after--;
+	if (this->relevant_macro_circle != NULL) {
+
+		output << this->relevant_macro_circle->get_mid_point()->get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", &output, counter_col_before);
+		output << this->relevant_macro_circle->get_mid_point()->get_ycoordinate();
+		functions::add_seperator_csv(",NAN", &output, counter_col_after);
+		output << endl;
+		
+		this->relevant_macro_circle->output_slices2paraview(&output, this->landside_flag, counter_col_before, counter_col_after);
+
+
+		output << this->relevant_macro_circle->get_mid_point()->get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", &output, counter_col_before);
+		output << this->relevant_macro_circle->get_mid_point()->get_ycoordinate();
+		functions::add_seperator_csv(",NAN", &output, counter_col_after);
+		output << endl;
+		output.flush();
+
+	}
+	counter_col_before++;
+
+
+	//circle micro
+	counter_col_after--;
+	if (this->relevant_micro_circle != NULL) {
+
+		output << this->relevant_micro_circle->get_mid_point()->get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", &output, counter_col_before);
+		output << this->relevant_micro_circle->get_mid_point()->get_ycoordinate();
+		functions::add_seperator_csv(",NAN", &output, counter_col_after);
+		output << endl;
+
+		this->relevant_micro_circle->output_slices2paraview(&output, this->landside_flag, counter_col_before, counter_col_after);
+
+
+		output << this->relevant_micro_circle->get_mid_point()->get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", &output, counter_col_before);
+		output << this->relevant_micro_circle->get_mid_point()->get_ycoordinate();
+		functions::add_seperator_csv(",NAN", &output, counter_col_after);
+		output << endl;
+		output.flush();
+
+	}
+	counter_col_before++;
+
+
+
+
+
+
+
+
+	//close the file
+	output.close();
+
+
+}
+//Output the search raster and the critical slipe circle to excel
+void Fpl_Mech_Slope_Stability_Dike::output_results2excel(const string slope_file, int *zone_counter) {
+	//open the file
+	ofstream output;
+	output.open(slope_file.c_str());
+	if (output.is_open() == false) {
+		Error msg = this->set_error(9);
+		ostringstream info;
+		info << "Filename : " << slope_file << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	output << " x;";
+	int count_col_tot = 1;
+
+	output << "Searchraster_points;";
+	count_col_tot++;
+	if (this->relevant_macro_circle != NULL) {
+		output << "Critical_circle_macro_stability_(stability_factor=" << this->stability_macro.get_calculated_mean() << ");";
+		count_col_tot++;
+	}
+	if (this->relevant_micro_circle != NULL) {
+		output << "Critical_circle_micro_stability_(stability_factor=" << this->stability_micro.get_calculated_mean() << ")";
+		count_col_tot++;
+	}
+
+	output << endl;
+	output.flush();
+
+	//points
+	int counter_col_before = 0;
+	int counter_col_after = count_col_tot - 1;
+
+	counter_col_after--;
+	//output points
+	double x_coor = 0.0;
+	double y_coor = 0.0;
+	x_coor = this->x_origin;
+	y_coor = this->y_origin;
+
+	for (int i = 0; i < this->number_x; i++) {
+		if (i == 0) {
+			x_coor = this->x_origin;
+		}
+		else {
+			x_coor = x_coor + this->delta_x;
+		}
+
+		for (int j = 0; j < this->number_y; j++) {
+			if (j == 0) {
+				y_coor = this->y_origin;
+			}
+			else {
+				y_coor = y_coor + this->delta_y;
+			}
+
+			output << x_coor << ";";
+			functions::add_seperator_csv(";", &output, counter_col_before);
+			output << y_coor;
+			functions::add_seperator_csv(";", &output, counter_col_after);
+			output << endl;
+		}
+		output.flush();
+	}
+
+	counter_col_before++;
+
+	//circle macro
+	counter_col_after--;
+	if (this->relevant_macro_circle != NULL) {
+
+		output << this->relevant_macro_circle->get_mid_point()->get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", &output, counter_col_before);
+		output << this->relevant_macro_circle->get_mid_point()->get_ycoordinate();
+		functions::add_seperator_csv(";", &output, counter_col_after);
+		output << endl;
+
+		this->relevant_macro_circle->output_slices2excel(&output, this->landside_flag, counter_col_before, counter_col_after);
+
+
+		output << this->relevant_macro_circle->get_mid_point()->get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", &output, counter_col_before);
+		output << this->relevant_macro_circle->get_mid_point()->get_ycoordinate();
+		functions::add_seperator_csv(";", &output, counter_col_after);
+		output << endl;
+		output.flush();
+
+	}
+	counter_col_before++;
+
+
+	//circle micro
+	counter_col_after--;
+	if (this->relevant_micro_circle != NULL) {
+
+		output << this->relevant_micro_circle->get_mid_point()->get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", &output, counter_col_before);
+		output << this->relevant_micro_circle->get_mid_point()->get_ycoordinate();
+		functions::add_seperator_csv(";", &output, counter_col_after);
+		output << endl;
+
+		this->relevant_micro_circle->output_slices2excel(&output, this->landside_flag, counter_col_before, counter_col_after);
+
+
+		output << this->relevant_micro_circle->get_mid_point()->get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", &output, counter_col_before);
+		output << this->relevant_micro_circle->get_mid_point()->get_ycoordinate();
+		functions::add_seperator_csv(";", &output, counter_col_after);
+		output << endl;
+		output.flush();
+
+	}
+	counter_col_before++;
+
+
+
+
+
+
+
+
+	//close the file
+	output.close();
+
+}
 //Check the statistic of the random variables of the mechanism
 void Fpl_Mech_Slope_Stability_Dike::check_statistic(void){
 	this->stability_macro.check_statistic();
@@ -1417,6 +1671,18 @@ Error Fpl_Mech_Slope_Stability_Dike::set_error(const int err_type){
 			help="Check the search raster";
 			type=27;
 			break;
+		case 9://could not open the paraview file
+			place.append("output_results2paraview(const string slope_file, int *zone_counter, const string file_name) ");
+			reason = "Could not open the file for the paraview output (slope stability results) of the FPL-section";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 10://could not open the excel file
+			place.append("output_results2excel(const string slope_file, int *zone_counter, const string file_name) ");
+			reason = "Could not open the file for the excel output (slope stability results) of the FPL-section";
+			help = "Check the file";
+			type = 5;
+			break;
 		default:
 			place.append("set_error(const int err_type)");
 			reason ="Unknown flag!";
@@ -1427,7 +1693,6 @@ Error Fpl_Mech_Slope_Stability_Dike::set_error(const int err_type){
 	msg.make_second_info(info.str());
 	return msg;
 }
-
 //Set warning(s)
 Warning Fpl_Mech_Slope_Stability_Dike::set_warning(const int warn_type){
 	string place="Fpl_Mech_Slope_Stability_Dike::";

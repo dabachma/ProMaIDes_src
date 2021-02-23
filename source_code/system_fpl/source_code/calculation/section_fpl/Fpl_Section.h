@@ -54,7 +54,7 @@ public:
 	//methods
 
 	///Read in the fpl-scetion from file
-	void read_section_per_file(const string file_section, const bool flag_frc_sim);
+	void read_section_per_file(const string file_section, const bool flag_frc_sim, QSqlDatabase *ptr_database);
 	///Transfer the members read in per file to database
 	void transfer_member2database(QSqlDatabase *ptr_database);
 
@@ -120,6 +120,13 @@ public:
 
 	///Output the section geometry to a tecplot file
 	void output_geometry2tecplot(void);
+	///Output the section geometry to a paraview file
+	void output_geometry2paraview(void);
+	///Output the section geometry to a excel file
+	void output_geometry2excel(void);
+
+	///Check and generate folder
+	static string check_generate_folder(const string folder_name, string *path);
 
 	///Output result members to database table
 	void output_result2table(QSqlDatabase *ptr_database, _fpl_simulation_type simulation_type, const int counter_mc_sim);

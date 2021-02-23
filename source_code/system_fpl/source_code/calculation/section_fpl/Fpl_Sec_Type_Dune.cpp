@@ -913,7 +913,7 @@ void Fpl_Sec_Type_Dune::output_member(void){
 	//}
 }
 //Output the reliability of the fault tree mechanisms for a deterministic calculation to display/console
-void Fpl_Sec_Type_Dune::output_reliability(const string new_shape_file, const string slope_file){
+void Fpl_Sec_Type_Dune::output_reliability(string output_folder, const int sec_id, const string sec_name){
 	ostringstream cout;
 	ostringstream prefix;
 	prefix << "RES"<<"> ";
@@ -963,7 +963,37 @@ void Fpl_Sec_Type_Dune::output_reliability(const string new_shape_file, const st
 	if(this->erosion_waterside_gent_event!=NULL){
 		if(this->erosion_waterside_gent_event->get_2calc_flag()==true){
 			this->erosion_waterside_gent_event->output_determ_results();
-			this->erosion_waterside_gent_event->output_results2tecplot(new_shape_file);
+
+			if (this->output_flags.tec_output == true) {
+				//check folder
+				string folder_buff;
+				folder_buff = Fpl_Section::check_generate_folder("tecplot", &output_folder);
+				//create name
+				ostringstream buffer;
+				buffer << folder_buff << "NEWPROFILE_TEC_" << sec_id << "_" << sec_name << ".dat";
+				this->erosion_waterside_gent_event->output_results2tecplot(buffer.str());
+			}
+			if (this->output_flags.para_output == true) {
+				//check folder
+				string folder_buff;
+				folder_buff = Fpl_Section::check_generate_folder("paraview", &output_folder);
+				//create name
+				ostringstream buffer;
+				buffer << folder_buff << "NEWPROFILE_PARA_" << sec_id << "_" << sec_name << ".csv";
+				//TODO
+				this->erosion_waterside_gent_event->output_results2paraview(buffer.str());
+			}
+			if (this->output_flags.excel_output == true) {
+				//check folder
+				string folder_buff;
+				folder_buff = Fpl_Section::check_generate_folder("excel", &output_folder);
+				//create name
+				ostringstream buffer;
+				buffer << folder_buff << "NEWPROFILE_EXCEL_" << sec_id << "_" << sec_name << ".csv";
+				//TODO
+				this->erosion_waterside_gent_event->output_results2excel(buffer.str());
+			}
+
 		}
 	}
 
@@ -1018,6 +1048,279 @@ void Fpl_Sec_Type_Dune::output_geometry2tecplot(ofstream *output){
 	}
 	output->flush();
 	*output<<endl;
+}
+//Output the geometry to paraview
+void Fpl_Sec_Type_Dune::output_geometry2paraview(ofstream *output) {
+	//output the zone header
+	*output << P(4) << FORMAT_FIXED_REAL;
+	//header
+	*output << " x,";
+	int count_col_tot = 1;
+	if (this->foreland.get_number_segments() > 0) {
+		*output << " foreland,";
+		count_col_tot++;
+	}
+	if (this->waterside_cubature.get_number_segments() > 0) {
+		*output << " waterside,";
+		count_col_tot++;
+
+	}
+	if (this->crest_cubature.get_number_segments() > 0) {
+
+		*output << " crest,";
+		count_col_tot++;
+	}
+
+	if (this->landside_cubature.get_number_segments() > 0) {
+		*output << " landside,";
+		count_col_tot++;
+	}
+	if (this->hinterland.get_number_segments() > 0) {
+		*output << " hinterland";
+		count_col_tot++;
+	}
+
+	*output << endl;
+	output->flush();
+	int counter_col_before = 0;
+	int counter_col_after = count_col_tot - 1;
+
+	if (this->foreland.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->foreland.get_number_segments(); i++) {
+			*output << this->foreland.get_segment(i)->point1.get_xcoordinate() << ",";
+			functions::add_seperator_csv("NAN,", output, counter_col_before);
+			*output << this->foreland.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(",NAN", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << this->foreland.get_segment(this->foreland.get_number_segments() - 1)->point2.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		*output << this->foreland.get_segment(this->foreland.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	if (this->waterside_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->waterside_cubature.get_number_segments(); i++) {
+			*output << this->waterside_cubature.get_segment(i)->point1.get_xcoordinate() << ",";
+			functions::add_seperator_csv("NAN,", output, counter_col_before);
+			*output << this->waterside_cubature.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(",NAN", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << waterside_cubature.get_segment(waterside_cubature.get_number_segments() - 1)->point2.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		*output << this->waterside_cubature.get_segment(this->waterside_cubature.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	//crest
+	if (this->crest_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+		*output << this->crest_cubature.get_segment()->point1.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		*output << this->crest_cubature.get_segment()->point1.get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+
+		*output << this->crest_cubature.get_segment()->point2.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		*output << this->crest_cubature.get_segment()->point2.get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+
+	if (this->landside_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->landside_cubature.get_number_segments(); i++) {
+			*output << this->landside_cubature.get_segment(i)->point1.get_xcoordinate() << ",";
+			functions::add_seperator_csv("NAN,", output, counter_col_before);
+			*output << this->landside_cubature.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(",NAN", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << landside_cubature.get_segment(landside_cubature.get_number_segments() - 1)->point2.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		*output << this->landside_cubature.get_segment(this->landside_cubature.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	if (this->hinterland.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->hinterland.get_number_segments(); i++) {
+			*output << this->hinterland.get_segment(i)->point1.get_xcoordinate() << ",";
+			functions::add_seperator_csv("NAN,", output, counter_col_before);
+			*output << this->hinterland.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(",NAN", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << this->hinterland.get_segment(this->hinterland.get_number_segments() - 1)->point2.get_xcoordinate() << ",";
+		functions::add_seperator_csv("NAN,", output, counter_col_before);
+		*output << this->hinterland.get_segment(this->hinterland.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(",NAN", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+}
+//Output the geometry to excel
+void Fpl_Sec_Type_Dune::output_geometry2excel(ofstream *output) {
+
+	//output the zone header
+	*output << P(4) << FORMAT_FIXED_REAL;
+	//header
+	*output << " x;";
+	int count_col_tot = 1;
+	if (this->foreland.get_number_segments() > 0) {
+		*output << " foreland;";
+		count_col_tot++;
+	}
+	if (this->waterside_cubature.get_number_segments() > 0) {
+		*output << " waterside;";
+		count_col_tot++;
+
+	}
+	if (this->crest_cubature.get_number_segments() > 0) {
+
+		*output << " crest;";
+		count_col_tot++;
+	}
+
+	if (this->landside_cubature.get_number_segments() > 0) {
+		*output << " landside;";
+		count_col_tot++;
+	}
+	if (this->hinterland.get_number_segments() > 0) {
+		*output << " hinterland";
+		count_col_tot++;
+	}
+
+	*output << endl;
+	output->flush();
+	int counter_col_before = 0;
+	int counter_col_after = count_col_tot - 1;
+
+	if (this->foreland.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->foreland.get_number_segments(); i++) {
+			*output << this->foreland.get_segment(i)->point1.get_xcoordinate() << ";";
+			functions::add_seperator_csv(";", output, counter_col_before);
+			*output << this->foreland.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(";", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << this->foreland.get_segment(this->foreland.get_number_segments() - 1)->point2.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->foreland.get_segment(this->foreland.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	if (this->waterside_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->waterside_cubature.get_number_segments(); i++) {
+			*output << this->waterside_cubature.get_segment(i)->point1.get_xcoordinate() << ";";
+			functions::add_seperator_csv(";", output, counter_col_before);
+			*output << this->waterside_cubature.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(";", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << waterside_cubature.get_segment(waterside_cubature.get_number_segments() - 1)->point2.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->waterside_cubature.get_segment(this->waterside_cubature.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	//crest
+	if (this->crest_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+		*output << this->crest_cubature.get_segment()->point1.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->crest_cubature.get_segment()->point1.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+
+		*output << this->crest_cubature.get_segment()->point2.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->crest_cubature.get_segment()->point2.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+
+	if (this->landside_cubature.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->landside_cubature.get_number_segments(); i++) {
+			*output << this->landside_cubature.get_segment(i)->point1.get_xcoordinate() << ";";
+			functions::add_seperator_csv(";", output, counter_col_before);
+			*output << this->landside_cubature.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(";", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << landside_cubature.get_segment(landside_cubature.get_number_segments() - 1)->point2.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->landside_cubature.get_segment(this->landside_cubature.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
+	if (this->hinterland.get_number_segments() > 0) {
+		counter_col_after--;
+
+		for (int i = 0; i < this->hinterland.get_number_segments(); i++) {
+			*output << this->hinterland.get_segment(i)->point1.get_xcoordinate() << ";";
+			functions::add_seperator_csv(";", output, counter_col_before);
+			*output << this->hinterland.get_segment(i)->point1.get_ycoordinate();
+			functions::add_seperator_csv(";", output, counter_col_after);
+			*output << endl;
+		}
+
+		*output << this->hinterland.get_segment(this->hinterland.get_number_segments() - 1)->point2.get_xcoordinate() << ";";
+		functions::add_seperator_csv(";", output, counter_col_before);
+		*output << this->hinterland.get_segment(this->hinterland.get_number_segments() - 1)->point2.get_ycoordinate();
+		functions::add_seperator_csv(";", output, counter_col_after);
+		*output << endl;
+		counter_col_before++;
+	}
+	output->flush();
+
 }
 //Output result members of the mechanisms to database table
 void Fpl_Sec_Type_Dune::output_result2table(QSqlDatabase *ptr_database, _fpl_simulation_type simulation_type, _sys_system_id id, const int section_id, const int counter_mc_sim){

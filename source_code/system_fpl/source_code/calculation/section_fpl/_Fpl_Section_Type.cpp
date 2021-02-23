@@ -14,6 +14,9 @@ _Fpl_Section_Type::_Fpl_Section_Type(void){
 	this->number_mech=0;
 
 	this->low_waterlevel_flag=false;
+	this->output_flags.excel_output = true;
+	this->output_flags.para_output = true;
+	this->output_flags.tec_output = false;
 
 }
 //Default destructor
@@ -618,6 +621,17 @@ void _Fpl_Section_Type::set_section_direction(const double direction){
 //Set the pointer to the water side crest point
 void _Fpl_Section_Type::set_ptr_waterside_crest(Fpl_Section_Points *crest_water){
 	this->crest_water=crest_water;
+}
+//Get output control flags
+output_control _Fpl_Section_Type::get_output_control_flags(void) {
+	return this->output_flags;
+}
+//Set output control flags per table
+void _Fpl_Section_Type::set_output_control_flags(QSqlDatabase *ptr_database) {
+
+	Fpl_Mc_Sim::get_output_control_from_table(ptr_database, &this->output_flags);
+
+
 }
 //Convert a string into a section type (_fpl_section_types) (static)
 _fpl_section_types _Fpl_Section_Type::convert_txt2section_type(const string txt){
