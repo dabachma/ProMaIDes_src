@@ -862,7 +862,7 @@ void Fpl_Sec_Type_Dune::output_member(void){
 	this->waterside_cubature.output_geometrie();
 	//crest cubature
 	this->crest_cubature.output_geometrie();
-	//lanside cubature
+	//landside cubature
 	this->landside_cubature.output_geometrie();
 	//hinterland
 	this->hinterland.output_geometrie();

@@ -53,7 +53,7 @@ public:
 	///Set the pointer to the crest cubature, which is allocated in the dike-section class
 	void set_crest_cubature(Fpl_Cub_Dike_Crest *crest_cubature);
 	//Set the pointer to the crest cubature, which is allocated in the dike-section class
-	//void set_lanside_cubature(Fpl_Cub_Dike_Landsie *landside_cubature);
+	//void set_landside_cubature(Fpl_Cub_Dike_Landsie *landside_cubature);
 	///Transfer the overflow-mechanism data to database, e.g. geometry, random variables etc.
 	void transfer_data2database(const int section_id, const _sys_system_id id, QSqlDatabase *ptr_database);
 

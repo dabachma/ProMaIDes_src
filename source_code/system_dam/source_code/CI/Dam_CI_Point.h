@@ -20,7 +20,7 @@
 //dam-libs
 #include "_Dam_CI_Element.h"
 
-//Class for the points as CI (Critical Infrastructure) elements points which are used in the CI-damage calculation  \ingroup dam
+///Class for the points as CI (Critical Infrastructure) elements points which are used in the CI-damage calculation  \ingroup dam
 /**
 The CI-elements, points and polygons, are connected by lists (\ref Dam_CI_Element_List) with each other. In- and outcomming list are available.
 */

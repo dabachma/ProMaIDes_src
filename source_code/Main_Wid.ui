@@ -700,6 +700,9 @@
     <addaction name="menu_alt_ommon"/>
    </widget>
    <widget class="QMenu" name="menu_HAZ">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>&amp;HAZ</string>
     </property>

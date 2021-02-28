@@ -1657,7 +1657,7 @@ void Fpl_Sec_Type_Dike::output_member(void){
 	this->waterside_cubature.output_geometrie();
 	//crest cubature
 	this->crest_cubature.output_geometrie();
-	//lanside cubature
+	//landside cubature
 	this->landside_cubature.output_geometrie();
 	//hinterland
 	this->hinterland.output_geometrie();
@@ -5197,7 +5197,7 @@ void Fpl_Sec_Type_Dike::output_seepage2paraview(const string seepage_file) {
 	//header
 	output << "x,";
 	int count_col_tot = 1;
-	output << "z_seepage_lanside,";
+	output << "z_seepage_landside,";
 	count_col_tot++;
 	output << "z_seepage_waterside";
 	count_col_tot++;
@@ -5259,7 +5259,7 @@ void Fpl_Sec_Type_Dike::output_seepage2excel(const string seepage_file) {
 	//header
 	output << "x;";
 	int count_col_tot = 1;
-	output << "z_seepage_lanside;";
+	output << "z_seepage_landside;";
 	count_col_tot++;
 	output << "z_seepage_waterside";
 	count_col_tot++;

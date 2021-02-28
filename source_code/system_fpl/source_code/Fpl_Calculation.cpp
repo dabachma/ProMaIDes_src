@@ -129,6 +129,9 @@ void Fpl_Calculation::set_thread_type(_fpl_thread_type type){
 }
 //Set a pointer to the database; the copy of the database is made in this method
 void Fpl_Calculation::set_ptr2database(QSqlDatabase *ptr_database){
+	//if (QSqlDatabase::contains(sys_label::str_fpl.c_str()) == true) {
+	//	return;
+	//}
 	this->qsqldatabase=QSqlDatabase::cloneDatabase(*ptr_database, sys_label::str_fpl.c_str());
 	this->qsqldatabase.open();
 }
@@ -756,6 +759,10 @@ void Fpl_Calculation::check_ideal_hyd_system_fpl(Hyd_Model_River *river){
 
 	cout << "Check of the idealisation of the HYD-river model "<< river->Param_RV.get_river_name()<<" with the FPL-section(s) is finished" << endl;
 	Sys_Common_Output::output_fpl->output_txt(&cout);
+}
+//Set the section id to handle
+void Fpl_Calculation::set_section_id(const int id) {
+	this->number_section;
 }
 //_____________
 //private

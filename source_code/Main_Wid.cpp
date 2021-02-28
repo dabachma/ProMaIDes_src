@@ -6,6 +6,15 @@
 Main_Wid::Main_Wid(int argc, char *argv[]){
 	//important to use this custom defined enumerator with the signal and slot-mechanism
 	qRegisterMetaType<_sys_close_types>("_sys_close_types");
+	
+	//task variables
+	this->task_file_name = label::not_set;
+	this->task_flag = false;
+	this->number_task=0;
+	this->count_task=0;
+	this->number_new_sec = 0;
+	this->total_err_task = 0;
+
 	//project settings
 	if(argc==1){
 		this->project_file_set=false;
@@ -17,6 +26,10 @@ Main_Wid::Main_Wid(int argc, char *argv[]){
 		else{
 			this->project_file_set=false;
 		}
+		if(argc == 3) {
+			this->task_file_name = argv[2];
+		}
+		
 	}
 
 	
@@ -153,7 +166,6 @@ Main_Wid::Main_Wid(int argc, char *argv[]){
 	//}
 
 	//
-	//Sys_Common_Output::output_system->output_txt(&cout, false);
 
 
 }
@@ -250,6 +262,8 @@ void Main_Wid::slot_connect(void){
 
 	//Send a that a deleting of data is in action an refresh the data-tree view
 	QObject::connect(this,SIGNAL(send_delete2refresh_data_view()), this->treeWidget_data, SLOT(refresh_tree()));
+
+
 }
 //Connect the of the modul system
 void Main_Wid::slot_connect_sys(void){
@@ -1202,6 +1216,37 @@ void Main_Wid::enable_menu_project_closed(void){
 	this->treeview_file->clear_view();
 	this->setEnabled(true);
 }
+
+//Enable/disable menu
+void Main_Wid::enable_menu(const bool flag) {
+	this->menu_FPL_system->setEnabled(flag);
+	this->menu_HYD_system->setEnabled(flag);
+	this->menu_DAM_system->setEnabled(flag);
+	this->menu_RISK_system->setEnabled(flag);
+	this->menu_ALT_system->setEnabled(flag);
+	this->menu_MADM_system->setEnabled(flag);
+	this->menu_COST_system->setEnabled(flag);
+	//toolbars
+	this->menu_window->setEnabled(flag);
+	this->db_toolbar->setEnabled(flag);
+	this->proj_toolbar->setEnabled(flag);
+
+	//widget
+	//this->dockWidget_tree_view->setEnabled(flag);
+	//this->tabWidget_data_view->setEnabled(flag);
+	//project actions
+	this->menu_project->setEnabled(flag);
+	this->action_show_project->setEnabled(flag);
+	this->action_set_working_dir->setEnabled(flag);
+	this->action_close_project->setEnabled(flag);
+	this->action_edit_project->setEnabled(flag);
+	this->action_save_project->setEnabled(flag);
+	this->action_delete_project->setEnabled(flag);
+	this->action_copy_project->setEnabled(flag);
+	this->menu_Database->setEnabled(flag);
+	this->action_show_db_tool->setEnabled(flag);
+	this->menu_sys_common->setEnabled(flag);
+}
 //alloc new database
 void Main_Wid::alloc_newdatabase(void){
 	if(this->system_database==NULL){
@@ -1537,6 +1582,9 @@ void Main_Wid::allocate_multi_hydraulic_system(void){
 //Delete the multiple hydraulic system for a hydraulic calculation
 void Main_Wid::delete_multi_hydraulic_system(void){
 	if(this->hyd_calc!=NULL){
+		if (this->task_flag == true) {
+			this->total_err_task = this->total_err_task + this->hyd_calc->get_error_number();
+		}
 		delete this->hyd_calc;
 		this->hyd_calc=NULL;
 		QSqlDatabase::removeDatabase(sys_label::str_hyd.c_str());
@@ -1741,9 +1789,12 @@ void Main_Wid::allocate_fpl_system(void){
 }
 //Delete the fpl system for the fpl calculation
 void Main_Wid::delete_fpl_system(void){
-	if(this->fpl_calc!=NULL){
-		QObject::disconnect(this->fpl_calc, SIGNAL(send_hyd_thread_runs(bool )), this, SLOT(hyd_module_extern_runs(bool )));
-		QObject::disconnect(this->fpl_calc, SIGNAL(send_hyd_thread_enable(bool )), this, SLOT(enable_hyd_module_extern(bool )));
+	if (this->fpl_calc != NULL) {
+		QObject::disconnect(this->fpl_calc, SIGNAL(send_hyd_thread_runs(bool)), this, SLOT(hyd_module_extern_runs(bool)));
+		QObject::disconnect(this->fpl_calc, SIGNAL(send_hyd_thread_enable(bool)), this, SLOT(enable_hyd_module_extern(bool)));
+		if (this->task_flag == true) {
+			this->total_err_task = this->total_err_task+ this->fpl_calc->get_number_error();
+		}
 		delete this->fpl_calc;
 		this->fpl_calc=NULL;
 		QSqlDatabase::removeDatabase(sys_label::str_fpl.c_str());
@@ -2368,6 +2419,11 @@ void Main_Wid::start_main_window(void){
 	else{
 		this->setEnabled(true);
 	}
+
+
+
+
+
 	//else{
 	//	this->enable_menu_project_closed();
 	//}
@@ -3174,6 +3230,17 @@ void Main_Wid::read_existing_project(void){
 		this->enable_menu_project_open(false);
 		emit send_txt2statusbar("Ready", 0);
 	}
+
+	//Sys_Common_Output::output_system->output_txt(&cout, false);
+
+	if (this->task_file_name != label::not_set) {
+		this->task_flag = true;
+		//Send a that task-
+		QObject::connect(this, SIGNAL(send_task_by_file_start()), this, SLOT(start_task_by_file()));
+	}
+
+
+
 }
 //Output the project parameters to display/console
 void Main_Wid::show_project_param(void){
@@ -3449,14 +3516,19 @@ void Main_Wid::delete_file_logfile_archiv(void){
 	}
 }
 //Close the application (menu SYS)
-void Main_Wid::my_close(void){
+void Main_Wid::my_close(const bool dialog) {
+
 	ostringstream text;
 	this->close_project();
 	this->db_con_close();
 	this->close_text_searcher();
-	text << "   ProMaIDeS will be closed!   " << endl;
-	text << "    Thanks for joining us      " << endl;
-	QMessageBox::about(this,"Closing...",text.str().c_str());
+
+	if (dialog == true) {
+		text << "   ProMaIDeS will be closed!   " << endl;
+		text << "    Thanks for joining us      " << endl;
+		QMessageBox::about(this, "Closing...", text.str().c_str());
+	}
+
 	this->close_flag=true;
 
 	this->close();
@@ -3899,6 +3971,236 @@ void Main_Wid::clear_all_output_displays(void){
 	this->reset_madm_outputtxt();
 	this->reset_system_outputtxt();
 }
+//_________
+//task
+//Task by file action
+void Main_Wid::start_task_by_file(void) {
+
+	if (this->close_flag == true) {
+		return;
+	}
+
+	if (this->task_flag==true) {
+		try {
+			ostringstream cout;
+			this->enable_menu(false);
+
+			//read task for the first time
+			if (this->count_task == 0) {
+				cout << "Task modus is activated!" << endl;
+				Sys_Common_Output::output_system->output_txt(&cout, false);
+				this->read_task_file();
+
+				this->output_task_list();
+
+			}
+			bool task_found = false;
+			for (int i = 0; i<this->number_task; i++) {
+				if (i == this->count_task) {
+					this->enable_menu(false);
+					ostringstream prefix;
+					prefix << "TASK" << "> ";
+					Sys_Common_Output::output_system->set_userprefix(&prefix);
+					cout << "Peforming task no. " << this->count_task << endl;
+					Sys_Common_Output::output_system->output_txt(&cout, false);
+					this->interpret_task(this->task_list.at(i));
+					Sys_Common_Output::output_system->rewind_userprefix();
+					this->count_task++;
+					task_found = true;
+					break;
+
+				}
+
+			}
+			if(task_found==false){
+				//close programm
+				this->enable_menu(false);
+				ostringstream prefix;
+				prefix << "TASK" << "> ";
+				Sys_Common_Output::output_system->set_userprefix(&prefix);
+				cout << "Last task finished! " << this->count_task << endl;
+				cout << "TOTAL ERROR - NUMBER IN TASK" << endl;
+				cout << "     Error(s) : " << this->total_err_task << endl;
+				cout << "     For Warnings and Errors please check the exception- and the module-logfile(s)!" <<  endl;
+				
+				cout << "Close... " << endl;
+				Sys_Common_Output::output_system->output_txt(&cout, false);
+				Sys_Common_Output::output_system->rewind_userprefix();
+				this->my_close(false);
+
+			}
+		}
+		catch (Error msg) {
+			msg.output_msg(0);
+			return;
+		}
+
+
+	}
+}
+//Interpret the task to do
+void Main_Wid::interpret_task(QList<QVariant> list) {
+	string buff_module;
+	buff_module = list.at(0).toString().toStdString();
+
+		ostringstream cout;
+		if (buff_module == "FPL") {
+			this->start_task_fpl(list);
+
+		}
+		else if (buff_module == "HYD") {
+			this->start_task_hyd(list);
+		}
+		else {
+			cout << "Unknown module in task-list " << buff_module << endl;
+			Sys_Common_Output::output_system->output_txt(&cout, false);
+		}
+
+
+}
+//Interpret and start the task to do for FPL-module
+void Main_Wid::start_task_fpl(QList<QVariant> list) {
+	string buff_command;
+
+	buff_command = list.at(1).toString().toStdString();
+
+	ostringstream cout;
+	//import
+	if (buff_command == "import") {
+		QStringList buff_sec;
+		for (int i = 2; i < list.count(); i++) {
+			buff_sec.append(list.at(i).toString());
+		}
+		this->number_new_sec = buff_sec.count();
+		cout << "Import following FPL-section(s) to database "  << endl;
+		for (int i = 0; i < buff_sec.count(); i++) {
+			cout <<i+1<<" "<< buff_sec.at(i).toStdString() << endl;
+		}
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+		this->import_section2database_task(buff_sec);
+
+	}
+	//calc determ
+	else if (buff_command == "calc_determ") {
+		QList<int> buff_sec;
+		buff_sec=this->check_key_word_fpl(list.at(2).toString(), this->number_new_sec);
+		if (buff_sec.count() == 0) {
+			for (int i = 2; i < list.count(); i++) {
+				buff_sec.append(list.at(i).toInt());
+			}
+		}
+		cout << "Deterministic calculation of following FPL-section(s) " << endl;
+		for (int i = 0; i < buff_sec.count(); i++) {
+			cout << i + 1 << " " << buff_sec.at(i) << endl;
+		}
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+
+		this->perform_determ_calculation_task(buff_sec);
+
+	}
+	else if (buff_command == "calc_mc") {
+		QList<int> buff_sec;
+		buff_sec = this->check_key_word_fpl(list.at(2).toString(), this->number_new_sec);
+		if (buff_sec.count() == 0) {
+			for (int i = 2; i < list.count(); i++) {
+				buff_sec.append(list.at(i).toInt());
+			}
+		}
+		cout << "MC calculation of following FPL-section(s) " << endl;
+		for (int i = 0; i < buff_sec.count(); i++) {
+			cout << i + 1 << " " << buff_sec.at(i) << endl;
+		}
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+
+		this->perform_mc_calculation_task(buff_sec);
+
+
+	}
+	else if (buff_command == "calc_frc") {
+		QList<int> buff_sec;
+		buff_sec = this->check_key_word_fpl(list.at(2).toString(), this->number_new_sec);
+		if (buff_sec.count() == 0) {
+			for (int i = 2; i < list.count(); i++) {
+				buff_sec.append(list.at(i).toInt());
+			}
+		}
+		cout << "FRC calculation of following FPL-section(s) " << endl;
+		for (int i = 0; i < buff_sec.count(); i++) {
+			cout << i + 1 << " " << buff_sec.at(i) << endl;
+		}
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+
+		this->perform_frc_calculation_task(buff_sec);
+
+
+	}
+	else if (buff_command == "delete") {
+		QList<int> buff_sec;
+		buff_sec = this->check_key_word_fpl(list.at(2).toString(), this->number_new_sec);
+		if (buff_sec.count() == 0) {
+			for (int i = 2; i < list.count(); i++) {
+				buff_sec.append(list.at(i).toInt());
+			}
+		}
+		cout << "Delete following FPL-section(s) " << endl;
+		for (int i = 0; i < buff_sec.count(); i++) {
+			cout << i + 1 << " " << buff_sec.at(i) << endl;
+		}
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+
+		this->delete_fpl_section_database_task(buff_sec);
+
+
+	}
+	else if (buff_command == "export") {
+		QList<int> buff_sec;
+		buff_sec = this->check_key_word_fpl(list.at(2).toString(), this->number_new_sec);
+		if (buff_sec.count() == 0) {
+			for (int i = 2; i < list.count(); i++) {
+				buff_sec.append(list.at(i).toInt());
+			}
+		}
+		cout << "Export results of following FPL-section(s) " << endl;
+		for (int i = 0; i < buff_sec.count(); i++) {
+			cout << i + 1 << " " << buff_sec.at(i) << endl;
+		}
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+		//TODO
+		//this->delete_fpl_section_export_results_task(buff_sec)
+
+
+	}
+	else {
+		cout << "Unknown command in task-list " << buff_command << endl;
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+	}
+}
+//Interpret and start the task to do for HYD-module
+void Main_Wid::start_task_hyd(QList<QVariant> list) {
+	ostringstream cout;
+	cout << "Currently no task defined for the HYD-module" << endl;
+	Sys_Common_Output::output_system->output_txt(&cout, false);
+}
+//Check for the keywords in tasks NEW, ALL section ids
+QList<int> Main_Wid::check_key_word_fpl(const QString key, const int last_number) {
+	QList<int> sec_id;
+	if (key == "ALL") {
+		//fill sec_id
+		sec_id = Fpl_Section::get_list_relevant_section_database(this->system_database->get_database(), this->system_state.get_sys_system_id());
+		return sec_id;
+	}
+	else if (key == "NEW") {
+		if (last_number==0) {
+			return sec_id;
+		}
+		//fill sec_id
+		sec_id = Fpl_Section::get_list_last_section_database(this->system_database->get_database(), this->system_state.get_sys_system_id(), last_number);
+		return sec_id;
+	}
+
+	return sec_id;
+
+}
 //________
 //menu FPL
 //Import fpl-section(s) from file to database (menu fpl/)
@@ -3924,6 +4226,29 @@ void Main_Wid::import_section2database(void){
 	//start the thread
 	this->fpl_calc->start();
 	this->check_fpl_thread_is_running();
+}
+//Import fpl-section(s) from file to database from task
+void Main_Wid::import_section2database_task(QStringList list_id) {
+	//allocate the thread
+	try {
+		this->allocate_fpl_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	//set thread specific members
+	this->fpl_calc->set_thread_type(_fpl_thread_type::fpl_import_file);
+	this->fpl_calc->set_ptr2database(this->system_database->get_database());
+
+	this->fpl_calc->set_system_number_file_direct(list_id);
+	//this->reset_exception_new_action();
+	//connect the thread when is finished
+	QObject::connect(this->fpl_calc, SIGNAL(finished()), this, SLOT(thread_fpl_calc_finished()));
+	//start the thread
+	this->fpl_calc->start();
+	this->check_fpl_thread_is_running();
+
 }
 //Create the database tables for the fpl system
 void Main_Wid::create_fpl_system_database_tables(void){
@@ -3989,6 +4314,10 @@ void Main_Wid::thread_fpl_check_tables_finished(void){
 		QObject::disconnect(this->fpl_calc,SIGNAL(finished()),this,SLOT(thread_fpl_check_tables_finished()));
 		this->delete_fpl_system();
 		emit send_table_check_is_finished();
+		if (this->task_flag == true && this->project_manager.get_project_type() == _sys_project_type::proj_fpl) {
+			emit send_task_by_file_start();
+		}
+
 	}
 }
 //Check fpl-section(s) per file (menu fpl/Section check)
@@ -4144,6 +4473,29 @@ void Main_Wid::perform_determ_calculation(void){
 		this->check_fpl_thread_is_running();
 	}
 }
+//Perform a deterministic calculation from task
+void Main_Wid::perform_determ_calculation_task(QList<int> list_id){
+	try {
+		this->allocate_fpl_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->fpl_calc->set_thread_type(_fpl_thread_type::fpl_determ_selected);
+
+
+	this->fpl_calc->set_list_section_ids(list_id);
+
+	//connect the thread when is finished
+	QObject::connect(this->fpl_calc, SIGNAL(finished()), this, SLOT(thread_fpl_calc_finished()));
+	//this->reset_exception_new_action();
+	this->fpl_calc->set_ptr2database(this->system_database->get_database());
+	//start calculation
+	this->fpl_calc->start();
+	this->check_fpl_thread_is_running();
+
+}
 //Perform a monte-carlo calculation (menu fpl/calculation)
 void Main_Wid::perform_mc_calculation(void){
 	//allocate the thread
@@ -4169,6 +4521,29 @@ void Main_Wid::perform_mc_calculation(void){
 		this->check_fpl_thread_is_running();
 	}
 }
+//Perform a monte-carlo calculation from task
+void Main_Wid::perform_mc_calculation_task(QList<int> list_id) {
+	try {
+		this->allocate_fpl_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->fpl_calc->set_thread_type(_fpl_thread_type::fpl_mc_selected);
+
+
+	this->fpl_calc->set_list_section_ids(list_id);
+
+	//connect the thread when is finished
+	QObject::connect(this->fpl_calc, SIGNAL(finished()), this, SLOT(thread_fpl_calc_finished()));
+	//this->reset_exception_new_action();
+	this->fpl_calc->set_ptr2database(this->system_database->get_database());
+	//start calculation
+	this->fpl_calc->start();
+	this->check_fpl_thread_is_running();
+
+}
 //Perform a fragility curve calculation (menu fpl/calculation)
 void Main_Wid::perform_frc_calculation(void){
 	//allocate the thread
@@ -4193,6 +4568,31 @@ void Main_Wid::perform_frc_calculation(void){
 		this->fpl_calc->start();
 		this->check_fpl_thread_is_running();
 	}
+}
+//Perform a fragility curve calculation task
+void Main_Wid::perform_frc_calculation_task(QList<int> list_id) {
+	try {
+		this->allocate_fpl_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->fpl_calc->set_thread_type(_fpl_thread_type::fpl_frc_selected);
+
+
+	this->fpl_calc->set_list_section_ids(list_id);
+
+	//connect the thread when is finished
+	QObject::connect(this->fpl_calc, SIGNAL(finished()), this, SLOT(thread_fpl_calc_finished()));
+	//this->reset_exception_new_action();
+	this->fpl_calc->set_ptr2database(this->system_database->get_database());
+	//start calculation
+	this->fpl_calc->start();
+	this->check_fpl_thread_is_running();
+
+
+
 }
 //Perform a test for the random generator (menu fpl/calculation)
 void Main_Wid::perform_test_random(void){
@@ -4254,6 +4654,28 @@ void Main_Wid::delete_fpl_section_database(void){
 			return;
 		}
 	}
+}
+///Delete section of the fpl-module in database task
+void Main_Wid::delete_fpl_section_database_task(QList<int> list_id) {
+	try {
+		this->allocate_fpl_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->fpl_calc->set_thread_type(_fpl_thread_type::fpl_del_section);
+
+
+	this->fpl_calc->set_list_section_ids(list_id);
+
+	//connect the thread when is finished
+	QObject::connect(this->fpl_calc, SIGNAL(finished()), this, SLOT(thread_fpl_calc_finished()));
+	//this->reset_exception_new_action();
+	this->fpl_calc->set_ptr2database(this->system_database->get_database());
+	//start calculation
+	this->fpl_calc->start();
+	this->check_fpl_thread_is_running();
 }
 //Restore default values of the fpl-module in database tables (menu fpl/Restore standard...)
 void Main_Wid::restore_default_database_table(void){
@@ -4357,6 +4779,10 @@ void Main_Wid::thread_fpl_calc_finished(void){
 			emit send_delete2refresh_data_view();
 		}
 		this->delete_fpl_system();
+
+		if (this->task_flag == true) {
+			emit send_task_by_file_start();
+		}
 	}
 }
 //Reset the display FPL (menu fpl/common)
@@ -4454,6 +4880,9 @@ void Main_Wid::thread_hyd_calc_finished(void){
 		QObject::disconnect(this->hyd_calc,SIGNAL(finished()),this,SLOT(thread_hyd_calc_finished()));
 
 		this->delete_multi_hydraulic_system();
+		if (this->task_flag == true) {
+			emit send_task_by_file_start();
+		}
 	}
 }
 //Catch the number of threads, which are launched from the multiple hydraulic system for calculation
@@ -4553,6 +4982,9 @@ void Main_Wid::thread_hyd_check_tables_finished(void){
 		this->delete_multi_hydraulic_system();
 		this->hyd_tables_created=true;
 		emit send_table_check_is_finished();
+		if (this->task_flag == true) {
+			emit send_task_by_file_start();
+		}
 	}
 }
 //Import the hydraulic base system per file to a database (menu hyd)
@@ -4710,6 +5142,9 @@ void Main_Wid::thread_hyd_import_finished(void){
 		QObject::disconnect(this->hyd_calc,SIGNAL(finished()),this,SLOT(thread_hyd_import_finished()));
 		emit send_delete2refresh_data_view();
 		this->delete_multi_hydraulic_system();
+		if (this->task_flag == true) {
+			emit send_task_by_file_start();
+		}
 	}
 }
 //Check the the hydraulic system (data, geometrical interception, coupling) per file (menu hyd/Model check)
@@ -8427,6 +8862,9 @@ void Main_Wid::closeEvent(QCloseEvent *close){
 	}
 
 	if(this->close_flag==true){
+		
+
+
 		QSettings settings("AG_FRM", "MyProMaIDes");
 		settings.setValue("geometry", saveGeometry());
 		settings.setValue("windowState", saveState());
@@ -8435,6 +8873,119 @@ void Main_Wid::closeEvent(QCloseEvent *close){
 		close->accept();
 		this->close();
 	}
+}
+//Read task file
+void Main_Wid::read_task_file(void) {
+	int line_counter = 0;
+	QFile ifile;
+
+	ostringstream cout;
+	ostringstream prefix;
+	prefix << "INP" << "> ";
+	Sys_Common_Output::output_system->set_userprefix(&prefix);
+	cout << "Read task-file " << this->task_file_name<< endl;
+	Sys_Common_Output::output_system->output_txt(&cout, false);
+
+	//read in task file
+	try {
+		//open file
+		ifile.setFileName(this->task_file_name.c_str());
+		QIODevice::OpenMode my_flag;
+		my_flag = my_flag | (QIODevice::ReadOnly);
+		my_flag = my_flag | (QIODevice::Text);
+		ifile.open(my_flag);
+		if (ifile.isOpen() == false) {
+			Error msg = this->set_error(2);
+			ostringstream info;
+			info << "Filename: " << this->task_file_name << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+	string myline;
+	QString qmyline;
+	stringstream buffer1;
+
+
+	//search for number of task
+	do {
+		qmyline = ifile.readLine();
+		myline = qmyline.toStdString();
+		(line_counter)++;
+		functions::clean_string(&myline);
+		if (myline.empty() ==false) {
+			buffer1 << myline;
+			buffer1 >> this->number_task;
+			if (buffer1.fail() == true) {
+				ostringstream info;
+				info << "Reading number of task" << endl;
+				info << "File                  : " << this->task_file_name << endl;
+				info << "Wrong input sequenze  : " << buffer1.str() << endl;
+				Error msg = this->set_error(3);
+				msg.make_second_info(info.str());
+				throw msg;
+			}
+			break;
+		}
+	} while (ifile.atEnd() == false);
+
+	cout << "Found " << this->number_task <<" tasks"<< endl;
+	Sys_Common_Output::output_system->output_txt(&cout, false);
+
+	//read in tasks
+	do {
+		qmyline = ifile.readLine();
+		myline = qmyline.toStdString();
+		(line_counter)++;
+		functions::clean_string(&myline);
+		if (myline.empty() == false) {
+			qmyline = myline.c_str();
+			QStringList my_str_list;
+			my_str_list = qmyline.split(",");
+			QList<QVariant> buff_list;
+			for (int i = 0; i < my_str_list.count(); i++) {
+				buff_list.append(my_str_list.at(i));
+			}
+			this->task_list.append(buff_list);
+		}
+	} while (ifile.atEnd() == false);
+
+	Sys_Common_Output::output_system->rewind_userprefix();
+	ifile.close();
+
+	if (this->number_task != this->task_list.count()) {
+		ostringstream info;
+		info << "Number of task to be found: " << this->number_task<<endl;
+		info << "Number of task found      : " << this->task_list.count() << endl;
+		info << "File                  : " << this->task_file_name << endl;
+		Error msg = this->set_error(4);
+		msg.make_second_info(info.str());
+		throw msg;
+
+	}
+
+}
+//Output task file list
+void Main_Wid::output_task_list(void) {
+	ostringstream cout;
+	ostringstream prefix;
+	prefix << "OUT" << "> ";
+	Sys_Common_Output::output_system->set_userprefix(&prefix);
+	cout << "Ouptut task-list " << endl;
+	Sys_Common_Output::output_system->output_txt(&cout, false);
+	for (int i = 0; i < this->task_list.count(); i++) {
+		for (int j = 0; j < this->task_list.at(i).count(); j++) {
+			cout << this->task_list.at(i).at(j).toString().toStdString() <<" ";
+		}
+		cout << endl;
+	}
+
+	Sys_Common_Output::output_system->output_txt(&cout, false);
+	Sys_Common_Output::output_system->rewind_userprefix();
 }
 //Set error(s)
 Error Main_Wid::set_error(const int err_type){
@@ -8461,6 +9012,24 @@ Error Main_Wid::set_error(const int err_type){
 			info <<"Number of checking errors "<<this->number_error_table_check<< endl;
 			type=9;
 			fatal=true;
+			break;
+		case 2://can not open  file
+			place.append("read_task_file(void)");
+			reason = "Can not open the file of the tasks";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 3://wrong input
+			place.append("read_task_file(void)");
+			reason = "There is a problem with the input; wrong sign is read in";
+			help = "Check the task file";
+			type = 1;
+			break;
+		case 4://wrong input
+			place.append("read_task_file(void)");
+			reason = "Number of task(s) found in file is not correct; check number of task at the beginning of file and number of tasks in file";
+			help = "Check the task file";
+			type = 1;
 			break;
 		default:
 			place.append("set_error(const int err_type)");

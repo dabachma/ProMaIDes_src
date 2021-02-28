@@ -896,7 +896,8 @@ void Hyd_Instationary_Boundary::check_time_values(void){
 		if(this->boundary_points[i].hour>=this->boundary_points[i+1].hour){
 			Error msg=this->set_error(10);
 			ostringstream info;
-			info<<"Between Pointno. " <<i <<" and " << i+1<< endl;
+			info << "Curve-id: " << this->number << endl;
+			info<<"Between Pointno. " <<i <<" ("<< this->boundary_points[i].hour<<" h) and " << i+1 << " (" << this->boundary_points[i+1].hour << " h)"<< endl;
 			msg.make_second_info(info.str());
 			throw msg;
 		}

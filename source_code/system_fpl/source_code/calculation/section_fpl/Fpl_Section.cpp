@@ -931,6 +931,29 @@ int Fpl_Section::select_section_database(QSqlQueryModel *results, QSqlDatabase *
 
 	return number;
 }
+//Get a list of all available section ids (static)
+QList<int> Fpl_Section::get_list_relevant_section_database(QSqlDatabase *ptr_database, const _sys_system_id id) {
+	QList<int> buff_id;
+	QSqlQueryModel result;
+	int number = 0;
+	number = Fpl_Section::select_relevant_section_database(&result, ptr_database, id, false);
+	for (int i = 0; i < number; i++) {
+		buff_id.append(result.record(i).value((Fpl_Section::table->get_column_name(fpl_label::section_id)).c_str()).toInt());
+	}
+	return buff_id;
+}
+//Get a list of last x section ids  (static)
+QList<int> Fpl_Section::get_list_last_section_database(QSqlDatabase *ptr_database, const _sys_system_id id, const int last) {
+	QList<int> buff_id;
+	QSqlQueryModel result;
+	int number = 0;
+	number = Fpl_Section::select_relevant_section_database(&result, ptr_database, id, false);
+	for (int i = number-last; i < number; i++) {
+		buff_id.append(result.record(i).value((Fpl_Section::table->get_column_name(fpl_label::section_id)).c_str()).toInt());
+	}
+	return buff_id;
+
+}
 //Select one specific fpl section in a database table (static)
 int Fpl_Section::select_section_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int sec_id){
 	int number=0;

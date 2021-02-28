@@ -21,7 +21,7 @@
 #include "Dam_CI_Point.h"
 #include "Dam_CI_Polygon.h"
 
-//Class for the points as CI elements points which are used in the CI-damage calculation  \ingroup dam
+///Class for the points as CI elements points which are used in the CI-damage calculation  \ingroup dam
 /**
 The list connects the _Dam_CI_Elements with each other. In- and outcomming list are available.
 

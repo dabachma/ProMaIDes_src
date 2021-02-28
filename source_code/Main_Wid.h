@@ -297,6 +297,9 @@ private:
 	///Enable/disable menu and show/hide the data tabs in the dataview corresponding the project type, when a project is closed
 	void enable_menu_project_closed(void);
 
+	///Enable/disable menu
+	void enable_menu(const bool flag);
+
 	///Allocate new database
 	void alloc_newdatabase(void);
 
@@ -393,6 +396,8 @@ signals:
 	void send_delete2refresh_data_view(void);
 	///Send a that file tree view can be set up
 	void send_setup_file_tree_view(void);
+	///Send that the task-by-file can start
+	void send_task_by_file_start(void);
 
 private slots:
 	///The welcome window is closed; the mainwindow is started
@@ -493,7 +498,7 @@ private slots:
 
 
 	///Close the application (menu SYS)
-	void my_close(void);
+	void my_close(const bool dialog = true);
 
 
 	///Close the widget for closing the threads
@@ -537,8 +542,22 @@ private slots:
 	///Clear all output displays(menu SYS/common)
 	void clear_all_output_displays(void);
 
+	///Task by file action
+	void start_task_by_file(void);
+	///Interpret the task to do
+	void interpret_task(QList<QVariant> list);
+	///Interpret and start the task to do for FPL-module
+	void start_task_fpl(QList<QVariant> list);
+	///Interpret and start the task to do for HYD-module
+	void start_task_hyd(QList<QVariant> list);
+	///Check for the keywords in tasks NEW, ALL section ids
+	QList<int> check_key_word_fpl(const QString key, const int last_number);
+
 	///Import fpl-section(s) from file to database
 	void import_section2database(void);
+	///Import fpl-section(s) from file to database from task
+	void import_section2database_task(QStringList list_id);
+
 	///Create the database tables for the fpl system
 	void create_fpl_system_database_tables(void);
 	///Check for the normal end of the fpl create-tables thread
@@ -561,15 +580,27 @@ private slots:
 
 	///Perform a deterministic calculation (menu fpl/calculation)
 	void perform_determ_calculation(void);
+	///Perform a deterministic calculation from task
+	void perform_determ_calculation_task(QList<int> list_id);
+
 	///Perform a monte-carlo calculation (menu fpl/calculation)
 	void perform_mc_calculation(void);
+	///Perform a monte-carlo calculation from task
+	void perform_mc_calculation_task(QList<int> list_id);
+
 	///Perform a fragility curve calculation (menu fpl/calculation)
 	void perform_frc_calculation(void);
+	///Perform a fragility curve calculation task
+	void perform_frc_calculation_task(QList<int> list_id);
+
 	///Perform a test for the random generator (menu fpl/calculation)
 	void perform_test_random(void);
 
 	///Delete section of the fpl-module in database (menu fpl/Delete section...)
 	void delete_fpl_section_database(void);
+	///Delete section of the fpl-module in database task
+	void delete_fpl_section_database_task(QList<int> list_id);
+
 	///Restore default values of the fpl-module in database tables (menu fpl/Restore standard...)
 	void restore_default_database_table(void);
 
@@ -929,6 +960,21 @@ private:
 	///Flag that tables are created
 	bool table_create_flag;
 
+	///Task file
+	string task_file_name;
+	///Task flag
+	bool task_flag;
+	///Number task
+	int number_task;
+	///Counter task
+	int count_task;
+	///List of tasks
+	QList<QList<QVariant>> task_list;
+	///New section (FPL)/system (HYD) with task imported
+	int number_new_sec;
+	///Total error during task
+	int total_err_task;
+
 	//method
 	///Allocate the table view for the database tables
 	void allocate_db_table_view(void);
@@ -940,6 +986,11 @@ private:
 
 	///Handles the close event by the close-button of the main-widget
 	void closeEvent(QCloseEvent *close);
+
+	///Read task file
+	void read_task_file(void);
+	///Output task file list
+	void output_task_list(void);
 
 	///Set error(s)
 	Error set_error(const int err_type);

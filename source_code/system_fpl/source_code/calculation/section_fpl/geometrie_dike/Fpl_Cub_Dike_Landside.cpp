@@ -285,7 +285,7 @@ void Fpl_Cub_Dike_Landside::allocate_segments(void){
 		throw msg;
 	}
 }
-//Delete the segments of the lanside cubature
+//Delete the segments of the landside cubature
 void Fpl_Cub_Dike_Landside::delete_segments(void){
 	if(this->ptr_segments!=NULL){
 		delete []this->ptr_segments;

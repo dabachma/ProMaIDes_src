@@ -181,6 +181,9 @@ public:
 	///Check the idealization of the hydraulic system by the fpl-system by a given river model; it is used in the Alt-System
 	void check_ideal_hyd_system_fpl(Hyd_Model_River *river);
 
+	///Set the section id to handle
+	void set_section_id(const int id);
+
 signals:
 	///Send if the hydraulic thread is used
 	void send_hyd_thread_runs(bool flag);

@@ -22,7 +22,7 @@
 #include "Dam_CI_Point.h"
 #include "Dam_CI_Polygon.h"
 
-//Class for managing the CI-damage calculation  \ingroup dam
+///Class for managing the CI-damage calculation  \ingroup dam
 /**
 This class manages the input, the calculation and the output of the CI-damage system.
 */

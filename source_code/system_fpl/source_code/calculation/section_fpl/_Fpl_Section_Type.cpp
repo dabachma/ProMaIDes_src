@@ -285,7 +285,7 @@ void _Fpl_Section_Type::set_predefined_data2mechanism_table(QSqlDatabase *ptr_da
 	query_string.str("");
 	id_glob++;
 
-	//mechanism bursting after Din19712 at the lanside dike toe
+	//mechanism bursting after Din19712 at the landside dike toe
 	query_string << " VALUES ( ";
 	query_string << id_glob << " , " ;
 	query_string << "'"<<fpl_label::mech_bursting_din << "'"<<" , " ;

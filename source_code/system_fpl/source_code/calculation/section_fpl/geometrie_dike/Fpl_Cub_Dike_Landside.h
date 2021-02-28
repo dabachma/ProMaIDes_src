@@ -15,7 +15,7 @@
 #include "Fpl_Cub_Dike_Segment_Landside.h"
 
 
-///Cubature of the lanside of a dike section as segments \ingroup fpl
+///Cubature of the landside of a dike section as segments \ingroup fpl
 /**
 
 
@@ -84,7 +84,7 @@ private:
 	//methods
 	///Allocate the segments of the landside cubature
 	void allocate_segments(void);
-	///Delete the segments of the lanside cubature
+	///Delete the segments of the landside cubature
 	void delete_segments(void);
 
 	///Calculate the total length as well as the vertical and horizontal distance 

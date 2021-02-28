@@ -84,6 +84,11 @@ public:
 	///Select and count the number of fpl section with a specific section type for the given measure state in a database table 
 	static int select_section_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const _fpl_section_types type);
 
+	///Get a list of all available section ids 
+	static QList<int> get_list_relevant_section_database(QSqlDatabase *ptr_database, const _sys_system_id id);
+	///Get a list of last x section ids 
+	static QList<int> get_list_last_section_database(QSqlDatabase *ptr_database, const _sys_system_id id, const int last);
+
 	///Select one specific fpl section in a database table
 	static int select_section_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int sec_id);
 	///Select one specific fpl section in a database table
