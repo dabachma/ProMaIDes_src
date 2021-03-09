@@ -115,7 +115,7 @@ public:
 	///Input the fpl-section data form a query model per database
 	void input_section_perdatabase(const QSqlQueryModel *results, const int glob_index, QSqlDatabase *ptr_database, const bool applied_important=true);
 	///Input the fpl-section and the appending data form a query model per database
-	void input_section_total_perdatabase(const QSqlQueryModel *results, const int glob_index, QSqlDatabase *ptr_database, const bool flag_frc_sim);
+	void input_section_total_perdatabase(const QSqlQueryModel *results, const int glob_index, QSqlDatabase *ptr_database, const bool flag_frc_sim, const bool for_output = false);
 
 	///Output the section members to display/console
 	void output_members(void);
@@ -129,6 +129,29 @@ public:
 	void output_geometry2paraview(void);
 	///Output the section geometry to a excel file
 	void output_geometry2excel(void);
+
+	///Output the deterministic results to a tecplot file
+	void output_determ_results2tecplot(QSqlDatabase *ptr_database);
+	///Output the deterministic results to a paraview file
+	void output_determ_results2paraview(QSqlDatabase *ptr_database);
+	///Output the deterministic results to a excel file
+	void output_determ_results2excel(QSqlDatabase *ptr_database);
+
+	///Output the MC results to a tecplot file
+	void output_mc_results2tecplot(QSqlDatabase *ptr_database);
+	///Output the MC results to a paraview file
+	void output_mc_results2paraview(QSqlDatabase *ptr_database);
+	///Output the MC results to a excel file
+	void output_mc_results2excel(QSqlDatabase *ptr_database);
+
+
+	///Output the FRC results to a tecplot file
+	void output_frc_results2tecplot(QSqlDatabase *ptr_database);
+	///Output the FRC results to a paraview file
+	void output_frc_results2paraview(QSqlDatabase *ptr_database);
+	///Output the FRC results to a excel file
+	void output_frc_results2excel(QSqlDatabase *ptr_database);
+
 
 	///Check and generate folder
 	static string check_generate_folder(const string folder_name, string *path);

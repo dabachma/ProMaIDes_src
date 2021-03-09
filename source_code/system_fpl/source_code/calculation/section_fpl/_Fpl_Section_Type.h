@@ -189,6 +189,29 @@ public:
 	///Output the geometry to excel
 	virtual void output_geometry2excel(ofstream *output) = 0;
 
+	///Output the deterministic results to tecplot
+	virtual void output_determ_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) = 0;
+	///Output the deterministic results to Paraview
+	virtual void output_determ_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) = 0;
+	///Output the deterministic results to excel
+	virtual void output_determ_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) = 0;
+
+	///Output the MC results to tecplot
+	virtual void output_mc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) = 0;
+	///Output the MC results to Paraview
+	virtual void output_mc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) = 0;
+	///Output the MC results to excel
+	virtual void output_mc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) = 0;
+
+	///Output the FRC results to tecplot
+	virtual void output_frc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) = 0;
+	///Output the FRC results to Paraview
+	virtual void output_frc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) = 0;
+	///Output the FRC results to excel
+	virtual void output_frc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) = 0;
+
+
+
 	///Get output control flags per table
 	output_control get_output_control_flags(void);
 

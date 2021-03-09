@@ -369,6 +369,13 @@ void Main_Wid::slot_connect_fpl(void){
 	//Check fpl-section(s) per database (menu fpl/Section check)
 	QObject::connect(this->action_check_fpl_db, SIGNAL(triggered()), this, SLOT(check_section_database()));
 
+	//Export deterministic results of a FPL-section (menu fpl/Export results/)
+	QObject::connect(this->action_export_DETERM, SIGNAL(triggered()), this, SLOT(export_results_determ()));
+	//Export MC-results of a FPL-section (menu fpl/Export results/)
+	QObject::connect(this->action_export_MC, SIGNAL(triggered()), this, SLOT(export_results_mc()));
+	//Export FRC-results of a FPL-section (menu fpl/Export results/)
+	QObject::connect(this->action_export_FRC, SIGNAL(triggered()), this, SLOT(export_results_frc()));
+
 	//Combine the fpl-system with the hydraulic system (menu fpl/HYD2FPL)
 	QObject::connect(this->action_fpl2hyd_combine, SIGNAL(triggered()), this, SLOT(combine_fpl2hyd_system()));
 	//Check the idealization of the hydraulic system by the fpl-system (menu fpl/HYD2FPL)
@@ -1283,6 +1290,10 @@ void Main_Wid::menu_enable_checkdb(void){
 	if(this->system_database!=NULL && this->system_database->check_con_status()==true){
 		//menu fpl
 		this->action_check_fpl_tables->setEnabled(true);
+		this->action_export_DETERM->setEnabled(true);
+		this->action_export_MC->setEnabled(true);
+		this->action_export_FRC->setEnabled(true);
+
 		this->action_user_defined_frc->setEnabled(true);
 		this->action_calc_frc->setEnabled(true);
 		this->action_calc_mc->setEnabled(true);
@@ -1375,6 +1386,9 @@ void Main_Wid::menu_enable_checkdb(void){
 	else{
 		//menu fpl
 		this->action_check_fpl_tables->setEnabled(false);
+		this->action_export_DETERM->setEnabled(false);
+		this->action_export_MC->setEnabled(false);
+		this->action_export_FRC->setEnabled(false);
 		this->action_user_defined_frc->setEnabled(false);
 		this->action_calc_frc->setEnabled(false);
 		this->action_calc_mc->setEnabled(false);
@@ -1712,6 +1726,9 @@ void Main_Wid::check_fpl_thread_is_running(void){
 		this->action_stop_fpl_calc->setEnabled(true);
 		this->action_check_fpl_tables->setEnabled(false);
 		this->action_delete_fpl_section->setEnabled(false);
+		this->action_export_DETERM->setEnabled(false);
+		this->action_export_MC->setEnabled(false);
+		this->action_export_FRC->setEnabled(false);
 		this->action_restore_standard_fpl->setEnabled(false);
 		this->menu_fpl2hyd->setEnabled(false);
 		this->menu_check_fpl->setEnabled(false);
@@ -1737,6 +1754,10 @@ void Main_Wid::check_fpl_thread_is_running(void){
 		this->menu_fpl_calc->setEnabled(true);
 		this->action_stop_fpl_calc->setEnabled(false);
 		this->action_check_fpl_tables->setEnabled(true);
+
+		this->action_export_DETERM->setEnabled(true);
+		this->action_export_MC->setEnabled(true);
+		this->action_export_FRC->setEnabled(true);
 
 		this->action_restore_standard_fpl->setEnabled(true);
 		this->action_stop_fpl_calc->setEnabled(false);
@@ -4152,7 +4173,7 @@ void Main_Wid::start_task_fpl(QList<QVariant> list) {
 
 
 	}
-	else if (buff_command == "export") {
+	else if (buff_command == "export_determ") {
 		QList<int> buff_sec;
 		buff_sec = this->check_key_word_fpl(list.at(2).toString(), this->number_new_sec);
 		if (buff_sec.count() == 0) {
@@ -4160,13 +4181,49 @@ void Main_Wid::start_task_fpl(QList<QVariant> list) {
 				buff_sec.append(list.at(i).toInt());
 			}
 		}
-		cout << "Export results of following FPL-section(s) " << endl;
+		cout << "Export deterministic results of following FPL-section(s) " << endl;
 		for (int i = 0; i < buff_sec.count(); i++) {
 			cout << i + 1 << " " << buff_sec.at(i) << endl;
 		}
 		Sys_Common_Output::output_system->output_txt(&cout, false);
-		//TODO
-		//this->delete_fpl_section_export_results_task(buff_sec)
+
+		this->export_results_determ_task(buff_sec);
+
+
+	}
+	else if (buff_command == "export_mc") {
+		QList<int> buff_sec;
+		buff_sec = this->check_key_word_fpl(list.at(2).toString(), this->number_new_sec);
+		if (buff_sec.count() == 0) {
+			for (int i = 2; i < list.count(); i++) {
+				buff_sec.append(list.at(i).toInt());
+			}
+		}
+		cout << "Export Monte-Carlo results of following FPL-section(s) " << endl;
+		for (int i = 0; i < buff_sec.count(); i++) {
+			cout << i + 1 << " " << buff_sec.at(i) << endl;
+		}
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+
+		this->export_results_mc_task(buff_sec);
+
+
+	}
+	else if (buff_command == "export_frc") {
+		QList<int> buff_sec;
+		buff_sec = this->check_key_word_fpl(list.at(2).toString(), this->number_new_sec);
+		if (buff_sec.count() == 0) {
+			for (int i = 2; i < list.count(); i++) {
+				buff_sec.append(list.at(i).toInt());
+			}
+		}
+		cout << "Export FRC results of following FPL-section(s) " << endl;
+		for (int i = 0; i < buff_sec.count(); i++) {
+			cout << i + 1 << " " << buff_sec.at(i) << endl;
+		}
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+
+		this->export_results_frc_task(buff_sec);
 
 
 	}
@@ -4366,6 +4423,144 @@ void Main_Wid::check_section_database(void){
 		this->fpl_calc->start();
 		this->check_fpl_thread_is_running();
 	}
+}
+//Export deterministic results of a FPL-section (menu fpl/Export results/)
+void Main_Wid::export_results_determ(void) {
+	//allocate the thread
+	try {
+		this->allocate_fpl_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->fpl_calc->set_ptr2database(this->system_database->get_database());
+	if (this->fpl_calc->ask_section2handle(this, _fpl_thread_type::fpl_export_determ_sec) == false) {
+		this->delete_fpl_system();
+		return;
+	}
+	else {
+		this->reset_exception_new_action();
+		//connect the thread when is finished
+		QObject::connect(this->fpl_calc, SIGNAL(finished()), this, SLOT(thread_fpl_calc_finished()));
+		//start the thread
+		this->fpl_calc->start();
+		this->check_fpl_thread_is_running();
+	}
+}
+//Export deterministic results of a FPL-section from task
+void Main_Wid::export_results_determ_task(QList<int> list_id) {
+	try {
+		this->allocate_fpl_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->fpl_calc->set_thread_type(_fpl_thread_type::fpl_export_determ_sec);
+
+
+	this->fpl_calc->set_list_section_ids(list_id);
+
+	//connect the thread when is finished
+	QObject::connect(this->fpl_calc, SIGNAL(finished()), this, SLOT(thread_fpl_calc_finished()));
+	//this->reset_exception_new_action();
+	this->fpl_calc->set_ptr2database(this->system_database->get_database());
+	//start calculation
+	this->fpl_calc->start();
+	this->check_fpl_thread_is_running();
+}
+//Export Monte-Carlo results of a FPL-section (menu fpl/Export results/)
+void Main_Wid::export_results_mc(void) {
+	//allocate the thread
+	try {
+		this->allocate_fpl_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->fpl_calc->set_ptr2database(this->system_database->get_database());
+	if (this->fpl_calc->ask_section2handle(this, _fpl_thread_type::fpl_export_mc_sec) == false) {
+		this->delete_fpl_system();
+		return;
+	}
+	else {
+		this->reset_exception_new_action();
+		//connect the thread when is finished
+		QObject::connect(this->fpl_calc, SIGNAL(finished()), this, SLOT(thread_fpl_calc_finished()));
+		//start the thread
+		this->fpl_calc->start();
+		this->check_fpl_thread_is_running();
+	}
+}
+//Export Monte-Carlo results of a FPL-section from task
+void Main_Wid::export_results_mc_task(QList<int> list_id) {
+	try {
+		this->allocate_fpl_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->fpl_calc->set_thread_type(_fpl_thread_type::fpl_export_mc_sec);
+
+
+	this->fpl_calc->set_list_section_ids(list_id);
+
+	//connect the thread when is finished
+	QObject::connect(this->fpl_calc, SIGNAL(finished()), this, SLOT(thread_fpl_calc_finished()));
+	//this->reset_exception_new_action();
+	this->fpl_calc->set_ptr2database(this->system_database->get_database());
+	//start calculation
+	this->fpl_calc->start();
+	this->check_fpl_thread_is_running();
+}
+//Export FRC-results of a FPL-section (menu fpl/Export results/)
+void Main_Wid::export_results_frc(void) {
+	//allocate the thread
+	try {
+		this->allocate_fpl_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->fpl_calc->set_ptr2database(this->system_database->get_database());
+	if (this->fpl_calc->ask_section2handle(this, _fpl_thread_type::fpl_export_frc_sec) == false) {
+		this->delete_fpl_system();
+		return;
+	}
+	else {
+		this->reset_exception_new_action();
+		//connect the thread when is finished
+		QObject::connect(this->fpl_calc, SIGNAL(finished()), this, SLOT(thread_fpl_calc_finished()));
+		//start the thread
+		this->fpl_calc->start();
+		this->check_fpl_thread_is_running();
+	}
+}
+//Export FRC-results of a FPL-section from task
+void Main_Wid::export_results_frc_task(QList<int> list_id) {
+	try {
+		this->allocate_fpl_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->fpl_calc->set_thread_type(_fpl_thread_type::fpl_export_frc_sec);
+
+
+	this->fpl_calc->set_list_section_ids(list_id);
+
+	//connect the thread when is finished
+	QObject::connect(this->fpl_calc, SIGNAL(finished()), this, SLOT(thread_fpl_calc_finished()));
+	//this->reset_exception_new_action();
+	this->fpl_calc->set_ptr2database(this->system_database->get_database());
+	//start calculation
+	this->fpl_calc->start();
+	this->check_fpl_thread_is_running();
 }
 //Combine the fpl-system with the hydraulic system (menu fpl/HYD2FPL)
 void Main_Wid::combine_fpl2hyd_system(void){

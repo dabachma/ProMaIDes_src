@@ -76,6 +76,27 @@ public:
 	///Output result members of the mechanisms to database table
 	void output_result2table(QSqlDatabase *ptr_database, _fpl_simulation_type simulation_type, _sys_system_id id, const int section_id, const int counter_mc_sim);
 
+	///Output the deterministic results to tecplot
+	void output_determ_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the deterministic results to Paraview
+	void output_determ_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the deterministic results to Excel
+	void output_determ_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+
+	///Output the MC results to tecplot
+	void output_mc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the MC results to Paraview
+	void output_mc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the MC results to Excel
+	void output_mc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+
+	///Output the FRC results to tecplot
+	void output_frc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the FRC results to Paraview
+	void output_frc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the FRC results to Excel
+	void output_frc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+
 	///Create the database table for the results of the mechanism of the dune section 
 	static void create_result_table(QSqlDatabase *ptr_database);
 	///Delete all data in the database table for the results of the mechanism of the dune section  
@@ -86,6 +107,8 @@ public:
 	static void delete_data_in_result_table(QSqlDatabase *ptr_database, const int section_id, const _sys_system_id id, const _fpl_simulation_type sim_type);
 	///Set the database table for the results of the mechanism of the dune section : it sets the table name and the name of the columns and allocate them
 	static void set_result_table(QSqlDatabase *ptr_database, const bool not_close=false);
+	///Select results of given fpl section in a database table (static)
+	int select_results_in_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int sec_id, const _fpl_simulation_type sim_type);
 	///Close and delete the database table for the results of the mechanism of the dune section 
 	static void close_result_table(void);
 

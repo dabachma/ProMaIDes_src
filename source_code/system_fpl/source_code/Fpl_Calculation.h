@@ -295,6 +295,13 @@ private:
 	///Check fpl-section(s) per database
 	void check_section_database(void);
 
+	///Export deterministic results of a fpl-section(s)
+	void export_results_determ_section(void);
+	///Export MC-results of a fpl-section(s)
+	void export_results_mc_section(void);
+	///Export FRC-results of a fpl-section(s)
+	void export_results_frc_section(void);
+
 	///Combine the fpl-system with the hydraulic system
 	void combine_fpl2hyd_system(void);
 	///Check the idealization of the hydraulic system by the fpl-system
@@ -318,6 +325,8 @@ private:
 	void output_import_statistic(void);
 	///Output the error statistic of the fpl system check from database
 	void output_check_statistic(void);
+	///Output the export statistic of the fpl system check from database
+	void output_export_statistic(void);
 	///Output the statistic of the fpl-calculation
 	void output_final_statistic_calculation(void);
 

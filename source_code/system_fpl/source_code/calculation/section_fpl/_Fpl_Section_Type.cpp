@@ -622,6 +622,8 @@ void _Fpl_Section_Type::set_section_direction(const double direction){
 void _Fpl_Section_Type::set_ptr_waterside_crest(Fpl_Section_Points *crest_water){
 	this->crest_water=crest_water;
 }
+
+
 //Get output control flags
 output_control _Fpl_Section_Type::get_output_control_flags(void) {
 	return this->output_flags;

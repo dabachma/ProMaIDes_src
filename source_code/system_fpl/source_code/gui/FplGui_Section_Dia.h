@@ -49,6 +49,13 @@ enum _fpl_thread_type{
     ///Thread is checking fpl-section(s) per database
     fpl_check_sec_db,
 
+	///Thread is exporting determinstic results of a FPL-section
+	fpl_export_determ_sec,
+	///Thread is exporting MC-results of a FPL-section
+	fpl_export_mc_sec,
+	///Thread is exporting FRC-results of a FPL-section
+	fpl_export_frc_sec,
+
     ///Thread is combining the hydraulic system with the fpl-system
     fpl_combine_fpl2hyd,
     ///Thread is checking the idealization of the hydraulic system by the fpl-system

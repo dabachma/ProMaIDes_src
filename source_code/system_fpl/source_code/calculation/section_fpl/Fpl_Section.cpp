@@ -1375,7 +1375,7 @@ void Fpl_Section::input_section_perdatabase(const QSqlQueryModel *results, const
 	}
 }
 //Input the fpl-section and the appending data form a query model per database
-void Fpl_Section::input_section_total_perdatabase(const QSqlQueryModel *results, const int glob_index, QSqlDatabase *ptr_database, const bool flag_frc_sim){
+void Fpl_Section::input_section_total_perdatabase(const QSqlQueryModel *results, const int glob_index, QSqlDatabase *ptr_database, const bool flag_frc_sim, const bool output){
 	this->flag_frc_sim=flag_frc_sim;
 	ostringstream prefix;
 	prefix <<"INP> ";
@@ -1388,16 +1388,19 @@ void Fpl_Section::input_section_total_perdatabase(const QSqlQueryModel *results,
 		Sys_Common_Output::output_fpl->rewind_userprefix();
 		throw msg;
 	}
-	try{
-		prefix << this->section_name<<"> ";
+	try {
+		prefix << this->section_name << "> ";
 		Sys_Common_Output::output_fpl->set_userprefix(&prefix);
 		//allocate the type
 		this->allocate_section_type();
 		this->type_of_section->set_output_control_flags(ptr_database);
-		this->type_of_section->set_input(this->id_section, this->flag_frc_sim, ptr_database);
-		this->output_geometry2tecplot();
-		this->output_geometry2excel();
-		this->output_geometry2paraview();
+		if (output == false) {
+			this->type_of_section->set_input(this->id_section, this->flag_frc_sim, ptr_database);
+		
+			this->output_geometry2tecplot();
+			this->output_geometry2excel();
+			this->output_geometry2paraview();
+		}
 
 	}
 	catch(Error msg){
@@ -1617,6 +1620,411 @@ void Fpl_Section::output_geometry2excel(void) {
 
 	if (type_of_section != NULL) {
 		this->type_of_section->output_geometry2excel(&tecplot_output);
+	}
+
+	//close the file
+	tecplot_output.close();
+
+}
+//Output the deterministic results to a tecplot file
+void Fpl_Section::output_determ_results2tecplot(QSqlDatabase *ptr_database) {
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().tec_output == false) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+	//check folder
+	string folder_buff;
+	folder_buff = Fpl_Section::check_generate_folder("tecplot", &this->output_folder);
+
+
+	//create name
+	ostringstream buffer;
+	buffer << folder_buff << "RES_DETERM_TEC_" << this->id_section << "_" << this->section_name << ".dat";
+
+	//get the file name
+	string filename;
+	filename = buffer.str();
+	//open the file
+	ofstream tecplot_output;
+	tecplot_output.open(filename.c_str());
+	if (tecplot_output.is_open() == false) {
+		Error msg = this->set_error(29);
+		ostringstream info;
+		info << "Filename : " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	//output the file header
+	tecplot_output << "TITLE = " << "\" Deterministic result of " << this->section_name << "; Id. " << this->id_section << "; ";
+	if (this->left_flag == true) {
+		tecplot_output << " left ";
+	}
+	else {
+		tecplot_output << " right ";
+	}
+	tecplot_output << "; Start " << this->station_start << label::m << "; End " << this->station_end << label::m << " \"" << endl;
+
+
+	if (type_of_section != NULL) {
+		this->type_of_section->output_determ_res2tecplot(&tecplot_output, ptr_database, this->system_id, this->id_section);
+	}
+
+	//close the file
+	tecplot_output.close();
+
+	
+
+}
+//Output the deterministic results to a paraview file
+void Fpl_Section::output_determ_results2paraview(QSqlDatabase *ptr_database) {
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().para_output == false) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+
+	//check folder
+	string folder_buff;
+	folder_buff = Fpl_Section::check_generate_folder("paraview", &this->output_folder);
+	//create name
+	ostringstream buffer;
+	buffer << folder_buff << "RES_DETERM_PARA_" << this->id_section << "_" << this->section_name << ".csv";
+
+	//get the file name
+	string filename;
+	filename = buffer.str();
+	//open the file
+	ofstream tecplot_output;
+	tecplot_output.open(filename.c_str());
+	if (tecplot_output.is_open() == false) {
+		Error msg = this->set_error(29);
+		ostringstream info;
+		info << "Filename : " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+	if (type_of_section != NULL) {
+		this->type_of_section->output_determ_res2paraview(&tecplot_output, ptr_database, this->system_id, this->id_section);
+	}
+
+	//close the file
+	tecplot_output.close();
+
+
+}
+//Output the deterministic results to a excel file
+void Fpl_Section::output_determ_results2excel(QSqlDatabase *ptr_database) {
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().excel_output == false) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+	//check folder
+	string folder_buff;
+	folder_buff = Fpl_Section::check_generate_folder("excel", &this->output_folder);
+	//create name
+	ostringstream buffer;
+	buffer << folder_buff << "RES_DETERM_EXCEL_" << this->id_section << "_" << this->section_name << ".csv";
+
+	//get the file name
+	string filename;
+	filename = buffer.str();
+	//open the file
+	ofstream tecplot_output;
+	tecplot_output.open(filename.c_str());
+	if (tecplot_output.is_open() == false) {
+		Error msg = this->set_error(29);
+		ostringstream info;
+		info << "Filename : " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+
+	if (type_of_section != NULL) {
+		this->type_of_section->output_determ_res2excel(&tecplot_output, ptr_database, this->system_id, this->id_section);
+	}
+
+	//close the file
+	tecplot_output.close();
+
+}
+//Output the MC results to a tecplot file
+void Fpl_Section::output_mc_results2tecplot(QSqlDatabase *ptr_database) {
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().tec_output == false) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+	//check folder
+	string folder_buff;
+	folder_buff = Fpl_Section::check_generate_folder("tecplot", &this->output_folder);
+
+
+	//create name
+	ostringstream buffer;
+	buffer << folder_buff << "RES_DETERM_TEC_" << this->id_section << "_" << this->section_name << ".dat";
+
+	//get the file name
+	string filename;
+	filename = buffer.str();
+	//open the file
+	ofstream tecplot_output;
+	tecplot_output.open(filename.c_str());
+	if (tecplot_output.is_open() == false) {
+		Error msg = this->set_error(29);
+		ostringstream info;
+		info << "Filename : " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	//output the file header
+	tecplot_output << "TITLE = " << "\" MC result of " << this->section_name << "; Id. " << this->id_section << "; ";
+	if (this->left_flag == true) {
+		tecplot_output << " left ";
+	}
+	else {
+		tecplot_output << " right ";
+	}
+	tecplot_output << "; Start " << this->station_start << label::m << "; End " << this->station_end << label::m << " \"" << endl;
+
+
+	if (type_of_section != NULL) {
+		this->type_of_section->output_mc_res2tecplot(&tecplot_output, ptr_database, this->system_id, this->id_section);
+	}
+
+	//close the file
+	tecplot_output.close();
+
+}
+//Output the MC results to a paraview file
+void Fpl_Section::output_mc_results2paraview(QSqlDatabase *ptr_database) {
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().para_output == false) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+
+	//check folder
+	string folder_buff;
+	folder_buff = Fpl_Section::check_generate_folder("paraview", &this->output_folder);
+	//create name
+	ostringstream buffer;
+	buffer << folder_buff << "RES_MC_PARA_" << this->id_section << "_" << this->section_name << ".csv";
+
+	//get the file name
+	string filename;
+	filename = buffer.str();
+	//open the file
+	ofstream tecplot_output;
+	tecplot_output.open(filename.c_str());
+	if (tecplot_output.is_open() == false) {
+		Error msg = this->set_error(29);
+		ostringstream info;
+		info << "Filename : " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+	if (type_of_section != NULL) {
+		this->type_of_section->output_mc_res2paraview(&tecplot_output, ptr_database, this->system_id, this->id_section);
+	}
+
+	//close the file
+	tecplot_output.close();
+
+}
+//Output the MC results to a excel file
+void Fpl_Section::output_mc_results2excel(QSqlDatabase *ptr_database) {
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().excel_output == false) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+	//check folder
+	string folder_buff;
+	folder_buff = Fpl_Section::check_generate_folder("excel", &this->output_folder);
+	//create name
+	ostringstream buffer;
+	buffer << folder_buff << "RES_MC_EXCEL_" << this->id_section << "_" << this->section_name << ".csv";
+
+	//get the file name
+	string filename;
+	filename = buffer.str();
+	//open the file
+	ofstream tecplot_output;
+	tecplot_output.open(filename.c_str());
+	if (tecplot_output.is_open() == false) {
+		Error msg = this->set_error(29);
+		ostringstream info;
+		info << "Filename : " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+
+	if (type_of_section != NULL) {
+		this->type_of_section->output_mc_res2excel(&tecplot_output, ptr_database, this->system_id, this->id_section);
+	}
+
+	//close the file
+	tecplot_output.close();
+
+}
+//Output the FRC results to a tecplot file
+void Fpl_Section::output_frc_results2tecplot(QSqlDatabase *ptr_database) {
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().tec_output == false) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+	//check folder
+	string folder_buff;
+	folder_buff = Fpl_Section::check_generate_folder("tecplot", &this->output_folder);
+
+
+	//create name
+	ostringstream buffer;
+	buffer << folder_buff << "RES_DETERM_TEC_" << this->id_section << "_" << this->section_name << ".dat";
+
+	//get the file name
+	string filename;
+	filename = buffer.str();
+	//open the file
+	ofstream tecplot_output;
+	tecplot_output.open(filename.c_str());
+	if (tecplot_output.is_open() == false) {
+		Error msg = this->set_error(29);
+		ostringstream info;
+		info << "Filename : " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	//output the file header
+	tecplot_output << "TITLE = " << "\" FRC result of " << this->section_name << "; Id. " << this->id_section << "; ";
+	if (this->left_flag == true) {
+		tecplot_output << " left ";
+	}
+	else {
+		tecplot_output << " right ";
+	}
+	tecplot_output << "; Start " << this->station_start << label::m << "; End " << this->station_end << label::m << " \"" << endl;
+
+
+	if (type_of_section != NULL) {
+		this->type_of_section->output_frc_res2tecplot(&tecplot_output, ptr_database, this->system_id, this->id_section);
+	}
+
+	//close the file
+	tecplot_output.close();
+
+}
+//Output the FRC results to a paraview file
+void Fpl_Section::output_frc_results2paraview(QSqlDatabase *ptr_database) {
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().para_output == false) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+
+	//check folder
+	string folder_buff;
+	folder_buff = Fpl_Section::check_generate_folder("paraview", &this->output_folder);
+	//create name
+	ostringstream buffer;
+	buffer << folder_buff << "RES_FRC_PARA_" << this->id_section << "_" << this->section_name << ".csv";
+
+	//get the file name
+	string filename;
+	filename = buffer.str();
+	//open the file
+	ofstream tecplot_output;
+	tecplot_output.open(filename.c_str());
+	if (tecplot_output.is_open() == false) {
+		Error msg = this->set_error(29);
+		ostringstream info;
+		info << "Filename : " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+	if (type_of_section != NULL) {
+		this->type_of_section->output_frc_res2paraview(&tecplot_output, ptr_database, this->system_id, this->id_section);
+	}
+
+	//close the file
+	tecplot_output.close();
+
+}
+//Output the FRC results to a excel file
+void Fpl_Section::output_frc_results2excel(QSqlDatabase *ptr_database) {
+	if (type_of_section != NULL) {
+		if (type_of_section->get_output_control_flags().excel_output == false) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+	//check folder
+	string folder_buff;
+	folder_buff = Fpl_Section::check_generate_folder("excel", &this->output_folder);
+	//create name
+	ostringstream buffer;
+	buffer << folder_buff << "RES_FRC_EXCEL_" << this->id_section << "_" << this->section_name << ".csv";
+
+	//get the file name
+	string filename;
+	filename = buffer.str();
+	//open the file
+	ofstream tecplot_output;
+	tecplot_output.open(filename.c_str());
+	if (tecplot_output.is_open() == false) {
+		Error msg = this->set_error(29);
+		ostringstream info;
+		info << "Filename : " << filename << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+
+	if (type_of_section != NULL) {
+		this->type_of_section->output_frc_res2excel(&tecplot_output, ptr_database, this->system_id, this->id_section);
 	}
 
 	//close the file
@@ -3778,6 +4186,12 @@ Error Fpl_Section::set_error(const int err_type){
 		case 28://could not open the excel file
 			place.append("output_geometrie2excel(void)");
 			reason = "Could not open the file for the Excel output (geometry) of the FPL-section";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 29://could not open the tecplot file
+			place.append("output_XX_result2YY(void)");
+			reason = "Could not open the file for the result output of the FPL-section";
 			help = "Check the file";
 			type = 5;
 			break;

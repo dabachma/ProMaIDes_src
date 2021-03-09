@@ -2663,6 +2663,319 @@ void Fpl_Sec_Type_Dike::output_result2table(QSqlDatabase *ptr_database, _fpl_sim
 		msg.output_msg(1);
 	}
 }
+//Output the deterministic results to tecplot
+void Fpl_Sec_Type_Dike::output_determ_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	//header
+	*output << "VARIABLES = " << endl;
+
+	
+
+	
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dike::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_determ);
+
+	for (int j = 6; j < model.columnCount(); j++) {
+		*output << "\""<< (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << "\"     " << endl;
+
+	}
+	*output << endl << endl << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			*output << W(5) << "  \t  ";
+		}
+		*output << endl;
+
+	}
+
+}
+//Output the deterministic results to Paraview
+void Fpl_Sec_Type_Dike::output_determ_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	//header
+
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dike::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_determ);
+
+	for (int j = 6; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << ",";
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString() << ",";
+		}
+		*output << endl;
+
+	}
+
+
+}
+//Output the deterministic results to Excel
+void Fpl_Sec_Type_Dike::output_determ_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	//header
+
+
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dike::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_determ);
+
+	for (int j = 6; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << ";";
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString() << ";";
+		}
+		*output << endl;
+
+	}
+
+
+}
+//Output the MC results to tecplot
+void Fpl_Sec_Type_Dike::output_mc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	//header
+	*output << "VARIABLES = " << endl;
+
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, true);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << "\"" << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << "\"     " << endl;
+
+	}
+
+
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dike::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_mc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << "\"" << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << "\"     " << endl;
+
+	}
+
+
+	*output << endl << endl << endl;
+
+	//results
+	for (int row = 0; row < model1.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			*output << W(5) << "  \t  ";
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			*output << W(5) << "  \t  ";
+		}
+		*output << endl;
+
+	}
+}
+//Output the MC results to Paraview
+void Fpl_Sec_Type_Dike::output_mc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, true);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model1.columnCount() ) { *output << ","; };
+
+	}
+	
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dike::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_mc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model.columnCount() - 1) { *output << ","; };
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model1.columnCount() ) { *output << ","; };
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model.columnCount() - 1) { *output << ","; };
+		}
+		*output << endl;
+
+	}
+}
+//Output the MC results to Excel
+void Fpl_Sec_Type_Dike::output_mc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, true);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model1.columnCount() ) { *output << ";"; };
+
+	}
+
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dike::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_mc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() ;
+		if (j < model.columnCount() - 1) { *output << ";"; };
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model1.columnCount() ) { *output << ";"; };
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString() ;
+			if (j < model.columnCount() - 1) { *output << ";"; };
+		}
+		*output << endl;
+
+	}
+}
+//Output the FRC results to tecplot
+void Fpl_Sec_Type_Dike::output_frc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	//header
+	*output << "VARIABLES = " << endl;
+
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, false);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << "\"" << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << "\"     " << endl;
+
+	}
+
+
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dike::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_frc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << "\"" << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << "\"     " << endl;
+
+	}
+
+
+	*output << endl << endl << endl;
+
+	//results
+	for (int row = 0; row < model1.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			*output << W(5) << "  \t  ";
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			*output << W(5) << "  \t  ";
+		}
+		*output << endl;
+		output->flush();
+
+	}
+}
+//Output the FRC results to Paraview
+void Fpl_Sec_Type_Dike::output_frc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, false);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() ;
+		if (j < model1.columnCount())  { *output << ","; };
+
+	}
+
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dike::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_frc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() ;
+		if (j < model.columnCount() - 1) { *output << ","; };
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model1.columnCount() ) { *output << ","; };
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString() ;
+			if (j < model.columnCount() - 1) { *output << ","; };
+		}
+		*output << endl;
+		output->flush();
+
+	}
+}
+//Output the FRC results to Excel
+void Fpl_Sec_Type_Dike::output_frc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, false);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() ;
+		if (j < model1.columnCount() ) { *output << ";"; };
+
+	}
+
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dike::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_frc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model.columnCount() - 1) { *output << ";"; };
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model1.columnCount() ) { *output << ";"; };
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString() ;
+			if (j < model.columnCount() - 1) { *output << ";"; };
+		}
+		*output << endl;
+		output->flush();
+
+	}
+}
 //Create the database table for the results of the mechanism of the dike section (static)
 void Fpl_Sec_Type_Dike::create_result_table(QSqlDatabase *ptr_database){
 		if(Fpl_Sec_Type_Dike::result_table==NULL){

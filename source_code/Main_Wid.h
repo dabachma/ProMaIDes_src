@@ -63,16 +63,16 @@
 /** \mainpage
 
 
-\author Produced by the <a href ='https://tinyurl.com/agfrm77'>AG FRM</a> of the University of applied sciences Magdeburg-Stendal and the <a href ='https://www.iww.rwth-aachen.de/go/id/lygz/?lidx=1'>IWW</a> of RWTH Aachen University.
+\author Produced by the <a href ='https://www.hs-magdeburg.de/en/research/research-centres/institut-fuer-wasserwirtschaft-und-oekotechnologie/working-group-flood-risk-management-ag-frm.html' target='_blank'>AG FRM</a> of the University of applied sciences Magdeburg-Stendal and the <a href ='https://www.iww.rwth-aachen.de/go/id/lygz/?lidx=1' target='_blank'>IWW</a> of RWTH Aachen University.
 \version 0.0.8
 \date 2021
 
 Please follow also our online manuals:
-	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-7/General'>General information</a> <br>
-	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-1/Theory-guide'>Theory guide</a> <br> 
-	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-5/Application-guide'>Application guide</a> <br> 
-	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-12/Development-guide'>Development guide</a> <br> 
-	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMDP-A-31/General'>Guide to ProMaIDes Helpers</a> <br> 
+	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-7/General' target='_blank'>General information</a> <br>
+	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-1/Theory-guide' target='_blank'>Theory guide</a> <br> 
+	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-5/Application-guide' target='_blank'>Application guide</a> <br> 
+	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-12/Development-guide' target='_blank'>Development guide</a> <br> 
+	- <a href ='https://promaides.myjetbrains.com/youtrack/articles/PMDP-A-31/General' target='_blank'>Guide to ProMaIDes Helpers</a> <br> 
 
 ProMaIDes (<b>Pro</b>tection<b>M</b>easures <b>a</b>gainst <b>I</b>nnundation <b>De</b>sicionsupport<b>S</b>ystem) is a modular designed opne software package for a rsik-based
 evaluation of flood risk mitigation measures.
@@ -572,6 +572,19 @@ private slots:
 	void check_section_file(void);
 	///Check fpl-section(s) per database (menu fpl/Section check)
 	void check_section_database(void);
+
+	///Export deterministic results of a FPL-section (menu fpl/Export results/)
+	void export_results_determ(void);
+	///Export deterministic results of a FPL-section from task
+	void export_results_determ_task(QList<int> list_id);
+	///Export Monte-Carlo results of a FPL-section (menu fpl/Export results/)
+	void export_results_mc(void);
+	///Export Monte-Carlo results of a FPL-section from task
+	void export_results_mc_task(QList<int> list_id);
+	///Export FRC-results of a FPL-section (menu fpl/Export results/)
+	void export_results_frc(void);
+	///Export FRC-results of a FPL-section from task
+	void export_results_frc_task(QList<int> list_id);
 
 	///Combine the fpl-system with the hydraulic system (menu fpl/HYD2FPL)
 	void combine_fpl2hyd_system(void);

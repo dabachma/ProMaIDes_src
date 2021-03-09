@@ -1470,6 +1470,319 @@ void Fpl_Sec_Type_Dune::output_result2table(QSqlDatabase *ptr_database, _fpl_sim
 		msg.output_msg(1);
 	}
 }
+//Output the deterministic results to tecplot
+void Fpl_Sec_Type_Dune::output_determ_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	//header
+	*output << "VARIABLES = " << endl;
+
+
+
+
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dune::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_determ);
+
+	for (int j = 6; j < model.columnCount(); j++) {
+		*output << "\"" << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << "\"     " << endl;
+
+	}
+	*output << endl << endl << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			*output << W(5) << "  \t  ";
+		}
+		*output << endl;
+
+	}
+
+}
+//Output the deterministic results to Paraview
+void Fpl_Sec_Type_Dune::output_determ_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	//header
+
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dune::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_determ);
+
+	for (int j = 6; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << ",";
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString() << ",";
+		}
+		*output << endl;
+
+	}
+
+
+}
+//Output the deterministic results to Excel
+void Fpl_Sec_Type_Dune::output_determ_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	//header
+
+
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dune::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_determ);
+
+	for (int j = 6; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << ";";
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString() << ";";
+		}
+		*output << endl;
+
+	}
+
+
+}
+//Output the MC results to tecplot
+void Fpl_Sec_Type_Dune::output_mc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	//header
+	*output << "VARIABLES = " << endl;
+
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, true);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << "\"" << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << "\"     " << endl;
+
+	}
+
+
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dune::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_mc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << "\"" << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << "\"     " << endl;
+
+	}
+
+
+	*output << endl << endl << endl;
+
+	//results
+	for (int row = 0; row < model1.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			*output << W(5) << "  \t  ";
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			*output << W(5) << "  \t  ";
+		}
+		*output << endl;
+
+	}
+}
+//Output the MC results to Paraview
+void Fpl_Sec_Type_Dune::output_mc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, true);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model1.columnCount()) { *output << ","; };
+
+	}
+
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dune::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_mc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model.columnCount() - 1) { *output << ","; };
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model1.columnCount()) { *output << ","; };
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model.columnCount() - 1) { *output << ","; };
+		}
+		*output << endl;
+
+	}
+}
+//Output the MC results to Excel
+void Fpl_Sec_Type_Dune::output_mc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, true);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model1.columnCount()) { *output << ";"; };
+
+	}
+
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dune::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_mc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model.columnCount() - 1) { *output << ";"; };
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model1.columnCount()) { *output << ";"; };
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model.columnCount() - 1) { *output << ";"; };
+		}
+		*output << endl;
+
+	}
+}
+//Output the FRC results to tecplot
+void Fpl_Sec_Type_Dune::output_frc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	//header
+	*output << "VARIABLES = " << endl;
+
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, false);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << "\"" << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << "\"     " << endl;
+
+	}
+
+
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dune::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_frc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << "\"" << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString() << "\"     " << endl;
+
+	}
+
+
+	*output << endl << endl << endl;
+
+	//results
+	for (int row = 0; row < model1.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			*output << W(5) << "  \t  ";
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			*output << W(5) << "  \t  ";
+		}
+		*output << endl;
+		output->flush();
+
+	}
+}
+//Output the FRC results to Paraview
+void Fpl_Sec_Type_Dune::output_frc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, false);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model1.columnCount()) { *output << ","; };
+
+	}
+
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dune::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_frc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model.columnCount() - 1) { *output << ","; };
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model1.columnCount()) { *output << ","; };
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model.columnCount() - 1) { *output << ","; };
+		}
+		*output << endl;
+		output->flush();
+
+	}
+}
+//Output the FRC results to Excel
+void Fpl_Sec_Type_Dune::output_frc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+	QSqlQueryModel model1;
+	int number1 = 0;
+	number1 = Fpl_Mc_Sim::select_results_in_database(&model1, ptr_database, id, section_id, false);
+	for (int j = 6; j < model1.columnCount(); j++) {
+		*output << (model1.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model1.columnCount()) { *output << ";"; };
+
+	}
+
+	//results
+	QSqlQueryModel model;
+	int number = 0;
+	number = Fpl_Sec_Type_Dune::select_results_in_database(&model, ptr_database, id, section_id, _fpl_simulation_type::sim_frc);
+
+	for (int j = 7; j < model.columnCount(); j++) {
+		*output << (model.headerData(j, Qt::Horizontal, Qt::DisplayRole)).toString().toStdString();
+		if (j < model.columnCount() - 1) { *output << ";"; };
+
+	}
+	*output << endl;
+
+	//results
+	for (int row = 0; row < model.rowCount(); row++) {
+		for (int j = 6; j < model1.columnCount(); j++) {
+			*output << (model1.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model1.columnCount()) { *output << ";"; };
+		}
+		for (int j = 7; j < model.columnCount(); j++) {
+			*output << (model.data(model.index(row, j), Qt::DisplayRole)).toString().toStdString();
+			if (j < model.columnCount() - 1) { *output << ";"; };
+		}
+		*output << endl;
+		output->flush();
+
+	}
+}
 //Create the database table for the results of the mechanism of the dune section (static)
 void Fpl_Sec_Type_Dune::create_result_table(QSqlDatabase *ptr_database){
 		if(Fpl_Sec_Type_Dune::result_table==NULL){
@@ -1767,6 +2080,50 @@ void Fpl_Sec_Type_Dune::set_result_table(QSqlDatabase *ptr_database, const bool 
 			throw msg;
 		}
 	}
+}
+//Select results of given fpl section in a database table (static)
+int Fpl_Sec_Type_Dune::select_results_in_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int sec_id, const _fpl_simulation_type sim_type) {
+	int number = 0;
+	try {
+		Fpl_Sec_Type_Dune::set_result_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	ostringstream test_filter;
+	test_filter << "SELECT *";
+	test_filter << " FROM " << Fpl_Sec_Type_Dune::result_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << Fpl_Sec_Type_Dune::result_table->get_column_name(fpl_label::section_id) << " = " << sec_id;
+	test_filter << " AND ";
+	test_filter << Fpl_Sec_Type_Dune::result_table->get_column_name(label::applied_flag) << "= true";
+	test_filter << " AND ";
+	test_filter << Fpl_Sec_Type_Dune::result_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " AND (";
+	test_filter << Fpl_Sec_Type_Dune::result_table->get_column_name(label::measure_id) << " = " << 0;
+	test_filter << " OR ";
+	test_filter << Fpl_Sec_Type_Dune::result_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " ) ";
+	test_filter << " AND ";
+	test_filter << Fpl_Sec_Type_Dune::result_table->get_column_name(fpl_label::simulation_type) << " = '" << Fpl_Mc_Sim::convert_sim_type2text(sim_type) << "'";
+	test_filter << " ORDER BY " << Fpl_Sec_Type_Dune::result_table->get_column_name(fpl_label::waterlevel);
+
+	Data_Base::database_request(results, test_filter.str(), ptr_database);
+
+	//check the request
+	if (results->lastError().isValid()) {
+		Warning msg;
+		msg.set_msg("Fpl_Sec_Type_Dune::select_results_in_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int sec_id, const _fpl_simulation_type sim_type)", "Invalid database request", "Check the database", "", 2);
+		ostringstream info;
+		info << "Table Name      : " << Fpl_Sec_Type_Dune::result_table->get_table_name() << endl;
+		info << "Table error info: " << results->lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		msg.output_msg(1);
+	}
+	number = results->rowCount();
+
+	return number;
+
 }
 //Close and delete the database table for the results of the mechanism of the dune section  (static)
 void Fpl_Sec_Type_Dune::close_result_table(void){

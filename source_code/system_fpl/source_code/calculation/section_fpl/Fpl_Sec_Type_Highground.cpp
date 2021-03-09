@@ -214,6 +214,44 @@ void Fpl_Sec_Type_Highground::output_result2table(QSqlDatabase *ptr_database, _f
 		msg.output_msg(1);	
 	}
 }
+//Output the deterministic results to tecplot
+void Fpl_Sec_Type_Highground::output_determ_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+
+}
+//Output the deterministic results to paraview
+void Fpl_Sec_Type_Highground::output_determ_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+
+}
+//Output the deterministic results to excel
+void Fpl_Sec_Type_Highground::output_determ_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+
+}
+
+//Output the MC results to tecplot
+void Fpl_Sec_Type_Highground::output_mc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+
+}
+//Output the MC results to paraview
+void Fpl_Sec_Type_Highground::output_mc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+
+}
+//Output the MC results to excel
+void Fpl_Sec_Type_Highground::output_mc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+
+}
+
+//Output the FRC results to tecplot
+void Fpl_Sec_Type_Highground::output_frc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+
+}
+//Output the FRC results to paraview
+void Fpl_Sec_Type_Highground::output_frc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+
+}
+//Output the FRC results to excel
+void Fpl_Sec_Type_Highground::output_frc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id) {
+
+}
 //Create the database table for the results of the mechanism of the highground section (static)
 void Fpl_Sec_Type_Highground::create_result_table(QSqlDatabase *ptr_database){
 		if(Fpl_Sec_Type_Highground::result_table==NULL){

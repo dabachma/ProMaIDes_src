@@ -298,10 +298,18 @@
     </widget>
     <widget class="QMenu" name="menu_fpl2hyd">
      <property name="title">
-      <string>&amp;FPL2HYD...</string>
+      <string>&amp;FPL2HYD</string>
      </property>
      <addaction name="action_fpl2hyd_combine"/>
      <addaction name="action_fpl2hyd_check_ideal"/>
+    </widget>
+    <widget class="QMenu" name="menu_Export">
+     <property name="title">
+      <string>&amp;Export results</string>
+     </property>
+     <addaction name="action_export_DETERM"/>
+     <addaction name="action_export_MC"/>
+     <addaction name="action_export_FRC"/>
     </widget>
     <addaction name="action_fpl_import_file"/>
     <addaction name="separator"/>
@@ -309,6 +317,8 @@
     <addaction name="action_user_defined_frc"/>
     <addaction name="separator"/>
     <addaction name="menu_check_fpl"/>
+    <addaction name="separator"/>
+    <addaction name="menu_Export"/>
     <addaction name="separator"/>
     <addaction name="menu_fpl2hyd"/>
     <addaction name="separator"/>
@@ -975,7 +985,7 @@
     <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
    <property name="windowTitle">
-    <string>Explorer Display</string>
+    <string>Explorer</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
@@ -1596,6 +1606,9 @@
    </property>
   </action>
   <action name="action_fpl_import_file">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>&amp;Import file to database...</string>
    </property>
@@ -1956,6 +1969,21 @@
   <action name="action_CI_connect">
    <property name="text">
     <string>&amp;CI connect</string>
+   </property>
+  </action>
+  <action name="action_export_DETERM">
+   <property name="text">
+    <string>&amp;Deterministic (DETERM)...</string>
+   </property>
+  </action>
+  <action name="action_export_MC">
+   <property name="text">
+    <string>&amp;Monte-Carlo (MC)...</string>
+   </property>
+  </action>
+  <action name="action_export_FRC">
+   <property name="text">
+    <string>&amp;Fragility curve (FRC)...</string>
    </property>
   </action>
  </widget>

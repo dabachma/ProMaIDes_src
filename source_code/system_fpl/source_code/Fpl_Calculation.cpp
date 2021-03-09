@@ -464,6 +464,15 @@ bool Fpl_Calculation::ask_section2handle(QWidget *parent, const _fpl_thread_type
 		case _fpl_thread_type::fpl_check_sec_db:
 				header="Check fpl-section(s)";
 				break;
+		case _fpl_thread_type::fpl_export_determ_sec:
+				header = "Export determinstic results of fpl-section(s)";
+				break;
+		case _fpl_thread_type::fpl_export_mc_sec:
+				header = "Export MC-results of fpl-section(s)";
+				break;
+		case _fpl_thread_type::fpl_export_frc_sec:
+				header = "Export FRC-results of fpl-section(s)";
+				break;
 		default:
 			accepted=false;
 			return accepted;
@@ -573,6 +582,15 @@ void Fpl_Calculation::run(void){
 				break;
 			case(_fpl_thread_type::fpl_check_sec_db):
 				this->check_section_database();
+				break;
+			case(_fpl_thread_type::fpl_export_determ_sec):
+				this->export_results_determ_section();
+				break;
+			case(_fpl_thread_type::fpl_export_mc_sec):
+				this->export_results_mc_section();
+				break;
+			case(_fpl_thread_type::fpl_export_frc_sec):
+				this->export_results_frc_section();
 				break;
 			case(_fpl_thread_type::fpl_combine_fpl2hyd):
 				this->combine_fpl2hyd_system();
@@ -1503,6 +1521,247 @@ void Fpl_Calculation::check_section_database(void){
 
 	this->output_check_statistic();
 }
+//Export deterministic results of a fpl-section(s)
+void Fpl_Calculation::export_results_determ_section(void) {
+	ostringstream cout;
+	if (this->number_section == 0) {
+		cout << "No FPL-section is selected for export!" << endl;
+		Sys_Common_Output::output_fpl->output_txt(&cout);
+		return;
+	}
+
+	ostringstream prefix;
+
+	QSqlQueryModel db_section;
+	int number_found = 0;
+
+	this->set_start_warnings_number();
+	//begin time recording
+	time(&this->start_time);
+	try {
+		//start export
+		for (int i = 0; i < this->number_section; i++) {
+			cout << "Export deterministic results for FPL-section number " << this->list_section_id[i] << "..." << endl;
+			Sys_Common_Output::output_fpl->output_txt(&cout);
+			prefix << "EXPORT_" << this->list_section_id[i] << "> ";
+			Sys_Common_Output::output_fpl->set_userprefix(&prefix);
+
+			try {
+				number_found = Fpl_Section::select_relevant_section_database(&db_section, &this->qsqldatabase, this->system_id, this->list_section_id[i], false);
+				if (number_found == 0) {
+					Warning msg = this->set_warning(1);
+					ostringstream info;
+					info << "Fpl-section id   : " << this->list_section_id[i] << endl;
+					msg.make_second_info(info.str());
+					msg.output_msg(1);
+				}
+				else {
+					//input the section
+					this->allocate_fpl_section();
+					this->section2calc->set_start_exception_number();
+					
+					this->section2calc->input_section_total_perdatabase(&db_section, 0, &this->qsqldatabase, false, true);
+					this->section2calc->output_determ_results2tecplot(&this->qsqldatabase);
+					this->section2calc->output_determ_results2paraview(&this->qsqldatabase);
+					this->section2calc->output_determ_results2excel(&this->qsqldatabase);
+
+					Fpl_Calculation::check_stop_thread_flag();
+					this->section2calc->set_exception_number();
+					this->section2calc->output_section_statistics();
+				}
+			}
+			catch (Error msg) {
+				if (Fpl_Calculation::abort_thread_flag == true) {
+					this->section2calc->set_exception_number();
+					this->section2calc->output_section_statistics();
+					Sys_Common_Output::output_fpl->rewind_userprefix();
+					throw msg;
+				}
+
+				this->number_error++;
+				msg.output_msg(1);
+				this->section2calc->set_exception_number();
+				this->section2calc->output_section_statistics();
+			}
+
+			Sys_Common_Output::output_fpl->rewind_userprefix();
+			this->delete_fpl_section();
+		}
+	}
+	catch (Error msg) {
+		this->number_error++;
+		msg.output_msg(1);
+	}
+
+	cout << "Export of deterministic results of FPL-section(s) is finished" << endl;
+	Sys_Common_Output::output_fpl->output_txt(&cout);
+	this->set_warning_number();
+	//set the actual time
+	time(&this->actual_time);
+
+	this->output_export_statistic();
+}
+//Export MC-results of a fpl-section(s)
+void Fpl_Calculation::export_results_mc_section(void) {
+	ostringstream cout;
+	if (this->number_section == 0) {
+		cout << "No FPL-section is selected for export!" << endl;
+		Sys_Common_Output::output_fpl->output_txt(&cout);
+		return;
+	}
+
+	ostringstream prefix;
+
+	QSqlQueryModel db_section;
+	int number_found = 0;
+
+	this->set_start_warnings_number();
+	//begin time recording
+	time(&this->start_time);
+	try {
+		//start export
+		for (int i = 0; i < this->number_section; i++) {
+			cout << "Export MC results for FPL-section number " << this->list_section_id[i] << "..." << endl;
+			Sys_Common_Output::output_fpl->output_txt(&cout);
+			prefix << "EXPORT_" << this->list_section_id[i] << "> ";
+			Sys_Common_Output::output_fpl->set_userprefix(&prefix);
+
+			try {
+				number_found = Fpl_Section::select_relevant_section_database(&db_section, &this->qsqldatabase, this->system_id, this->list_section_id[i], false);
+				if (number_found == 0) {
+					Warning msg = this->set_warning(1);
+					ostringstream info;
+					info << "Fpl-section id   : " << this->list_section_id[i] << endl;
+					msg.make_second_info(info.str());
+					msg.output_msg(1);
+				}
+				else {
+					//input the section
+					this->allocate_fpl_section();
+					this->section2calc->set_start_exception_number();
+
+					this->section2calc->input_section_total_perdatabase(&db_section, 0, &this->qsqldatabase, false, true);
+					this->section2calc->output_mc_results2tecplot(&this->qsqldatabase);
+					this->section2calc->output_mc_results2paraview(&this->qsqldatabase);
+					this->section2calc->output_mc_results2excel(&this->qsqldatabase);
+
+					Fpl_Calculation::check_stop_thread_flag();
+					this->section2calc->set_exception_number();
+					this->section2calc->output_section_statistics();
+				}
+			}
+			catch (Error msg) {
+				if (Fpl_Calculation::abort_thread_flag == true) {
+					this->section2calc->set_exception_number();
+					this->section2calc->output_section_statistics();
+					Sys_Common_Output::output_fpl->rewind_userprefix();
+					throw msg;
+				}
+
+				this->number_error++;
+				msg.output_msg(1);
+				this->section2calc->set_exception_number();
+				this->section2calc->output_section_statistics();
+			}
+
+			Sys_Common_Output::output_fpl->rewind_userprefix();
+			this->delete_fpl_section();
+		}
+	}
+	catch (Error msg) {
+		this->number_error++;
+		msg.output_msg(1);
+	}
+
+	cout << "Export of MC results of FPL-section(s) is finished" << endl;
+	Sys_Common_Output::output_fpl->output_txt(&cout);
+	this->set_warning_number();
+	//set the actual time
+	time(&this->actual_time);
+
+	this->output_export_statistic();
+}
+//Export FRC-results of a fpl-section(s)
+void Fpl_Calculation::export_results_frc_section(void) {
+	ostringstream cout;
+	if (this->number_section == 0) {
+		cout << "No FPL-section is selected for export!" << endl;
+		Sys_Common_Output::output_fpl->output_txt(&cout);
+		return;
+	}
+
+	ostringstream prefix;
+
+	QSqlQueryModel db_section;
+	int number_found = 0;
+
+	this->set_start_warnings_number();
+	//begin time recording
+	time(&this->start_time);
+	try {
+		//start export
+		for (int i = 0; i < this->number_section; i++) {
+			cout << "Export FRC results for FPL-section number " << this->list_section_id[i] << "..." << endl;
+			Sys_Common_Output::output_fpl->output_txt(&cout);
+			prefix << "EXPORT_" << this->list_section_id[i] << "> ";
+			Sys_Common_Output::output_fpl->set_userprefix(&prefix);
+
+			try {
+				number_found = Fpl_Section::select_relevant_section_database(&db_section, &this->qsqldatabase, this->system_id, this->list_section_id[i], false);
+				if (number_found == 0) {
+					Warning msg = this->set_warning(1);
+					ostringstream info;
+					info << "Fpl-section id   : " << this->list_section_id[i] << endl;
+					msg.make_second_info(info.str());
+					msg.output_msg(1);
+				}
+				else {
+					//input the section
+					this->allocate_fpl_section();
+					this->section2calc->set_start_exception_number();
+
+					this->section2calc->input_section_total_perdatabase(&db_section, 0, &this->qsqldatabase, false, true);
+					this->section2calc->output_frc_results2tecplot(&this->qsqldatabase);
+					this->section2calc->output_frc_results2paraview(&this->qsqldatabase);
+					this->section2calc->output_frc_results2excel(&this->qsqldatabase);
+
+					Fpl_Calculation::check_stop_thread_flag();
+					this->section2calc->set_exception_number();
+					this->section2calc->output_section_statistics();
+				}
+			}
+			catch (Error msg) {
+				if (Fpl_Calculation::abort_thread_flag == true) {
+					this->section2calc->set_exception_number();
+					this->section2calc->output_section_statistics();
+					Sys_Common_Output::output_fpl->rewind_userprefix();
+					throw msg;
+				}
+
+				this->number_error++;
+				msg.output_msg(1);
+				this->section2calc->set_exception_number();
+				this->section2calc->output_section_statistics();
+			}
+
+			Sys_Common_Output::output_fpl->rewind_userprefix();
+			this->delete_fpl_section();
+		}
+	}
+	catch (Error msg) {
+		this->number_error++;
+		msg.output_msg(1);
+	}
+
+	cout << "Export of FRC results of FPL-section(s) is finished" << endl;
+	Sys_Common_Output::output_fpl->output_txt(&cout);
+	this->set_warning_number();
+	//set the actual time
+	time(&this->actual_time);
+
+	this->output_export_statistic();
+
+}
 //Combine the fpl-system with the hydraulic system
 void Fpl_Calculation::combine_fpl2hyd_system(void){
 	QSqlQueryModel result;
@@ -1788,6 +2047,28 @@ void Fpl_Calculation::output_check_statistic(void){
 	Sys_Common_Output::output_fpl->output_txt(&cout);
 	//rewind the prefix
 	Sys_Common_Output::output_fpl->rewind_userprefix();
+}
+//Output the export statistic of the fpl system check from database
+void Fpl_Calculation::output_export_statistic(void) {
+	ostringstream prefix;
+	ostringstream cout;
+	prefix << "STA> ";
+	Sys_Common_Output::output_fpl->set_userprefix(prefix.str());
+	cout << "Total exception statistics of the FPL-system(s)..." << endl;
+	cout << "GENERAL" << endl;
+	cout << " Number fpl-section(s)    :" << W(3) << this->number_section << endl;
+	cout << " Time                     :" << "  " << functions::convert_seconds2string(this->actual_time - this->start_time) << label::time_unit_output << endl;
+	cout << "TOTAL ERROR-/WARNING-NUMBER" << endl;
+	cout << " Error(s)                 :" << W(3) << this->number_error << endl;
+	cout << " Warning(s)               :" << W(3) << this->get_occured_warning() << endl;
+
+	if (Fpl_Calculation::get_stop_thread_flag() == true) {
+		cout << " User has aborted the action " << endl;
+	}
+	Sys_Common_Output::output_fpl->output_txt(&cout);
+	//rewind the prefix
+	Sys_Common_Output::output_fpl->rewind_userprefix();
+
 }
 //Output the statistic of the fpl-calculation
 void Fpl_Calculation::output_final_statistic_calculation(void){

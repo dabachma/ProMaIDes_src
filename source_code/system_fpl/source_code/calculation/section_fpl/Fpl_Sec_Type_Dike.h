@@ -101,6 +101,27 @@ public:
 	///Output result members of the mechanisms to database table
 	void output_result2table(QSqlDatabase *ptr_database, _fpl_simulation_type simulation_type, _sys_system_id id, const int section_id, const int counter_mc_sim);
 
+	///Output the deterministic results to tecplot
+	void output_determ_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the deterministic results to Paraview
+	void output_determ_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the deterministic results to Excel
+	void output_determ_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+
+	///Output the MC results to tecplot
+	void output_mc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the MC results to Paraview
+	void output_mc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the MC results to Excel
+	void output_mc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+
+	///Output the FRC results to tecplot
+	void output_frc_res2tecplot(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the FRC results to Paraview
+	void output_frc_res2paraview(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+	///Output the FRC results to Excel
+	void output_frc_res2excel(ofstream *output, QSqlDatabase *ptr_database, _sys_system_id id, const int section_id);
+
 	///Create the database table for the results of the mechanism of the dike section 
 	static void create_result_table(QSqlDatabase *ptr_database);
 	///Delete all data in the database table for the results of the mechanism of the dike section  
