@@ -5,8 +5,8 @@
 string Sys_Project::main_path=QDir::currentPath().toStdString();
 string Sys_Project::current_path=QDir::currentPath().toStdString();
 string Sys_Project::project_name=label::not_set;
-string Sys_Project::version="ProMaIDes_0_8_vc";
-string Sys_Project::version_date="22.01.2021";
+string Sys_Project::version="ProMaIDes_0_9_vc";
+string Sys_Project::version_date="10.03.2021";
 _sys_project_type Sys_Project::project_type=_sys_project_type::proj_all;
 bool Sys_Project::save_logfile=true;
 
