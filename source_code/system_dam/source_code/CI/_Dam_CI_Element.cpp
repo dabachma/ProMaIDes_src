@@ -437,7 +437,7 @@ _Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
 	//Failure type
 	this->failure_type = object.failure_type;
 	this->failure_type_enum = object.failure_type_enum;
-	//Failure duration
+	//Failure duration 
 	this->failure_duration = object.failure_duration;
 	this->recovery_time = object.recovery_time;
 
