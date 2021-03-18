@@ -1143,6 +1143,10 @@ void Alt_System::delete_measure_database(void){
 		Dam_People_Element::delete_data_in_erg_table(&this->qsqldatabase, this->switch_state_id);
 		Dam_Pys_Element::delete_data_in_erg_table(&this->qsqldatabase, this->switch_state_id);
 		Dam_Sc_Point::delete_data_in_erg_table(&this->qsqldatabase, this->switch_state_id);
+		Dam_CI_Point::delete_data_in_erg_table(&this->qsqldatabase, this->switch_state_id);
+		Dam_CI_Point::delete_data_in_instat_erg_table(&this->qsqldatabase, this->switch_state_id);
+		Dam_CI_Polygon::delete_data_in_erg_table(&this->qsqldatabase, this->switch_state_id);
+		Dam_CI_Polygon::delete_data_in_instat_erg_table(&this->qsqldatabase, this->switch_state_id);
 
 		Dam_Ecn_Element::delete_data_in_elem_table(&this->qsqldatabase, this->switch_state_id);
 		Dam_Eco_Btype_Element::delete_data_in_elem_table(&this->qsqldatabase, this->switch_state_id);
@@ -2972,6 +2976,14 @@ void Alt_System::switch_system2base_state(void){
 				Sys_Common_Output::output_alt->output_txt(&cout);
 				Dam_Sc_Point::switch_applied_flag_point_table(&this->qsqldatabase, current_info.id, false);
 				Dam_Sc_Point::switch_applied_flag_point_table(&this->qsqldatabase, base_id, true);
+				cout << "Switch all the CI-points to base system state..." << endl;
+				Sys_Common_Output::output_alt->output_txt(&cout);
+				Dam_CI_Point::switch_applied_flag_point_table(&this->qsqldatabase, current_info.id, false);
+				Dam_CI_Point::switch_applied_flag_point_table(&this->qsqldatabase, base_id, true);
+				cout << "Switch all the CI-polygons to base system state..." << endl;
+				Sys_Common_Output::output_alt->output_txt(&cout);
+				Dam_CI_Polygon::switch_applied_flag_polygon_table(&this->qsqldatabase, current_info.id, false);
+				Dam_CI_Polygon::switch_applied_flag_polygon_table(&this->qsqldatabase, base_id, true);
 			}
 			else if(current_info.detailed_type==alt_replace_dam::dam_ecn_function_polygon){
 				cout << "Switch all the ECN elements to base system state..." << endl ;
@@ -3156,6 +3168,14 @@ void Alt_System::switch_system2given_state(const _sys_system_id id){
 			Sys_Common_Output::output_alt->output_txt(&cout);
 			Dam_Sc_Point::switch_applied_flag_point_table(&this->qsqldatabase, current_info.id, true);
 			Dam_Sc_Point::reswitch_applied_flag_point_table(&this->qsqldatabase, current_info.id, false);
+			cout << "Switch all relevant CI-points to the current system state to applied 'true'..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
+			Dam_CI_Point::switch_applied_flag_point_table(&this->qsqldatabase, current_info.id, true);
+			Dam_CI_Point::reswitch_applied_flag_point_table(&this->qsqldatabase, current_info.id, false);
+			cout << "Switch all relevant CI-polygons to the current system state to applied 'true'..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
+			Dam_CI_Polygon::switch_applied_flag_polygon_table(&this->qsqldatabase, current_info.id, true);
+			Dam_CI_Polygon::reswitch_applied_flag_polygon_table(&this->qsqldatabase, current_info.id, false);
 		}
 		else if(current_info.detailed_type==alt_replace_dam::dam_ecn_function_polygon){
 			cout << "Switch all relevant DAM ECN-elements to the current system state to applied 'true'..." << endl ;

@@ -6880,6 +6880,10 @@ void Risk_System::delete_all_relevant_result(void){
 		Dam_People_Element::delete_data_in_erg_table(&this->qsqldatabase, this->system_id);
 		Dam_Pys_Element::delete_data_in_erg_table(&this->qsqldatabase, this->system_id);
 		Dam_Sc_Point::delete_data_in_erg_table(&this->qsqldatabase, this->system_id);
+		Dam_CI_Point::delete_data_in_erg_table(&this->qsqldatabase, this->system_id);
+		Dam_CI_Point::delete_data_in_instat_erg_table(&this->qsqldatabase, this->system_id);
+		Dam_CI_Polygon::delete_data_in_erg_table(&this->qsqldatabase, this->system_id);
+		Dam_CI_Polygon::delete_data_in_instat_erg_table(&this->qsqldatabase, this->system_id);
 	}
 }
 //Waiting loop for the threads

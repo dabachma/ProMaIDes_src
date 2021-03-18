@@ -446,6 +446,31 @@ void Geo_Polysegment::copy_polysegment(Geo_Polysegment *seg){
 	}
 
 }
+//Get a string for inserting a polysegment to a sql-database (static)
+string Geo_Polysegment::get_polysegment2sql_string(void) {
+	ostringstream buff;
+
+
+	//todo
+	buff << FORMAT_FIXED_REAL << P(3);
+	buff << " ST_GEOMFROMTEXT('LINESTRING( ";
+	for (int i = 0; i < this->get_number_segments(); i++) {
+		buff << this->my_segment[i].point1.get_xcoordinate() << "  ";
+		buff << this->my_segment[i].point1.get_ycoordinate() << ", ";
+	}
+	//set the last point 
+	buff << this->my_segment[this->get_number_segments() - 1].point2.get_xcoordinate() << "  ";
+	buff << this->my_segment[this->get_number_segments() - 1].point2.get_ycoordinate() << "  ";
+
+	buff << ")') ";
+	return buff.str();
+
+
+
+
+
+
+}
 //______________
 //private
 //calculate the total length (begin and end); also vertical and horizontal distance 

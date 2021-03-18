@@ -571,6 +571,8 @@ namespace label{
 	const string qm_per_sec_annus(" [m^3/(s*a)] ");
 	///String for units: 1/m*s
 	const string one_per_sec_m(" [1/(s*m)] ");
+	///String for units: variable
+	const string unit_variable(" [variable] ");
 
 	//keywords
 	///Keyword for the database table column of different object tables: areastate as identifier [-]
@@ -2754,6 +2756,17 @@ namespace dam_label{
 	///Keyword for the database table column of the category for the CI damage calculation: if the CI-Element is end of the cascade [-] (Dam_CI_Point, Dam_CI_Polygon)
 	const string final_flag("FINAL_FLAG");
 
+	///Keyword for the database table column of the sector for CI damage calculation: Id of incomming CI-element for the connection [-] (Dam_CI_Element_List, Dam_CI_Point, Dam_CI_Polygon)
+	const string in_id("IN_ID");
+	///Keyword for the database table column of the sector for CI damage calculation: Flag if the incomming CI-element is point (0) or polygon (1) [-] (Dam_CI_Element_List, Dam_CI_Point, Dam_CI_Polygon)
+	const string in_point_flag("IN_POINT");
+	///Keyword for the database table column of the sector for CI damage calculation: Id of outgoing CI-element for the connection [-] (Dam_CI_Element_List, Dam_CI_Point, Dam_CI_Polygon)
+	const string out_id("OUT_ID");
+	///Keyword for the database table column of the sector for CI damage calculation: Flag if the outgoing CI-element is point (0) or polygon (1) [-] (Dam_CI_Element_List, Dam_CI_Point, Dam_CI_Polygon)
+	const string out_point_flag("OUT_POINT");
+	///Keyword for the database table column of the sector for CI damage calculation: Flag if it is a transsectoral connection (sectoral:=false; transectoral:=tue) [-] (Dam_CI_Element_List, Dam_CI_Point, Dam_CI_Polygon)
+	const string transsec_flag("TRANSSECTORAL");
+
 	///Keyword for the database table name of the CI point data (Dam_CI_Point)
 	const string tab_ci_point("DAM_CI_POINT");
 	///Keyword for the database table name of the CI polygon data (Dam_CI_Polygon)
@@ -2769,10 +2782,14 @@ namespace dam_label{
 	const string sc_score("SC_SCORE");
 	///Keyword for the database table column of the simple-counting point data: Boundary value for an impact; the impact is specified by the waterlevel [-] (Dam_Sc_Point)
 	const string boundary_value("BOUNDARY_VALUE");
+	///Keyword for the database table column of the simple-counting point data: Boundary value for an impact; the impact is specified by the waterlevel [-] (Dam_Sc_Point)
+	const string recovery_time("RECOVERY_TIME");
 	///Keyword for the database table column of the simple-counting point data: Point name [-] (Dam_Sc_Point, Dam CI_Point)
 	const string point_name("POINT_NAME");
 	///Keyword for the database table column of the CI polygon data: Polygon name [-] (Dam_CI_Polygon)
 	const string polygon_name("POLYGON_NAME");
+	///Keyword for the database table column of the CI polygon data: Polygon id [-] (Dam_CI_Polygon)
+	const string polygon_id("POLYGON_ID");
 	///Keyword for the database table column of the simple-counting point data: Identifier of the subcategory [-] (Dam_Sc_Point)
 	const string subcategory_id("SUBCAT_ID");
 	///Keyword for the database table column of the simple-counting point data: geometrical point (Dam_Sc_Point)
@@ -2782,6 +2799,30 @@ namespace dam_label{
 	const string tab_sc_erg("DAM_SC_POINT_ERG");
 	///Keyword for the database table column of the simple-counting damage results: affected score value [-] (Dam_Sc_Point)
 	const string affected_score("AFFECT_SCORE");
+
+	///Keyword for the database table name of the CI-point damage results (Dam_CI_Point)
+	const string tab_ci_point_erg("DAM_CI_POINT_ERG");
+	///Keyword for the database table column of the CI-point damage results: failure type [-] (Dam_CI_Point)
+	const string failure_type("FAILURE_TYPE");
+	///Keyword for the database table column of the CI-point damage results: failure duration [d] (Dam_CI_Point, Dam_CI_Polygon)
+	const string failure_duration("FAILURE_DURATION");
+	///Keyword for the database table name of the CI-polygon damage results (Dam_CI_Polygon)
+	const string tab_ci_polygon_erg("DAM_CI_POLYGON_ERG");
+	///Keyword for the database table column of the CI-point damage results: failure duration multiplied with endusers [enduser x d] (Dam_CI_Point, Dam_CI_Polygon)
+	const string enduser_duration("FAILURE_ENDUSER_DURATION");
+	
+
+	///Keyword for the database table name of the CI-point damage instationary results (Dam_CI_Point)
+	const string tab_ci_point_instat_erg("DAM_CI_POINT_INSTAT_ERG");
+	///Keyword for the database table column of the CI-point damage results: active flag [-] (Dam_CI_Point, Dam_CI_Polygon)
+	const string active_flag("ACTIVE");
+
+	///Keyword for the database table name of the CI-polygon damage instationary results (Dam_CI_Polygon)
+	const string tab_ci_polygon_instat_erg("DAM_CI_POLYGON_INSTAT_ERG");
+
+
+
+
 
 
 	///Keyword for the database table name of the psycho-social element raster data (Dam_Pys_Element)
@@ -2846,6 +2887,45 @@ namespace dam_label{
 	///String for the simple counting categories: buildings with highly vunerable person  \see Dam_Sc_Point
 	const string sc_person_build("SC_HIGH_VUL_PERS_SITES");
 
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_elect("Electricity");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_info_tec("Information_technology");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_water_sup("Water_supply");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_water_treat("Water_treatment");
+
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_emerg("Emergency_service");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_health("Health");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_logistic_goods("Logistic_goods");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_logistic_person("Logistic_person");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_goverment("Govermental_institutions");
+	///String for the CI sector \see Dam_CI_Point
+	const string ci_haz_mat("Hazardous_Materials");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_industry("Industry");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_cultur("Cultural");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_education("Education");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_jail("Jail");
+
+
+	///String for the CI element failure type \see _Dam_CI_Element 
+	const string direct_failure("direct");
+	///String for the CI element failure type \see _Dam_CI_Element 
+	const string no_failure("no_failure");
+	///String for the CI element failure type \see _Dam_CI_Element 
+	const string sectoral_failure("sectoral");
+	///String for the CI element failure type \see _Dam_CI_Element 
+	const string transsectoral_failure("transsectoral");
 
 }
 

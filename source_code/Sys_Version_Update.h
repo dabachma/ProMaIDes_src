@@ -52,6 +52,9 @@ public:
 	///Check and update the output control parameter for FPL-module (22.2.2021)
 	void check_update_fpl_output_control(QSqlDatabase *ptr_database);
 
+	///Check and update the CI tables for DAM-module (11.3.2021)
+	void check_update_dam_ci(QSqlDatabase *ptr_database);
+
 
 
 private:

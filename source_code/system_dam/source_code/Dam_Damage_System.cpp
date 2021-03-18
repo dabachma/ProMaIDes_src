@@ -217,7 +217,7 @@ a connection between the hydraulic data and the damage data.
 			}
 			//ci 
 			if (this->specific_raster_type == _dam_raster_types::all_raster || this->specific_raster_type == _dam_raster_types::ci_ci_total) {
-				this->sc_sys.intercept_hydraulic2damage(my_hyd.my_fpmodels, my_hyd.global_parameters.get_number_floodplain_model(), &this->qsqldatabase, this->system_id);
+				this->ci_sys.intercept_hydraulic2damage(my_hyd.my_fpmodels, my_hyd.global_parameters.get_number_floodplain_model(), &this->qsqldatabase, this->system_id);
 				Dam_Damage_System::check_stop_thread_flag();
 			}
 		}
@@ -455,6 +455,15 @@ void Dam_Damage_System::create_dam_database_tables(void){
 		Dam_Pys_Function::create_function_table(&this->qsqldatabase);
 		Dam_Pys_Density_Function::create_point_table(&this->qsqldatabase);
 
+		//CI
+		Dam_CI_Point::create_point_table(&this->qsqldatabase);
+		Dam_CI_Point::create_erg_table(&this->qsqldatabase);
+		Dam_CI_Point::create_instat_erg_table(&this->qsqldatabase);
+		Dam_CI_Polygon::create_polygon_table(&this->qsqldatabase);
+		Dam_CI_Polygon::create_erg_table(&this->qsqldatabase);
+		Dam_CI_Polygon::create_instat_erg_table(&this->qsqldatabase);
+		Dam_CI_Element_List::create_connection_table(&this->qsqldatabase);
+
 		//results
 		Dam_Damage_System::create_erg_table(&this->qsqldatabase);
 	}
@@ -565,6 +574,33 @@ void Dam_Damage_System::check_dam_database_tables(void){
 		Sys_Common_Output::output_dam->output_txt(&cout,false, false);
 		Dam_Pys_Density_Function::set_point_table(&this->qsqldatabase);
 
+		//CI
+		cout << "Check CI-point database table..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout, false, false);
+		Dam_CI_Point::set_point_table(&this->qsqldatabase);
+		cout << "Check CI-polygon database table..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout, false, false);
+		Dam_CI_Polygon::set_polygon_table(&this->qsqldatabase);
+		cout << "Check CI-connection database table..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout, false, false);
+		Dam_CI_Element_List::set_connection_table(&this->qsqldatabase);
+		cout << "Check CI-point database result table..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout, false, false);
+		Dam_CI_Point::set_erg_table(&this->qsqldatabase);
+		cout << "Check CI-point database instationary result table..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout, false, false);
+		Dam_CI_Point::set_instat_erg_table(&this->qsqldatabase);
+		cout << "Check CI-polygon database result table..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout, false, false);
+		Dam_CI_Polygon::set_erg_table(&this->qsqldatabase);
+		cout << "Check CI-polygon database instationary result table..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout, false, false);
+		Dam_CI_Polygon::set_instat_erg_table(&this->qsqldatabase);
+
+		
+
+
+
 		//results
 		cout << "Check the damage system, result database table..." << endl ;
 		Sys_Common_Output::output_dam->output_txt(&cout,false, false);
@@ -619,6 +655,15 @@ void Dam_Damage_System::delete_data_dam_database_tables(void){
 		Dam_Pys_Function::delete_data_in_function_table(&this->qsqldatabase);
 		Dam_Pys_Density_Function::delete_data_in_point_table(&this->qsqldatabase);
 
+		//CI
+		Dam_CI_Point::delete_data_in_point_table(&this->qsqldatabase);
+		Dam_CI_Polygon::delete_data_in_polygon_table(&this->qsqldatabase);
+		Dam_CI_Element_List::delete_data_in_connection_table(&this->qsqldatabase);
+		Dam_CI_Point::delete_data_in_erg_table(&this->qsqldatabase);
+		Dam_CI_Point::delete_data_in_instat_erg_table(&this->qsqldatabase);
+		Dam_CI_Polygon::delete_data_in_erg_table(&this->qsqldatabase);
+		Dam_CI_Polygon::delete_data_in_instat_erg_table(&this->qsqldatabase);
+
 		//results
 		Dam_Damage_System::delete_data_in_erg_table(&this->qsqldatabase);
 	}
@@ -665,6 +710,15 @@ void Dam_Damage_System::close_dam_database_tables(void){
 	Dam_Pys_Function::close_function_table();
 	Dam_Pys_Density_Function::close_point_table();
 
+	//ci
+	Dam_CI_Point::close_point_table();
+	Dam_CI_Polygon::close_polygon_table();
+	Dam_CI_Point::close_erg_table();
+	Dam_CI_Polygon::close_erg_table();
+	Dam_CI_Point::close_instat_erg_table();
+	Dam_CI_Polygon::close_instat_erg_table();
+	Dam_CI_Element_List::close_connection_table();
+
 	//results
 	Dam_Damage_System::close_erg_table();
 }
@@ -688,6 +742,9 @@ bool Dam_Damage_System::check_some_raster_set(QSqlDatabase *ptr_database, const 
 		return true;
 	}
 	if(Dam_Sc_Point::count_relevant_points_database(&results, ptr_database, id,false)>0){
+		return true;
+	}
+	if (Dam_CI_Point::count_relevant_points_database(&results, ptr_database, id, false) > 0) {
 		return true;
 	}
 
@@ -1003,6 +1060,44 @@ void Dam_Damage_System::calc_damage_nobreak_sz(void){
 				Sys_Common_Output::output_dam->rewind_userprefix();
 			}
 
+			try {
+				//sc
+				prefix << "CI> ";
+				Sys_Common_Output::output_dam->set_userprefix(prefix.str());
+				//delete the result data
+				for (int i = 0; i < this->sz_bound_manager.get_number_sz(); i++) {
+					if (this->sz_bound_manager.get_ptr_sz(i)->get_is_selected() == false) {
+						continue;
+					}
+					this->ci_sys.delete_result_members_in_database(&this->qsqldatabase, this->system_id, this->sz_bound_manager.get_ptr_sz(i)->get_id(), this->break_sz);
+				}
+				//calculation for sc points
+				for (int j = 0; j < this->sz_bound_manager.get_number_sz(); j++) {
+					if (this->sz_bound_manager.get_ptr_sz(j)->get_is_selected() == false) {
+						continue;
+					}
+					cout << "Read in the hydraulic impact values for nobreak scenario " << this->sz_bound_manager.get_ptr_sz(j)->get_name() << "..." << endl;
+					Sys_Common_Output::output_dam->output_txt(&cout);
+					this->set_impact_values_hyd(this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz);
+					this->ci_sys.calculate_damages(this->impact_floodplain, this->number_floodplain_impact);
+					Dam_Damage_System::check_stop_thread_flag();
+					this->ci_sys.output_result_member2database(&this->qsqldatabase, this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz, this->sz_bound_manager.get_ptr_sz(j)->get_ptr_dam_was_output());
+				}
+
+				Sys_Common_Output::output_dam->rewind_userprefix();
+				prefix.str("");
+			}
+			catch (Error msg) {
+				if (Dam_Damage_System::abort_thread_flag == true) {
+					Sys_Common_Output::output_dam->rewind_userprefix();
+					throw msg;
+				}
+				this->number_error++;
+				msg.output_msg(4);
+				prefix.str("");
+				Sys_Common_Output::output_dam->rewind_userprefix();
+			}
+
 			//calculate the total results
 			try{
 				Sys_Common_Output::output_dam->rewind_userprefix();
@@ -1035,6 +1130,9 @@ void Dam_Damage_System::calc_damage_nobreak_sz(void){
 					//sc
 					this->sc_sys.sum_total_results(&this->qsqldatabase, this->system_id,this->sz_bound_manager.get_ptr_sz(i)->get_id(),this->break_sz);
 					this->sc_sys.output_result_damage();
+					//ci
+					this->ci_sys.sum_total_results(&this->qsqldatabase, this->system_id, this->sz_bound_manager.get_ptr_sz(i)->get_id(), this->break_sz);
+					this->ci_sys.output_result_damage();
 
 					//to database
 					Dam_Damage_System::delete_data_in_erg_table(&this->qsqldatabase, this->system_id,this->sz_bound_manager.get_ptr_sz(i)->get_id(),this->break_sz);
@@ -1385,6 +1483,45 @@ void Dam_Damage_System::calc_damage_break_sz(void){
 				Sys_Common_Output::output_dam->rewind_userprefix();
 			}
 
+
+			try {
+				//sc
+				prefix << "CI> ";
+				Sys_Common_Output::output_dam->set_userprefix(prefix.str());
+				//delete the result data
+				for (int i = 0; i < this->number_break_sc; i++) {
+					if (this->ptr_break_sc_data[i].must_calc == false) {
+						continue;
+					}
+					this->ci_sys.delete_result_members_in_database(&this->qsqldatabase, this->system_id, this->ptr_break_sc_data[i].id_hyd_sc, this->ptr_break_sc_data[i].break_sc);
+				}
+
+				for (int j = 0; j < this->number_break_sc; j++) {
+					if (this->ptr_break_sc_data[j].must_calc == false) {
+						continue;
+					}
+					cout << "Read in the hydraulic impact values for break scenario " << this->ptr_break_sc_data[j].combi_name << "..." << endl;
+					Sys_Common_Output::output_dam->output_txt(&cout);
+					this->set_impact_values_hyd(this->ptr_break_sc_data[j].id_hyd_sc, this->ptr_break_sc_data[j].break_sc);
+					this->ci_sys.calculate_damages(this->impact_floodplain, this->number_floodplain_impact);
+					Dam_Damage_System::check_stop_thread_flag();
+					this->ci_sys.output_result_member2database(&this->qsqldatabase, this->ptr_break_sc_data[j].id_hyd_sc, this->ptr_break_sc_data[j].break_sc, &(this->ptr_break_sc_data[j].dam_was_output));
+				}
+
+				Sys_Common_Output::output_dam->rewind_userprefix();
+				prefix.str("");
+			}
+			catch (Error msg) {
+				if (Dam_Damage_System::abort_thread_flag == true) {
+					Sys_Common_Output::output_dam->rewind_userprefix();
+					throw msg;
+				}
+				this->number_error++;
+				msg.output_msg(4);
+				prefix.str("");
+				Sys_Common_Output::output_dam->rewind_userprefix();
+			}
+
 			//calculate the total results
 
 			try{
@@ -1417,6 +1554,9 @@ void Dam_Damage_System::calc_damage_break_sz(void){
 					//sc
 					this->sc_sys.sum_total_results(&this->qsqldatabase, this->system_id,this->ptr_break_sc_data[i].id_hyd_sc,this->ptr_break_sc_data[i].break_sc);
 					this->sc_sys.output_result_damage();
+					//sc
+					this->ci_sys.sum_total_results(&this->qsqldatabase, this->system_id, this->ptr_break_sc_data[i].id_hyd_sc, this->ptr_break_sc_data[i].break_sc);
+					this->ci_sys.output_result_damage();
 
 					//to database
 					Dam_Damage_System::delete_data_in_erg_table(&this->qsqldatabase, this->system_id,this->ptr_break_sc_data[i].id_hyd_sc,this->ptr_break_sc_data[i].break_sc);
@@ -1470,6 +1610,8 @@ void Dam_Damage_System::output_statistic(void){
 	this->pys_sys.output_statistic();
 	//sc
 	this->sc_sys.output_statistic();
+	//ci
+	this->ci_sys.output_statistic();
 
 	//rewind the prefix
 	Sys_Common_Output::output_dam->rewind_userprefix();
@@ -1824,6 +1966,10 @@ void Dam_Damage_System::delete_data_in_erg_table(QSqlDatabase *ptr_database){
 	Dam_People_Element::delete_data_in_erg_table(ptr_database);
 	Dam_Eco_Btype_Element::delete_data_in_erg_table(ptr_database);
 	Dam_Ecn_Element::delete_data_in_erg_table(ptr_database);
+	Dam_CI_Point::delete_data_in_erg_table(ptr_database);
+	Dam_CI_Point::delete_data_in_instat_erg_table(ptr_database);
+	Dam_CI_Polygon::delete_data_in_erg_table(ptr_database);
+	Dam_CI_Polygon::delete_data_in_instat_erg_table(ptr_database);
 }
 //Delete the data in the database table for the results of the damage calculation specified by the system id and the scenario-ids (static)
 void Dam_Damage_System::delete_data_in_erg_table(QSqlDatabase *ptr_database, const _sys_system_id id){
@@ -1889,6 +2035,10 @@ void Dam_Damage_System::delete_data_in_erg_table(QSqlDatabase *ptr_database, con
 	Dam_People_Element::delete_data_in_erg_table(ptr_database, hyd_sc);
 	Dam_Pys_Element::delete_data_in_erg_table(ptr_database, hyd_sc);
 	Dam_Sc_Point::delete_data_in_erg_table(ptr_database,hyd_sc);
+	Dam_CI_Point::delete_data_in_erg_table(ptr_database, hyd_sc);
+	Dam_CI_Point::delete_data_in_instat_erg_table(ptr_database, hyd_sc);
+	Dam_CI_Polygon::delete_data_in_erg_table(ptr_database, hyd_sc);
+	Dam_CI_Polygon::delete_data_in_instat_erg_table(ptr_database, hyd_sc);
 }
 //Delete the data in the database table for the results of the damage calculation specified by the scenario-ids (static)
 void Dam_Damage_System::delete_data_in_erg_table(QSqlDatabase *ptr_database, const _sys_system_id id, const string break_sz, const bool like_flag){
@@ -2095,6 +2245,9 @@ bool Dam_Damage_System::check_all_raster_connected2hyd(QSqlDatabase *ptr_databas
 	if(Dam_Sc_Point_Manager::check_connection2hydraulic(ptr_database, id)==false){
 		buffer<<"Not all simple-counting damage points (SC) are connected to the HYD-system."<<endl;
 	}
+	if (Dam_CI_System::check_connection2hydraulic(ptr_database, id) == false) {
+		buffer << "Not all CI-points (CI) are connected to the HYD-system." << endl;
+	}
 
 	*txt=buffer.str();
 	if(txt->empty()==true){
@@ -2171,6 +2324,8 @@ void Dam_Damage_System::switch_applied_flag_erg_table(QSqlDatabase *ptr_database
 	Dam_People_Element::switch_applied_flag_erg_table(ptr_database, id, flag);
 	Dam_Pys_Element::switch_applied_flag_erg_table(ptr_database, id, flag);
 	Dam_Sc_Point::switch_applied_flag_erg_table(ptr_database, id, flag);
+	Dam_CI_Point::switch_applied_flag_erg_table(ptr_database, id, flag);
+	Dam_CI_Polygon::switch_applied_flag_erg_table(ptr_database, id, flag);
 }
 //Switch the applied-flag for the damage results in the database table for a defined system state (static)
 void Dam_Damage_System::switch_applied_flag_erg_table(QSqlDatabase *ptr_database, const _sys_system_id id, const int hyd_sc, const bool flag){
@@ -2215,6 +2370,8 @@ void Dam_Damage_System::switch_applied_flag_erg_table(QSqlDatabase *ptr_database
 	Dam_People_Element::switch_applied_flag_erg_table(ptr_database, id, hyd_sc,flag);
 	Dam_Pys_Element::switch_applied_flag_erg_table(ptr_database, id, hyd_sc, flag);
 	Dam_Sc_Point::switch_applied_flag_erg_table(ptr_database, id, hyd_sc, flag);
+	Dam_CI_Point::switch_applied_flag_erg_table(ptr_database, id, hyd_sc, flag);
+	Dam_CI_Polygon::switch_applied_flag_erg_table(ptr_database, id, hyd_sc, flag);
 }
 //Copy the results of a given system id to another one in database tables
 void Dam_Damage_System::copy_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest){
@@ -2315,6 +2472,10 @@ void Dam_Damage_System::copy_results(QSqlDatabase *ptr_database, const _sys_syst
 		Dam_People_Element::copy_results(ptr_database, src,  dest);
 		Dam_Pys_Element::copy_results(ptr_database, src,  dest);
 		Dam_Sc_Point::copy_results(ptr_database, src,  dest);
+		Dam_CI_Point::copy_results(ptr_database, src, dest);
+		Dam_CI_Point::copy_instat_results(ptr_database, src, dest);
+		Dam_CI_Polygon::copy_results(ptr_database, src, dest);
+		Dam_CI_Polygon::copy_instat_results(ptr_database, src, dest);
 
 		ostringstream cout;
 		cout <<"Switch the applied-flags of the damage results..."<<endl;
@@ -2741,6 +2902,12 @@ void Dam_Damage_System::read_damage_data_per_database(void){
 
 		//sc
 		this->sc_sys.read_system_per_database(&this->qsqldatabase, this->system_id);
+
+		//ci
+		this->ci_sys.read_system_per_database(&this->qsqldatabase, this->system_id);
+		this->ci_sys.init_system();
+
+
 	}
 	catch(Error msg){
 		throw msg;
@@ -2893,6 +3060,11 @@ void Dam_Damage_System::check_damage_system(void){
 		prefix << "SC> ";
 		Sys_Common_Output::output_dam->set_userprefix(&prefix);
 		this->sc_sys.check_system();
+		Sys_Common_Output::output_dam->rewind_userprefix();
+		//CI
+		prefix << "CI> ";
+		Sys_Common_Output::output_dam->set_userprefix(&prefix);
+		this->ci_sys.check_system();
 		Sys_Common_Output::output_dam->rewind_userprefix();
 	}
 	catch(Error msg){

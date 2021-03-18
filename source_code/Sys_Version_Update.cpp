@@ -665,6 +665,152 @@ void Sys_Version_Update::check_update_hyd_table_river_result_width(QSqlDatabase 
 
 
 }
+//Check and update the CI tables for DAM-module (11.3.2021)
+void Sys_Version_Update::check_update_dam_ci(QSqlDatabase *ptr_database) {
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
+	bool error = false;
+	//check it
+	try {
+		Dam_CI_Point::set_point_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (Dam_CI_Point::point_table->table_name.found_flag == false) {
+			Dam_CI_Point::close_point_table();
+			Dam_CI_Point::create_point_table(ptr_database);
+
+		}
+	}
+
+	Dam_CI_Point::close_point_table();
+
+
+	//check polygon table
+	error = false;
+	//check it
+	try {
+		Dam_CI_Polygon::set_polygon_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (Dam_CI_Polygon::polygon_table->table_name.found_flag == false) {
+			Dam_CI_Polygon::close_polygon_table();
+			Dam_CI_Polygon::create_polygon_table(ptr_database);
+
+		}
+	}
+
+	Dam_CI_Polygon::close_polygon_table();
+
+	//check connection table
+	error = false;
+	//check it
+	try {
+		Dam_CI_Element_List::set_connection_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (Dam_CI_Element_List::connection_table->table_name.found_flag == false) {
+			Dam_CI_Element_List::close_connection_table();
+			Dam_CI_Element_List::create_connection_table(ptr_database);
+
+		}
+	}
+
+	Dam_CI_Element_List::close_connection_table();
+
+
+	//check point erg table
+	error = false;
+	//check it
+	try {
+		Dam_CI_Point::set_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (Dam_CI_Point::point_erg_table->table_name.found_flag == false) {
+			Dam_CI_Point::close_erg_table();
+			Dam_CI_Point::create_erg_table(ptr_database);
+
+		}
+	}
+	Dam_CI_Point::close_erg_table();
+
+	//check point instat erg table
+	error = false;
+	//check it
+	try {
+		Dam_CI_Point::set_instat_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (Dam_CI_Point::point_instat_erg_table->table_name.found_flag == false) {
+			Dam_CI_Point::close_instat_erg_table();
+			Dam_CI_Point::create_instat_erg_table(ptr_database);
+
+		}
+	}
+	Dam_CI_Point::close_instat_erg_table();
+
+	//check polygon erg table
+	error = false;
+	//check it
+	try {
+		Dam_CI_Polygon::set_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (Dam_CI_Polygon::polygon_erg_table->table_name.found_flag == false) {
+			Dam_CI_Polygon::close_erg_table();
+			Dam_CI_Polygon::create_erg_table(ptr_database);
+
+		}
+	}
+	Dam_CI_Polygon::close_erg_table();
+
+	//check polygon instat_erg table
+	error = false;
+	//check it
+	try {
+		Dam_CI_Polygon::set_instat_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (Dam_CI_Polygon::polygon_instat_erg_table->table_name.found_flag == false) {
+			Dam_CI_Polygon::close_instat_erg_table();
+			Dam_CI_Polygon::create_instat_erg_table(ptr_database);
+
+		}
+	}
+	Dam_CI_Polygon::close_instat_erg_table();
+
+}
 //Set error(s)
 Error Sys_Version_Update::set_error(const int err_type){
 	string place="Sys_Version_Update::";

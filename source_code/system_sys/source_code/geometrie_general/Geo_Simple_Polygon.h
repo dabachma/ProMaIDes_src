@@ -38,6 +38,9 @@ public:
 	///Get a point of the polygon with the given index
 	Geo_Point* get_point(const int index);
 
+	///Get mid-point of the polagon
+	Geo_Point get_mid_point(void);
+
 	///Change point coordinates by a given point index
 	void change_point_coordinates(const int index, const double x, const double y);
 

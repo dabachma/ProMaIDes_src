@@ -880,7 +880,7 @@ Error Dam_Sc_Point_Manager::set_error(const int err_type){
 			break;
 		case 4://can not read in the x-ycoordinates properly
 			place.append("read_points_per_file(string fname)");
-			reason="Can not read in the x-, y-coordinates and data od the simple counting points properly";
+			reason="Can not read in the x-, y-coordinates and data of the simple counting points properly";
 			help="Check the coordinates and other data in file";
 			type=5;
 			break;

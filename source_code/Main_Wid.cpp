@@ -3234,6 +3234,8 @@ void Main_Wid::read_existing_project(void){
 			this->version_update.check_update_hyd_table_instat_results_rv(this->system_database->get_database(), this->project_manager.get_project_file_name());
 			this->version_update.check_update_hyd_view_bound2elements_profile(this->system_database->get_database());
 			this->version_update.check_update_fpl_output_control(this->system_database->get_database());
+			this->version_update.check_update_dam_ci(this->system_database->get_database());
+
 			
 		}
 		catch(Error msg){
@@ -6906,7 +6908,7 @@ void Main_Wid::connect_sc_points(void){
 	if(Hyd_Boundary_Szenario_Management::check_base_scenario_is_set(this->system_database->get_database())==false){
 		Sys_Diverse_Text_Dia dialog2(true);
 		ostringstream txt;
-		txt<<"A HYD-base scenario must be set before a connection of the psycho-social DAM-raster can be established!"<< endl;
+		txt<<"A HYD-base scenario must be set before a connection of SC-points can be established!"<< endl;
 		dialog2.set_dialog_question(txt.str());
 		dialog2.start_dialog();
 		return;
@@ -6959,7 +6961,7 @@ void Main_Wid::import_CI_data(void) {
 	int number = 0;
 	try {
 		QSqlQueryModel results;
-		//number = Dam_Sc_Point::select_relevant_points_database(&results, this->system_database->get_database(), this->system_state.get_sys_system_id(), false);
+		number = Dam_CI_Point::select_relevant_points_database(&results, this->system_database->get_database(), this->system_state.get_sys_system_id(), false);
 	}
 	catch (Error msg) {
 		msg.output_msg(4);
@@ -6969,8 +6971,8 @@ void Main_Wid::import_CI_data(void) {
 	if (number != 0) {
 		Sys_Diverse_Text_Dia dialog2;
 		ostringstream txt;
-		//txt << number << " existing simple counting points in the database will be deleted." << endl;
-		//txt << "Do you want to continue?" << endl;
+		txt << number << " existing CI-points in the database will be deleted." << endl;
+		txt << "Do you want to continue?" << endl;
 		dialog2.set_dialog_question(txt.str());
 		bool flag2 = dialog2.start_dialog();
 		if (flag2 == false) {
@@ -7038,21 +7040,21 @@ void Main_Wid::connect_CI_data(void) {
 	if (Hyd_Boundary_Szenario_Management::check_base_scenario_is_set(this->system_database->get_database()) == false) {
 		Sys_Diverse_Text_Dia dialog2(true);
 		ostringstream txt;
-		txt << "A HYD-base scenario must be set before a connection of the psycho-social DAM-raster can be established!" << endl;
+		txt << "A HYD-base scenario must be set before a connection of the CI-points can be established!" << endl;
 		dialog2.set_dialog_question(txt.str());
 		dialog2.start_dialog();
 		return;
 	}
 	QSqlQueryModel model;
-	//Todo
-	//if (Dam_Sc_Point::select_relevant_points_database(&model, this->system_database->get_database(), this->system_state.get_sys_system_id(), false) <= 0) {
-	//	Sys_Diverse_Text_Dia dialog2(true);
-	//	ostringstream txt;
-	//	txt << "There are no CI data set in database for connection!" << endl;
-	//	dialog2.set_dialog_question(txt.str());
-	//	dialog2.start_dialog();
-	//	return;
-	//}
+	
+	if (Dam_CI_Point::select_relevant_points_database(&model, this->system_database->get_database(), this->system_state.get_sys_system_id(), false) <= 0) {
+		Sys_Diverse_Text_Dia dialog2(true);
+		ostringstream txt;
+		txt << "There are no CI data set in database for connection!" << endl;
+		dialog2.set_dialog_question(txt.str());
+		dialog2.start_dialog();
+		return;
+	}
 	try {
 		this->allocate_damage_system();
 	}

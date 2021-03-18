@@ -14,7 +14,7 @@
 //sys-libs
 #include "_Sys_Common_System.h"
 
-///Enumerator for specifiying the categories of the simple counting \ingroup sys
+///Enumerator for specifiying the categories of the simple counting \ingroup dam
 enum _dam_sc_category{
 	///Public_buildings
 	pub_build = 1,
@@ -56,7 +56,7 @@ public:
 	///Create the database table for the simple counting points
 	static void create_point_table(QSqlDatabase *ptr_database);
 	///Set the database table for the simple counting points: it sets the table name and the name of the columns and allocate them
-	static void set_point_table(QSqlDatabase *ptr_database);
+	static void set_point_table(QSqlDatabase *ptr_database, const bool not_close = false);
 	///Delete all data in the database table for the simple counting points
 	static void delete_data_in_point_table(QSqlDatabase *ptr_database);
 	///Delete all data in the database table for the points of the given system state

@@ -182,7 +182,7 @@ void Dam_Sc_Point::create_point_table(QSqlDatabase *ptr_database){
 	}
 }
 //Set the database table for the simple counting points: it sets the table name and the name of the columns and allocate them (static)
-void Dam_Sc_Point::set_point_table(QSqlDatabase *ptr_database){
+void Dam_Sc_Point::set_point_table(QSqlDatabase *ptr_database, const bool not_close){
 	if(Dam_Sc_Point::point_table==NULL){
 		//make specific input for this class
 		const string tab_id_name=dam_label::tab_sc_point;
@@ -219,7 +219,10 @@ void Dam_Sc_Point::set_point_table(QSqlDatabase *ptr_database){
 			throw msg;
 		}
 		catch(Error msg){
-			Dam_Sc_Point::close_point_table();
+			if (not_close == false) {
+				Dam_Sc_Point::close_point_table();
+				
+			}
 			throw msg;
 		}
 	}
@@ -389,7 +392,7 @@ int Dam_Sc_Point::select_relevant_points_database(QSqlQueryModel *results, QSqlD
 }
 //Select and count the number of relevant damage points in a database table (just part of it) (static)
 int Dam_Sc_Point::select_relevant_points_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int offset, const int number_rows, const bool with_output){
-		int number=0;
+	int number=0;
 	try{
 		Dam_Sc_Point::set_point_table(ptr_database);
 	}
@@ -438,7 +441,7 @@ int Dam_Sc_Point::select_relevant_points_database(QSqlQueryModel *results, QSqlD
 	//check the request
 	if(results->lastError().isValid()){
 		Error msg;
-		msg.set_msg("Dam_Sc_Point::select_relevant_points_database(QSqlTableModel *results, const _sys_system_id id, const bool with_output)","Invalid database request", "Check the database", 2, false);
+		msg.set_msg("Dam_Sc_Point::select_relevant_points_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int offset, const int number_rows, const bool with_output)","Invalid database request", "Check the database", 2, false);
 		ostringstream info;
 		info << "Table Name      : " << Dam_Sc_Point::point_table->get_table_name() << endl;
 		info << "Table error info: " << results->lastError().text().toStdString() << endl;
@@ -1151,7 +1154,7 @@ void Dam_Sc_Point::switch_applied_flag_point_table(QSqlDatabase *ptr_database, c
 	query_string  << " AND ";
 	query_string  <<  Dam_Sc_Point::point_table->get_column_name(label::measure_id) << " = " << id.measure_nr ;
 	query_string  << " AND ";
-	query_string  << Dam_Sc_Point::point_table->get_column_name(dam_label::elem_id) << " = "<< point_id;
+	query_string  << Dam_Sc_Point::point_table->get_column_name(dam_label::point_id) << " = "<< point_id;
 	query_string  << " AND ";
 	query_string  << Dam_Sc_Point::point_table->get_column_name(label::applied_flag) << " = "<< functions::convert_boolean2string(!flag);
 
@@ -1208,7 +1211,7 @@ void Dam_Sc_Point::reswitch_applied_flag_point_table(QSqlDatabase *ptr_database,
 	base.measure_nr=0;
 
 	for(int i=0; i< number ; i++){
-		point_id=results.record(i).value((Dam_Sc_Point::point_table->get_column_name(dam_label::elem_id)).c_str()).toInt();
+		point_id=results.record(i).value((Dam_Sc_Point::point_table->get_column_name(dam_label::point_id)).c_str()).toInt();
 
 		Dam_Sc_Point::switch_applied_flag_point_table(ptr_database, base, point_id, flag);
 	}

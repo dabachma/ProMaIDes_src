@@ -95,6 +95,24 @@ Geo_Point* Geo_Simple_Polygon::get_point(const int index){
 		return &(this->segments[index].point1);
 	}
 }
+///Get mid-point of the polagon
+Geo_Point Geo_Simple_Polygon::get_mid_point(void) {
+	Geo_Point mid;
+
+	
+	double buff_x = 0.0;
+	double buff_y = 0.0;
+	for (int i = 0; i < this->number_segments; i++) {
+		buff_x = buff_x+ (this->segments[i].point1.get_xcoordinate() + this->segments[i].point2.get_xcoordinate()) / 2.0;
+		buff_y = buff_y + (this->segments[i].point1.get_ycoordinate() + this->segments[i].point2.get_ycoordinate()) / 2.0;
+	}
+	if (this->number_segments != 0) {
+		buff_x = buff_x / this->number_segments;
+		buff_y = buff_y / this->number_segments;
+		mid.set_point_coordinate(buff_x, buff_y);
+	}
+	return mid;
+}
 //Change point coordinates by a given point index
 void Geo_Simple_Polygon::change_point_coordinates(const int index, const double x, const double y){
 	if(index>=this->number_segments){
