@@ -505,6 +505,8 @@ namespace label{
 	const string kg_per_qm(" [kg/m^3] ");
 	///String for units: hour
 	const string hour(" [h] ");
+	///String for units: day
+	const string day(" [d] ");
 	///String for units: second
 	const string sec (" [s] ");
 	///String for units: second per meter
@@ -2755,6 +2757,10 @@ namespace dam_label{
 	const string sector_level("SEC_LEVEL");
 	///Keyword for the database table column of the category for the CI damage calculation: if the CI-Element is end of the cascade [-] (Dam_CI_Point, Dam_CI_Polygon)
 	const string final_flag("FINAL_FLAG");
+	///Keyword for the database table column of the category for the CI damage calculation: if the CI-Element is a regular (true) or an emergency structure (false) [-] (Dam_CI_Point, Dam_CI_Polygon)
+	const string regular_flag("REGULAR_FLAG");
+	///Keyword for the database table column of the category for the CI damage calculation: if the CI-Element is an emergency structure the activation time [-] (Dam_CI_Point, Dam_CI_Polygon)
+	const string activation_time("ACTIVATION_TIME");
 
 	///Keyword for the database table column of the sector for CI damage calculation: Id of incomming CI-element for the connection [-] (Dam_CI_Element_List, Dam_CI_Point, Dam_CI_Polygon)
 	const string in_id("IN_ID");

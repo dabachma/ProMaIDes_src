@@ -105,7 +105,10 @@ public:
 	_dam_ci_failure_type get_failure_type(void);
 	///Set the failure type enum
 	void set_failure_type(const _dam_ci_failure_type type);
-
+	///Set the active flag
+	void set_active_flag(const bool flag);
+	///Set the was-affected flag
+	void set_was_affected_flag(const bool flag);
 
 	///Set the index of the connected FP-model
 	void set_index_floodplain(const int index);
@@ -143,11 +146,24 @@ public:
 	///Get failure duration
 	double get_failure_duration(void);
 
+	///Get recovery time
+	double get_recovery_time(void);
+	///Get activation time
+	double get_activation_time(void);
+	///Get regular flag
+	bool get_regular_flag(void);
+
 	///Calculate indirect damages
 	void calculate_indirect_damages(void);
 	///Calculate indirect damages instationary
 	void calculate_indirect_damages_instationary(void);
 
+	///Convert string to failure type (_dam_ci_failure_type)
+	static _dam_ci_failure_type convert_txt2failuretype(const string txt);
+	///Convert category (_dam_sc_category) to string
+	static string convert_sector_id2txt(const _dam_ci_sector sec);
+	///Transfer the sector id in the enum _dam_sc_category
+	static _dam_ci_sector convert_id2enum(const int id);
 
 	///Copy operator
 	_Dam_CI_Element& operator=(const _Dam_CI_Element& object);
@@ -159,6 +175,11 @@ protected:
 
 	///Time to recover after failure [d]
 	double recovery_time;
+	///Time to activate [d]
+	double activation_time;
+
+	///Regular flag: is the structure regular := true or emergency :=false
+	bool regular_flag;
 
 
 	///Index of the floodplain, to which the CI element is connected
@@ -179,8 +200,11 @@ protected:
 	///Number of outgoing CI elements
 	int no_outgoing;
 
-	///List with summarized sectors of the incomings
+	///List with summarized sectors of the incomings; just regular are counted
 	QList<QList<int>> list_sec_incoming;
+
+	///List with summarized sectors of the emergency CI-elements
+	QList<QList<int>> list_sec_emergency;
 
 
 	///Id of the sector
@@ -200,19 +224,6 @@ protected:
 	double failure_duration;
 	///Flag if the object is a final position in the net
 	bool final_flag;
-
-
-
-
-
-
-
-
-	///Convert category (_dam_sc_category) to string
-	static string convert_sector_id2txt(const _dam_ci_sector sec);
-
-	///Transfer the sector id in the enum _dam_sc_category
-	_dam_ci_sector convert_id2enum(const int id);
 
 
 	///Convert failure type (_dam_ci_failure_type) to string

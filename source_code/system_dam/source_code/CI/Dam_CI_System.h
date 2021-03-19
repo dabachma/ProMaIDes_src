@@ -119,6 +119,37 @@ private:
 	/** It is set via dialog. \see ask_deleting_flag(QWidget *parent=NULL) */
 	bool del_res_flag;
 
+
+	///Results points: Direct failure in sector i
+	QList<QList<int>> list_direct_failure_sec;
+	///Results points: sectoral failure in sector i
+	QList<QList<int>> list_sectoral_failure_sec;
+	///Results points: transsectoral failure in sector i
+	QList<QList<int>> list_transsectoral_failure_sec;
+	///Results points: Total failure in sector i
+	QList<QList<int>> list_total_failure_sec;
+	///Results points: Total failure x level in sector i
+	QList<QList<QVariant>> list_total_failure_level_sec;
+
+	///Results points: activation of emergency CI-structures in sector i
+	QList<QList<int>> list_emergency_active_sec;
+
+	///Results points: Total direct failure 
+	int tot_direct_failure;
+	///Results points: Total sectoral failure 
+	int tot_sectoral_failure;
+	///Results points: Total transsectoral failure 
+	int tot_transsectoral_failure;
+	///Results points: Total emergency strcutures activated 
+	int tot_emergency_active;
+
+
+	///Results polygons: Total enduser affected by failure in sector i
+	QList<QList<QVariant>> list_enduser_affected_sec;
+	///Results polygons: Total enduser affected by failure x duration in sector i
+	QList<QList<QVariant>> list_enduser_affected_duration_sec;
+
+
 	//methods
 	///Read in the CI point data from file
 	void read_points_per_file(string fname);
@@ -132,11 +163,10 @@ private:
 	///Transfer data evaluated by an interception to database: identifier of the floodplain, -floodplain element
 	void transfer_intercepted_data2database(QSqlDatabase *ptr_database);
 
-
-
 	///Output point member
 	void output_point_member(void);
-
+	///Sum up the total point damage results for a given system-id and scenario (boundary-, break-) from the database
+	void sum_total_point_results(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz);
 
 	///Read in the CI polygon data from file
 	void read_polygon_per_file(string fname);
@@ -146,6 +176,8 @@ private:
 	void input_perdatabase_polygon_data(QSqlDatabase *ptr_database, const _sys_system_id id, const bool with_output = true);
 	///Output polygon member
 	void output_polygon_member(void);
+	///Sum up the total polygon damage results for a given system-id and scenario (boundary-, break-) from the database
+	void sum_total_polygon_results(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz);
 
 	///Read in the CI connection data from file
 	void read_connection_per_file(string fname);
@@ -198,6 +230,11 @@ private:
 	///Check if the points are connected to the hydraulic
 	int check_points_connected2hyd(void);
 
+	///Check the CI-system
+	void check_CI_system(void);
+
+	///Reset results values
+	void reset_result_values(void);
 
 	///Set warning(s)
 	Warning set_warning(const int warn_type);

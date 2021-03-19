@@ -8,13 +8,12 @@ Tables *Dam_CI_Element_List::connection_table = NULL;
 Dam_CI_Element_List::Dam_CI_Element_List(void){
 
 	//count the memory
-	Sys_Memory_Count::self()->add_mem(sizeof(Dam_CI_Element_List), _sys_system_modules::DAM_SYS);
+	Sys_Memory_Count::self()->add_mem(sizeof(Dam_CI_Element_List)+ sizeof(QList<QList<int>>), _sys_system_modules::DAM_SYS);
 }
-
 //Default destructor
 Dam_CI_Element_List::~Dam_CI_Element_List(void){
 	//count the memory
-	Sys_Memory_Count::self()->minus_mem(sizeof(Dam_CI_Element_List), _sys_system_modules::DAM_SYS);
+	Sys_Memory_Count::self()->minus_mem(sizeof(Dam_CI_Element_List) + sizeof(QList<QList<int>>), _sys_system_modules::DAM_SYS);
 }
 //__________
 //public
@@ -526,6 +525,13 @@ void Dam_CI_Element_List::output_connection(ostringstream *cout) {
 		}
 		*cout << endl;	
 	}
+}
+//Check the last set connections
+void Dam_CI_Element_List::check_members(void) {
+
+
+
+
 }
 //____________
 //private

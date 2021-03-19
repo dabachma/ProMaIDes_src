@@ -836,6 +836,7 @@ int Dam_CI_Polygon::select_data_in_erg_table(QSqlQueryModel *results, QSqlDataba
 	query_string << Dam_CI_Polygon::polygon_erg_table->get_column_name(dam_label::enduser_duration) << " , ";
 	query_string << Dam_CI_Polygon::polygon_erg_table->get_column_name(dam_label::failure_duration) << " , ";
 	query_string << Dam_CI_Polygon::polygon_erg_table->get_column_name(dam_label::end_user) << " , ";
+	query_string << Dam_CI_Polygon::polygon_erg_table->get_column_name(dam_label::failure_type) << " , ";
 
 	query_string << " ST_ASTEXT(" << Dam_CI_Polygon::polygon_erg_table->get_column_name(hyd_label::polygon_out) << ")";
 
@@ -888,6 +889,7 @@ int Dam_CI_Polygon::select_data_in_erg_table(QSqlQueryModel *results, QSqlDataba
 	query_string << Dam_CI_Polygon::polygon_erg_table->get_column_name(dam_label::enduser_duration) << " , ";
 	query_string << Dam_CI_Polygon::polygon_erg_table->get_column_name(dam_label::failure_duration) << " , ";
 	query_string << Dam_CI_Polygon::polygon_erg_table->get_column_name(dam_label::end_user) << " , ";
+	query_string << Dam_CI_Polygon::polygon_erg_table->get_column_name(dam_label::failure_type) << " , ";
 
 	query_string << " ST_ASTEXT(" << Dam_CI_Polygon::polygon_erg_table->get_column_name(hyd_label::polygon_out) << ")";
 
@@ -1730,7 +1732,7 @@ void Dam_CI_Polygon::set_members(const int sector_id, const double endusers, con
 	this->enduser = endusers;
 	this->mid_point.set_point_name(name);
 	this->mid_point.set_number(id);
-
+	this->check_members();
 }
 ///Get endusers
 double Dam_CI_Polygon::get_enduser(void) {
@@ -1910,6 +1912,13 @@ void Dam_CI_Polygon::finalize_results(void) {
 }
 //____________
 //private
+//Check the polygons
+void Dam_CI_Polygon::check_members(void) {
+
+
+
+
+}
 //Create the database table for the polygon point data in a database (static)
 void Dam_CI_Polygon::create_point_table(QSqlDatabase *ptr_database) {
 	if (Dam_CI_Polygon::polygon_point_table == NULL) {

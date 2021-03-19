@@ -205,6 +205,8 @@ private:
 
 
 	//methods
+	///Check the polygons
+	void check_members(void);
 	///Create the database table for the polygon point data in a database
 	static void create_point_table(QSqlDatabase *ptr_database);
 	///Set the database table for the polygon point data: it sets the table name and the name of the columns and allocate them

@@ -76,8 +76,11 @@ public:
 	///Get output the connections
 	void output_connection(ostringstream *cout);
 
+	///Check the last set connections
+	void check_members(void);
 
 private:
+
 	///Set error(s)
 	Error set_error(const int err_type);
 };

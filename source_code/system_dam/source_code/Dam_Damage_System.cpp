@@ -1554,7 +1554,7 @@ void Dam_Damage_System::calc_damage_break_sz(void){
 					//sc
 					this->sc_sys.sum_total_results(&this->qsqldatabase, this->system_id,this->ptr_break_sc_data[i].id_hyd_sc,this->ptr_break_sc_data[i].break_sc);
 					this->sc_sys.output_result_damage();
-					//sc
+					//ci
 					this->ci_sys.sum_total_results(&this->qsqldatabase, this->system_id, this->ptr_break_sc_data[i].id_hyd_sc, this->ptr_break_sc_data[i].break_sc);
 					this->ci_sys.output_result_damage();
 

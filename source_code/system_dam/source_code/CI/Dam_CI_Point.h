@@ -160,7 +160,7 @@ public:
 
 
 	///Set the sector id, sector level, boundary value, recovery time, final flag
-	void set_members(const int sector_id, const int sector_level, const double boundary, const double recovery_time, const bool final_flag);
+	void set_members(const int sector_id, const int sector_level, const double boundary, const double recovery_time, const bool final_flag, const bool regular, const double activation_time);
 
 	///Get the data-string to complete a insert-string for inserting the data of the point to database
 	string get_datastring_members2database(const int global_id);

@@ -34,6 +34,10 @@ _Dam_CI_Element::_Dam_CI_Element(void):block_elems(50){
 	this->final_flag = false;
 	this->recovery_time = 0.0;
 
+
+	this->activation_time=0.0;
+	this->regular_flag =true;
+
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(_Dam_CI_Element)+sizeof(QList<QList<int>>), _sys_system_modules::DAM_SYS);
 }
@@ -78,6 +82,8 @@ _Dam_CI_Element::_Dam_CI_Element(const _Dam_CI_Element& object) :block_elems(50)
 	//Failure duration
 	this->failure_duration = object.failure_duration;
 	this->recovery_time = object.recovery_time;
+	this->activation_time = object.activation_time;
+	this->regular_flag = object.regular_flag;
 }
 //Default destructor
 _Dam_CI_Element::~_Dam_CI_Element(void){
@@ -121,6 +127,14 @@ void _Dam_CI_Element::set_failure_type(const _dam_ci_failure_type type) {
 	this->failure_type = _Dam_CI_Element::convert_failuretype2txt(this->failure_type_enum);
 
 }
+//Set the active flag
+void _Dam_CI_Element::set_active_flag(const bool flag) {
+	this->active_flag = flag;
+}
+//Set the was-affected flag
+void _Dam_CI_Element::set_was_affected_flag(const bool flag) {
+	this->was_affected = flag;
+}
 //Set the index of the connected FP-model
 void _Dam_CI_Element::set_index_floodplain(const int index) {
 	this->index_fp = index;
@@ -163,6 +177,10 @@ void _Dam_CI_Element::reset_result_values(void) {
 	this->set_failure_type(_dam_ci_failure_type::no_failure);
 	//Failure duration
 	this->failure_duration = 0.0;
+
+	if (this->regular_flag == false) {
+		this->active_flag = false;
+	}
 }
 //Add pointer of incoming CI-elements to list
 void _Dam_CI_Element::add_incomings(_Dam_CI_Element* add) {
@@ -270,35 +288,73 @@ void _Dam_CI_Element::init_sec_list(void) {
 
 	//init incoming list
 	bool found = false;
+	bool first_found = false;
 	for (int i = 0; i < this->no_incoming; i++) {
-		if (i == 0) {
-			QList<int> buff;
-			buff.append(this->incomings[i]->get_sector_id());
-			buff.append(i);
-			this->list_sec_incoming.append(buff);
-		}
-		else {
-			found = false;
-			for (int j = 0; j < this->list_sec_incoming.count(); j++) {
-				if (this->incomings[i]->get_sector_id() == this->list_sec_incoming[j].at(0)) {
-					//add to existing one
-					found = true;
-					this->list_sec_incoming[j].append(i);
-					break;
-				}
-			}
-			if (found == false) {
-				//make a new one
+		if (this->incomings[i]->get_regular_flag() == true) {
+
+
+			if (first_found == false) {
 				QList<int> buff;
 				buff.append(this->incomings[i]->get_sector_id());
 				buff.append(i);
 				this->list_sec_incoming.append(buff);
+				first_found = true;
+			}
+			else {
+				found = false;
+				for (int j = 0; j < this->list_sec_incoming.count(); j++) {
+					if (this->incomings[i]->get_sector_id() == this->list_sec_incoming[j].at(0)) {
+						//add to existing one
+						found = true;
+						this->list_sec_incoming[j].append(i);
+						break;
+					}
+				}
+				if (found == false) {
+					//make a new one
+					QList<int> buff;
+					buff.append(this->incomings[i]->get_sector_id());
+					buff.append(i);
+					this->list_sec_incoming.append(buff);
+				}
 			}
 		}
 	}
 
+	//init emergency list
+	found = false;
+	first_found = false;
+	for (int i = 0; i < this->no_incoming; i++) {
+		if (this->incomings[i]->get_regular_flag() == false) {
 
 
+			if (first_found == false) {
+				QList<int> buff;
+				buff.append(this->incomings[i]->get_sector_id());
+				buff.append(i);
+				this->list_sec_emergency.append(buff);
+				first_found = true;
+			}
+			else {
+				found = false;
+				for (int j = 0; j < this->list_sec_incoming.count(); j++) {
+					if (this->incomings[i]->get_sector_id() == this->list_sec_emergency[j].at(0)) {
+						//add to existing one
+						found = true;
+						this->list_sec_emergency[j].append(i);
+						break;
+					}
+				}
+				if (found == false) {
+					//make a new one
+					QList<int> buff;
+					buff.append(this->incomings[i]->get_sector_id());
+					buff.append(i);
+					this->list_sec_emergency.append(buff);
+				}
+			}
+		}
+	}
 }
 //Get final level flag
 bool _Dam_CI_Element::get_end_level_flag(void) {
@@ -310,10 +366,25 @@ double _Dam_CI_Element::get_failure_duration(void) {
 
 	return this->failure_duration;
 }
+///Get recovery time
+double _Dam_CI_Element::get_recovery_time(void) {
+	return this->recovery_time;
+}
+//Get activation time
+double _Dam_CI_Element::get_activation_time(void) {
+
+	return this->activation_time;
+}
+//Get regular flag
+bool _Dam_CI_Element::get_regular_flag(void) {
+
+	return this->regular_flag;
+}
 //Calculate indirect damages
 void _Dam_CI_Element::calculate_indirect_damages(void) {
 	double buff_time = 0.0;
 	QList<double> buff_list;
+	QList<int> list_sec_failure;
 	if (this->failure_type_enum == _dam_ci_failure_type::no_failure) {
 
 
@@ -341,10 +412,30 @@ void _Dam_CI_Element::calculate_indirect_damages(void) {
 					else {
 						this->set_failure_type(_dam_ci_failure_type::transsectoral);
 					}
-					
+					list_sec_failure.append(this->list_sec_incoming[i].at(0));
 				}
 			}
 		}
+
+		//check emergency structures
+		for (int i = 0; i < this->list_sec_emergency.count(); i++) {
+
+			for (int l = 0; l < list_sec_failure.count(); l++) {
+				if (this->list_sec_emergency[i].at(0) == list_sec_failure.at(l)) {
+					for (int j = 1; j < this->list_sec_emergency[i].count(); j++) {
+						if (this->incomings[this->list_sec_emergency[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+							this->incomings[this->list_sec_emergency[i].at(j)]->set_active_flag(true);
+							this->incomings[this->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
+							buff_list.replace(l,min(buff_list.at(l), this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time()));
+						}
+					}
+
+				}
+			}
+		}
+
+
+
 		//set the duration of failure
 		for (int i = 0; i < buff_list.count(); i++) {
 			this->failure_duration = max(this->failure_duration, buff_list.at(i));
@@ -398,53 +489,30 @@ void _Dam_CI_Element::calculate_indirect_damages_instationary(void) {
 
 
 }
-//Copy operator
-_Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
-	//Boundary value (waterlevel), when the CI element fails
-	this->boundary_value = object.boundary_value;
-	this->final_flag = object.final_flag;
+///Convert string to failure type (_dam_ci_failure_type) (static)
+_dam_ci_failure_type _Dam_CI_Element::convert_txt2failuretype(const string txt) {
+	_dam_ci_failure_type buff;
 
-	//Index of the floodplain, to which the CI element is connected
-	this->index_fp = object.index_fp;
-	//Index of the floodplain element, to which the CI element is connected
-	this->index_fp_elem = object.index_fp_elem;
-	//Flag if CI element is connected to the hydraulic
-	this->is_connected = object.is_connected;
-	//Global index of CI element in the database
-	this->global_index = object.global_index;
-
-	//Incomings CI elements
-	this->no_incoming = object.no_incoming;
-	this->allocate_incomings();
-	for (int i = 0; i < this->no_incoming; i++) {
-		this->incomings[i] = object.incomings[i];
-
+	if (txt == dam_label::no_failure) {
+		buff = _dam_ci_failure_type::no_failure;
 	}
-	this->list_sec_incoming = object.list_sec_incoming;
-	//Outgoings CI elements
-	this->no_outgoing = object.no_outgoing;
-	this->allocate_outgoing();
-	for (int i = 0; i < this->no_outgoing; i++) {
-		this->outgoing[i] = object.outgoing[i];
+	else if (txt == dam_label::direct_failure) {
+		buff = _dam_ci_failure_type::direct;
+	}
+	else if (txt == dam_label::sectoral_failure) {
+		buff = _dam_ci_failure_type::sectoral;
+	}
+	else if (txt == dam_label::transsectoral_failure) {
+		buff = _dam_ci_failure_type::transsectoral;
+	}
+	else {
 
+		buff = _dam_ci_failure_type::undefined_failure;
 	}
 	
+	return buff;
 
-	this->sector_id = object.sector_id;
-	this->sector_name = object.sector_name;
-	this->active_flag = object.active_flag;
-	this->was_affected = object.was_affected;
-	//Failure type
-	this->failure_type = object.failure_type;
-	this->failure_type_enum = object.failure_type_enum;
-	//Failure duration  
-	this->failure_duration = object.failure_duration;
-	this->recovery_time = object.recovery_time;
-
-	return *this;
 }
-//_________
-//protected
 //Convert category (_dam_sc_category) to string (static)
 string _Dam_CI_Element::convert_sector_id2txt(const _dam_ci_sector sec) {
 	string buffer;
@@ -497,10 +565,8 @@ string _Dam_CI_Element::convert_sector_id2txt(const _dam_ci_sector sec) {
 		buffer = label::not_defined;
 	}
 	return buffer;
-
-
 }
-//Transfer the sector id in the enum _dam_ci_sector
+//Transfer the sector id in the enum _dam_ci_sector (static)
 _dam_ci_sector _Dam_CI_Element::convert_id2enum(const int id) {
 	_dam_ci_sector buffer;
 	switch (id) {
@@ -555,6 +621,55 @@ _dam_ci_sector _Dam_CI_Element::convert_id2enum(const int id) {
 
 	return buffer;
 }
+//Copy operator
+_Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
+	//Boundary value (waterlevel), when the CI element fails
+	this->boundary_value = object.boundary_value;
+	this->final_flag = object.final_flag;
+
+	//Index of the floodplain, to which the CI element is connected
+	this->index_fp = object.index_fp;
+	//Index of the floodplain element, to which the CI element is connected
+	this->index_fp_elem = object.index_fp_elem;
+	//Flag if CI element is connected to the hydraulic
+	this->is_connected = object.is_connected;
+	//Global index of CI element in the database
+	this->global_index = object.global_index;
+
+	//Incomings CI elements
+	this->no_incoming = object.no_incoming;
+	this->allocate_incomings();
+	for (int i = 0; i < this->no_incoming; i++) {
+		this->incomings[i] = object.incomings[i];
+
+	}
+	this->list_sec_incoming = object.list_sec_incoming;
+	//Outgoings CI elements
+	this->no_outgoing = object.no_outgoing;
+	this->allocate_outgoing();
+	for (int i = 0; i < this->no_outgoing; i++) {
+		this->outgoing[i] = object.outgoing[i];
+
+	}
+	
+
+	this->sector_id = object.sector_id;
+	this->sector_name = object.sector_name;
+	this->active_flag = object.active_flag;
+	this->was_affected = object.was_affected;
+	//Failure type
+	this->failure_type = object.failure_type;
+	this->failure_type_enum = object.failure_type_enum;
+	//Failure duration  
+	this->failure_duration = object.failure_duration;
+	this->recovery_time = object.recovery_time;
+	this->activation_time = object.activation_time;
+	this->regular_flag = object.regular_flag;
+
+	return *this;
+}
+//_________
+//protected
 //Convert failure type (_dam_ci_failure_type) to string (static)
 string _Dam_CI_Element::convert_failuretype2txt(const _dam_ci_failure_type type) {
 	string buffer;

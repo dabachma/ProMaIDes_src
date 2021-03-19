@@ -14,9 +14,10 @@ Dam_CI_System::Dam_CI_System(void){
 
 	this->del_data_flag = false;
 	this->del_res_flag = false;
+	this->reset_result_values();
 
 	//count the memory
-	Sys_Memory_Count::self()->add_mem(sizeof(Dam_CI_System), _sys_system_modules::DAM_SYS);
+	Sys_Memory_Count::self()->add_mem(sizeof(Dam_CI_System)+ 4*sizeof(QList<QList<int>>)+3*sizeof(QList<QList<QVariant>>), _sys_system_modules::DAM_SYS);
 	
 }
 //Default destructor
@@ -24,7 +25,7 @@ Dam_CI_System::~Dam_CI_System(void){
 	this->delete_CI_point();
 	this->delete_CI_polygon();
 	//count the memory
-	Sys_Memory_Count::self()->minus_mem(sizeof(Dam_CI_System), _sys_system_modules::DAM_SYS);
+	Sys_Memory_Count::self()->minus_mem(sizeof(Dam_CI_System) + 4 * sizeof(QList<QList<int>>) + 3 * sizeof(QList <QList<QVariant>>), _sys_system_modules::DAM_SYS);
 }
 //__________
 //public
@@ -328,6 +329,84 @@ void Dam_CI_System::output_statistic(void) {
 }
 //Output the sum over the raster of the damage results to display/console
 void Dam_CI_System::output_result_damage(void) {
+	ostringstream prefix;
+
+	prefix << "CI> ";
+	Sys_Common_Output::output_dam->set_userprefix(prefix.str());
+
+	ostringstream cout;
+	cout << "TOTAL RESULTS" << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+	cout << " POINTS" << endl;
+	cout << "  Number direct failure total: " << this->tot_direct_failure << endl;
+	if (this->tot_direct_failure > 0) {
+		cout << "  Number direct failure per sector" << endl;
+		for (int i = 0; i < this->list_direct_failure_sec.count(); i++) {
+			cout << "   " << _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(this->list_direct_failure_sec[i].at(0))) << ": " << W(10) << this->list_direct_failure_sec[i].at(1) << endl;
+		}
+	}
+
+	Sys_Common_Output::output_dam->output_txt(&cout);
+	cout << "  Number sectoral failure total: " << this->tot_sectoral_failure << endl;
+	if (this->tot_sectoral_failure > 0) {
+		cout << "  Number sectoral failure per sector" << endl;
+		for (int i = 0; i < this->list_sectoral_failure_sec.count(); i++) {
+			cout << "   " << _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(this->list_sectoral_failure_sec[i].at(0))) << ": " << W(10) << this->list_sectoral_failure_sec[i].at(1) << endl;
+		}
+	}
+
+	Sys_Common_Output::output_dam->output_txt(&cout);
+	cout << "  Number transsectoral failure total: " << this->tot_transsectoral_failure << endl;
+	if (this->tot_transsectoral_failure > 0) {
+		cout << "  Number transsectoral failure per sector" << endl;
+		for (int i = 0; i < this->list_transsectoral_failure_sec.count(); i++) {
+			cout << "   " << _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(this->list_transsectoral_failure_sec[i].at(0))) << ": " << W(10) << this->list_transsectoral_failure_sec[i].at(1) << endl;
+		}
+	}
+
+
+	Sys_Common_Output::output_dam->output_txt(&cout);
+	cout << "  Number emergency CI-structure activated total: " << this->tot_emergency_active << endl;
+	cout << "  Number emergency CI-structure activated per sector" << endl;
+	for (int i = 0; i < this->list_emergency_active_sec.count(); i++) {
+		cout << "   " << _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(this->list_emergency_active_sec[i].at(0))) << ": " << W(10) << this->list_emergency_active_sec[i].at(1) << endl;
+	}
+	
+
+	Sys_Common_Output::output_dam->output_txt(&cout);
+	cout << "  Number failure per sector" << endl;
+	for (int i = 0; i < this->list_total_failure_sec.count(); i++) {
+		cout << "   " << _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(this->list_total_failure_sec[i].at(0))) << ": " << W(10) << this->list_total_failure_sec[i].at(1) << endl;
+	}
+
+	Sys_Common_Output::output_dam->output_txt(&cout);
+	cout << "  Number failure x level per sector" << endl;
+	for (int i = 0; i < this->list_total_failure_level_sec.count(); i++) {
+		cout << "   " << _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(this->list_total_failure_level_sec[i].at(0).toInt())) << ": " << W(10) <<P(2) << FORMAT_FIXED_REAL << this->list_total_failure_level_sec[i].at(1).toDouble() << endl;
+	}
+
+	cout << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+	cout << " POLYGONS" << endl;
+	cout << "  Enduser affected per sector" << endl;
+	for (int i = 0; i < this->list_enduser_affected_sec.count(); i++) {
+		cout << "   " << _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(this->list_enduser_affected_sec[i].at(0).toInt())) << ": " << W(10) << P(2) << FORMAT_FIXED_REAL << this->list_enduser_affected_sec[i].at(1).toDouble() << endl;
+	}
+
+	
+	Sys_Common_Output::output_dam->output_txt(&cout);
+	cout << "  Enduser affected x duration per sector" << endl;
+	for (int i = 0; i < this->list_enduser_affected_duration_sec.count(); i++) {
+		cout << "   " << _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(this->list_enduser_affected_duration_sec[i].at(0).toInt())) << ": " << W(10) << P(2) << FORMAT_FIXED_REAL << this->list_enduser_affected_duration_sec[i].at(1).toDouble() << endl;
+	}
+	
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+	Sys_Common_Output::output_dam->rewind_userprefix();
+
+
+
+
 
 
 }
@@ -458,6 +537,8 @@ void Dam_CI_System::init_system(void) {
 		this->dam_ci_polygon[i].init_sec_list();
 
 	}
+	//check after init
+	this->check_CI_system();
 
 }
 //Calculate the damages
@@ -513,7 +594,9 @@ void Dam_CI_System::output_result_member2database(QSqlDatabase *ptr_database, co
 }
 //Sum up the total damage results for a given system-id and scenario (boundary-, break-) from the database
 void Dam_CI_System::sum_total_results(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz) {
-
+	this->reset_result_values();
+	this->sum_total_point_results(ptr_database, id, bound_sz, break_sz);
+	this->sum_total_polygon_results(ptr_database, id, bound_sz, break_sz);
 
 }
 //____________
@@ -612,6 +695,9 @@ void Dam_CI_System::read_points_per_file(string fname) {
 		bool buff_endflag = false;
 		string name_buff = label::not_set;
 		int buff_number=0;
+		string reg_flag_buff_str = label::not_set;
+		bool reg_flag_buff = true;
+		double active_time_buff = 0.0;
 
 		this->allocate_CI_point();
 
@@ -640,10 +726,11 @@ void Dam_CI_System::read_points_per_file(string fname) {
 
 
 				try {
-					if (col == 8) {
-						my_stream >> buff_number >> x_buffer >> y_buffer >> name_buff >> buff_sector_id >> buff_sector_level >> buff_boundary_value >> recovery_time;
+					if (col == 10) {
+						my_stream >> buff_number >> x_buffer >> y_buffer >> name_buff >> buff_sector_id >> buff_sector_level >> buff_boundary_value >> recovery_time >> reg_flag_buff_str >> active_time_buff;
 
 						buff_endflag = _Dam_CI_Element::sector_id2endflag(buff_sector_id);
+						reg_flag_buff = functions::convert_string2boolean(reg_flag_buff_str);
 							
 
 					}
@@ -679,7 +766,7 @@ void Dam_CI_System::read_points_per_file(string fname) {
 					this->dam_ci_point[counter].set_point_coordinate(x_buffer, y_buffer);
 					this->dam_ci_point[counter].set_point_name(name_buff);
 					this->dam_ci_point[counter].set_number(buff_number);
-					this->dam_ci_point[counter].set_members(buff_sector_id, buff_sector_level, buff_boundary_value, recovery_time, buff_endflag);
+					this->dam_ci_point[counter].set_members(buff_sector_id, buff_sector_level, buff_boundary_value, recovery_time, buff_endflag, reg_flag_buff, active_time_buff);
 				}
 				catch (Error msg) {
 					ostringstream info;
@@ -1056,7 +1143,7 @@ void Dam_CI_System::output_point_member(void) {
 	cout << " Number points     : " << W(13) << this->no_ci_point << endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
 	if (this->no_ci_point > 0) {
-		cout << W(3) << "No. " << W(8) << "x" << label::m << W(8) << "y" << label::m << W(8) << "Sec_Id" << label::no_unit << W(8) << "Sec_Name" << label::no_unit << W(8) << "Boundary" << label::m << W(8) << "Name" << label::no_unit << W(8) << "Sec_Level" << label::no_unit << W(8) << "End_Flag" << label::no_unit << endl;
+		cout << W(3) << "No. " << W(8) << "x" << label::m << W(8) << "y" << label::m << W(8) << "Sec_Id" << label::no_unit << W(8) << "Sec_Name" << label::no_unit << W(8) << "Boundary" << label::m << W(8) << "Name" << label::no_unit << W(8) << "Sec_Level" << label::no_unit << W(8) << "Recovery_time" << label::day << W(8) << "End_Flag" << label::no_unit << W(8) << "Regular_flag" << label::no_unit << W(8) << "Activation_time" << label::day << endl;
 		Sys_Common_Output::output_dam->output_txt(&cout);
 		for (int i = 0; i < this->no_ci_point; i++) {
 			cout << W(3) << this->dam_ci_point[i].get_number() << W(12) << P(2) << FORMAT_FIXED_REAL << this->dam_ci_point[i].get_xcoordinate();
@@ -1066,11 +1153,240 @@ void Dam_CI_System::output_point_member(void) {
 			cout << W(13) << P(2) << FORMAT_FIXED_REAL << this->dam_ci_point[i].get_boundary_value();
 			cout << W(33) << P(0) << FORMAT_FIXED_REAL << this->dam_ci_point[i].get_point_name();
 			cout << W(13) << P(0) << FORMAT_FIXED_REAL << this->dam_ci_point[i].get_sec_level();
-			cout << W(13) << P(0) << FORMAT_FIXED_REAL << functions::convert_boolean2string(this->dam_ci_point[i].get_end_level_flag())<< endl;
+			cout << W(13) << P(2) << FORMAT_FIXED_REAL << this->dam_ci_point[i].get_recovery_time();
+			cout << W(13) << P(0) << FORMAT_FIXED_REAL << functions::convert_boolean2string(this->dam_ci_point[i].get_end_level_flag());	
+			cout << W(13) << P(0) << FORMAT_FIXED_REAL << functions::convert_boolean2string(this->dam_ci_point[i].get_regular_flag());
+			cout << W(13) << P(2) << FORMAT_FIXED_REAL << this->dam_ci_point[i].get_activation_time() << endl;
+			
 
 			Sys_Common_Output::output_dam->output_txt(&cout);
 		}
 	}
+
+}
+//Sum up the total point damage results for a given system-id and scenario (boundary-, break-) from the database
+void Dam_CI_System::sum_total_point_results(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz) {
+
+
+	QSqlQueryModel results;
+	int sec_id_buff = 0;
+	int sec_level_buff = 0;
+	bool reg_flag_buff = true;
+	double failure_dur_buff = 0.0;
+	_dam_ci_failure_type fail_type_buff = _dam_ci_failure_type::no_failure;
+
+	
+	Dam_CI_Point::select_data_in_erg_table(&results, ptr_database, id, bound_sz, break_sz);
+	for (int i = 0; i < results.rowCount(); i++) {
+		sec_id_buff = results.record(i).value((Dam_CI_Point::point_erg_table->get_column_name(dam_label::sector_id)).c_str()).toInt();
+		sec_level_buff = results.record(i).value((Dam_CI_Point::point_erg_table->get_column_name(dam_label::sector_level)).c_str()).toInt();
+		failure_dur_buff = results.record(i).value((Dam_CI_Point::point_erg_table->get_column_name(dam_label::failure_duration)).c_str()).toDouble();
+		reg_flag_buff= results.record(i).value((Dam_CI_Point::point_erg_table->get_column_name(dam_label::regular_flag)).c_str()).toBool();
+		fail_type_buff = _Dam_CI_Element::convert_txt2failuretype(results.record(i).value((Dam_CI_Point::point_erg_table->get_column_name(dam_label::failure_type)).c_str()).toString().toStdString());
+	
+		if (reg_flag_buff == true) {
+			//per failure type
+			if (fail_type_buff == _dam_ci_failure_type::direct) {
+				if (this->list_direct_failure_sec.count() == 0) {
+					//start
+					QList<int> buff;
+					buff.append(sec_id_buff);
+					buff.append(1);
+					this->list_direct_failure_sec.append(buff);
+				}
+				else {
+					bool found = false;
+					for (int j = 0; j < this->list_direct_failure_sec.count(); j++) {
+						if (sec_id_buff == this->list_direct_failure_sec[j].at(0)) {
+							//add to existing
+							int no = 0;
+							no = this->list_direct_failure_sec[j].at(1);
+							this->list_direct_failure_sec[j].replace(1,no+1);
+							found = true;
+							break;
+						}
+					}
+					if (found == false) {
+						//new list
+						QList<int> buff;
+						buff.append(sec_id_buff);
+						buff.append(1);
+						this->list_direct_failure_sec.append(buff);
+					}
+				}
+			}
+			else if (fail_type_buff == _dam_ci_failure_type::sectoral) {
+				if (this->list_sectoral_failure_sec.count() == 0) {
+					//start
+					QList<int> buff;
+					buff.append(sec_id_buff);
+					buff.append(1);
+					this->list_sectoral_failure_sec.append(buff);
+				}
+				else {
+					bool found = false;
+					for (int j = 0; j < this->list_sectoral_failure_sec.count(); j++) {
+						if (sec_id_buff == this->list_sectoral_failure_sec[j].at(0)) {
+							//add to existing
+							int no = 0;
+							no = this->list_sectoral_failure_sec[j].at(1);
+							this->list_sectoral_failure_sec[j].replace(1, no + 1);
+							found = true;
+							break;
+						}
+					}
+					if (found == false) {
+						//new list
+						QList<int> buff;
+						buff.append(sec_id_buff);
+						buff.append(1);
+						this->list_sectoral_failure_sec.append(buff);
+					}
+				}
+			}
+			else if (fail_type_buff == _dam_ci_failure_type::transsectoral) {
+				if (this->list_transsectoral_failure_sec.count() == 0) {
+					//start
+					QList<int> buff;
+					buff.append(sec_id_buff);
+					buff.append(1);
+					this->list_transsectoral_failure_sec.append(buff);
+				}
+				else {
+					bool found = false;
+					for (int j = 0; j < this->list_transsectoral_failure_sec.count(); j++) {
+						if (sec_id_buff == this->list_transsectoral_failure_sec[j].at(0)) {
+							//add to existing
+							int no = 0;
+							no = this->list_transsectoral_failure_sec[j].at(1);
+							this->list_transsectoral_failure_sec[j].replace(1, no + 1);
+							found = true;
+							break;
+						}
+					}
+					if (found == false) {
+						//new list
+						QList<int> buff;
+						buff.append(sec_id_buff);
+						buff.append(1);
+						this->list_transsectoral_failure_sec.append(buff);
+					}
+				}
+
+			}
+
+
+			//total failure per sector
+			if (this->list_total_failure_sec.count() == 0) {
+				//start
+				QList<int> buff;
+				buff.append(sec_id_buff);
+				buff.append(1);
+				this->list_total_failure_sec.append(buff);
+			}
+			else {
+				bool found = false;
+				for (int j = 0; j < this->list_total_failure_sec.count(); j++) {
+					if (sec_id_buff == this->list_total_failure_sec[j].at(0)) {
+						//add to existing
+						int no = 0;
+						no = this->list_total_failure_sec[j].at(1);
+						this->list_total_failure_sec[j].replace(1, no + 1);
+						found = true;
+						break;
+					}
+				}
+				if (found == false) {
+					//new list
+					QList<int> buff;
+					buff.append(sec_id_buff);
+					buff.append(1);
+					this->list_total_failure_sec.append(buff);
+				}
+			}
+
+			//total failure x level per sector
+			if (this->list_total_failure_level_sec.count() == 0) {
+				//start
+				QList<QVariant> buff;
+				buff.append(sec_id_buff);
+				buff.append(sec_level_buff*failure_dur_buff);
+				this->list_total_failure_level_sec.append(buff);
+			}
+			else {
+				bool found = false;
+				for (int j = 0; j < this->list_total_failure_level_sec.count(); j++) {
+					if (sec_id_buff == this->list_total_failure_level_sec[j].at(0)) {
+						//add to existing
+						double value = 0.0;
+						value = this->list_total_failure_level_sec[j].at(1).toDouble();
+						this->list_total_failure_level_sec[j].replace(1, value + sec_level_buff * failure_dur_buff);
+						found = true;
+						break;
+					}
+				}
+				if (found == false) {
+					//new list
+					QList<QVariant> buff;
+					buff.append(sec_id_buff);
+					buff.append(sec_level_buff * failure_dur_buff);
+					this->list_total_failure_level_sec.append(buff);
+				}
+			}
+		}
+		else{
+
+
+			//emergency activated
+			if (this->list_emergency_active_sec.count() == 0) {
+				//start
+				QList<int> buff;
+				buff.append(sec_id_buff);
+				buff.append(1);
+				this->list_emergency_active_sec.append(buff);
+			}
+			else {
+				bool found = false;
+				for (int j = 0; j < this->list_emergency_active_sec.count(); j++) {
+					if (sec_id_buff == this->list_emergency_active_sec[j].at(0)) {
+						//add to existing
+						int no = 0;
+						no = this->list_emergency_active_sec[j].at(1);
+						this->list_emergency_active_sec[j].replace(1, no + 1);
+						found = true;
+						break;
+					}
+				}
+				if (found == false) {
+					//new list
+					QList<int> buff;
+					buff.append(sec_id_buff);
+					buff.append(1);
+					this->list_emergency_active_sec.append(buff);
+				}
+			}
+			
+
+		}
+	
+	
+	}
+
+
+	//sum up
+	for (int i = 0; i < this->list_direct_failure_sec.count(); i++) {
+		this->tot_direct_failure = this->tot_direct_failure + this->list_direct_failure_sec[i].at(1);
+	}
+	for (int i = 0; i < this->list_sectoral_failure_sec.count(); i++) {
+		this->tot_sectoral_failure = this->tot_sectoral_failure + this->list_sectoral_failure_sec[i].at(1);
+	}
+	for (int i = 0; i < this->list_transsectoral_failure_sec.count(); i++) {
+		this->tot_transsectoral_failure = this->tot_transsectoral_failure + this->list_transsectoral_failure_sec[i].at(1);
+	}
+	for (int i = 0; i < this->list_emergency_active_sec.count(); i++) {
+		this->tot_emergency_active = this->tot_emergency_active + this->list_emergency_active_sec[i].at(1);
+	}
+
 
 }
 //Read in the CI polygon data from file
@@ -1529,6 +1845,87 @@ void Dam_CI_System::output_polygon_member(void) {
 		Sys_Common_Output::output_dam->output_txt(&cout);
 	}
 }
+//Sum up the total polygon damage results for a given system-id and scenario (boundary-, break-) from the database
+void Dam_CI_System::sum_total_polygon_results(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz) {
+
+	QSqlQueryModel results;
+	double buff_enduser = 0.0;
+	int sec_id_buff = 0;
+	double buff_enduser_duration = 0.0;
+
+	Dam_CI_Polygon::select_data_in_erg_table(&results, ptr_database, id, bound_sz, break_sz);
+	for (int i = 0; i < results.rowCount(); i++) {
+
+		sec_id_buff = results.record(i).value((Dam_CI_Polygon::polygon_erg_table->get_column_name(dam_label::sector_id)).c_str()).toInt();
+		buff_enduser_duration = results.record(i).value((Dam_CI_Polygon::polygon_erg_table->get_column_name(dam_label::enduser_duration)).c_str()).toDouble();
+		buff_enduser = results.record(i).value((Dam_CI_Polygon::polygon_erg_table->get_column_name(dam_label::end_user)).c_str()).toDouble();
+
+
+		//total enduser per sector
+		if (this->list_enduser_affected_sec.count() == 0) {
+			//start
+			QList<QVariant> buff;
+			buff.append(sec_id_buff);
+			buff.append(buff_enduser);
+			this->list_enduser_affected_sec.append(buff);
+		}
+		else {
+			bool found = false;
+			for (int j = 0; j < this->list_enduser_affected_sec.count(); j++) {
+				if (sec_id_buff == this->list_enduser_affected_sec[j].at(0)) {
+					//add to existing
+					double value = 0.0;
+					value = this->list_enduser_affected_sec[j].at(1).toDouble();
+					this->list_enduser_affected_sec[j].replace(1, value + buff_enduser);
+					found = true;
+					break;
+				}
+			}
+			if (found == false) {
+				//new list
+				QList<QVariant> buff;
+				buff.append(sec_id_buff);
+				buff.append(buff_enduser);
+				this->list_enduser_affected_sec.append(buff);
+			}
+		}
+		//total enduser x duration per sector
+		if (this->list_enduser_affected_duration_sec.count() == 0) {
+			//start
+			QList<QVariant> buff;
+			buff.append(sec_id_buff);
+			buff.append(buff_enduser_duration);
+			this->list_enduser_affected_duration_sec.append(buff);
+		}
+		else {
+			bool found = false;
+			for (int j = 0; j < this->list_enduser_affected_duration_sec.count(); j++) {
+				if (sec_id_buff == this->list_enduser_affected_duration_sec[j].at(0)) {
+					//add to existing
+					double value = 0.0;
+					value = this->list_enduser_affected_duration_sec[j].at(1).toDouble();
+					this->list_enduser_affected_duration_sec[j].replace(1, value + buff_enduser_duration);
+					found = true;
+					break;
+				}
+			}
+			if (found == false) {
+				//new list
+				QList<QVariant> buff;
+				buff.append(sec_id_buff);
+				buff.append(buff_enduser_duration);
+				this->list_enduser_affected_duration_sec.append(buff);
+			}
+		}
+
+
+	}
+	
+
+
+
+
+}
 //Read in the CI connection data from file
 void Dam_CI_System::read_connection_per_file(string fname) {
 	ifstream ifile;
@@ -1707,6 +2104,7 @@ void Dam_CI_System::read_connection_per_file(string fname) {
 
 					}
 					this->dam_ci_connection.elem_list.append(list_buff);
+					this->dam_ci_connection.check_members();
 				}
 				catch (Error msg) {
 					ostringstream info;
@@ -2389,6 +2787,37 @@ int Dam_CI_System::check_points_connected2hyd(void) {
 	}
 
 	return counter;
+}
+//Check the CI-system
+void Dam_CI_System::check_CI_system(void) {
+	ostringstream cout;
+	cout << "Check the CI-system..." << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+
+
+
+
+}
+//Reset results values
+void Dam_CI_System::reset_result_values(void) {
+
+	this->list_direct_failure_sec.clear();
+	this->list_sectoral_failure_sec.clear();
+	this->list_transsectoral_failure_sec.clear();
+	this->list_total_failure_sec.clear();
+	this->list_total_failure_level_sec.clear();
+	this->tot_direct_failure=0; 
+	this->tot_sectoral_failure=0;
+	this->tot_transsectoral_failure=0;
+
+	this->list_enduser_affected_sec.clear();
+	this->list_enduser_affected_duration_sec.clear();
+
+	this->list_emergency_active_sec.clear();
+
+	this->tot_emergency_active = 0;
+
 }
 //Set error(s)
 Error Dam_CI_System::set_error(const int err_type) {

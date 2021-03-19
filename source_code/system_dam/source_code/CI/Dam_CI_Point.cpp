@@ -38,6 +38,8 @@ void Dam_CI_Point::input_point_perdatabase(const QSqlQueryModel *results, const 
 		this->sector_name = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::sector_name)).c_str()).toString().toStdString();
 		this->boundary_value = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::boundary_value)).c_str()).toDouble();
 		this->recovery_time = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::recovery_time)).c_str()).toDouble();
+		this->regular_flag = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::regular_flag)).c_str()).toBool();
+		this->activation_time = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::activation_time)).c_str()).toDouble();
 		this->name = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::point_name)).c_str()).toString().toStdString();
 		this->final_flag = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::final_flag)).c_str()).toBool();
 		this->is_connected = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::raster_connected)).c_str()).toBool();
@@ -84,7 +86,7 @@ void Dam_CI_Point::create_point_table(QSqlDatabase *ptr_database) {
 		Sys_Common_Output::output_dam->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name = dam_label::tab_ci_point;
-		const int num_col = 19;
+		const int num_col = 21;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for (int i = 0; i < num_col; i++) {
@@ -144,30 +146,38 @@ void Dam_CI_Point::create_point_table(QSqlDatabase *ptr_database) {
 		tab_col[11].type = sys_label::tab_col_type_bool;
 		tab_col[11].default_value = "false";
 
+		tab_col[12].name = dam_label::regular_flag;
+		tab_col[12].type = sys_label::tab_col_type_bool;
+		tab_col[12].default_value = "true";
 
-		tab_col[12].name = dam_label::elem_mid_x;
-		tab_col[12].type = sys_label::tab_col_type_double;
-
-		tab_col[13].name = dam_label::elem_mid_y;
+		tab_col[13].name = dam_label::activation_time;
 		tab_col[13].type = sys_label::tab_col_type_double;
+		tab_col[13].default_value = "0.0";
 
-		tab_col[14].name = dam_label::sc_point;
-		tab_col[14].type = sys_label::tab_col_type_point;
 
-		tab_col[15].name = dam_label::conn_fp_id;
-		tab_col[15].type = sys_label::tab_col_type_int;
-		tab_col[15].default_value = "-1";
+		tab_col[14].name = dam_label::elem_mid_x;
+		tab_col[14].type = sys_label::tab_col_type_double;
 
-		tab_col[16].name = dam_label::conn_fp_elem_id;
-		tab_col[16].type = sys_label::tab_col_type_int;
-		tab_col[16].default_value = "-1";
+		tab_col[15].name = dam_label::elem_mid_y;
+		tab_col[15].type = sys_label::tab_col_type_double;
 
-		tab_col[17].name = dam_label::raster_connected;
-		tab_col[17].type = sys_label::tab_col_type_bool;
-		tab_col[17].default_value = "false";
+		tab_col[16].name = dam_label::sc_point;
+		tab_col[16].type = sys_label::tab_col_type_point;
 
-		tab_col[18].name = label::description;
-		tab_col[18].type = sys_label::tab_col_type_string;
+		tab_col[17].name = dam_label::conn_fp_id;
+		tab_col[17].type = sys_label::tab_col_type_int;
+		tab_col[17].default_value = "-1";
+
+		tab_col[18].name = dam_label::conn_fp_elem_id;
+		tab_col[18].type = sys_label::tab_col_type_int;
+		tab_col[18].default_value = "-1";
+
+		tab_col[19].name = dam_label::raster_connected;
+		tab_col[19].type = sys_label::tab_col_type_bool;
+		tab_col[19].default_value = "false";
+
+		tab_col[20].name = label::description;
+		tab_col[20].type = sys_label::tab_col_type_string;
 
 		try {
 			Dam_CI_Point::point_table = new Tables();
@@ -197,7 +207,7 @@ void Dam_CI_Point::set_point_table(QSqlDatabase *ptr_database, const bool not_cl
 	if (Dam_CI_Point::point_table == NULL) {
 		//make specific input for this class
 		const string tab_id_name = dam_label::tab_ci_point;
-		string tab_col[19];
+		string tab_col[21];
 
 		tab_col[0] = dam_label::glob_id;
 		tab_col[1] = dam_label::point_id;
@@ -220,6 +230,8 @@ void Dam_CI_Point::set_point_table(QSqlDatabase *ptr_database, const bool not_cl
 		tab_col[16] = dam_label::raster_connected;
 		tab_col[17] = label::description;
 		tab_col[18] = dam_label::recovery_time;
+		tab_col[19] = dam_label::regular_flag;
+		tab_col[20] = dam_label::activation_time;
 
 		
 
@@ -330,6 +342,8 @@ string Dam_CI_Point::get_insert_header_point_table(QSqlDatabase *ptr_database) {
 	query_string << Dam_CI_Point::point_table->get_column_name(dam_label::sector_level) << " , ";
 	query_string << Dam_CI_Point::point_table->get_column_name(dam_label::boundary_value) << " , ";
 	query_string << Dam_CI_Point::point_table->get_column_name(dam_label::recovery_time) << " , ";
+	query_string << Dam_CI_Point::point_table->get_column_name(dam_label::regular_flag) << " , ";
+	query_string << Dam_CI_Point::point_table->get_column_name(dam_label::activation_time) << " , ";
 	query_string << Dam_CI_Point::point_table->get_column_name(dam_label::final_flag) << " , ";
 	query_string << Dam_CI_Point::point_table->get_column_name(dam_label::elem_mid_x) << " , ";
 	query_string << Dam_CI_Point::point_table->get_column_name(dam_label::elem_mid_y) << " , ";
@@ -374,6 +388,8 @@ int Dam_CI_Point::select_relevant_points_database(QSqlQueryModel *results, QSqlD
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::boundary_value) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::final_flag) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::recovery_time) << " , ";
+	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::regular_flag) << " , ";
+	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::activation_time) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::raster_connected) << "  ";
 
 
@@ -445,6 +461,8 @@ int Dam_CI_Point::select_relevant_points_database(QSqlQueryModel *results, QSqlD
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::boundary_value) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::final_flag) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::recovery_time) << " , ";
+	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::regular_flag) << " , ";
+	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::activation_time) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::raster_connected) << "  ";
 
 
@@ -597,7 +615,7 @@ void Dam_CI_Point::create_erg_table(QSqlDatabase *ptr_database) {
 		Sys_Common_Output::output_dam->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name = dam_label::tab_ci_point_erg;
-		const int num_col = 12;
+		const int num_col = 13;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for (int i = 0; i < num_col; i++) {
@@ -657,9 +675,13 @@ void Dam_CI_Point::create_erg_table(QSqlDatabase *ptr_database) {
 		tab_col[10].type = sys_label::tab_col_type_double;
 		tab_col[10].default_value = "0.0";
 
+		tab_col[11].name = dam_label::regular_flag;
+		tab_col[11].type = sys_label::tab_col_type_bool;
+		tab_col[11].default_value = "true";
 
-		tab_col[11].name = dam_label::sc_point;
-		tab_col[11].type = sys_label::tab_col_type_point;
+
+		tab_col[12].name = dam_label::sc_point;
+		tab_col[12].type = sys_label::tab_col_type_point;
 
 		try {
 			Dam_CI_Point::point_erg_table = new Tables();
@@ -689,7 +711,7 @@ void Dam_CI_Point::set_erg_table(QSqlDatabase *ptr_database, const bool not_clos
 	if (Dam_CI_Point::point_erg_table == NULL) {
 		//make specific input for this class
 		const string tab_id_name = dam_label::tab_ci_point_erg;
-		string tab_col[12];
+		string tab_col[13];
 
 		tab_col[0] = dam_label::glob_id;
 		tab_col[1] = dam_label::point_id;
@@ -703,6 +725,7 @@ void Dam_CI_Point::set_erg_table(QSqlDatabase *ptr_database, const bool not_clos
 		tab_col[9] = dam_label::failure_type;
 		tab_col[10] = dam_label::failure_duration;
 		tab_col[11] = dam_label::sc_point;
+		tab_col[12] = dam_label::regular_flag;
 
 		try {
 			Dam_CI_Point::point_erg_table = new Tables(tab_id_name, tab_col, sizeof(tab_col) / sizeof(tab_col[0]));
@@ -908,7 +931,7 @@ string Dam_CI_Point::get_insert_header_erg_table(QSqlDatabase *ptr_database) {
 	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::sector_level) << " , ";
 	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::failure_type) << " , ";
 	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::failure_duration) << " , ";
-
+	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::regular_flag) << " , ";
 
 	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::sc_point) << ")";
 
@@ -935,6 +958,7 @@ int Dam_CI_Point::select_data_in_erg_table(QSqlQueryModel *results, QSqlDatabase
 	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::sector_level) << " , ";
 	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::failure_type) << " , ";
 	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::failure_duration) << " , ";
+	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::regular_flag) << " , ";
 
 	query_string << " ST_ASTEXT(" << Dam_CI_Point::point_erg_table->get_column_name(dam_label::sc_point) << ")";
 
@@ -987,6 +1011,7 @@ int Dam_CI_Point::select_data_in_erg_table(QSqlQueryModel *results, QSqlDatabase
 	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::sector_level) << " , ";
 	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::failure_type) << " , ";
 	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::failure_duration) << " , ";
+	query_string << Dam_CI_Point::point_erg_table->get_column_name(dam_label::regular_flag) << " , ";
 
 	query_string << " ST_ASTEXT(" << Dam_CI_Point::point_erg_table->get_column_name(dam_label::sc_point) << ")";
 
@@ -1385,7 +1410,7 @@ void Dam_CI_Point::copy_results(QSqlDatabase *ptr_database, const _sys_system_id
 		test_filter << Dam_CI_Point::point_erg_table->get_column_name(dam_label::sector_level) << " , ";
 		test_filter << Dam_CI_Point::point_erg_table->get_column_name(dam_label::failure_type) << " , ";
 		test_filter << Dam_CI_Point::point_erg_table->get_column_name(dam_label::failure_duration) << " , ";
-
+		test_filter << Dam_CI_Point::point_erg_table->get_column_name(dam_label::regular_flag) << " , ";
 
 
 
@@ -1415,7 +1440,7 @@ void Dam_CI_Point::create_instat_erg_table(QSqlDatabase *ptr_database) {
 		Sys_Common_Output::output_dam->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name = dam_label::tab_ci_point_instat_erg;
-		const int num_col = 13;
+		const int num_col = 14;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for (int i = 0; i < num_col; i++) {
@@ -1470,15 +1495,21 @@ void Dam_CI_Point::create_instat_erg_table(QSqlDatabase *ptr_database) {
 		tab_col[9].type = sys_label::tab_col_type_bool;
 		tab_col[9].default_value = "true";
 
-		tab_col[10].name = hyd_label::data_time;
+		tab_col[10].name = dam_label::failure_type;
 		tab_col[10].type = sys_label::tab_col_type_string;
-		tab_col[10].default_value = "";
 
-		tab_col[11].name = dam_label::failure_type;
-		tab_col[11].type = sys_label::tab_col_type_string;
+		tab_col[11].name = dam_label::regular_flag;
+		tab_col[11].type = sys_label::tab_col_type_bool;
+		tab_col[11].default_value = "true";
 
-		tab_col[12].name = dam_label::sc_point;
-		tab_col[12].type = sys_label::tab_col_type_point;
+		tab_col[12].name = hyd_label::data_time;
+		tab_col[12].type = sys_label::tab_col_type_string;
+		tab_col[12].default_value = "";
+
+
+
+		tab_col[13].name = dam_label::sc_point;
+		tab_col[13].type = sys_label::tab_col_type_point;
 
 		try {
 			Dam_CI_Point::point_instat_erg_table = new Tables();
@@ -1510,7 +1541,7 @@ void Dam_CI_Point::set_instat_erg_table(QSqlDatabase *ptr_database, const bool n
 	if (Dam_CI_Point::point_instat_erg_table == NULL) {
 		//make specific input for this class
 		const string tab_id_name = dam_label::tab_ci_point_instat_erg;
-		string tab_col[13];
+		string tab_col[14];
 
 		tab_col[0] = dam_label::glob_id;
 		tab_col[1] = dam_label::point_id;
@@ -1525,6 +1556,7 @@ void Dam_CI_Point::set_instat_erg_table(QSqlDatabase *ptr_database, const bool n
 		tab_col[10] = hyd_label::data_time;
 		tab_col[11] = dam_label::sector_level;
 		tab_col[12] = dam_label::failure_type;
+		tab_col[13] = dam_label::regular_flag;
 
 		try {
 			Dam_CI_Point::point_instat_erg_table = new Tables(tab_id_name, tab_col, sizeof(tab_col) / sizeof(tab_col[0]));
@@ -1730,6 +1762,7 @@ string Dam_CI_Point::get_insert_header_instat_erg_table(QSqlDatabase *ptr_databa
 	query_string << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::sector_level) << " , ";
 	query_string << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::active_flag) << " , ";
 	query_string << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::failure_type) << " , ";
+	query_string << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::regular_flag) << " , ";
 	query_string << Dam_CI_Point::point_instat_erg_table->get_column_name(hyd_label::data_time) << " , ";
 
 	query_string << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::sc_point) << ")";
@@ -1797,6 +1830,7 @@ void Dam_CI_Point::copy_instat_results(QSqlDatabase *ptr_database, const _sys_sy
 
 		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::sector_id) << " , ";
 		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::active_flag) << " , ";
+		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::regular_flag) << " , ";
 
 
 		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::sc_point) << "  ";
@@ -1827,13 +1861,20 @@ int Dam_CI_Point::get_sec_level(void) {
 
 }
 //Set the sector id, sector level, boundary value, recovery time, final flag
-void Dam_CI_Point::set_members(const int sector_id, const int sector_level, const double boundary, const double recovery_time, const bool final_flag) {
+void Dam_CI_Point::set_members(const int sector_id, const int sector_level, const double boundary, const double recovery_time, const bool final_flag, const bool regular, const double activation_time) {
 	this->sector_id = sector_id;
 	this->sector_name = this->convert_sector_id2txt(this->convert_id2enum(this->sector_id));
 	this->sector_level = sector_level;
 	this->boundary_value = boundary;
 	this->recovery_time = recovery_time;
 	this->final_flag = final_flag;
+	this->regular_flag = regular;
+	this->activation_time = activation_time;
+	if (this->regular_flag == false) {
+		this->active_flag = false;
+	}
+
+	this->check_members();
 
 }
 //Get the data-string to complete a insert-string for inserting the data of the point to database
@@ -1855,6 +1896,8 @@ string Dam_CI_Point::get_datastring_members2database(const int global_id) {
 	query_string << this->sector_level << " , ";
 	query_string << this->boundary_value << " , ";
 	query_string << this->recovery_time<< " , ";
+	query_string << "'" << functions::convert_boolean2string(this->regular_flag) << "' , ";
+	query_string << this->activation_time << " , ";
 	query_string << "'" << functions::convert_boolean2string(this->final_flag) << "' , ";
 	query_string << FORMAT_FIXED_REAL << P(8);
 	query_string << this->get_xcoordinate() << " , ";
@@ -1888,7 +1931,7 @@ string Dam_CI_Point::get_datastring_results2database(const int global_id, const 
 	query_string << this->sector_level << " , ";
 	query_string << "'" << this->failure_type << "' , ";
 	query_string << this->failure_duration << " , ";
-
+	query_string << "'" << functions::convert_boolean2string(this->regular_flag) << "' , ";
 	query_string << this->get_point2sql_string(this->x_coordinate, this->y_coordinate) << " ) ";
 
 	buffer = query_string.str();
@@ -1920,6 +1963,7 @@ string Dam_CI_Point::get_datastring_instat_results2database(const int global_id,
 	query_string << this->sector_level << " , ";
 	query_string << "'" << functions::convert_boolean2string(this->active_flag) << "' , ";
 	query_string << "'" << this->failure_type << "' , ";
+	query_string << "'" << functions::convert_boolean2string(this->regular_flag) << "' , ";
 	query_string << date_time << " , ";
 
 	query_string << this->get_point2sql_string(this->x_coordinate, this->y_coordinate) << " ) ";
@@ -1928,6 +1972,7 @@ string Dam_CI_Point::get_datastring_instat_results2database(const int global_id,
 	return buffer;
 
 }
+//Calculate direct damages
 void Dam_CI_Point::calculate_direct_damages(Dam_Impact_Values *impact) {
 	
 
