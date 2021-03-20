@@ -528,7 +528,24 @@ void Dam_CI_Element_List::output_connection(ostringstream *cout) {
 }
 //Check the last set connections
 void Dam_CI_Element_List::check_members(void) {
-
+	//check first polygon
+	if (this->elem_list.last().at(1)==1) {
+		Error msg = this->set_error(1);
+		ostringstream info;
+		info << "Id in        :" << this->elem_list.last().at(0) << endl;
+		info << "Id out       :" << this->elem_list.last().at(2) << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	//check circle
+	if (this->elem_list.last().at(0) == this->elem_list.last().at(2)) {
+		Error msg = this->set_error(2);
+		ostringstream info;
+		info << "Id in        :" << this->elem_list.last().at(0) << endl;
+		info << "Id out       :" << this->elem_list.last().at(2) << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
 
 
 
@@ -551,6 +568,18 @@ Error Dam_CI_Element_List::set_error(const int err_type) {
 		reason = "Can not allocate the memory";
 		help = "Check the memory";
 		type = 10;
+		break;
+	case 1://
+		place.append("check_members(void)");
+		reason = "The incoming (first) CI-structure is defined as polygon; just point-structures are allowed as incoming CI-element";
+		help = "Avoid circle; check CI-connection data";
+		type = 34;
+		break;
+	case 2://
+		place.append("check_members(void)");
+		reason = "The incoming (first) CI-structure is the same as the outgoing CI-structure (second)";
+		help = "Check CI-connection data; avoid circles in the CI-system";
+		type = 34;
 		break;
 	
 	default:

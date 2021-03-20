@@ -30,7 +30,7 @@ Dam_CI_System::~Dam_CI_System(void){
 //__________
 //public
 	///Transfer CI data from file to database: points, polygons, connections
-void Dam_CI_System::ci_data_file2database(QSqlDatabase *ptr_database) {
+void Dam_CI_System::ci_data_file2database(QSqlDatabase *ptr_database, const _sys_system_id id) {
 	try {
 		this->set_start_warnings_number();
 		//first delete all function data
@@ -109,8 +109,15 @@ void Dam_CI_System::ci_data_file2database(QSqlDatabase *ptr_database) {
 			Sys_Common_Output::output_dam->output_txt(&cout);
 		}
 
+	
+
+
 		
 		this->output_members();
+
+	
+		this->init_system();
+
 		this->set_warning_number();
 		cout << "Data-Import of the CI system is finished" << endl;
 		Sys_Common_Output::output_dam->output_txt(&cout);
@@ -335,9 +342,9 @@ void Dam_CI_System::output_result_damage(void) {
 	Sys_Common_Output::output_dam->set_userprefix(prefix.str());
 
 	ostringstream cout;
-	cout << "TOTAL RESULTS" << endl;
+	cout << "TOTAL RESULTS CI-SYSTEM" << endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
-	cout << " POINTS" << endl;
+	cout << " RESULT FOR CI-POINTS" << endl;
 	cout << "  Number direct failure total: " << this->tot_direct_failure << endl;
 	if (this->tot_direct_failure > 0) {
 		cout << "  Number direct failure per sector" << endl;
@@ -387,7 +394,7 @@ void Dam_CI_System::output_result_damage(void) {
 
 	cout << endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
-	cout << " POLYGONS" << endl;
+	cout << " RESULTS FOR CI-POLYGONS" << endl;
 	cout << "  Enduser affected per sector" << endl;
 	for (int i = 0; i < this->list_enduser_affected_sec.count(); i++) {
 		cout << "   " << _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(this->list_enduser_affected_sec[i].at(0).toInt())) << ": " << W(10) << P(2) << FORMAT_FIXED_REAL << this->list_enduser_affected_sec[i].at(1).toDouble() << endl;
@@ -1338,31 +1345,68 @@ void Dam_CI_System::sum_total_point_results(QSqlDatabase *ptr_database, const _s
 
 
 			//emergency activated
-			if (this->list_emergency_active_sec.count() == 0) {
-				//start
-				QList<int> buff;
-				buff.append(sec_id_buff);
-				buff.append(1);
-				this->list_emergency_active_sec.append(buff);
-			}
-			else {
-				bool found = false;
-				for (int j = 0; j < this->list_emergency_active_sec.count(); j++) {
-					if (sec_id_buff == this->list_emergency_active_sec[j].at(0)) {
-						//add to existing
-						int no = 0;
-						no = this->list_emergency_active_sec[j].at(1);
-						this->list_emergency_active_sec[j].replace(1, no + 1);
-						found = true;
-						break;
+			if (fail_type_buff == _dam_ci_failure_type::direct) {
+				//Add to normal list
+				//per failure type
+				if (fail_type_buff == _dam_ci_failure_type::direct || fail_type_buff == _dam_ci_failure_type::direct_activ) {
+					if (this->list_direct_failure_sec.count() == 0) {
+						//start
+						QList<int> buff;
+						buff.append(sec_id_buff);
+						buff.append(1);
+						this->list_direct_failure_sec.append(buff);
+					}
+					else {
+						bool found = false;
+						for (int j = 0; j < this->list_direct_failure_sec.count(); j++) {
+							if (sec_id_buff == this->list_direct_failure_sec[j].at(0)) {
+								//add to existing
+								int no = 0;
+								no = this->list_direct_failure_sec[j].at(1);
+								this->list_direct_failure_sec[j].replace(1, no + 1);
+								found = true;
+								break;
+							}
+						}
+						if (found == false) {
+							//new list
+							QList<int> buff;
+							buff.append(sec_id_buff);
+							buff.append(1);
+							this->list_direct_failure_sec.append(buff);
+						}
 					}
 				}
-				if (found == false) {
-					//new list
+
+
+			}
+			if(fail_type_buff == _dam_ci_failure_type::direct_activ || fail_type_buff == _dam_ci_failure_type::no_failure){
+				if (this->list_emergency_active_sec.count() == 0) {
+					//start
 					QList<int> buff;
 					buff.append(sec_id_buff);
 					buff.append(1);
 					this->list_emergency_active_sec.append(buff);
+				}
+				else {
+					bool found = false;
+					for (int j = 0; j < this->list_emergency_active_sec.count(); j++) {
+						if (sec_id_buff == this->list_emergency_active_sec[j].at(0)) {
+							//add to existing
+							int no = 0;
+							no = this->list_emergency_active_sec[j].at(1);
+							this->list_emergency_active_sec[j].replace(1, no + 1);
+							found = true;
+							break;
+						}
+					}
+					if (found == false) {
+						//new list
+						QList<int> buff;
+						buff.append(sec_id_buff);
+						buff.append(1);
+						this->list_emergency_active_sec.append(buff);
+					}
 				}
 			}
 			
@@ -2441,12 +2485,12 @@ Geo_Point Dam_CI_System::find_mid_point_CI_element(const int id, const int point
 		throw msg;
 	}
 	if (found_flag == false) {
-		Warning msg = this->set_warning(5);
+		Error msg = this->set_error(25);
 		ostringstream info;
 		info << "Id to connect                     : " << id << endl;
 		info << "Point flag (0:=point; 1:=polygon) : " << point_flag << endl;
 		msg.make_second_info(info.str());
-		msg.output_msg(4);
+		throw msg;
 
 	}
 	return buffer;
@@ -2477,19 +2521,19 @@ _Dam_CI_Element Dam_CI_System::find_CI_element(const int id, const int point_fla
 
 	}
 	else {
-	Error msg = this->set_error(24);
-	ostringstream info;
-	info << "Point flag: " << point_flag << endl;
-	msg.make_second_info(info.str());
-	throw msg;
+		Error msg = this->set_error(24);
+		ostringstream info;
+		info << "Point flag: " << point_flag << endl;
+		msg.make_second_info(info.str());
+		throw msg;
 	}
 	if (found_flag == false) {
-		Warning msg = this->set_warning(7);
+		Error msg = this->set_error(26);
 		ostringstream info;
 		info << "Id to connect                     : " << id << endl;
 		info << "Point flag (0:=point; 1:=polygon) : " << point_flag << endl;
 		msg.make_second_info(info.str());
-		msg.output_msg(4);
+		throw msg;
 
 	}
 	return buffer;
@@ -2794,9 +2838,45 @@ void Dam_CI_System::check_CI_system(void) {
 	cout << "Check the CI-system..." << endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
 
+	int count = 0;
+	try {
+		//check point
+		cout << "Check the CI-points..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout);
+		for (int i = 0; i < this->no_ci_point; i++) {
+			count = i;
+			this->dam_ci_point[i].check_connections();
+		}
+	}
+	catch(Error msg){
+		ostringstream info;
+		info << "Point Name       : " << this->dam_ci_point[count].get_point_name() << endl;
+		info << "Point Id         : " << this->dam_ci_point[count].get_number() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+
+	}
+	try {
+		cout << "Check the CI-polygons..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout);
+		for (int i = 0; i < this->no_ci_polygon; i++) {
+			count = i;
+			this->dam_ci_polygon[i].check_connections();
+			this->dam_ci_polygon[i].check_polygon_incoming();
+		}
+	}
+	catch (Error msg) {
+		ostringstream info;
+		info << "Polygon Name       : " << this->dam_ci_polygon[count].mid_point.get_point_name() << endl;
+		info << "Polygon Id         : " << this->dam_ci_polygon[count].mid_point.get_number() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
 
 
 
+	cout << "Check the CI-system finished" << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
 
 }
 //Reset results values
@@ -2968,13 +3048,25 @@ Error Dam_CI_System::set_error(const int err_type) {
 		place.append("find_mid_point_CI_element(const int i, const int point_flag)");
 		reason = "Wrong int for point flag";
 		help = "Check the connection data";
-		type = 6;
+		type = 5;
 		break;
 	case 24://not all connections are found
 		place.append("find_CI_element(const int i, const int point_flag)");
 		reason = "Wrong int for point flag";
 		help = "Check the connection data";
-		type = 6;
+		type = 5;
+		break;
+	case 25://connection not found
+		place.append("find_mid_point_CI_element(const int id, const int point_flag) ");
+		reason = "The connection is not found";
+		help = "Check the connection data and the relevant CI-point/-polygon data";
+		type = 34;
+		break;
+	case 26://connection not found
+		place.append("find_CI_element(const int id, const int point_flag) ");
+		reason = "The connection is not found";
+		help = "Check the connection data and the relevant CI-point/-polygon data";
+		type = 34;
 		break;
 	default:
 		place.append("set_error(const int err_type)");
@@ -3027,26 +3119,14 @@ Warning Dam_CI_System::set_warning(const int warn_type) {
 			help = "Check the file and the number of connection specification in file";
 			type = 1;
 			break;
-		case 5://connection not found
-			place.append("find_mid_point_CI_element(const int id, const int point_flag) ");
-			reason = "The connection is not found";
-			reaction = "No polyline is produced; connection is inactive";
-			help = "Check the connection data and the relevant CI-point/-polygon data";
-			type = 1;
-			break;
+
 		case 6://not all points are connected
 			place.append("check_system(void)");
 			reason = "Not all points are connected to the hydraulic system";
 			help = "Reconnect the CI-system";
 			type = 1;
 			break;
-		case 7://connection not found
-			place.append("find_CI_element(const int id, const int point_flag) ");
-			reason = "The connection is not found";
-			reaction = "No polyline is produced; connection is inactive";
-			help = "Check the connection data and the relevant CI-point/-polygon data";
-			type = 1;
-			break;
+
 		case 8://input datas can not submitted
 			place.append("transfer_connection_members2database(QSqlDatabase *ptr_database)");
 			reason = "Can not submit the CI-connection data to the database";

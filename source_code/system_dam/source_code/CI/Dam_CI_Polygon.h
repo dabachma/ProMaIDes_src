@@ -185,6 +185,9 @@ public:
 	///Finalize results
 	void finalize_results(void);
 
+	///Check polygon incoming 
+	void check_polygon_incoming(void);
+
 
 
 private:

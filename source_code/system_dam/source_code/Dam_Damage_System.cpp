@@ -323,7 +323,8 @@ void Dam_Damage_System::run(void){
 				break;
 			//CI
 			case(_dam_thread_type::dam_imp_ci_data):
-				this->ci_sys.ci_data_file2database(&this->qsqldatabase);
+				this->ci_sys.ci_data_file2database(&this->qsqldatabase,this->system_id);
+
 				break;
 			case(_dam_thread_type::dam_del_ci):
 				this->ci_sys.del_ci_data_database(&this->qsqldatabase);

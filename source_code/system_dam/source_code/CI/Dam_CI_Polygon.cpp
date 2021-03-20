@@ -1910,11 +1910,54 @@ void Dam_CI_Polygon::finalize_results(void) {
 	this->enduser_duration = this->enduser*this->failure_duration;
 
 }
+//Check polygon incoming 
+void Dam_CI_Polygon::check_polygon_incoming(void) {
+
+
+	if (this->sector_id < 10) {
+		for (int i = 0; i < this->no_incoming; i++) {
+			if (this->sector_id != this->incomings[i]->get_sector_id()) {
+				Error msg = this->set_error(1);
+				ostringstream info;
+				info << "Name                  :" << this->mid_point.get_point_name() << endl;
+				info << "Sector id             :" << this->sector_id << endl;
+				info << "Sector id incoming    :" << this->incomings[i]->get_sector_id() << endl;
+				msg.make_second_info(info.str());
+				throw msg;
+
+			}
+
+		}
+
+	}
+
+
+}
 //____________
 //private
 //Check the polygons
 void Dam_CI_Polygon::check_members(void) {
-
+	//check sec_id
+	if (this->sector_name == label::not_defined) {
+		Error msg = this->set_error(0);
+		ostringstream info;
+		info << "Name         :" << this->mid_point.get_point_name() << endl;
+		info << "Sector id    :" << this->sector_id << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	//recovery > 0
+	//enduser > 0
+	if (this->enduser <= 0.0) {
+		Warning msg = this->set_warning(1);
+		ostringstream info;
+		info << "Name         :" << this->mid_point.get_point_name() << endl;
+		info << "Sector id    :" << this->sector_id << endl;
+		info << "Sector name  :" << this->sector_name << endl;
+		msg.make_second_info(info.str());
+		this->enduser = 1.0;
+		msg.output_msg(4);
+	}
 
 
 
@@ -2091,9 +2134,17 @@ Warning Dam_CI_Polygon::set_warning(const int warn_type) {
 	switch (warn_type) {
 	case 0://input datas can not submitted the data
 		place.append("transfer_polygon_point2database_table(QSqlDatabase *ptr_database, const int poly_id)");
-		reason = "Can not submit the CI polygon point data  to the database";
+		reason = "Can not submit the CI polygon point data to the database";
+		reaction = "No data submitted";
 		help = "Check the database";
 		type = 2;
+		break;
+	case 1:
+		place.append("check_members(void)");
+		reason = "The enduser for a CI-structure is <= 0.0 ; it must be > 0.0 ";
+		reaction = "The enduser is set to 1.0 ";
+		help = "Check CI-polygon data";
+		type = 27;
 		break;
 	default:
 		place.append("set_warning(const int warn_type)");
@@ -2117,10 +2168,16 @@ Error Dam_CI_Polygon::set_error(const int err_type) {
 
 	switch (err_type) {
 	case 0://bad alloc
-		place.append("allocate_impact_floodplain(void)");
-		reason = "Can not allocate the memory";
-		help = "Check the memory";
-		type = 10;
+		place.append("check_members(void)");
+		reason = "The CI-sector is not defined; sectors are available between 1 - 4 and 10 - 19";
+		help = "Check CI-polygon data";
+		type = 34;
+		break;
+	case 1://bad alloc
+		place.append("check_polygon_incoming(void)");
+		reason = "The CI-sector is 1 - 4; for these CI-polygons just incomings of the same sector are allowed ";
+		help = "Check CI-polygon data and their connections";
+		type = 34;
 		break;
 	
 	default:

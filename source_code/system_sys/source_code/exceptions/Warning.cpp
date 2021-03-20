@@ -318,6 +318,9 @@ string Warning::warning_type_translation(void){
 			case 26:
 				cout << "FPL slope Warning " << endl;
 				break;
+			case 27:
+				cout << "CI-system Waring" << endl;
+				break;
 			default:
 				cout << "Unknown Warning " << endl;
 		}		

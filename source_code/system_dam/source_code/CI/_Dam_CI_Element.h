@@ -68,8 +68,10 @@ enum _dam_ci_failure_type {
 	sectoral= 2,
 	///Transsectoral
 	transsectoral = 3,
+	///Direct but activated; just for emergency CI-elements
+	direct_activ = 4,
 
-	undefined_failure = 4
+	undefined_failure = 5
 };
 
 
@@ -164,6 +166,9 @@ public:
 	static string convert_sector_id2txt(const _dam_ci_sector sec);
 	///Transfer the sector id in the enum _dam_sc_category
 	static _dam_ci_sector convert_id2enum(const int id);
+
+	///Check the connection of the CI-elements
+	void check_connections(void);
 
 	///Copy operator
 	_Dam_CI_Element& operator=(const _Dam_CI_Element& object);

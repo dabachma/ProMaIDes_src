@@ -39,7 +39,7 @@ _Dam_CI_Element::_Dam_CI_Element(void):block_elems(50){
 	this->regular_flag =true;
 
 	//count the memory
-	Sys_Memory_Count::self()->add_mem(sizeof(_Dam_CI_Element)+sizeof(QList<QList<int>>), _sys_system_modules::DAM_SYS);
+	Sys_Memory_Count::self()->add_mem(sizeof(_Dam_CI_Element)+ 2*sizeof(QList<QList<int>>), _sys_system_modules::DAM_SYS);
 }
 //Copy constructor
 _Dam_CI_Element::_Dam_CI_Element(const _Dam_CI_Element& object) :block_elems(50) {
@@ -90,7 +90,7 @@ _Dam_CI_Element::~_Dam_CI_Element(void){
 	this->delete_incomings();
 	this->delete_outgoing();
 	//count the memory
-	Sys_Memory_Count::self()->minus_mem(sizeof(_Dam_CI_Element) +   sizeof(QList<QList<int>>), _sys_system_modules::DAM_SYS);
+	Sys_Memory_Count::self()->minus_mem(sizeof(_Dam_CI_Element) +   2*sizeof(QList<QList<int>>), _sys_system_modules::DAM_SYS);
 
 }
 //__________
@@ -424,9 +424,28 @@ void _Dam_CI_Element::calculate_indirect_damages(void) {
 				if (this->list_sec_emergency[i].at(0) == list_sec_failure.at(l)) {
 					for (int j = 1; j < this->list_sec_emergency[i].count(); j++) {
 						if (this->incomings[this->list_sec_emergency[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
-							this->incomings[this->list_sec_emergency[i].at(j)]->set_active_flag(true);
-							this->incomings[this->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
-							buff_list.replace(l,min(buff_list.at(l), this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time()));
+							if (this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
+								this->incomings[this->list_sec_emergency[i].at(j)]->set_active_flag(true);
+								this->incomings[this->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
+								buff_list.replace(l, min(buff_list.at(l), this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time()));
+								if (j > 2) {
+									this->incomings[this->list_sec_emergency[i].at(j-1)]->set_active_flag(false);
+									this->incomings[this->list_sec_emergency[i].at(j-1)]->set_was_affected_flag(false);
+								}
+							}
+						}
+						else {
+							if (this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
+								this->incomings[this->list_sec_emergency[i].at(j)]->set_active_flag(true);
+								this->incomings[this->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
+								this->incomings[this->list_sec_emergency[i].at(j)]->set_failure_type(_dam_ci_failure_type::direct_activ);
+								buff_list.replace(l, min(buff_list.at(l), this->incomings[this->list_sec_emergency[i].at(j)]->get_recovery_time()));
+								if (j > 2) {
+									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_active_flag(false);
+									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_was_affected_flag(false);
+									this->incomings[this->list_sec_emergency[i].at(j-1)]->set_failure_type(_dam_ci_failure_type::direct);
+								}
+							}
 						}
 					}
 
@@ -504,6 +523,9 @@ _dam_ci_failure_type _Dam_CI_Element::convert_txt2failuretype(const string txt) 
 	}
 	else if (txt == dam_label::transsectoral_failure) {
 		buff = _dam_ci_failure_type::transsectoral;
+	}
+	else if (txt == dam_label::direct_active_failure) {
+		buff = _dam_ci_failure_type::direct_activ;
 	}
 	else {
 
@@ -621,6 +643,45 @@ _dam_ci_sector _Dam_CI_Element::convert_id2enum(const int id) {
 
 	return buffer;
 }
+///Check the connection of the CI-elements
+void _Dam_CI_Element::check_connections(void) {
+
+	if (this->final_flag == true) {
+		if (this->no_outgoing > 0) {
+			Error msg = this->set_error(4);
+			ostringstream info;
+			info << "Sector id    :" << this->sector_id << endl;
+			info << "Sector name  :" << this->sector_name << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+
+	}
+	if (this->regular_flag == false) {
+		if (this->no_incoming > 0) {
+			Error msg = this->set_error(5);
+			ostringstream info;
+			info << "Sector id    :" << this->sector_id << endl;
+			info << "Sector name  :" << this->sector_name << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+		for (int i = 0; i < this->no_outgoing; i++) {
+			if (this->outgoing[i]->get_end_level_flag() == false) {
+				Error msg = this->set_error(6);
+				ostringstream info;
+				info << "Sector id    :" << this->sector_id << endl;
+				info << "Sector name  :" << this->sector_name << endl;
+				msg.make_second_info(info.str());
+				throw msg;
+
+			}
+		}
+
+	}
+
+
+}
 //Copy operator
 _Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
 	//Boundary value (waterlevel), when the CI element fails
@@ -687,6 +748,9 @@ string _Dam_CI_Element::convert_failuretype2txt(const _dam_ci_failure_type type)
 	case _dam_ci_failure_type::transsectoral:
 		buffer = dam_label::transsectoral_failure;
 		break;
+	case _dam_ci_failure_type::direct_activ:
+		buffer = dam_label::direct_active_failure;
+		break;
 	
 	default:
 		buffer = label::not_defined;
@@ -709,6 +773,9 @@ _dam_ci_failure_type _Dam_CI_Element::convert_failuretype2enum(const int id) {
 		break;
 	case 3:
 		buffer = _dam_ci_failure_type::transsectoral;
+		break;
+	case 4:
+		buffer = _dam_ci_failure_type::direct_activ;
 		break;
 	
 
@@ -798,6 +865,24 @@ Error _Dam_CI_Element::set_error(const int err_type) {
 		reason = "Can not allocate the memory";
 		help = "Check the memory";
 		type = 10;
+		break;
+	case 4://final has outgoings
+		place.append("check_connections(void)");
+		reason = "Final CI-elments has outgoing connections; this is not possible!";
+		help = "Check the connections";
+		type = 34;
+		break;
+	case 5://incomings by emergence
+		place.append("check_connections(void)");
+		reason = "An emergency CI-element has incomings; this is not possible!";
+		help = "Check the connections";
+		type = 34;
+		break;
+	case 6://incomings by emergence
+		place.append("check_connections(void)");
+		reason = "An emergency CI-element has an outgoing CI-element which is not a final user; this is not possible!";
+		help = "Check the connections";
+		type = 34;
 		break;
 	default:
 		place.append("set_error(const int err_type)");

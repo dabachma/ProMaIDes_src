@@ -47,7 +47,7 @@ public:
 	//method
 
 	///Transfer CI data from file to database: points, polygons, connections
-	void ci_data_file2database(QSqlDatabase *ptr_database);
+	void ci_data_file2database(QSqlDatabase *ptr_database, const _sys_system_id id);
 
 
 	///Delete all CI data in the database: points, polygons, connections, results etc.

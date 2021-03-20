@@ -366,6 +366,9 @@ string Error::error_type_translation(void){
 		case 33:
 			cout << "Resources error" << endl;
 			break;
+		case 34:
+			cout << "CI-system error" << endl;
+			break;
 		default:
 			cout << "Unknown Error " << endl;
 

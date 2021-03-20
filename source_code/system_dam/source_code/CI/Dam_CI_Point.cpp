@@ -2007,7 +2007,62 @@ void Dam_CI_Point::calculate_direct_damages_instationary(Dam_Impact_Values *impa
 //Check the points
 void Dam_CI_Point::check_members(void) {
 
-
+	//check sec_id
+	if(this->sector_name == label::not_defined) {
+		Error msg = this->set_error(0);
+		ostringstream info;
+		info << "Name         :" << this->name << endl;
+		info << "Sector id    :" << this->sector_id << endl;
+		info << "Sector level :" << this->sector_level << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+	//recovery > 0
+	if (this->recovery_time <= 0.0) {
+		Warning msg = this->set_warning(0);
+		ostringstream info;
+		info << "Name         :" << this->name << endl;
+		info << "Sector id    :" << this->sector_id << endl;
+		info << "Sector name  :" << this->sector_name << endl;
+		info << "Sector level :" << this->sector_level << endl;
+		msg.make_second_info(info.str());
+		this->recovery_time=0.01;
+		msg.output_msg(4);		
+	}
+	if (this->activation_time < 0.0) {
+		Warning msg = this->set_warning(1);
+		ostringstream info;
+		info << "Name         :" << this->name << endl;
+		info << "Sector id    :" << this->sector_id << endl;
+		info << "Sector name  :" << this->sector_name << endl;
+		info << "Sector level :" << this->sector_level << endl;
+		msg.make_second_info(info.str());
+		this->activation_time= 0.0;
+		msg.output_msg(4);
+	}
+	//activation > recovery> 0
+	if (this->regular_flag==false && this->recovery_time < this->activation_time) {
+		Warning msg = this->set_warning(2);
+		ostringstream info;
+		info << "Name         :" << this->name << endl;
+		info << "Sector id    :" << this->sector_id << endl;
+		info << "Sector name  :" << this->sector_name << endl;
+		info << "Sector level :" << this->sector_level << endl;
+		msg.make_second_info(info.str());
+		this->recovery_time = this->activation_time;
+		msg.output_msg(4);
+	}
+	//emergency just 1-10
+	if (this->regular_flag == false && this->sector_id > 9) {
+		Error msg = this->set_error(1);
+		ostringstream info;
+		info << "Name         :" << this->name << endl;
+		info << "Sector id    :" << this->sector_id << endl;
+		info << "Sector name  :" << this->sector_name << endl;
+		info << "Sector level :" << this->sector_level << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
 
 
 }
@@ -2022,12 +2077,26 @@ Warning Dam_CI_Point::set_warning(const int warn_type) {
 	stringstream info;
 
 	switch (warn_type) {
-	case 0://the type of thread is not specified
-		place.append("run(void)");
-		reason = "The thread type is unknown";
-		reaction = "No thread is launched";
-		help = "Check the source code";
-		type = 5;
+	case 0://recovery time<0
+		place.append("check_members(void)");
+		reason = "The recovery time for a CI-structure is <= 0.0 d; it must be > 0.0 d";
+		reaction = "The recovery time is set to 0.01 d ";
+		help = "Check CI-point data";
+		type = 27;
+		break;
+	case 1://activation time<0
+		place.append("check_members(void)");
+		reason = "The activation time for a CI-structure is < 0.0 d; it must be >= 0.0 d";
+		reaction = "The activation time is set to 0.0 d ";
+		help = "Check CI-point data";
+		type = 27;
+		break;
+	case 2://activation time>recovery
+		place.append("check_members(void)");
+		reason = "The activation time for a CI-structure is > the recovery time; the recovery time includes the activation time";
+		reaction = "The recovery time is set to activation time";
+		help = "Check CI-point data";
+		type = 27;
 		break;
 	default:
 		place.append("set_warning(const int warn_type)");
@@ -2050,13 +2119,18 @@ Error Dam_CI_Point::set_error(const int err_type) {
 	Error msg;
 
 	switch (err_type) {
-	case 0://bad alloc
-		place.append("allocate_impact_floodplain(void)");
-		reason = "Can not allocate the memory";
-		help = "Check the memory";
-		type = 10;
+	case 0://sec_type
+		place.append("check_members(void)");
+		reason = "The CI-sector is not defined; sectors are available between 1 - 4 and 10 - 19";
+		help = "Check CI-point data";
+		type = 34;
 		break;
-
+	case 1://sec_type
+		place.append("check_members(void)");
+		reason = "A emergency CI-strcuture needs to have an sector type between 1 - 4!";
+		help = "Check CI-point data";
+		type = 34;
+		break;
 	default:
 		place.append("set_error(const int err_type)");
 		reason = "Unknown flag!";
