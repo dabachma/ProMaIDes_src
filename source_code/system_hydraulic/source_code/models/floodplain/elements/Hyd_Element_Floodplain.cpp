@@ -1287,6 +1287,126 @@ bool Hyd_Element_Floodplain::check_calc_in_erg_table(QSqlQueryModel *query, QSql
 
     return calc;
 }
+//Select the data in the database table for the instationary results of the river profiles specified by the system id and the scenario-ids (static)
+int Hyd_Element_Floodplain::select_data_in_instat_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag) {
+
+
+	int number = 0;
+	try {
+		Hyd_Element_Floodplain::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+
+	ostringstream test_filter;
+	test_filter << "SELECT ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_glob_id) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_fpno) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_id) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_h_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_vtot_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_dsdt_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::data_time) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_hv_max) << "  ";
+
+	test_filter << " FROM " << Hyd_Element_Floodplain::erg_instat_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " = '" << break_sz << "'";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " = " << bound_sz;
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::applied_flag) << "= true";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " AND (";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << 0;
+	test_filter << " OR ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " ) ";
+	test_filter << " AND ";
+	if (like_flag == false) {
+		test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " = '" << break_sz << "'";
+	}
+	else {
+		test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " LIKE '" << break_sz << "'";
+	}
+	test_filter << " ORDER BY " << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_glob_id);
+
+	Data_Base::database_request(query, test_filter.str(), ptr_database);
+
+	//check the request
+	if (query->lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Hyd_Element_Floodplain::select_data_in_instat_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz , const bool like_flag)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << query->lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	number = query->rowCount();
+
+	return number;
+}
+//Select the data if a flood szenario is calculated specified by the system id and the scenario-ids (static)
+bool Hyd_Element_Floodplain::check_calc_in_instat_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag) {
+
+	bool calc = false;
+	try {
+		Hyd_Element_Floodplain::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+	ostringstream test_filter;
+	test_filter << "SELECT EXISTS (SELECT ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_id);
+
+	test_filter << " FROM " << Hyd_Element_Floodplain::erg_instat_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " = '" << break_sz << "'";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " = " << bound_sz;
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::applied_flag) << "= true";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " AND (";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << 0;
+	test_filter << " OR ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " ) ";
+	test_filter << " AND ";
+	if (like_flag == false) {
+		test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " = '" << break_sz << "'";
+	}
+	else {
+		test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " LIKE '" << break_sz << "'";
+	}
+	test_filter << " ) ";
+
+	Data_Base::database_request(query, test_filter.str(), ptr_database);
+
+	//check the request
+	if (query->lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Hyd_Element_Floodplain::check_calc_in_instat_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz , const bool like_flag)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << query->lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	calc = query->record(0).field(0).value().toBool();
+
+	return calc;
+
+}
 //Delete the results data in the result database table for a given boundary scenario (static)
 void Hyd_Element_Floodplain::delete_results_by_scenario(QSqlDatabase *ptr_database, const int sc_id){
 	QSqlQueryModel results;
@@ -2009,7 +2129,7 @@ void Hyd_Element_Floodplain::create_erg_instat_table(QSqlDatabase *ptr_database)
 		Sys_Common_Output::output_hyd->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name = hyd_label::tab_fpelem_erg_instat;
-		const int num_col = 16;
+		const int num_col = 18;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for (int i = 0; i < num_col; i++) {
@@ -2028,67 +2148,77 @@ void Hyd_Element_Floodplain::create_erg_instat_table(QSqlDatabase *ptr_database)
 		tab_col[1].unsigned_flag = true;
 
 
-		tab_col[2].name = label::areastate_id;
+		tab_col[2].name = hyd_label::elemdata_fpno;
 		tab_col[2].type = sys_label::tab_col_type_int;
 		tab_col[2].unsigned_flag = true;
 		tab_col[2].key_flag = true;
 
-		tab_col[3].name = label::measure_id;
+		tab_col[3].name = hyd_label::elemdata_id;
 		tab_col[3].type = sys_label::tab_col_type_int;
 		tab_col[3].unsigned_flag = true;
-		tab_col[3].key_flag = true;
 
-		tab_col[4].name = label::applied_flag;
-		tab_col[4].type = sys_label::tab_col_type_bool;
-		tab_col[4].default_value = "true";
+
+		tab_col[4].name = label::areastate_id;
+		tab_col[4].type = sys_label::tab_col_type_int;
+		tab_col[4].unsigned_flag = true;
 		tab_col[4].key_flag = true;
 
-		tab_col[5].name = hyd_label::sz_bound_id;
+		tab_col[5].name = label::measure_id;
 		tab_col[5].type = sys_label::tab_col_type_int;
 		tab_col[5].unsigned_flag = true;
 		tab_col[5].key_flag = true;
 
-		tab_col[6].name = risk_label::sz_break_id;
-		tab_col[6].type = sys_label::tab_col_type_string;
+		tab_col[6].name = label::applied_flag;
+		tab_col[6].type = sys_label::tab_col_type_bool;
+		tab_col[6].default_value = "true";
 		tab_col[6].key_flag = true;
 
-		tab_col[7].name = hyd_label::elemerg_h_max;
-		tab_col[7].type = sys_label::tab_col_type_double;
+		tab_col[7].name = hyd_label::sz_bound_id;
+		tab_col[7].type = sys_label::tab_col_type_int;
 		tab_col[7].unsigned_flag = true;
-		tab_col[7].default_value = "0.0";
+		tab_col[7].key_flag = true;
 
+		tab_col[8].name = risk_label::sz_break_id;
+		tab_col[8].type = sys_label::tab_col_type_string;
+		tab_col[8].key_flag = true;
 
-
-		tab_col[8].name = hyd_label::elemerg_dsdt_max;
-		tab_col[8].type = sys_label::tab_col_type_double;
-		tab_col[8].default_value = "0.0";
-
-		tab_col[9].name = hyd_label::elemerg_vx_max;
+		tab_col[9].name = hyd_label::elemerg_h_max;
 		tab_col[9].type = sys_label::tab_col_type_double;
+		tab_col[9].unsigned_flag = true;
 		tab_col[9].default_value = "0.0";
 
-		tab_col[10].name = hyd_label::elemerg_vy_max;
+
+
+		tab_col[10].name = hyd_label::elemerg_dsdt_max;
 		tab_col[10].type = sys_label::tab_col_type_double;
 		tab_col[10].default_value = "0.0";
 
-		tab_col[11].name = hyd_label::elemerg_vtot_max;
+		tab_col[11].name = hyd_label::elemerg_vx_max;
 		tab_col[11].type = sys_label::tab_col_type_double;
 		tab_col[11].default_value = "0.0";
 
-		tab_col[12].name = hyd_label::elemerg_hv_max;
+		tab_col[12].name = hyd_label::elemerg_vy_max;
 		tab_col[12].type = sys_label::tab_col_type_double;
 		tab_col[12].default_value = "0.0";
 
-		tab_col[13].name = hyd_label::elemerg_s_max;
+		tab_col[13].name = hyd_label::elemerg_vtot_max;
 		tab_col[13].type = sys_label::tab_col_type_double;
 		tab_col[13].default_value = "0.0";
 
-		tab_col[14].name = hyd_label::data_time;
-		tab_col[14].type = sys_label::tab_col_type_string;
-		tab_col[14].default_value = "";
+		tab_col[14].name = hyd_label::elemerg_hv_max;
+		tab_col[14].type = sys_label::tab_col_type_double;
+		tab_col[14].default_value = "0.0";
 
-		tab_col[15].name = hyd_label::elemdata_polygon;
-		tab_col[15].type = sys_label::tab_col_type_polygon;
+		tab_col[15].name = hyd_label::elemerg_s_max;
+		tab_col[15].type = sys_label::tab_col_type_double;
+		tab_col[15].default_value = "0.0";
+
+		tab_col[16].name = hyd_label::data_time;
+		tab_col[16].type = sys_label::tab_col_type_string;
+		tab_col[16].default_value = "";
+
+		tab_col[17].name = hyd_label::elemdata_polygon;
+		tab_col[17].type = sys_label::tab_col_type_polygon;
 
 
 		try {
@@ -2208,7 +2338,7 @@ void Hyd_Element_Floodplain::set_erg_instat_table(QSqlDatabase *ptr_database, co
 	if (Hyd_Element_Floodplain::erg_instat_table == NULL) {
 		//make specific input for this class
 		const string tab_id_name = hyd_label::tab_fpelem_erg_instat;
-		string tab_id_col[16];
+		string tab_id_col[18];
 		tab_id_col[0] = label::areastate_id;
 		tab_id_col[1] = label::measure_id;
 		tab_id_col[2] = hyd_label::sz_bound_id;
@@ -2225,6 +2355,8 @@ void Hyd_Element_Floodplain::set_erg_instat_table(QSqlDatabase *ptr_database, co
 		tab_id_col[13] = label::glob_id;
 		tab_id_col[14] = hyd_label::data_time;
 		tab_id_col[15] = hyd_label::elemdata_polygon;
+		tab_id_col[16] = hyd_label::elemdata_fpno;
+		tab_id_col[17] = hyd_label::elemdata_id;
 
 		try {
 			Hyd_Element_Floodplain::erg_instat_table = new Tables(tab_id_name, tab_id_col, sizeof(tab_id_col) / sizeof(tab_id_col[0]));
@@ -2321,6 +2453,8 @@ void Hyd_Element_Floodplain::copy_instat_results(QSqlDatabase *ptr_database, con
 		test_filter << dest.area_state << " , ";
 		test_filter << dest.measure_nr << " , ";
 		test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::applied_flag) << " , ";
+		test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_polygon) << " , ";
+		test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_fpno) << " , ";
 		test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " , ";
 		test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " , ";
 		test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_h_max) << " , ";
@@ -3066,6 +3200,10 @@ string Hyd_Element_Floodplain::get_insert_header_erg_instat_data_table(QSqlDatab
 	query_string << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " , ";
 	query_string << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " , ";
 	query_string << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_glob_id) << " , ";
+	query_string << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_fpno) << " , ";
+	query_string << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_id) << " , ";
+
+
 	//max values
 	query_string << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_h_max) << " , ";
 	query_string << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_s_max) << " , ";
@@ -3087,7 +3225,7 @@ string Hyd_Element_Floodplain::get_insert_header_erg_instat_data_table(QSqlDatab
 
 }
 //Get a string for transfering the instationary result data to database 
-string Hyd_Element_Floodplain::get_datastring_erg_instat_2database(const int id, const int elem_id, const string break_sz, const string time, const _hyd_floodplain_geo_info geo_info) {
+string Hyd_Element_Floodplain::get_datastring_erg_instat_2database(const int id, const int fp_number, const int elem_id, const string break_sz, const string time, const _hyd_floodplain_geo_info geo_info) {
 	string buffer = label::not_set;
 
 	if (this->element_type->get_was_wet_flag() == false && id !=0 ) {
@@ -3102,6 +3240,8 @@ string Hyd_Element_Floodplain::get_datastring_erg_instat_2database(const int id,
 	query_string << this->hyd_sz->get_id() << " , ";
 	query_string << "'" << break_sz << "' , ";
 	query_string << this->glob_elem_number << " , ";
+	query_string << fp_number << " , ";
+	query_string << this->elem_number << " , ";
 	this->element_type->set_instat_value2querystring(&query_string);
 	query_string << time << " , ";
 

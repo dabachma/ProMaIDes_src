@@ -802,6 +802,8 @@ private slots:
 	void connect_damage_rasters(void);
 	///Calculate the damages for selected nobreak-scenarios (menu dam/System/)
 	void calculate_damage_nobreak_sz(void);
+	///Calculate the instationary damages for selected nobreak-scenarios (menu dam/System/)
+	void calculate_instat_damage_nobreak_sz(void);
 
 	///Recieve enabling/disabling the stop-at-next-step action (menu risk/calculation/catchment risk)
 	void enable_stop_at_next_step_action(const bool flag);

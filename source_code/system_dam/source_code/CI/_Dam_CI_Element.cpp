@@ -679,6 +679,23 @@ void _Dam_CI_Element::check_connections(void) {
 		}
 
 	}
+	if (this->final_flag && this->sector_id <= 4){
+		for (int i = 0; i < this->no_incoming; i++) {
+			if (this->incomings[i]->get_sector_id() != this->sector_id) {
+				Error msg = this->set_error(7);
+				ostringstream info;
+				info << "Sector id              :" << this->sector_id << endl;
+				info << "Sector name           :" << this->sector_name << endl;
+				info << "Sector id incoming    :" << this->incomings[i]->get_sector_id() << endl;
+				info << "Sector name incoming  :" << this->incomings[i]->get_sector_name() << endl;
+				msg.make_second_info(info.str());
+				throw msg;
+
+			}
+		}
+
+
+	}
 
 
 }
@@ -874,13 +891,19 @@ Error _Dam_CI_Element::set_error(const int err_type) {
 		break;
 	case 5://incomings by emergence
 		place.append("check_connections(void)");
-		reason = "An emergency CI-element has incomings; this is not possible!";
+		reason = "An emergency CI-point has incomings; this is not possible!";
 		help = "Check the connections";
 		type = 34;
 		break;
 	case 6://incomings by emergence
 		place.append("check_connections(void)");
-		reason = "An emergency CI-element has an outgoing CI-element which is not a final user; this is not possible!";
+		reason = "An emergency CI-point has an outgoing CI-element which is not a final user; this is not possible!";
+		help = "Check the connections";
+		type = 34;
+		break;
+	case 7://
+		place.append("check_connections(void)");
+		reason = "An CI-polygon with sector id 1 - 4 is enduser; just incommings from the same sector are allowed";
 		help = "Check the connections";
 		type = 34;
 		break;

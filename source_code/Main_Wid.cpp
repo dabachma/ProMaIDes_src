@@ -527,6 +527,9 @@ void Main_Wid::slot_connect_dam(void){
 	QObject::connect(this->action_dam_connect, SIGNAL(triggered()), this, SLOT(connect_damage_rasters()));
 	//Calculate the damages for selected nobreak-scenarios (menu dam/System/)
 	QObject::connect(this->action_dam_calculate, SIGNAL(triggered()), this, SLOT(calculate_damage_nobreak_sz()));
+	//Calculate the instat damages for selected nobreak-scenarios (menu dam/System/)
+	QObject::connect(this->action_dam_instat_calculate, SIGNAL(triggered()), this, SLOT(calculate_instat_damage_nobreak_sz()));
+	
 }
 //Connect the of the modul dam
 void Main_Wid::slot_connect_madm(void){
@@ -7078,7 +7081,6 @@ void Main_Wid::connect_CI_data(void) {
 	this->check_dam_thread_is_running();
 
 }
-
 //Check the damage system (menu dam/System/)
 void Main_Wid::check_damage_system(void){
 	try{
@@ -7224,6 +7226,91 @@ void Main_Wid::calculate_damage_nobreak_sz(void){
 	this->reset_exception_new_action();
 	this->dam_calc->start();
 	this->check_dam_thread_is_running();
+}
+//Calculate the instationary damages for selected nobreak-scenarios (menu dam/System/)
+void Main_Wid::calculate_instat_damage_nobreak_sz(void) {
+	this->setEnabled(false);
+	this->statusBar()->showMessage("Check system for instatationary damage calculation...", 0);
+	if (Hyd_Boundary_Szenario_Management::check_base_scenario_is_set(this->system_database->get_database()) == false) {
+		Sys_Diverse_Text_Dia dialog2(true);
+		ostringstream txt;
+		txt << "A hydraulic base scenario must be set before any instatationary damages can be calculated" << endl;
+		dialog2.set_dialog_question(txt.str());
+		dialog2.start_dialog();
+		this->setEnabled(true);
+		this->statusBar()->showMessage("Ready", 0);
+		return;
+	}
+	if (Dam_Damage_System::check_some_raster_set(this->system_database->get_database(), this->system_state.get_sys_system_id()) == false) {
+		Sys_Diverse_Text_Dia dialog2(true);
+		ostringstream txt;
+		txt << "Damage raster have to be set before any damages can be calculated" << endl;
+		dialog2.set_dialog_question(txt.str());
+		dialog2.start_dialog();
+		this->status_wid->get_ptr_risk_state_check_box()->setChecked(false);
+		this->setEnabled(true);
+		this->statusBar()->showMessage("Ready", 0);
+		return;
+	}
+
+	string text_buffer;
+	if (Dam_Damage_System::check_all_raster_connected2hyd(this->system_database->get_database(), &text_buffer, this->system_state.get_sys_system_id()) == false) {
+		Sys_Diverse_Text_Dia dialog2(true);
+		ostringstream txt;
+		txt << "The DAM-raster have to be connected to the HYD-system before any damage calculations can be done!" << endl;
+		txt << "Further informations: " << endl;
+		txt << text_buffer;
+		txt << endl;
+		txt << "Connect the DAM-raster(s)/-point(s) to the HYD-system!" << endl;
+		dialog2.set_dialog_question(txt.str());
+		dialog2.adjustSize();
+		dialog2.start_dialog();
+		this->setEnabled(true);
+		this->statusBar()->showMessage("Ready", 0);
+		return;
+	}
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_dam) {
+		Sys_Diverse_Text_Dia dialog2(true);
+		ostringstream txt;
+		txt << "The instationary damage calculation is currently not supported for DAM-projects!" << endl;
+		txt << "Further informations: " << endl;
+		txt << text_buffer;
+		txt << endl;
+		txt << "Please use the stationary damage calculation!" << endl;
+		dialog2.set_dialog_question(txt.str());
+		dialog2.adjustSize();
+		dialog2.start_dialog();
+		this->setEnabled(true);
+		this->statusBar()->showMessage("Ready", 0);
+		return;
+
+	}
+	this->setEnabled(true);
+	this->statusBar()->showMessage("Ready", 0);
+
+	try {
+		this->allocate_damage_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->dam_calc->set_ptr2database(this->system_database->get_database());
+	this->dam_calc->set_thread_type(_dam_thread_type::dam_sys_instat_calc_no_break_sz);
+	if(this->dam_calc->ask_boundary_scenarios_per_dialog(this->system_database->get_database(), this) == 0) {
+		this->delete_damage_system();
+		return;
+	}
+
+	//connect the thread when is finished
+	QObject::connect(this->dam_calc, SIGNAL(finished()), this, SLOT(thread_dam_calc_finished()));
+	this->action_stop_dam_calc->setEnabled(true);
+
+	//start calculation
+	this->reset_exception_new_action();
+	this->dam_calc->start();
+	this->check_dam_thread_is_running();
+
 }
 //________
 //menu RISK

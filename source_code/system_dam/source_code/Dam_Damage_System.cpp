@@ -357,6 +357,12 @@ void Dam_Damage_System::run(void){
 			case(_dam_thread_type::dam_sys_calc_break_sz):
 				this->calc_damage_break_sz();
 				break;
+			case(_dam_thread_type::dam_sys_instat_calc_no_break_sz):
+				this->calc_instat_damage_nobreak_sz();
+				break;
+			case(_dam_thread_type::dam_sys_instat_calc_break_sz):
+				this->calc_instat_damage_break_sz();
+				break;
 			case(_dam_thread_type::dam_check_sys):
 				this->read_damage_data_per_database();
 				this->check_damage_system();
@@ -1593,6 +1599,24 @@ void Dam_Damage_System::calc_damage_break_sz(void){
 	emit send_hyd_thread_enable(false);
 	Sys_Common_Output::output_dam->rewind_userprefix();
 }
+//Calculate the instationary damage for the nobreak scenario
+void Dam_Damage_System::calc_instat_damage_nobreak_sz(void) {
+
+
+
+
+
+}
+//Calculate the instationary damage for the break scenario
+void Dam_Damage_System::calc_instat_damage_break_sz(void) {
+
+
+
+
+
+
+
+}
 //Output the statistic of the damage system
 void Dam_Damage_System::output_statistic(void){
 	ostringstream prefix;
@@ -2545,6 +2569,9 @@ int Dam_Damage_System::ask_boundary_scenarios_per_dialog(QSqlDatabase *ptr_datab
 	if(this->thread_type==_dam_thread_type::dam_sys_calc_no_break_sz){
 		buff <<"Select scenario(s) for nobreak damage calculation \nfrom the available hydraulic boundary scenario(s)" <<endl;
 	}
+	else if (this->thread_type == _dam_thread_type::dam_sys_instat_calc_no_break_sz) {
+		buff << "Select scenario(s) for instationary nobreak damage calculation \nfrom the available hydraulic boundary scenario(s)" << endl;
+	}
 	else{
 		buff <<"Select scenario(s) for unknown handling from the available hydraulic boundary scenario(s)" <<endl;
 	}
@@ -2556,7 +2583,7 @@ int Dam_Damage_System::ask_boundary_scenarios_per_dialog(QSqlDatabase *ptr_datab
 			my_list.add_scenario2list(this->sz_bound_manager.get_ptr_sz(i));
 		}
 		else{
-			if(Hyd_Hydraulic_System::check_hyd_results_calculated(ptr_database, this->system_id, this->sz_bound_manager.get_ptr_sz(i)->get_id(),"CA")==true){
+			if(Hyd_Hydraulic_System::check_hyd_instat_results_calculated(ptr_database, this->system_id, this->sz_bound_manager.get_ptr_sz(i)->get_id(),"CA")==true){
 				my_list.add_scenario2list(this->sz_bound_manager.get_ptr_sz(i));
 			}
 		}

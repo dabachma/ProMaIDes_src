@@ -662,6 +662,44 @@ void Sys_Version_Update::check_update_hyd_table_river_result_width(QSqlDatabase 
 
 	_Hyd_River_Profile::close_erg_instat_table();
 
+	error = false;
+
+	//check if columns exists for results per timestep table
+	try {
+		Hyd_Element_Floodplain::set_erg_instat_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//fp id and element id in instat erg FP tables
+	exists = false;
+	for (int i = 0; i < Hyd_Element_Floodplain::erg_instat_table->get_number_col(); i++) {
+		if ((Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].id == hyd_label::elemdata_fpno) {
+			exists = (Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_fpno, sys_label::tab_col_type_int,true, "-1", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_fpno);
+	}
+
+	exists = false;
+	for (int i = 0; i < Hyd_Element_Floodplain::erg_instat_table->get_number_col(); i++) {
+		if ((Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].id == hyd_label::elemdata_id) {
+			exists = (Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_id, sys_label::tab_col_type_int, true, "-1", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_id);
+	}
+
+	Hyd_Element_Floodplain::close_erg_instat_table();
 
 
 }

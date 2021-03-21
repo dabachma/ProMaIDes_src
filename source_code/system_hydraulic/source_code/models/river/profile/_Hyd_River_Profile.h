@@ -210,6 +210,10 @@ public:
 	///Select the data in the database table for the maximum results of the river profiles specified by the system state, the scenario-ids, the river number and a specific profile
 	static int select_data_in_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const int rv_no, const int prof_no);
 
+	///Select the data in the database table for the instationary results of the river profiles specified by the system state and the scenario-ids
+	static int select_data_in_instat_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag = false);
+	
+
 	///Delete all data in the database of all tables for the river profile data
 	static void delete_data_in_table(QSqlDatabase *ptr_database);
 	///Close and delete the database of all tables for the river profile data

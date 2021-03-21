@@ -125,6 +125,9 @@ public:
 
 	///Check if hydraulic results are calculated
 	static bool check_hyd_results_calculated(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag=false);
+	///Check if instationary hydraulic results are calculated
+	static bool check_hyd_instat_results_calculated(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag = false);
+
 
 	///Set a new hydraulic boundary scenario id to the hydraulic system and all appendent models
 	void set_new_hyd_bound_sz_id(Hyd_Boundary_Szenario new_sz);

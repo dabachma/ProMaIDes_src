@@ -151,7 +151,12 @@ public:
 	///Select the data in the database table for the maximum results of the river profiles specified by the system id and the scenario-ids (static)
 	static int select_data_in_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz , const bool like_flag);
     ///Select the data if a flood szenario is calculated specified by the system id and the scenario-ids (static)
-    static bool Hyd_Element_Floodplain::check_calc_in_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz , const bool like_flag);
+    static bool check_calc_in_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz , const bool like_flag);
+
+	///Select the data in the database table for the instationary results of the river profiles specified by the system id and the scenario-ids (static)
+	static int select_data_in_instat_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag);
+	///Select the data if a flood szenario is calculated specified by the system id and the scenario-ids (static)
+	static bool check_calc_in_instat_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag);
 
 	
 	///Delete the results data in the result database table for a given boundary scenario
@@ -271,7 +276,7 @@ public:
 	///Get the header for inserting the element instationary result data to database table (static)
 	static string get_insert_header_erg_instat_data_table(QSqlDatabase *ptr_database);
 	///Get a string for transfering the instationary result data to database 
-	string get_datastring_erg_instat_2database(const int id, const int elem_id, const string break_sz, const string time, const _hyd_floodplain_geo_info geo_info);
+	string get_datastring_erg_instat_2database(const int id, const int fp_number, const int elem_id, const string break_sz, const string time, const _hyd_floodplain_geo_info geo_info);
 
 
 	///Output the maximum calculated results to the database table (erg_table)

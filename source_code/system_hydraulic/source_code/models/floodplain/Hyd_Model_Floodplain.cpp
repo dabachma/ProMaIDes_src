@@ -2079,7 +2079,7 @@ void Hyd_Model_Floodplain::output_result2database(QSqlDatabase *ptr_database, co
 	for (int i = 0; i < this->NEQ; i++) {
 
 
-		buffer_data = this->floodplain_elems[i].get_datastring_erg_instat_2database(i, id_glob, break_sz, time, this->Param_FP.get_geometrical_info());
+		buffer_data = this->floodplain_elems[i].get_datastring_erg_instat_2database(i, this->Param_FP.get_floodplain_number(), id_glob, break_sz, time, this->Param_FP.get_geometrical_info());
 		if (buffer_data != label::not_set) {
 			query_data << buffer_data << " ,";
 			//count the global index

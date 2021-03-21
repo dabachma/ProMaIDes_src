@@ -81,8 +81,12 @@ enum _dam_thread_type{
 	dam_sys_connect,
 	///Thread for calculating the damages for the nobreak scenarios
 	dam_sys_calc_no_break_sz,
+	///Thread for calculating the instationary damages for the nobreak scenarios
+	dam_sys_instat_calc_no_break_sz,
 	///Thread for calculating the damages for all break scenarios
 	dam_sys_calc_break_sz,
+	///Thread for calculating the instationary damages for all break scenarios
+	dam_sys_instat_calc_break_sz,
 
 	///Thread is creating the damage tables for a database project
 	dam_create_tab,
@@ -261,6 +265,11 @@ public:
 	void calc_damage_nobreak_sz(void);
 	///Calculate the damage for the break scenario
 	void calc_damage_break_sz(void);
+
+	///Calculate the instationary damage for the nobreak scenario
+	void calc_instat_damage_nobreak_sz(void);
+	///Calculate the instationary damage for the break scenario
+	void calc_instat_damage_break_sz(void);
 
 	///Output the statistic of the damage system
 	void output_statistic(void);

@@ -2017,6 +2017,17 @@ void Dam_CI_Point::check_members(void) {
 		msg.make_second_info(info.str());
 		throw msg;
 	}
+
+	//check point in 1-4 sector no endflag
+	if (this->sector_id<=4 && this->final_flag==true) {
+		Error msg = this->set_error(2);
+		ostringstream info;
+		info << "Name         :" << this->name << endl;
+		info << "Sector id    :" << this->sector_id << endl;
+		info << "Sector level :" << this->sector_level << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
 	//recovery > 0
 	if (this->recovery_time <= 0.0) {
 		Warning msg = this->set_warning(0);
@@ -2127,7 +2138,13 @@ Error Dam_CI_Point::set_error(const int err_type) {
 		break;
 	case 1://sec_type
 		place.append("check_members(void)");
-		reason = "A emergency CI-strcuture needs to have an sector type between 1 - 4!";
+		reason = "A emergency CI-point needs to have an sector type between 1 - 4!";
+		help = "Check CI-point data";
+		type = 34;
+		break;
+	case 2://sec_type
+		place.append("check_members(void)");
+		reason = "A CI-point between sector 1 - 4 are not allowed to be an enduser; it needs a connection to a CI-polygon!";
 		help = "Check CI-point data";
 		type = 34;
 		break;

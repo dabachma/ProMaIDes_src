@@ -823,6 +823,21 @@ bool Hyd_Hydraulic_System::check_hyd_results_calculated(QSqlDatabase *ptr_databa
 
 	return false;
 }
+//Check if instationary hydraulic results are calculated (static)
+bool Hyd_Hydraulic_System::check_hyd_instat_results_calculated(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag) {
+	QSqlQueryModel model;
+
+	if (_Hyd_River_Profile::select_data_in_instat_erg_table(&model, ptr_database, id, bound_sz, break_sz, like_flag) > 0) {
+		return true;
+	}
+
+	//count relevant elemts
+	if (Hyd_Element_Floodplain::check_calc_in_instat_erg_table(&model, ptr_database, id, bound_sz, break_sz, like_flag) == true) {
+		return true;
+	}
+
+	return false;
+}
 //Set a new hydraulic boundary scenario id to the hydraulic system and all appendent models
 void Hyd_Hydraulic_System::set_new_hyd_bound_sz_id(Hyd_Boundary_Szenario new_sz){
 	this->hyd_sz.set_members(&new_sz);

@@ -189,7 +189,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_System">
@@ -557,6 +557,7 @@
      <addaction name="separator"/>
      <addaction name="action_dam_connect"/>
      <addaction name="action_dam_calculate"/>
+     <addaction name="action_dam_instat_calculate"/>
     </widget>
     <widget class="QMenu" name="menu_dam_sc">
      <property name="enabled">
@@ -1984,6 +1985,11 @@
   <action name="action_export_FRC">
    <property name="text">
     <string>&amp;Fragility curve (FRC)...</string>
+   </property>
+  </action>
+  <action name="action_dam_instat_calculate">
+   <property name="text">
+    <string>&amp;Calculate instationary damage...</string>
    </property>
   </action>
  </widget>
