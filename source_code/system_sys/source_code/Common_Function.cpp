@@ -79,6 +79,36 @@ void functions::convert_seconds2datestruct(const double seconds, tm *t_struct){
     *t_struct=*localtime(&t);
 
 }
+//Convert time to time string
+string functions::convert_time2time_str(const double seconds) {
+	string time;
+	stringstream buff_t;
+	tm time_struct;
+
+	functions::convert_seconds2datestruct(seconds, &time_struct);
+	buff_t << "'19" << time_struct.tm_year << "-" << setw(2) << setfill('0') << time_struct.tm_mon + 1;
+	buff_t << "-" << setw(2) << setfill('0') << time_struct.tm_mday << " ";
+	buff_t << setw(2) << setfill('0') << time_struct.tm_hour << ":";
+	buff_t << setw(2) << setfill('0') << time_struct.tm_min << ":" << setw(2) << setfill('0') << time_struct.tm_sec << "'";
+	time = buff_t.str();
+	return time;
+
+}
+//Convert time to time string without '
+string functions::convert_time2time_str_without(const double seconds) {
+	string time;
+	stringstream buff_t;
+	tm time_struct;
+
+	functions::convert_seconds2datestruct(seconds, &time_struct);
+	buff_t << "19" << time_struct.tm_year << "-" << setw(2) << setfill('0') << time_struct.tm_mon + 1;
+	buff_t << "-" << setw(2) << setfill('0') << time_struct.tm_mday << " ";
+	buff_t << setw(2) << setfill('0') << time_struct.tm_hour << ":";
+	buff_t << setw(2) << setfill('0') << time_struct.tm_min << ":" << setw(2) << setfill('0') << time_struct.tm_sec << "";
+	time = buff_t.str();
+	return time;
+
+}
 //Function to encrypt/decrypt the password with XOR
 string functions::crypter(string value,string key){
     string retval(value);

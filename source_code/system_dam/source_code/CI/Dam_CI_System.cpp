@@ -569,18 +569,54 @@ void Dam_CI_System::calculate_damages(Dam_Impact_Value_Floodplain *impact_fp, co
 
 
 }
+//Calculate the instationary damages
+void Dam_CI_System::calculate_instat_damages(Dam_Impact_Value_Floodplain *impact_fp, const int number, const double time, const int count) {
+	//ostringstream cout;
+	//cout << "Calculate instationary damages for the CI-system; calculation time is "<< time<< label::sec << endl;
+	//Sys_Common_Output::output_dam->output_txt(&cout);
+	if (count == 0) {
+		//reset system
+		for (int i = 0; i < this->no_ci_point; i++) {
+			this->dam_ci_point[i].reset_result_values();
+		}
+		//reset system
+		for (int i = 0; i < this->no_ci_polygon; i++) {
+			this->dam_ci_polygon[i].reset_result_values();
+		}
+
+	}
+
+	this->calculate_instat_direct_damage(impact_fp, number, time);
+	this->calculate_instat_indirect_damage(time);
+
+
+}
 //Delete the result members for a given system-id and a scenario (boundary-, break-)
 void Dam_CI_System::delete_result_members_in_database(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz) {
 	//delete the data in the table
 	try {
 		Dam_CI_Point::delete_data_in_erg_table(ptr_database, id, bound_sz, break_sz);
-		Dam_CI_Point::delete_data_in_instat_erg_table(ptr_database, id, bound_sz, break_sz);
 		Dam_CI_Polygon::delete_data_in_erg_table(ptr_database, id, bound_sz, break_sz);
+
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+}
+//Delete the instationary result members for a given system-id and a scenario (boundary-, break-)
+void Dam_CI_System::delete_instat_result_members_in_database(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz) {
+	//delete the data in the table
+	try {
+
+		Dam_CI_Point::delete_data_in_instat_erg_table(ptr_database, id, bound_sz, break_sz);
+
 		Dam_CI_Polygon::delete_data_in_instat_erg_table(ptr_database, id, bound_sz, break_sz);
 	}
 	catch (Error msg) {
 		throw msg;
 	}
+
 
 }
 //Output the result members to a database table
@@ -595,8 +631,20 @@ void Dam_CI_System::output_result_member2database(QSqlDatabase *ptr_database, co
 	this->output_point_results2database(ptr_database, bound_sz, break_sz, was_output);
 	this->output_polygon_results2database(ptr_database, bound_sz, break_sz, was_output);
 
-	this->output_point_instat_results2database(ptr_database, bound_sz, break_sz, was_output);
-	this->output_polygon_instat_results2database(ptr_database, bound_sz, break_sz, was_output);
+
+
+}
+//Output the instat_result members to a database table
+void Dam_CI_System::output_instat_result_member2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, const string date_time, bool *was_output) {
+	//ostringstream cout;
+	bool must_output = false;
+	if (*was_output == false) {
+		must_output = true;
+	}
+	//cout << "Output CI-system instationary damages to database..." << endl;
+	//Sys_Common_Output::output_dam->output_txt(&cout);
+	this->output_point_instat_results2database(ptr_database, bound_sz, break_sz, date_time, was_output);
+	this->output_polygon_instat_results2database(ptr_database, bound_sz, break_sz, date_time, was_output);
 
 }
 //Sum up the total damage results for a given system-id and scenario (boundary-, break-) from the database
@@ -605,6 +653,21 @@ void Dam_CI_System::sum_total_results(QSqlDatabase *ptr_database, const _sys_sys
 	this->sum_total_point_results(ptr_database, id, bound_sz, break_sz);
 	this->sum_total_polygon_results(ptr_database, id, bound_sz, break_sz);
 
+}
+//Check if all points are active again after hydraulic
+bool Dam_CI_System::check_points_active_again(void) {
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_element_active() == false && this->dam_ci_point[i].get_regular_flag() == true) {
+			return false;
+		}
+		else if (this->dam_ci_point[i].get_element_active() == true && this->dam_ci_point[i].get_regular_flag() == false) {
+			return false;
+
+		}
+	}
+
+	return true;
 }
 //____________
 //private
@@ -2633,13 +2696,60 @@ void Dam_CI_System::calculate_indirect_damage(void) {
 
 }
 //Calculate the direct damages instationary
-void Dam_CI_System::calculate_instat_direct_damage(Dam_Impact_Value_Floodplain *impact_fp, const int number) {
+void Dam_CI_System::calculate_instat_direct_damage(Dam_Impact_Value_Floodplain *impact_fp, const int number, const double time) {
+	int counter = 0;
+	int counter_fp_id = 0;
+	Dam_Impact_Values *impact;
+	//search for each damage element for the corresponding hydraulic impact element
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_index_floodplain() >= 0) {
+			counter = 0;
+			//search for the floodplain index
+			do {
+				if (this->dam_ci_point[i].get_index_floodplain() == impact_fp[counter_fp_id].get_index_floodplain()) {
+					break;
+				}
+				if (counter_fp_id == number - 1) {
+					counter_fp_id = 0;
+				}
+				else {
+					counter_fp_id++;
+				}
+				counter++;
+			} while (counter < number);
+			//search for the element
+			if (this->dam_ci_point[i].get_index_floodplain_element() >= 0 && this->dam_ci_point[i].get_index_floodplain_element() < impact_fp[counter_fp_id].get_number_element()) {
+				impact = &(impact_fp[counter_fp_id].impact_values[this->dam_ci_point[i].get_index_floodplain_element()]);
+				//calculate the damges
+				this->dam_ci_point[i].calculate_direct_damages_instationary(impact,time);
+			}
+			else {
+				Dam_Impact_Values buffer;
+				this->dam_ci_point[i].calculate_direct_damages_instationary(&buffer, time);
+				
 
+			}
+		}
+	}
 
 }
-///Calculate the indirect damages instationary
-void Dam_CI_System::calculate_instat_indirect_damage(Dam_Impact_Value_Floodplain *impact_fp, const int number) {
+//Calculate the indirect damages instationary
+void Dam_CI_System::calculate_instat_indirect_damage(const double time) {
 
+
+
+	//go through all elements
+	for (int i = 0; i < this->no_ci_point; i++) {
+		//if (this->dam_ci_point[i].get_failure_type() == _dam_ci_failure_type::direct) {
+			for (int j = 0; j < this->dam_ci_point[i].get_number_outgoing(); j++) {
+				this->dam_ci_point[i].get_outgoing_elements()[j]->calculate_indirect_damages_instationary(time);
+			}
+		//}
+	}
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		this->dam_ci_polygon[i].finalize_results();
+	}
 
 }
 //Ouput CI-point results to database
@@ -2727,8 +2837,83 @@ void Dam_CI_System::output_point_results2database(QSqlDatabase *ptr_database, co
 
 }
 //Ouput CI-point instationary results to database
-void Dam_CI_System::output_point_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output) {
+void Dam_CI_System::output_point_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, const string time_date, bool *was_output) {
+	//Set the query
+	QSqlQuery query_buff(*ptr_database);
 
+	//get the global index
+	int glob_id = Dam_CI_Point::get_max_glob_id_point_instat_erg_table(ptr_database) + 1;
+	//get the header for the query
+	string query_header;
+	query_header = Dam_CI_Point::get_insert_header_instat_erg_table(ptr_database);
+
+	ostringstream query_data;
+	ostringstream query_total;
+	int counter = 0;
+	string buffer_data;
+	bool must_output2 = false;
+	bool must_output = true;
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (i % 10000 == 0 && i > 0) {
+			//cout << i << " (" << this->no_ci_point << ") results of CI-points are transfered to database..." << endl;
+			//Sys_Common_Output::output_dam->output_txt(&cout);
+			Dam_Damage_System::check_stop_thread_flag();
+		}
+
+		if (i == this->no_ci_point - 1 && must_output == true && *was_output == false) {
+			must_output2 = true;
+		}
+
+		buffer_data = this->dam_ci_point[i].get_datastring_instat_results2database(glob_id, bound_sz, break_sz, time_date, must_output2);
+		if (buffer_data != label::not_set) {
+			query_data << buffer_data << " ,";
+			//count the global index
+			glob_id++;
+			counter++;
+			*was_output = true;
+		}
+		//send packages of 100
+		if (counter == 100) {
+			query_total << query_header << query_data.str();
+			//delete last komma
+			string buff = query_total.str();
+			buff.erase(buff.length() - 1);
+			Data_Base::database_request(&query_buff, buff, ptr_database);
+			//delete them
+			query_total.str("");
+			query_data.str("");
+			counter = 0;
+			if (query_buff.lastError().isValid()) {
+				Warning msg = this->set_warning(13);
+				ostringstream info;
+				info << "Table Name                : " << Dam_CI_Point::point_instat_erg_table->get_table_name() << endl;
+				info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+				msg.make_second_info(info.str());
+				msg.output_msg(4);
+			}
+		}
+	}
+	//send the rest
+	if (counter != 0) {
+		query_total << query_header << query_data.str();
+		//delete last komma
+		string buff = query_total.str();
+		buff.erase(buff.length() - 1);
+		Data_Base::database_request(&query_buff, buff, ptr_database);
+		//delete them
+		query_total.str("");
+		query_data.str("");
+		counter = 0;
+		if (query_buff.lastError().isValid()) {
+			Warning msg = this->set_warning(13);
+			ostringstream info;
+			info << "Table Name                : " << Dam_CI_Point::point_instat_erg_table->get_table_name() << endl;
+			info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(4);
+		}
+	}
 
 }
 //Ouput CI-polygon results to database
@@ -2816,8 +3001,87 @@ void Dam_CI_System::output_polygon_results2database(QSqlDatabase *ptr_database, 
 
 }
 //Ouput CI-polygon instationary results to database
-void Dam_CI_System::output_polygon_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output) {
+void Dam_CI_System::output_polygon_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, const string time_date, bool *was_output) {
+	//Set the query
+	QSqlQuery query_buff(*ptr_database);
 
+	//ostringstream cout;
+	//cout << "Transfer the CI-polygon damage results to database..." << endl;
+	//Sys_Common_Output::output_dam->output_txt(&cout);
+
+	//get the global index
+	int glob_id = Dam_CI_Polygon::get_max_glob_id_polygon_instat_erg_table(ptr_database) + 1;
+	//get the header for the query
+	string query_header;
+	query_header = Dam_CI_Polygon::get_insert_header_instat_erg_table(ptr_database);
+
+	ostringstream query_data;
+	ostringstream query_total;
+	int counter = 0;
+	string buffer_data;
+	bool must_output2 = false;
+	bool must_output = true;
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (i % 10000 == 0 && i > 0) {
+			//cout << i << " (" << this->no_ci_polygon << ") results of CI-polygon are transfered to database..." << endl;
+			//Sys_Common_Output::output_dam->output_txt(&cout);
+			Dam_Damage_System::check_stop_thread_flag();
+		}
+
+		if (i == this->no_ci_polygon - 1 && must_output == true && *was_output == false) {
+			must_output2 = true;
+		}
+
+		buffer_data = this->dam_ci_polygon[i].get_datastring_instat_results2database(glob_id, bound_sz, break_sz, time_date,must_output2);
+		if (buffer_data != label::not_set) {
+			query_data << buffer_data << " ,";
+			//count the global index
+			glob_id++;
+			counter++;
+			*was_output = true;
+		}
+		//send packages of 100
+		if (counter == 100) {
+			query_total << query_header << query_data.str();
+			//delete last komma
+			string buff = query_total.str();
+			buff.erase(buff.length() - 1);
+			Data_Base::database_request(&query_buff, buff, ptr_database);
+			//delete them
+			query_total.str("");
+			query_data.str("");
+			counter = 0;
+			if (query_buff.lastError().isValid()) {
+				Warning msg = this->set_warning(14);
+				ostringstream info;
+				info << "Table Name                : " << Dam_CI_Polygon::polygon_instat_erg_table->get_table_name() << endl;
+				info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+				msg.make_second_info(info.str());
+				msg.output_msg(4);
+			}
+		}
+	}
+	//send the rest
+	if (counter != 0) {
+		query_total << query_header << query_data.str();
+		//delete last komma
+		string buff = query_total.str();
+		buff.erase(buff.length() - 1);
+		Data_Base::database_request(&query_buff, buff, ptr_database);
+		//delete them
+		query_total.str("");
+		query_data.str("");
+		counter = 0;
+		if (query_buff.lastError().isValid()) {
+			Warning msg = this->set_warning(14);
+			ostringstream info;
+			info << "Table Name                : " << Dam_CI_Polygon::polygon_instat_erg_table->get_table_name() << endl;
+			info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(4);
+		}
+	}
 
 }
 //Check if the points are connected to the hydraulic
@@ -3119,7 +3383,6 @@ Warning Dam_CI_System::set_warning(const int warn_type) {
 			help = "Check the file and the number of connection specification in file";
 			type = 1;
 			break;
-
 		case 6://not all points are connected
 			place.append("check_system(void)");
 			reason = "Not all points are connected to the hydraulic system";
@@ -3157,11 +3420,23 @@ Warning Dam_CI_System::set_warning(const int warn_type) {
 			help = "Check the database";
 			type = 2;
 			break;
-	default:
-		place.append("set_warning(const int warn_type)");
-		reason = "Unknown flag!";
-		help = "Check the flags";
-		type = 5;
+		case 13://output datas can not submitted
+			place.append("output_point_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output)");
+			reason = "Can not submit the CI-point instationary result data to the database";
+			help = "Check the database";
+			type = 2;
+			break;
+		case 14://output datas can not submitted
+			place.append("output_polygon_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output)");
+			reason = "Can not submit the CI-polygon instationary result data to the database";
+			help = "Check the database";
+			type = 2;
+			break;
+		default:
+			place.append("set_warning(const int warn_type)");
+			reason = "Unknown flag!";
+			help = "Check the flags";
+			type = 5;
 	}
 	msg.set_msg(place, reason, help, reaction, type);
 	msg.make_second_info(info.str());

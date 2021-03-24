@@ -1601,7 +1601,214 @@ void Dam_Damage_System::calc_damage_break_sz(void){
 }
 //Calculate the instationary damage for the nobreak scenario
 void Dam_Damage_System::calc_instat_damage_nobreak_sz(void) {
+	ostringstream prefix;
+	prefix << "CALC> ";
+	Sys_Common_Output::output_dam->set_userprefix(&prefix);
+	emit send_hyd_thread_enable(true);
+	this->read_damage_data_per_database();
+	
 
+	ostringstream cout;
+	cout << "Calculate the instationary damages for selected nobreak scenarios..." << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+	this->set_start_warnings_number();
+	//begin time recording
+	time(&this->start_time);
+	//QSqlQueryModel *model;
+	//model=NULL;
+	//model=new QSqlQueryModel;
+	this->break_sz = "CA";
+
+	if (Sys_Project::get_project_type() != _sys_project_type::proj_dam) {
+		//check first for hydraulic results
+		for (int i = 0; i < this->sz_bound_manager.get_number_sz(); i++) {
+			if (Hyd_Hydraulic_System::check_hyd_instat_results_calculated(&this->qsqldatabase, this->system_id, this->sz_bound_manager.get_ptr_sz(i)->get_id(), "CA") == false) {
+				Warning msg = this->set_warning(4);
+				ostringstream info;
+				info << "Scenario name  : " << this->sz_bound_manager.get_ptr_sz(i)->get_name() << endl;
+				info << "Scenario id    : " << this->sz_bound_manager.get_ptr_sz(i)->get_id() << endl;
+				msg.make_second_info(info.str());
+				msg.output_msg(4);
+				this->sz_bound_manager.get_ptr_sz(i)->set_is_selected(false);
+			}
+		}
+	}
+	//if(model!=NULL){
+	//	delete model;
+	//}
+
+	if (this->sz_bound_manager.counter_number_selected_scenarios() != 0) {
+		try {
+			//try {
+			//	//ecn
+			//	ostringstream prefix;
+			//	prefix << "ECN> ";
+			//	Sys_Common_Output::output_dam->set_userprefix(prefix.str());
+			//	//delete the result data
+			//	for (int i = 0; i < this->sz_bound_manager.get_number_sz(); i++) {
+			//		if (this->sz_bound_manager.get_ptr_sz(i)->get_is_selected() == false) {
+			//			continue;
+			//		}
+			//		this->ecn_sys.delete_result_members_in_database(&this->qsqldatabase, this->system_id, this->sz_bound_manager.get_ptr_sz(i)->get_id(), this->break_sz);
+			//	}
+			//	//calculation for each ecn raster
+			//	for (int i = 0; i < this->ecn_sys.get_number_raster(); i++) {
+			//		current_counter = i;
+			//		this->ecn_sys.init_damage_rasters(i, &this->qsqldatabase, this->system_id);
+
+			//		for (int j = 0; j < this->sz_bound_manager.get_number_sz(); j++) {
+			//			if (this->sz_bound_manager.get_ptr_sz(j)->get_is_selected() == false) {
+			//				continue;
+			//			}
+			//			cout << "Read in the hydraulic impact values for nobreak scenario " << this->sz_bound_manager.get_ptr_sz(j)->get_name() << "..." << endl;
+			//			Sys_Common_Output::output_dam->output_txt(&cout);
+			//			this->set_impact_values_hyd(this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz);
+			//			this->ecn_sys.calculate_damages(this->impact_floodplain, this->number_floodplain_impact, i);
+			//			Dam_Damage_System::check_stop_thread_flag();
+			//			this->ecn_sys.output_result_member2database(&this->qsqldatabase, this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz, i, this->sz_bound_manager.get_ptr_sz(j)->get_ptr_dam_was_output());
+			//		}
+			//		this->ecn_sys.damage_raster[i].clear_raster();
+			//	}
+			//	Sys_Common_Output::output_dam->rewind_userprefix();
+			//	prefix.str("");
+			//}
+			//catch (Error msg) {
+			//	this->ecn_sys.damage_raster[current_counter].clear_raster();
+			//	if (Dam_Damage_System::abort_thread_flag == true) {
+			//		Sys_Common_Output::output_dam->rewind_userprefix();
+			//		throw msg;
+			//	}
+			//	this->number_error++;
+			//	msg.output_msg(4);
+			//	prefix.str("");
+			//	Sys_Common_Output::output_dam->rewind_userprefix();
+			//}
+
+
+			try {
+				//sc
+				prefix << "CI> ";
+				//Input parameter
+				bool until_all_active = true;
+				int max_timesteps = 1000;
+				bool max_timestep_reached = false;
+
+				Sys_Common_Output::output_dam->set_userprefix(prefix.str());
+				//delete the result data
+				for (int i = 0; i < this->sz_bound_manager.get_number_sz(); i++) {
+					if (this->sz_bound_manager.get_ptr_sz(i)->get_is_selected() == false) {
+						continue;
+					}
+					this->ci_sys.delete_instat_result_members_in_database(&this->qsqldatabase, this->system_id, this->sz_bound_manager.get_ptr_sz(i)->get_id(), this->break_sz);
+				}
+				//calculation for sc points for scenario
+				for (int j = 0; j < this->sz_bound_manager.get_number_sz(); j++) {
+					if (this->sz_bound_manager.get_ptr_sz(j)->get_is_selected() == false) {
+						continue;
+					}
+					cout << "Read in the instationary hydraulic impact values for nobreak scenario " << this->sz_bound_manager.get_ptr_sz(j)->get_name() << "..." << endl;
+					Sys_Common_Output::output_dam->output_txt(&cout);
+					QStringList time_date;
+					Hyd_Element_Floodplain::get_distinct_date_time_instat_results_elements_database(&time_date, &this->qsqldatabase, this->system_id, this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz);
+					cout << time_date.count()<< " number of distinct date-time string found in database for scenario " << this->sz_bound_manager.get_ptr_sz(j)->get_name() << " found"<< endl;
+					Sys_Common_Output::output_dam->output_txt(&cout);
+					double timestep = 0.0;
+					timestep = Dam_Impact_Value_Floodplain::analyse_date_time(time_date);
+					double time = 0.0;
+
+					for (int i = 0; i < time_date.count(); i++) {
+						if (i == max_timesteps) {
+							cout << "Maximum timesteps for calculation are reached ("<<max_timesteps<<")" << endl;
+							Sys_Common_Output::output_dam->output_txt(&cout);
+							max_timestep_reached = true;
+							break;
+
+						}
+
+						time = time + timestep;
+						cout << "Caluclate HYD-time: "<< time_date.at(i).toStdString()<< " as number " << i << " from " << time_date.count()<< " timesteps ("<<timestep<<")"<<endl;
+						Sys_Common_Output::output_dam->output_txt(&cout);
+						Dam_Damage_System::check_stop_thread_flag();
+						this->set_instat_impact_values_hyd(this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz, time_date.at(i).toStdString());
+						Dam_Damage_System::check_stop_thread_flag();
+						this->ci_sys.calculate_instat_damages(this->impact_floodplain, this->number_floodplain_impact, timestep, i);
+						Dam_Damage_System::check_stop_thread_flag();
+						this->ci_sys.output_instat_result_member2database(&this->qsqldatabase, this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz, time_date.at(i).toStdString(), this->sz_bound_manager.get_ptr_sz(j)->get_ptr_dam_was_output());
+
+
+					}
+
+					if (max_timestep_reached == false && until_all_active==true) {
+						int counter = time_date.count()-1;
+						bool stop_flag = false;
+						do {
+							if (this->ci_sys.check_points_active_again() == true) {
+								stop_flag = true;
+							}
+							string time_str;
+							time = time + timestep;
+							time_str=functions::convert_time2time_str_without(time);
+							cout << "Caluclate CI-time: " << time_str << " as timestep number " << counter << " until all CI-elements are active is reached" << endl;
+							Sys_Common_Output::output_dam->output_txt(&cout);
+							Dam_Damage_System::check_stop_thread_flag();
+							this->set_instat_impact_values_hyd(this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz, time_str);
+							Dam_Damage_System::check_stop_thread_flag();
+							this->ci_sys.calculate_instat_damages(this->impact_floodplain, this->number_floodplain_impact, timestep, counter);
+							Dam_Damage_System::check_stop_thread_flag();
+							if (stop_flag == true) {
+								bool buff_out = false;
+								this->ci_sys.output_instat_result_member2database(&this->qsqldatabase, this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz, time_str, &buff_out);
+							}
+							else {
+								this->ci_sys.output_instat_result_member2database(&this->qsqldatabase, this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz, time_str, this->sz_bound_manager.get_ptr_sz(j)->get_ptr_dam_was_output());
+
+
+							}
+
+
+
+							counter++;
+							if (counter == max_timesteps) {
+								cout << "Maximum timesteps for calculation are reached (" << max_timesteps << ")" << endl;
+								Sys_Common_Output::output_dam->output_txt(&cout);
+								max_timestep_reached = true;
+								break;
+							}
+						} while (stop_flag == false);
+					}
+				}
+
+				Sys_Common_Output::output_dam->rewind_userprefix();
+				prefix.str("");
+			}
+			catch (Error msg) {
+				if (Dam_Damage_System::abort_thread_flag == true) {
+					Sys_Common_Output::output_dam->rewind_userprefix();
+					throw msg;
+				}
+				this->number_error++;
+				msg.output_msg(4);
+				prefix.str("");
+				Sys_Common_Output::output_dam->rewind_userprefix();
+			}
+		}
+		catch (Error msg) {
+			msg.output_msg(4);
+			Sys_Common_Output::output_dam->rewind_userprefix();
+		}
+	}
+	else {
+		cout << "No hydraulic results are available" << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout);
+	}
+	Sys_Common_Output::output_dam->rewind_userprefix();
+	this->set_warning_number();
+	//set the actual time
+	time(&this->actual_time);
+	this->output_final_statistic_multi_nobreak_hydsz();
+
+	emit send_hyd_thread_enable(false);
 
 
 
@@ -3143,6 +3350,41 @@ void Dam_Damage_System::set_impact_values_hyd(const int bound_sz, const string b
 		this->impact_floodplain[i].set_impact_values_database(bound_sz, break_sz, &this->qsqldatabase, this->system_id);
 	}
 }
+///Set the instationary impact values of the floodplains from database
+void Dam_Damage_System::set_instat_impact_values_hyd(const int bound_sz, const string break_sz, const string time_date) {
+	if (this->impact_floodplain_set == false) {
+		QSqlTableModel results(0, this->qsqldatabase);
+		try {
+			this->number_floodplain_impact = Hyd_Model_Floodplain::select_relevant_model_database(&results, false);
+		}
+		catch (Error msg) {
+			throw msg;
+		}
+		if (this->number_floodplain_impact == 0) {
+			Error msg = this->set_error(12);
+			throw msg;
+		}
+		this->allocate_impact_floodplain();
+		int number_x = 0;
+		int number_y = 0;
+		//set the floodplain index
+		for (int i = 0; i < this->number_floodplain_impact; i++) {
+			this->impact_floodplain[i].set_floodplain_index(results.record(i).value((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::genmod_id)).c_str()).toInt());
+			number_x = results.record(i).value((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::nx)).c_str()).toInt();
+			number_y = results.record(i).value((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::ny)).c_str()).toInt();
+			this->impact_floodplain[i].set_number_element(number_x*number_y);
+		}
+	}
+	//ostringstream cout;
+	//set the impact values for each floodplain
+	for (int i = 0; i < this->number_floodplain_impact; i++) {
+		//cout << "Read in the hydraulic instationary impact values for break scenario " << break_sz << " for floodplain " << this->impact_floodplain[i].get_index_floodplain() << "..." << endl;
+		//Sys_Common_Output::output_dam->output_txt(&cout);
+		this->impact_floodplain[i].set_instationary_impact_values_database(bound_sz, break_sz, &this->qsqldatabase, this->system_id, time_date);
+	}
+
+
+}
 //Allocate the impact values of the floodplains from the hydraulic system
 void Dam_Damage_System::allocate_impact_floodplain(void){
 	this->delete_impact_floodplain();
@@ -3478,6 +3720,13 @@ Warning Dam_Damage_System::set_warning(const int warn_type){
 			reaction="The damages of the hydraulic boundary scenario will not be calculated";
 			type=18;
 			break;
+		case 4://no hydraulic results available
+			place.append("calc_instat_damage_nobreak_sz(void))");
+			reason = "No hydraulic instationary results are availabe in database for the selected hydraulic boundary scenario(s)";
+			help = "Check the hydraulic instationary results";
+			reaction = "The damages of the hydraulic boundary scenario will not be calculated";
+			type = 18;
+			break;
 		default:
 			place.append("set_warning(const int warn_type)");
 			reason ="Unknown flag!";
@@ -3570,6 +3819,12 @@ Error Dam_Damage_System::set_error(const int err_type){
 			reason="There are to much elements in the raster";
 			help="Split the raster or decrease the raster resolution";
 			type=33;
+			break;
+		case 12://no hydraulic floodplain is found; this error is later converted into a warning
+			place.append("set_instat_impact_values_hyd(const int bound_sz, const string break_sz)");
+			reason = "No hydraulic floodplains are found. A damage caluclation is not possible";
+			help = "Check the hydraulic system";
+			type = 24;
 			break;
 		default:
 			place.append("set_error(const int err_type)");

@@ -13,6 +13,7 @@ Dam_CI_Polygon::Dam_CI_Polygon(void){
 	this->enduser_duration = 0.0;
 	this->polygon_str=label::not_set;
 	this->final_flag = true;
+	this->ptr_point = &this->mid_point;
 	
 
 	//count the memory
@@ -1327,7 +1328,7 @@ void Dam_CI_Polygon::create_instat_erg_table(QSqlDatabase *ptr_database) {
 		Sys_Common_Output::output_dam->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name = dam_label::tab_ci_polygon_instat_erg;
-		const int num_col = 12;
+		const int num_col = 13;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for (int i = 0; i < num_col; i++) {
@@ -1381,12 +1382,16 @@ void Dam_CI_Polygon::create_instat_erg_table(QSqlDatabase *ptr_database) {
 		tab_col[9].name = dam_label::failure_type;
 		tab_col[9].type = sys_label::tab_col_type_string;
 
-		tab_col[10].name = hyd_label::data_time;
-		tab_col[10].type = sys_label::tab_col_type_string;
-		tab_col[10].default_value = "";
+		tab_col[10].name = dam_label::failure_duration;
+		tab_col[10].type = sys_label::tab_col_type_double;
+		tab_col[10].default_value = "0.0";
 
-		tab_col[11].name = hyd_label::polygon_out;
-		tab_col[11].type = sys_label::tab_col_type_polygon;
+		tab_col[11].name = hyd_label::data_time;
+		tab_col[11].type = sys_label::tab_col_type_string;
+		tab_col[11].default_value = "";
+
+		tab_col[12].name = hyd_label::polygon_out;
+		tab_col[12].type = sys_label::tab_col_type_polygon;
 
 		try {
 			Dam_CI_Polygon::polygon_instat_erg_table = new Tables();
@@ -1418,7 +1423,7 @@ void Dam_CI_Polygon::set_instat_erg_table(QSqlDatabase *ptr_database, const bool
 	if (Dam_CI_Polygon::polygon_instat_erg_table == NULL) {
 		//make specific input for this class
 		const string tab_id_name = dam_label::tab_ci_polygon_instat_erg;
-		string tab_col[12];
+		string tab_col[13];
 
 		tab_col[0] = dam_label::glob_id;
 		tab_col[1] = dam_label::polygon_id;
@@ -1432,6 +1437,7 @@ void Dam_CI_Polygon::set_instat_erg_table(QSqlDatabase *ptr_database, const bool
 		tab_col[9]= hyd_label::polygon_out;
 		tab_col[10] = hyd_label::data_time;
 		tab_col[11] = dam_label::failure_type;
+		tab_col[12] = dam_label::failure_duration;
 
 		try {
 			Dam_CI_Polygon::polygon_instat_erg_table = new Tables(tab_id_name, tab_col, sizeof(tab_col) / sizeof(tab_col[0]));
@@ -1636,6 +1642,7 @@ string Dam_CI_Polygon::get_insert_header_instat_erg_table(QSqlDatabase *ptr_data
 	query_string << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(dam_label::sector_id) << " , ";
 	query_string << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(dam_label::active_flag) << " , ";
 	query_string << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(dam_label::failure_type) << " , ";
+	query_string << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(dam_label::failure_duration) << " , ";
 	query_string << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(hyd_label::data_time) << " , ";
 
 	query_string << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(hyd_label::polygon_out) << ")";
@@ -1705,6 +1712,9 @@ void Dam_CI_Polygon::copy_instat_results(QSqlDatabase *ptr_database, const _sys_
 
 		test_filter << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(dam_label::sector_id) << " , ";
 		test_filter << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(dam_label::active_flag) << " , ";
+		test_filter << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(dam_label::failure_type) << " , ";
+		test_filter << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(dam_label::failure_duration) << " , ";
+		test_filter << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(hyd_label::data_time) << " , ";
 
 
 		test_filter << Dam_CI_Polygon::polygon_instat_erg_table->get_column_name(hyd_label::polygon_out) << "  ";
@@ -1817,6 +1827,9 @@ string Dam_CI_Polygon::get_datastring_instat_results2database(const int global_i
 		if (this->was_affected == false) {
 			return buffer;
 		}
+		if (this->failure_type_enum == _dam_ci_failure_type::no_failure) {
+			return buffer;
+		}
 	}
 
 	//set the query via a query string
@@ -1831,9 +1844,10 @@ string Dam_CI_Polygon::get_datastring_instat_results2database(const int global_i
 	query_string << this->sector_id << " , ";
 	query_string << "'" << functions::convert_boolean2string(this->active_flag) << "' , ";
 	query_string << "'" << this->failure_type << "' , ";
-	query_string << date_time << " , ";
+	query_string << this->failure_duration << " , ";
+	query_string << "'" << date_time << "' , ";
 
-	query_string << this->polygon_str << " ) ";
+	query_string << "'" << this->polygon_str << "') ";
 
 	buffer = query_string.str();
 	return buffer;

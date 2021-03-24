@@ -53,7 +53,7 @@ public:
 	void check_update_fpl_output_control(QSqlDatabase *ptr_database);
 
 	///Check and update the CI tables for DAM-module (11.3.2021)
-	void check_update_dam_ci(QSqlDatabase *ptr_database);
+	void check_update_dam_ci(QSqlDatabase *ptr_database, const string project_file);
 
 
 

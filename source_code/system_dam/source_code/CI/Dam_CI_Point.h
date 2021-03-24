@@ -172,7 +172,7 @@ public:
 	///Calculate direct damages
 	void calculate_direct_damages(Dam_Impact_Values *impact);
 	///Calculate direct damages instationary
-	void calculate_direct_damages_instationary(Dam_Impact_Values *impact);
+	void calculate_direct_damages_instationary(Dam_Impact_Values *impact, const double time);
 
 
 

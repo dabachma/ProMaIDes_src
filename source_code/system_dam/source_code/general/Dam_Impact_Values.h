@@ -58,9 +58,14 @@ public:
 	int get_fp_elem_id(void);
 	///Get the flag if the hydraulic element was wet
 	bool get_was_wet_flag(void);
+	///Get the date-time string in instationary case
+	string get_date_time_str(void);
 
 	///Read out the member data from a given QSqlTableModel
 	void readout_data_from_database_model(QSqlQueryModel *model, const int model_index);
+	///Read out the member data from a given QSqlTableModel
+	void readout_instat_data_from_database_model(QSqlQueryModel *model, const int model_index);
+
 
 	///Convert the enumerator (_dam_impact_type) to a text
 	static string convert_dam_impact_type2txt(const _dam_impact_type value);
@@ -86,6 +91,8 @@ private:
 	int fp_elem_id;
 	///Flag if the element was wet
 	bool was_wet_flag;
+	///String for date-time for instationary cases
+	string date_time;
 
 };
 #endif

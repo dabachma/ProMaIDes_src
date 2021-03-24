@@ -83,14 +83,24 @@ public:
 
 	///Calculate the damages
 	void calculate_damages(Dam_Impact_Value_Floodplain *impact_fp, const int number);
+	///Calculate the instationary damages
+	void calculate_instat_damages(Dam_Impact_Value_Floodplain *impact_fp, const int number, const double time, const int count);
+
 	///Delete the result members for a given system-id and a scenario (boundary-, break-)
 	void delete_result_members_in_database(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz);
+	///Delete the instationary result members for a given system-id and a scenario (boundary-, break-)
+	void delete_instat_result_members_in_database(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz);
+
 	///Output the result members to a database table
 	void output_result_member2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output);
+	///Output the instat_result members to a database table
+	void output_instat_result_member2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, const string date_time, bool *was_output);
 
 	///Sum up the total damage results for a given system-id and scenario (boundary-, break-) from the database
 	void sum_total_results(QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz);
 
+	///Check if all points are active again after hydraulic
+	bool check_points_active_again(void);
 
 
 private:
@@ -214,18 +224,21 @@ private:
 	void calculate_indirect_damage(void);
 
 	///Calculate the direct damages instationary
-	void calculate_instat_direct_damage(Dam_Impact_Value_Floodplain *impact_fp, const int number);
+	void calculate_instat_direct_damage(Dam_Impact_Value_Floodplain *impact_fp, const int number, const double time);
 	///Calculate the indirect damages instationary
-	void calculate_instat_indirect_damage(Dam_Impact_Value_Floodplain *impact_fp, const int number);
+	void calculate_instat_indirect_damage(const double time);
+
+
+
 
 	///Ouput CI-point results to database
 	void output_point_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output);
 	///Ouput CI-point instationary results to database
-	void output_point_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output);
+	void output_point_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, const string time_date, bool *was_output);
 	///Ouput CI-polygon results to database
 	void output_polygon_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output);
 	///Ouput CI-polygon instationary results to database
-	void output_polygon_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output);
+	void output_polygon_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, const string time_date, bool *was_output);
 
 	///Check if the points are connected to the hydraulic
 	int check_points_connected2hyd(void);

@@ -704,7 +704,7 @@ void Sys_Version_Update::check_update_hyd_table_river_result_width(QSqlDatabase 
 
 }
 //Check and update the CI tables for DAM-module (11.3.2021)
-void Sys_Version_Update::check_update_dam_ci(QSqlDatabase *ptr_database) {
+void Sys_Version_Update::check_update_dam_ci(QSqlDatabase *ptr_database, const string project_file) {
 	if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd ||
 		Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
 		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
@@ -845,6 +845,54 @@ void Sys_Version_Update::check_update_dam_ci(QSqlDatabase *ptr_database) {
 			Dam_CI_Polygon::create_instat_erg_table(ptr_database);
 
 		}
+	}
+	Dam_CI_Polygon::close_instat_erg_table();
+
+	//check if columns exists for results per timestep table point
+	try {
+		Dam_CI_Point::set_instat_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//add failure duration in instat_erg table
+	bool exists;
+	exists = false;
+	for (int i = 0; i < Dam_CI_Point::point_instat_erg_table->get_number_col(); i++) {
+		if ((Dam_CI_Point::point_instat_erg_table->get_ptr_col())[i].id == dam_label::failure_duration) {
+			exists = (Dam_CI_Point::point_instat_erg_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, dam_label::tab_ci_point_instat_erg, dam_label::failure_duration, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::dam);
+		buffer.add_columns_file(project_file, dam_label::tab_ci_point_instat_erg, dam_label::failure_duration);
+	}
+	Dam_CI_Point::close_instat_erg_table();
+
+
+	//check if columns exists for results per timestep table polygon
+	try {
+		Dam_CI_Polygon::set_instat_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//add failure duration in instat_erg table
+	exists = false;
+	for (int i = 0; i < Dam_CI_Polygon::polygon_instat_erg_table->get_number_col(); i++) {
+		if ((Dam_CI_Polygon::polygon_instat_erg_table->get_ptr_col())[i].id == dam_label::failure_duration) {
+			exists = (Dam_CI_Polygon::polygon_instat_erg_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, dam_label::tab_ci_polygon_instat_erg, dam_label::failure_duration, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::dam);
+		buffer.add_columns_file(project_file, dam_label::tab_ci_polygon_instat_erg, dam_label::failure_duration);
 	}
 	Dam_CI_Polygon::close_instat_erg_table();
 

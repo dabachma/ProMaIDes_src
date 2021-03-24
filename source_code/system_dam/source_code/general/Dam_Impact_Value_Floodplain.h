@@ -41,8 +41,14 @@ public:
 	///Get the index of the floodplain
 	int get_index_floodplain(void);
 
+	///Analyse the time-date string
+	static double analyse_date_time(const QStringList list);
+
 	///Set the impact values from database
 	void set_impact_values_database(const int bound_sz, const string break_sz, QSqlDatabase *ptr_database, const _sys_system_id sys_id);
+
+	///Set the instationary impact values from database
+	void set_instationary_impact_values_database(const int bound_sz, const string break_sz, QSqlDatabase *ptr_database, const _sys_system_id sys_id, const string time_date);
 
 private:
 

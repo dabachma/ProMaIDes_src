@@ -205,6 +205,17 @@ public:
 	///Get the maximum value of the global index of the element instationary result database table
 	static int get_max_glob_id_erg_instat_table(QSqlDatabase *ptr_database);
 
+	///Select and count the number of relevant instationary results per floodplain elements for one floodplain model in a database table
+	static int select_relevant_instat_results_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const bool with_output = true);
+	///Select and count the number of relevant instationary results per floodplain elements for one floodplain model in a database table (just part of it)
+	static int select_relevant_instat_results_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const int offset, const int number_rows, const string time_date, const bool with_output = true);
+	///Count the number of relevant instationary results per floodplain elements for one floodplain model in a database table
+	static int count_relevant_instat_results_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const string time_date, const bool with_output = true);
+	///Get a list of dicstinct date-time strings from database table
+	static int get_distinct_date_time_instat_results_elements_database(QStringList *list, QSqlDatabase *ptr_database, const _sys_system_id id,  const int bound_sz, const string break_sz, const bool with_output = true);
+
+
+
 	///Copy the instationary results of a given system id to another one in database table
 	static void copy_instat_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest);
 

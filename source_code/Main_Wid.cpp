@@ -1484,6 +1484,7 @@ void Main_Wid::check_hyd_thread_is_running(void){
 		this->action_connect_raster_pys->setEnabled(false);
 		this->action_sc_connect->setEnabled(false);
 		this->action_CI_connect->setEnabled(false);
+		this->action_dam_instat_calculate->setEnabled(false);
 
 		//fpl
 		this->menu_fpl2hyd->setEnabled(false);
@@ -1529,6 +1530,7 @@ void Main_Wid::check_hyd_thread_is_running(void){
 			this->action_connect_raster_pys->setEnabled(true);
 			this->action_sc_connect->setEnabled(true);
 			this->action_CI_connect->setEnabled(true);
+			this->action_dam_instat_calculate->setEnabled(true);
 		}
 		//fpl
 		if(this->fpl_thread_running()==false ){
@@ -3237,7 +3239,7 @@ void Main_Wid::read_existing_project(void){
 			this->version_update.check_update_hyd_table_instat_results_rv(this->system_database->get_database(), this->project_manager.get_project_file_name());
 			this->version_update.check_update_hyd_view_bound2elements_profile(this->system_database->get_database());
 			this->version_update.check_update_fpl_output_control(this->system_database->get_database());
-			this->version_update.check_update_dam_ci(this->system_database->get_database());
+			this->version_update.check_update_dam_ci(this->system_database->get_database(), this->project_manager.get_project_file_name());
 
 			
 		}

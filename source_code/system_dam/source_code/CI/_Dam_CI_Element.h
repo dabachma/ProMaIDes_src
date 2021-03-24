@@ -109,6 +109,8 @@ public:
 	void set_failure_type(const _dam_ci_failure_type type);
 	///Set the active flag
 	void set_active_flag(const bool flag);
+	///Set the activation time and flag
+	void set_active_time_flag(const bool flag, const double time);
 	///Set the was-affected flag
 	void set_was_affected_flag(const bool flag);
 
@@ -158,7 +160,7 @@ public:
 	///Calculate indirect damages
 	void calculate_indirect_damages(void);
 	///Calculate indirect damages instationary
-	void calculate_indirect_damages_instationary(void);
+	void calculate_indirect_damages_instationary(const double time);
 
 	///Convert string to failure type (_dam_ci_failure_type)
 	static _dam_ci_failure_type convert_txt2failuretype(const string txt);
@@ -182,6 +184,11 @@ protected:
 	double recovery_time;
 	///Time to activate [d]
 	double activation_time;
+
+	///Time to recover after failure (original) [d]
+	double orig_recovery_time;
+	///Time to activate (original) [d]
+	double orig_activation_time;
 
 	///Regular flag: is the structure regular := true or emergency :=false
 	bool regular_flag;
@@ -229,6 +236,9 @@ protected:
 	double failure_duration;
 	///Flag if the object is a final position in the net
 	bool final_flag;
+
+	///Pointer to the point of the structure
+	Geo_Point *ptr_point;
 
 
 	///Convert failure type (_dam_ci_failure_type) to string

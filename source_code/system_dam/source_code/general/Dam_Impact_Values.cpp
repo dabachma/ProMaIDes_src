@@ -12,6 +12,7 @@ Dam_Impact_Values::Dam_Impact_Values(void){
 	this->impact_first_t=-1.0;
 	this->fp_elem_id=-1;
 	this->was_wet_flag=false;
+	this->date_time = "";
 	
 
 	//count the memory
@@ -63,6 +64,11 @@ int Dam_Impact_Values::get_fp_elem_id(void){
 bool Dam_Impact_Values::get_was_wet_flag(void){
 	return this->was_wet_flag;
 }
+//Get the date-time string in instationary case
+string Dam_Impact_Values::get_date_time_str(void) {
+	return this->date_time;
+
+}
 //Read out the member data from a given QSqlTableModel
 void Dam_Impact_Values::readout_data_from_database_model(QSqlQueryModel *model, const int model_index){
 																		
@@ -86,6 +92,28 @@ void Dam_Impact_Values::readout_data_from_database_model(QSqlQueryModel *model, 
 		ostringstream info;
 		throw msg;
 	}
+}
+//Read out the member data from a given QSqlTableModel
+void Dam_Impact_Values::readout_instat_data_from_database_model(QSqlQueryModel *model, const int model_index) {
+	try {
+		this->fp_elem_id = model->record(model_index).value((Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_id)).c_str()).toInt();
+		this->impact_h = model->record(model_index).value((Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_h_max)).c_str()).toDouble();
+		this->impact_v_tot = model->record(model_index).value((Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_vtot_max)).c_str()).toDouble();
+		this->impact_dsdt = model->record(model_index).value((Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_dsdt_max)).c_str()).toDouble();
+		this->date_time = model->record(model_index).value((Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::data_time)).c_str()).toString().toStdString();
+		this->impact_vh = model->record(model_index).value((Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_hv_max)).c_str()).toDouble();
+		if (this->impact_h > constant::meter_epsilon) {
+			this->was_wet_flag = true;
+		}
+		else {
+			this->was_wet_flag = false;
+		}
+	}
+	catch (Error msg) {
+		ostringstream info;
+		throw msg;
+	}
+
 }
 //Convert the enumerator (_dam_impact_type) to a text (static)
 string Dam_Impact_Values::convert_dam_impact_type2txt(const _dam_impact_type value){

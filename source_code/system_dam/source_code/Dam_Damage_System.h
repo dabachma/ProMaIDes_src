@@ -452,6 +452,8 @@ private:
 
 	///Set the impact values of the floodplains from database
 	void set_impact_values_hyd(const int bound_sz, const string break_sz);
+	///Set the instationary impact values of the floodplains from database
+	void set_instat_impact_values_hyd(const int bound_sz, const string break_sz, const string time_date);
 
 	///Import multi hydraulic result raster from file to database for multiple floodplains
 	void import_multi_fp_hyd_res_raster_file2database(void);

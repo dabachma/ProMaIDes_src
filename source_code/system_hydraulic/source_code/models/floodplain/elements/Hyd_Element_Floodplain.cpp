@@ -2402,6 +2402,282 @@ int Hyd_Element_Floodplain::get_max_glob_id_erg_instat_table(QSqlDatabase *ptr_d
 	return id_glob;
 
 }
+//Select and count the number of relevant instationary results per floodplain elements for one floodplain model in a database table (static)
+int Hyd_Element_Floodplain::select_relevant_instat_results_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const bool with_output) {
+	int number = 0;
+	try {
+		Hyd_Element_Floodplain::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	if (with_output == true) {
+		ostringstream cout;
+		cout << "Select relevant instationary results of the floodplain elements in database..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+
+	ostringstream test_filter;
+	test_filter << "SELECT ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_id) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_h_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_vtot_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_dsdt_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_hv_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::data_time);
+	test_filter << " FROM " << Hyd_Element_Floodplain::erg_instat_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " = '" << break_sz << "'";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " = " << bound_sz;
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::applied_flag) << "= true";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " AND (";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << 0;
+	test_filter << " OR ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " ) ";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_fpno) << " = " << fp_number;
+	test_filter << " ORDER BY " << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::glob_id);
+
+	Data_Base::database_request(results, test_filter.str(), ptr_database);
+
+	//check the request
+	if (results->lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Hyd_Element_Floodplain::select_relevant_instat_results_elements_database(QSqlTableModel *results, const _sys_system_id id, const int fp_number, , const int bound_sz, const string break_sz, const bool with_output)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << results->lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	number = results->rowCount();
+
+	if (with_output == true) {
+		ostringstream cout;
+		cout << number << " relevant instationary results of the floodplain element(s) are selected in database" << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+	return number;
+
+}
+//Select and count the number of relevant instationary results per floodplain elements for one floodplain model in a database table (just part of it) (static)
+int Hyd_Element_Floodplain::select_relevant_instat_results_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const int offset, const int number_rows, const string time_date, const bool with_output) {
+	int number = 0;
+	try {
+		Hyd_Element_Floodplain::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	if (with_output == true) {
+		ostringstream cout;
+		cout << "Select relevant instationary results of the floodplain elements in database..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+
+	ostringstream test_filter;
+	test_filter << "SELECT ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_id) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_h_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_vtot_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_dsdt_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemerg_hv_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::data_time);
+	test_filter << " FROM " << Hyd_Element_Floodplain::erg_instat_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " = '" << break_sz << "'";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " = " << bound_sz;
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::applied_flag) << "= true";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " AND (";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << 0;
+	test_filter << " OR ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " ) ";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_fpno) << " = " << fp_number;
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::data_time) << " = '" << time_date<<"'";
+	test_filter << " ORDER BY " << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::glob_id);
+	test_filter << " LIMIT " << number_rows;
+	test_filter << " OFFSET " << offset;
+
+	Data_Base::database_request(results, test_filter.str(), ptr_database);
+
+	//check the request
+	if (results->lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Hyd_Element_Floodplain::select_relevant_instat_results_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const int offset, const int number_rows, const bool with_output)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << results->lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	number = results->rowCount();
+
+	if (with_output == true) {
+		ostringstream cout;
+		cout << number << " relevant instationary results of the floodplain element(s) are selected in database" << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+	return number;
+
+}
+//Count the number of relevant instationary results per floodplain elements for one floodplain model in a database table (static)
+int Hyd_Element_Floodplain::count_relevant_instat_results_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const string time_date, const bool with_output) {
+	int number = 0;
+	try {
+		Hyd_Element_Floodplain::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	if (with_output == true) {
+		ostringstream cout;
+		cout << "Search for relevant instationary results of the floodplain elements in database..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+	ostringstream test_filter;
+	test_filter << "SELECT COUNT(";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_id) << " ) ";
+	test_filter << " FROM " << Hyd_Element_Floodplain::erg_instat_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " = '" << break_sz << "'";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " = " << bound_sz;
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::applied_flag) << "= true";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " AND (";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << 0;
+	test_filter << " OR ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " ) ";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::elemdata_fpno) << " = " << fp_number;
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::data_time) << " = '" << time_date << "'";
+
+	Data_Base::database_request(results, test_filter.str(), ptr_database);
+
+	//check the request
+	if (results->lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Hyd_Element_Floodplain::count_relevant_instat_results_elements_database(QSqlTableModel *results, const _sys_system_id id, const int fp_number, , const int bound_sz, const string break_sz, const bool with_output)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << results->lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	if (results->rowCount() > 0) {
+		number = results->record(0).field(0).value().toInt();
+	}
+
+	if (with_output == true) {
+		ostringstream cout;
+		cout << number << " relevant instationary results of the floodplain element(s) are found in database" << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+	return number;
+
+}
+//Get a list of dicstinct date-time strings from database table (static)
+int Hyd_Element_Floodplain::get_distinct_date_time_instat_results_elements_database(QStringList *list, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool with_output) {
+
+	int number = 0;
+	try {
+		Hyd_Element_Floodplain::set_erg_instat_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	if (with_output == true) {
+		ostringstream cout;
+		cout << "Search for relevant date-time string of the instationary results of floodplain elements in database..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+	QSqlQueryModel results;
+
+	ostringstream test_filter;
+	test_filter << "SELECT * FROM (";
+	test_filter << "SELECT DISTINCT(";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::data_time) << " ) ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::glob_id);
+	test_filter << " FROM " << Hyd_Element_Floodplain::erg_instat_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(risk_label::sz_break_id) << " = '" << break_sz << "'";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::sz_bound_id) << " = " << bound_sz;
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::applied_flag) << "= true";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " AND (";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << 0;
+	test_filter << " OR ";
+	test_filter << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " )) p";
+	test_filter << " ORDER BY " << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::glob_id);
+
+	Data_Base::database_request(&results, test_filter.str(), ptr_database);
+
+	//check the request
+	if (results.lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Hyd_Element_Floodplain::count_relevant_instat_results_elements_database(QSqlTableModel *results, const _sys_system_id id, const int fp_number, , const int bound_sz, const string break_sz, const bool with_output)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << endl;
+		info << "Table error info: " << results.lastError().text().toStdString() << endl;
+		//info << test_Filter.str()<< endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	
+	number = results.rowCount();
+	
+
+	if (with_output == true) {
+		ostringstream cout;
+		cout << number << " relevant date-time string of the instationary results of floodplain elements in database are found in database" << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+	for (int i = 0; i < number; i++) {
+		//list->append(results.record(i).value((Hyd_Element_Floodplain::erg_instat_table->get_column_name(hyd_label::data_time)).c_str()).toString());
+		list->append(results.record(i).value(0).toString());
+
+	}
+
+	return number;
+
+
+
+
+
+
+
+}
 //Copy the instationary results of a given system id to another one in database table
 void Hyd_Element_Floodplain::copy_instat_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest) {
 	//the table is set (the name and the column names) and allocated

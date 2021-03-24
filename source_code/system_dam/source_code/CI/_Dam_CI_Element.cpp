@@ -34,9 +34,13 @@ _Dam_CI_Element::_Dam_CI_Element(void):block_elems(50){
 	this->final_flag = false;
 	this->recovery_time = 0.0;
 
+	this->orig_recovery_time = 0.0;
+	this->orig_activation_time = 0.0;
+
 
 	this->activation_time=0.0;
 	this->regular_flag =true;
+	this->ptr_point = NULL;
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(_Dam_CI_Element)+ 2*sizeof(QList<QList<int>>), _sys_system_modules::DAM_SYS);
@@ -84,6 +88,10 @@ _Dam_CI_Element::_Dam_CI_Element(const _Dam_CI_Element& object) :block_elems(50)
 	this->recovery_time = object.recovery_time;
 	this->activation_time = object.activation_time;
 	this->regular_flag = object.regular_flag;
+	this->ptr_point = object.ptr_point;
+	this->orig_recovery_time = 0.0;
+	this->orig_activation_time = object.orig_activation_time;
+	this->orig_recovery_time = object.orig_recovery_time;
 }
 //Default destructor
 _Dam_CI_Element::~_Dam_CI_Element(void){
@@ -131,6 +139,23 @@ void _Dam_CI_Element::set_failure_type(const _dam_ci_failure_type type) {
 void _Dam_CI_Element::set_active_flag(const bool flag) {
 	this->active_flag = flag;
 }
+///Set the activation time and flag
+void _Dam_CI_Element::set_active_time_flag(const bool flag, const double time) {
+	if (this->regular_flag == false) {
+		if (flag == true) {
+			this->activation_time = this->activation_time - time / (constant::day_second);
+			if (this->activation_time <= 0.0000) {
+				this->active_flag = flag;
+			}
+		}
+		else {
+			this->activation_time = this->activation_time + time / (constant::day_second);
+			this->active_flag = flag;
+		}
+
+	}
+
+}
 //Set the was-affected flag
 void _Dam_CI_Element::set_was_affected_flag(const bool flag) {
 	this->was_affected = flag;
@@ -177,6 +202,8 @@ void _Dam_CI_Element::reset_result_values(void) {
 	this->set_failure_type(_dam_ci_failure_type::no_failure);
 	//Failure duration
 	this->failure_duration = 0.0;
+	this->activation_time=this->orig_activation_time;
+	this->recovery_time=this->orig_recovery_time;
 
 	if (this->regular_flag == false) {
 		this->active_flag = false;
@@ -504,8 +531,140 @@ void _Dam_CI_Element::calculate_indirect_damages(void) {
 	}
 }
 //Calculate indirect damages instationary
-void _Dam_CI_Element::calculate_indirect_damages_instationary(void) {
+void _Dam_CI_Element::calculate_indirect_damages_instationary(const double time) {
+	double buff_time = 0.0;
+	QList<double> buff_list;
+	QList<int> list_sec_failure;
+	if (this->failure_type_enum != _dam_ci_failure_type::direct) {
+		this->failure_duration = 0.0;
 
+
+		for (int i = 0; i < this->list_sec_incoming.count(); i++) {
+			buff_time = 0.0;
+			for (int j = 1; j < this->list_sec_incoming[i].count(); j++) {
+				if (this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+					break;
+				}
+				else {
+					if (j == 1) {
+						buff_time = this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration();
+					}
+					else {
+						buff_time = min(buff_time, this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration());
+					}
+				}
+				if (j == this->list_sec_incoming[i].count() - 1) {
+					buff_list.append(buff_time);
+					this->was_affected = true;
+					this->active_flag = false;
+					if (this->sector_id == this->list_sec_incoming[i].at(0)) {
+						this->set_failure_type(_dam_ci_failure_type::sectoral);
+						this->set_active_flag(false);
+					}
+					else {
+						this->set_failure_type(_dam_ci_failure_type::transsectoral);
+						this->set_active_flag(false);
+					}
+					list_sec_failure.append(this->list_sec_incoming[i].at(0));
+				}
+			}
+		}
+
+		//check emergency structures
+		for (int i = 0; i < this->list_sec_emergency.count(); i++) {
+			for (int j = 1; j < this->list_sec_emergency[i].count(); j++) {
+				this->incomings[this->list_sec_emergency[i].at(j)]->set_active_flag(false);
+			}
+
+			for (int l = 0; l < list_sec_failure.count(); l++) {
+				if (this->list_sec_emergency[i].at(0) == list_sec_failure.at(l)) {
+					for (int j = 1; j < this->list_sec_emergency[i].count(); j++) {
+						if (this->incomings[this->list_sec_emergency[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+							if (this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
+								this->incomings[this->list_sec_emergency[i].at(j)]->set_active_time_flag(true, time);
+								this->incomings[this->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
+								buff_list.replace(l, min(buff_list.at(l), this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time()));
+								if (j > 2) {
+									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_active_time_flag(false, time);
+									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_was_affected_flag(false);
+								}
+							}
+						}
+						else {
+							if (this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
+								this->incomings[this->list_sec_emergency[i].at(j)]->set_active_time_flag(true, time);;
+								this->incomings[this->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
+								this->incomings[this->list_sec_emergency[i].at(j)]->set_failure_type(_dam_ci_failure_type::direct_activ);
+								buff_list.replace(l, min(buff_list.at(l), this->incomings[this->list_sec_emergency[i].at(j)]->get_recovery_time()));
+								if (j > 2) {
+									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_active_time_flag(false, time);;
+									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_was_affected_flag(false);
+									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_failure_type(_dam_ci_failure_type::direct);
+								}
+							}
+						}
+					}
+
+				}
+			}
+		}
+
+
+
+		//set the duration of failure
+		for (int i = 0; i < buff_list.count(); i++) {
+			this->failure_duration = max(this->failure_duration, buff_list.at(i));
+
+		}
+		if (this->failure_duration <= 0.0+constant::sec_epsilon) {
+			this->failure_duration = 0.0;
+			this->set_failure_type(_dam_ci_failure_type::no_failure);
+			this->set_active_flag(true);
+			
+		}
+
+		//next step
+		//if (this->failure_type_enum != _dam_ci_failure_type::no_failure) {
+		if (this->final_flag == true) {
+			return;
+		}
+		for (int i = 0; i < this->no_outgoing; i++) {
+			this->outgoing[i]->calculate_indirect_damages_instationary(time);
+
+		}
+
+		//}
+	}
+	//set the duration of failure for the direct affected CI-elements
+	else if (this->failure_type_enum == _dam_ci_failure_type::direct) {
+		buff_list.append(this->recovery_time);
+		this->failure_duration = 0.0;
+		for (int i = 0; i < this->list_sec_incoming.count(); i++) {
+			buff_time = 0.0;
+			for (int j = 1; j < this->list_sec_incoming[i].count(); j++) {
+				if (this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+					break;
+				}
+				else {
+					if (j == 1) {
+						buff_time = this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration();
+					}
+					else {
+						buff_time = min(buff_time, this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration());
+					}
+				}
+				if (j == this->list_sec_incoming[i].count() - 1) {
+					buff_list.append(buff_time);
+				}
+			}
+		}
+		//set the duration of failure
+		for (int i = 0; i < buff_list.count(); i++) {
+			this->failure_duration = max(this->failure_duration, buff_list.at(i));
+
+		}
+
+	}
 
 }
 ///Convert string to failure type (_dam_ci_failure_type) (static)
@@ -743,6 +902,9 @@ _Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
 	this->recovery_time = object.recovery_time;
 	this->activation_time = object.activation_time;
 	this->regular_flag = object.regular_flag;
+	this->ptr_point = object.ptr_point;
+	this->orig_activation_time = object.orig_activation_time;
+	this->orig_recovery_time = object.orig_recovery_time;
 
 	return *this;
 }

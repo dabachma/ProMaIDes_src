@@ -247,6 +247,11 @@ namespace functions{
     ///Convert seconds into a structure tm from ctime year/month/day hour:minute:second
     void convert_seconds2datestruct(const double seconds, tm *t_struct);
 
+	///Convert time to time string
+	string convert_time2time_str(const double seconds);
+	///Convert time to time string without '
+	string convert_time2time_str_without(const double seconds);
+
 	///Function to encrypt/decrypt the password with XOR
 	string crypter(string value,string key);
 	///Convert a byte value (int) into a string with units

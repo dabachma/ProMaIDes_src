@@ -2765,15 +2765,10 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 
 	//time string
 	string time;
-	stringstream buff_t;
-	tm time_struct;
 
-	functions::convert_seconds2datestruct(this->internal_time, &time_struct);
-	buff_t << "'19" << time_struct.tm_year << "-" << setw(2) << setfill('0') << time_struct.tm_mon + 1;
-	buff_t << "-" << setw(2) << setfill('0') << time_struct.tm_mday << " ";
-	buff_t << setw(2) << setfill('0') << time_struct.tm_hour << ":";
-	buff_t << setw(2) << setfill('0') << time_struct.tm_min << ":" << setw(2) << setfill('0') << time_struct.tm_sec << "'";
-	time = buff_t.str();
+
+	time=functions::convert_time2time_str(this->internal_time);
+
 
 
 	//output the results of the river models to file
