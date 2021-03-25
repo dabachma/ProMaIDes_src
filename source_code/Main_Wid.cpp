@@ -1226,7 +1226,6 @@ void Main_Wid::enable_menu_project_closed(void){
 	this->treeview_file->clear_view();
 	this->setEnabled(true);
 }
-
 //Enable/disable menu
 void Main_Wid::enable_menu(const bool flag) {
 	this->menu_FPL_system->setEnabled(flag);
@@ -4024,6 +4023,9 @@ void Main_Wid::start_task_by_file(void) {
 			}
 			bool task_found = false;
 			for (int i = 0; i<this->number_task; i++) {
+				if (this->closing_thread != NULL) {
+					break;
+				}
 				if (i == this->count_task) {
 					this->enable_menu(false);
 					ostringstream prefix;
@@ -4038,6 +4040,7 @@ void Main_Wid::start_task_by_file(void) {
 					break;
 
 				}
+				
 
 			}
 			if(task_found==false){
