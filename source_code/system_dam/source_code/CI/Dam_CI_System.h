@@ -240,6 +240,11 @@ private:
 	///Ouput CI-polygon instationary results to database
 	void output_polygon_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, const string time_date, bool *was_output);
 
+	///Ouput CI-connection results to database
+	void output_connection_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output);
+	///Ouput CI-connection instationary results to database
+	void output_connection_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, const string time_date, bool *was_output);
+
 	///Check if the points are connected to the hydraulic
 	int check_points_connected2hyd(void);
 

@@ -177,6 +177,15 @@ struct _dam_break2nobreak_sc{
 	bool dam_was_output;
 };
 
+///Structure for the Dam-system parameters
+struct _dam_system_param {
+	///Flag if the instationary calculation of CI-failure should be done until "all active" is reached again (:=true); if this is set to false the end time of the hydraulic calculatrion is used
+	bool until_all_active;
+	///Maximum time steps for instationary damage calculation
+	int max_timesteps;
+
+};
+
 ///Class for the calculation of all types of damages, like economic, ecologic, psycho-social and simple consequences \ingroup dam
 /**
 
@@ -219,6 +228,10 @@ public:
 
 	///Pointer to the table for the results of the damage calculation in a database
 	static Tables *erg_table;
+
+
+	///Pointer to the table for the DAM-system information in a database
+	static Tables *system_table;
 
 	//methods
 	///Output the members
@@ -300,6 +313,19 @@ public:
 	///Select the data in the database table for the results of the damage calculation specified by the system id and the scenario-ids
 	static int select_data_in_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const string like_risk_id);
 
+
+	///Create the database table for the Dam-system parameters
+	static void create_Dam_system_table(QSqlDatabase *ptr_database);
+	///Insert a row in the Dam-system table
+	static void insert_row_dam_system(QSqlDatabase *ptr_database);
+	///Set the database table for the Dam-system parameters: it sets the table name and the name of the columns and allocate them
+	static void set_Dam_system_table(QSqlDatabase *ptr_database, const bool not_close = false);
+	///Close and delete the database table for the Dam-system parameters
+	static void close_Dam_system_table(void);
+	///Set system parameters by database table
+	void set_Dam_system_parameters_db(void);
+
+
 	///Check if all damage raster are connected to the hydraulic system
 	static bool check_all_raster_connected2hyd(QSqlDatabase *ptr_database, string *txt, _sys_system_id id);
 	///Reset the connection to the hydraulic system; (just the connected flag is set to false)
@@ -367,6 +393,9 @@ private:
 
 	///Flag if the thread are aborted by the user
 	static bool abort_thread_flag;
+
+	///Dam-system parameters
+	_dam_system_param system_param;
 
 	///Copy of the database
 	QSqlDatabase qsqldatabase;

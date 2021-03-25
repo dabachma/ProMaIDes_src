@@ -446,7 +446,7 @@ void Geo_Polysegment::copy_polysegment(Geo_Polysegment *seg){
 	}
 
 }
-//Get a string for inserting a polysegment to a sql-database (static)
+//Get a string for inserting a polysegment to a sql-database 
 string Geo_Polysegment::get_polysegment2sql_string(void) {
 	ostringstream buff;
 
@@ -469,6 +469,26 @@ string Geo_Polysegment::get_polysegment2sql_string(void) {
 
 
 
+
+}
+//Get a string for inserting a polysegment to a sql-database (static)
+string Geo_Polysegment::get_line2sql_string(const double x_coor1, const double y_coor1, const double x_coor2, const double y_coor2) {
+	ostringstream buff;
+
+
+	//todo
+	buff << FORMAT_FIXED_REAL << P(3);
+	buff << " ST_GEOMFROMTEXT('LINESTRING( ";
+	
+	buff << x_coor1 << "  ";
+	buff << y_coor1 << ", ";
+	
+	//set the last point 
+	buff << x_coor2 << "  ";
+	buff << y_coor2 << "  ";
+
+	buff << ")') ";
+	return buff.str();
 
 }
 //______________

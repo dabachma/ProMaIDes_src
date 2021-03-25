@@ -174,6 +174,9 @@ void Dam_CI_System::del_ci_data_database(QSqlDatabase *ptr_database) {
 			Sys_Common_Output::output_dam->output_txt(&cout);
 			Dam_CI_Polygon::delete_data_in_erg_table(ptr_database);
 			Dam_CI_Polygon::delete_data_in_instat_erg_table(ptr_database);
+			cout << "CI-connections..." << endl;
+			Dam_CI_Element_List::delete_data_in_erg_table(ptr_database);
+			Dam_CI_Element_List::delete_data_in_instat_erg_table(ptr_database);
 		}
 	}
 	catch (Error msg) {
@@ -597,7 +600,7 @@ void Dam_CI_System::delete_result_members_in_database(QSqlDatabase *ptr_database
 	try {
 		Dam_CI_Point::delete_data_in_erg_table(ptr_database, id, bound_sz, break_sz);
 		Dam_CI_Polygon::delete_data_in_erg_table(ptr_database, id, bound_sz, break_sz);
-
+		Dam_CI_Element_List::delete_data_in_erg_table(ptr_database, id, bound_sz, break_sz);
 	}
 	catch (Error msg) {
 		throw msg;
@@ -612,6 +615,7 @@ void Dam_CI_System::delete_instat_result_members_in_database(QSqlDatabase *ptr_d
 		Dam_CI_Point::delete_data_in_instat_erg_table(ptr_database, id, bound_sz, break_sz);
 
 		Dam_CI_Polygon::delete_data_in_instat_erg_table(ptr_database, id, bound_sz, break_sz);
+		Dam_CI_Element_List::delete_data_in_instat_erg_table(ptr_database, id, bound_sz, break_sz);
 	}
 	catch (Error msg) {
 		throw msg;
@@ -630,7 +634,7 @@ void Dam_CI_System::output_result_member2database(QSqlDatabase *ptr_database, co
 	Sys_Common_Output::output_dam->output_txt(&cout);
 	this->output_point_results2database(ptr_database, bound_sz, break_sz, was_output);
 	this->output_polygon_results2database(ptr_database, bound_sz, break_sz, was_output);
-
+	this->output_connection_results2database(ptr_database, bound_sz, break_sz, was_output);
 
 
 }
@@ -645,6 +649,7 @@ void Dam_CI_System::output_instat_result_member2database(QSqlDatabase *ptr_datab
 	//Sys_Common_Output::output_dam->output_txt(&cout);
 	this->output_point_instat_results2database(ptr_database, bound_sz, break_sz, date_time, was_output);
 	this->output_polygon_instat_results2database(ptr_database, bound_sz, break_sz, date_time, was_output);
+	this->output_connection_instat_results2database(ptr_database, bound_sz, break_sz, date_time, was_output);
 
 }
 //Sum up the total damage results for a given system-id and scenario (boundary-, break-) from the database
@@ -3084,6 +3089,202 @@ void Dam_CI_System::output_polygon_instat_results2database(QSqlDatabase *ptr_dat
 	}
 
 }
+//Ouput CI-connection results to database
+void Dam_CI_System::output_connection_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output) {
+	//Set the query
+	QSqlQuery query_buff(*ptr_database);
+
+	ostringstream cout;
+	cout << "Transfer the CI-connection damage results to database..." << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+	//get the global index
+	int glob_id = Dam_CI_Element_List::get_max_glob_id_connection_erg_table(ptr_database) + 1;
+	//get the header for the query
+	string query_header;
+	query_header = Dam_CI_Element_List::get_insert_header_erg_table(ptr_database);
+
+	ostringstream query_data;
+	ostringstream query_total;
+	int counter = 0;
+	string buffer_data;
+	bool must_output2 = false;
+	bool must_output = true;
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (i % 10000 == 0 && i > 0) {
+			cout << i << " (" << this->no_ci_point << ") results of CI-point connections are transfered to database..." << endl;
+			Sys_Common_Output::output_dam->output_txt(&cout);
+			Dam_Damage_System::check_stop_thread_flag();
+		}
+
+
+		if (this->dam_ci_point[i].get_failure_type() == _dam_ci_failure_type::no_failure && this->dam_ci_point[i].get_regular_flag() == true) {
+			buffer_data = label::not_set;
+		}
+		else if (this->dam_ci_point[i].get_end_level_flag() == true || this->dam_ci_point[i].get_number_outgoing() == 0) {
+			buffer_data = label::not_set;
+		}
+		else if (this->dam_ci_point[i].get_element_active() ==false && this->dam_ci_point[i].get_regular_flag() == false) {
+			buffer_data = label::not_set;
+		}
+		else {
+			buffer_data = this->dam_ci_point[i].get_datastring_conect_results2database(&glob_id, bound_sz, break_sz, must_output2);
+
+		}
+
+
+		if (i == this->no_ci_point - 1 && must_output == true && *was_output == false) {
+			must_output2 = true;
+		}
+
+		
+		if (buffer_data != label::not_set) {
+			query_data << buffer_data << " ,";
+			//count the global index
+			//glob_id++;
+			counter++;
+			*was_output = true;
+		}
+		//send packages of 100
+		if (counter == 100) {
+			query_total << query_header << query_data.str();
+			//delete last komma
+			string buff = query_total.str();
+			buff.erase(buff.length() - 1);
+			Data_Base::database_request(&query_buff, buff, ptr_database);
+			//delete them
+			query_total.str("");
+			query_data.str("");
+			counter = 0;
+			if (query_buff.lastError().isValid()) {
+				Warning msg = this->set_warning(15);
+				ostringstream info;
+				info << "Table Name                : " << Dam_CI_Element_List::connection_erg_table->get_table_name() << endl;
+				info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+				msg.make_second_info(info.str());
+				msg.output_msg(4);
+			}
+		}
+	}
+	//send the rest
+	if (counter != 0) {
+		query_total << query_header << query_data.str();
+		//delete last komma
+		string buff = query_total.str();
+		buff.erase(buff.length() - 1);
+		Data_Base::database_request(&query_buff, buff, ptr_database);
+		//delete them
+		query_total.str("");
+		query_data.str("");
+		counter = 0;
+		if (query_buff.lastError().isValid()) {
+			Warning msg = this->set_warning(15);
+			ostringstream info;
+			info << "Table Name                : " << Dam_CI_Element_List::connection_erg_table->get_table_name() << endl;
+			info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(4);
+		}
+	}
+
+}
+//Ouput CI-connection instationary results to database
+void Dam_CI_System::output_connection_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, const string time_date, bool *was_output) {
+	//Set the query
+	QSqlQuery query_buff(*ptr_database);
+
+	
+	//get the global index
+	int glob_id = Dam_CI_Element_List::get_max_glob_id_connection_instat_erg_table(ptr_database) + 1;
+	//get the header for the query
+	string query_header;
+	query_header = Dam_CI_Element_List::get_insert_header_instat_erg_table(ptr_database);
+
+	ostringstream query_data;
+	ostringstream query_total;
+	int counter = 0;
+	string buffer_data;
+	bool must_output2 = false;
+	bool must_output = true;
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (i % 10000 == 0 && i > 0) {
+			Dam_Damage_System::check_stop_thread_flag();
+		}
+
+
+		if (this->dam_ci_point[i].get_failure_type() == _dam_ci_failure_type::no_failure && this->dam_ci_point[i].get_regular_flag() == true) {
+			buffer_data = label::not_set;
+		}
+		else if (this->dam_ci_point[i].get_end_level_flag() == true || this->dam_ci_point[i].get_number_outgoing() == 0) {
+			buffer_data = label::not_set;
+		}
+		else if (this->dam_ci_point[i].get_element_active() == false && this->dam_ci_point[i].get_regular_flag() == false) {
+			buffer_data = label::not_set;
+		}
+		else {
+			buffer_data = this->dam_ci_point[i].get_datastring_conect_instat_results2database(&glob_id, bound_sz, break_sz, time_date, must_output2);
+
+		}
+
+
+		if (i == this->no_ci_point - 1 && must_output == true && *was_output == false) {
+			must_output2 = true;
+		}
+
+
+		if (buffer_data != label::not_set) {
+			query_data << buffer_data << " ,";
+			//count the global index
+			
+			counter++;
+			*was_output = true;
+		}
+		//send packages of 100
+		if (counter == 100) {
+			query_total << query_header << query_data.str();
+			//delete last komma
+			string buff = query_total.str();
+			buff.erase(buff.length() - 1);
+			Data_Base::database_request(&query_buff, buff, ptr_database);
+			//delete them
+			query_total.str("");
+			query_data.str("");
+			counter = 0;
+			if (query_buff.lastError().isValid()) {
+				Warning msg = this->set_warning(16);
+				ostringstream info;
+				info << "Table Name                : " << Dam_CI_Element_List::connection_instat_erg_table->get_table_name() << endl;
+				info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+				msg.make_second_info(info.str());
+				msg.output_msg(4);
+			}
+		}
+	}
+	//send the rest
+	if (counter != 0) {
+		query_total << query_header << query_data.str();
+		//delete last komma
+		string buff = query_total.str();
+		buff.erase(buff.length() - 1);
+		Data_Base::database_request(&query_buff, buff, ptr_database);
+		//delete them
+		query_total.str("");
+		query_data.str("");
+		counter = 0;
+		if (query_buff.lastError().isValid()) {
+			Warning msg = this->set_warning(16);
+			ostringstream info;
+			info << "Table Name                : " << Dam_CI_Element_List::connection_instat_erg_table->get_table_name() << endl;
+			info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(4);
+		}
+	}
+
+}
+
 //Check if the points are connected to the hydraulic
 int Dam_CI_System::check_points_connected2hyd(void) {
 	int counter = 0;
@@ -3429,6 +3630,18 @@ Warning Dam_CI_System::set_warning(const int warn_type) {
 		case 14://output datas can not submitted
 			place.append("output_polygon_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output)");
 			reason = "Can not submit the CI-polygon instationary result data to the database";
+			help = "Check the database";
+			type = 2;
+			break;
+		case 15://output datas can not submitted
+			place.append("output_connection_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output)");
+			reason = "Can not submit the CI-connection result data to the database";
+			help = "Check the database";
+			type = 2;
+			break;
+		case 16://output datas can not submitted
+			place.append("output_connection_instat_results2database(QSqlDatabase *ptr_database, const int bound_sz, const string break_sz, bool *was_output)");
+			reason = "Can not submit the CI-connection result data to the database";
 			help = "Check the database";
 			type = 2;
 			break;

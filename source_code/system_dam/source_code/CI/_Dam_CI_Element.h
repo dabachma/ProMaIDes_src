@@ -172,6 +172,11 @@ public:
 	///Check the connection of the CI-elements
 	void check_connections(void);
 
+	///Get the pointer to the Geo_Point
+	Geo_Point *get_ptr_point(void);
+
+
+
 	///Copy operator
 	_Dam_CI_Element& operator=(const _Dam_CI_Element& object);
 

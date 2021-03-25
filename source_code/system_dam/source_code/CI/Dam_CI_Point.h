@@ -152,6 +152,9 @@ public:
 	static void copy_instat_results(QSqlDatabase *ptr_database, const _sys_system_id src, const _sys_system_id dest);
 
 
+
+
+
 	///Get the boundary value
 	double get_boundary_value(void);
 	///Get sector level
@@ -168,6 +171,11 @@ public:
 	string get_datastring_results2database(const int global_id, const int bound_sz, const string break_sz, const bool must_output);
 	///Get the data-string to complete a insert-string for inserting the data of the point instationary results to database
 	string get_datastring_instat_results2database(const int global_id, const int bound_sz, const string break_sz, string date_time, const bool must_output);
+
+	///Get the data-string to complete a insert-string for inserting the data of the connection results to database
+	string get_datastring_conect_results2database(int *global_id, const int bound_sz, const string break_sz, const bool must_output);
+	///Get the data-string to complete a insert-string for inserting the data of the connection instationary results to database
+	string get_datastring_conect_instat_results2database(int *global_id, const int bound_sz, const string break_sz, string date_time, const bool must_output);
 
 	///Calculate direct damages
 	void calculate_direct_damages(Dam_Impact_Values *impact);

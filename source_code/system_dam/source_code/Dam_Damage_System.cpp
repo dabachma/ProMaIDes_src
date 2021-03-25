@@ -5,6 +5,7 @@
 bool Dam_Damage_System::abort_thread_flag=false;
 bool Dam_Damage_System::hyd_thread_runs=false;
 Tables *Dam_Damage_System::erg_table=NULL;
+Tables *Dam_Damage_System::system_table = NULL;
 
 //Default constructor
 Dam_Damage_System::Dam_Damage_System(void){
@@ -34,6 +35,9 @@ Dam_Damage_System::Dam_Damage_System(void){
 
 	this->multi_fp_hyd_raster_import_dia=NULL;
 	this->number_hyd_imp_dia=0;
+
+	this->system_param.max_timesteps = 1000;
+	this->system_param.until_all_active = true;
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Dam_Damage_System), _sys_system_modules::DAM_SYS);
@@ -470,9 +474,14 @@ void Dam_Damage_System::create_dam_database_tables(void){
 		Dam_CI_Polygon::create_erg_table(&this->qsqldatabase);
 		Dam_CI_Polygon::create_instat_erg_table(&this->qsqldatabase);
 		Dam_CI_Element_List::create_connection_table(&this->qsqldatabase);
+		Dam_CI_Element_List::create_erg_table(&this->qsqldatabase);
+		Dam_CI_Element_List::create_instat_erg_table(&this->qsqldatabase);
 
 		//results
 		Dam_Damage_System::create_erg_table(&this->qsqldatabase);
+
+		//system
+		Dam_Damage_System::create_Dam_system_table(&this->qsqldatabase);
 	}
 	catch(Error msg){
 		this->number_error++;
@@ -603,15 +612,24 @@ void Dam_Damage_System::check_dam_database_tables(void){
 		cout << "Check CI-polygon database instationary result table..." << endl;
 		Sys_Common_Output::output_dam->output_txt(&cout, false, false);
 		Dam_CI_Polygon::set_instat_erg_table(&this->qsqldatabase);
-
+		cout << "Check CI-connection database result table..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout, false, false);
+		Dam_CI_Element_List::set_erg_table(&this->qsqldatabase);
+		cout << "Check CI-connection database instationary result table..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout, false, false);
+		Dam_CI_Element_List::set_instat_erg_table(&this->qsqldatabase);
 		
 
 
 
 		//results
-		cout << "Check the damage system, result database table..." << endl ;
+		cout << "Check the damage system result database table..." << endl ;
 		Sys_Common_Output::output_dam->output_txt(&cout,false, false);
 		Dam_Damage_System::set_erg_table(&this->qsqldatabase);
+
+		cout << "Check the damage system database table..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout, false, false);
+		Dam_Damage_System::set_Dam_system_table(&this->qsqldatabase);
 	}
 	catch(Error msg){
 		this->number_error++;
@@ -670,6 +688,8 @@ void Dam_Damage_System::delete_data_dam_database_tables(void){
 		Dam_CI_Point::delete_data_in_instat_erg_table(&this->qsqldatabase);
 		Dam_CI_Polygon::delete_data_in_erg_table(&this->qsqldatabase);
 		Dam_CI_Polygon::delete_data_in_instat_erg_table(&this->qsqldatabase);
+		Dam_CI_Element_List::delete_data_in_erg_table(&this->qsqldatabase);
+		Dam_CI_Element_List::delete_data_in_instat_erg_table(&this->qsqldatabase);
 
 		//results
 		Dam_Damage_System::delete_data_in_erg_table(&this->qsqldatabase);
@@ -725,9 +745,14 @@ void Dam_Damage_System::close_dam_database_tables(void){
 	Dam_CI_Point::close_instat_erg_table();
 	Dam_CI_Polygon::close_instat_erg_table();
 	Dam_CI_Element_List::close_connection_table();
+	Dam_CI_Element_List::close_erg_table();
+	Dam_CI_Element_List::close_instat_erg_table();
 
 	//results
 	Dam_Damage_System::close_erg_table();
+
+	//system
+	Dam_Damage_System::close_Dam_system_table();
 }
 //Check if some damage raster are set in the database in the damage system (static)
 bool Dam_Damage_System::check_some_raster_set(QSqlDatabase *ptr_database, const _sys_system_id id){
@@ -1606,6 +1631,7 @@ void Dam_Damage_System::calc_instat_damage_nobreak_sz(void) {
 	Sys_Common_Output::output_dam->set_userprefix(&prefix);
 	emit send_hyd_thread_enable(true);
 	this->read_damage_data_per_database();
+	this->set_Dam_system_parameters_db();
 	
 
 	ostringstream cout;
@@ -1656,7 +1682,6 @@ void Dam_Damage_System::calc_instat_damage_nobreak_sz(void) {
 			//	for (int i = 0; i < this->ecn_sys.get_number_raster(); i++) {
 			//		current_counter = i;
 			//		this->ecn_sys.init_damage_rasters(i, &this->qsqldatabase, this->system_id);
-
 			//		for (int j = 0; j < this->sz_bound_manager.get_number_sz(); j++) {
 			//			if (this->sz_bound_manager.get_ptr_sz(j)->get_is_selected() == false) {
 			//				continue;
@@ -1690,8 +1715,7 @@ void Dam_Damage_System::calc_instat_damage_nobreak_sz(void) {
 				//sc
 				prefix << "CI> ";
 				//Input parameter
-				bool until_all_active = true;
-				int max_timesteps = 1000;
+
 				bool max_timestep_reached = false;
 
 				Sys_Common_Output::output_dam->set_userprefix(prefix.str());
@@ -1718,8 +1742,8 @@ void Dam_Damage_System::calc_instat_damage_nobreak_sz(void) {
 					double time = 0.0;
 
 					for (int i = 0; i < time_date.count(); i++) {
-						if (i == max_timesteps) {
-							cout << "Maximum timesteps for calculation are reached ("<<max_timesteps<<")" << endl;
+						if (i == this->system_param.max_timesteps) {
+							cout << "Maximum timesteps for calculation are reached ("<< this->system_param.max_timesteps <<")" << endl;
 							Sys_Common_Output::output_dam->output_txt(&cout);
 							max_timestep_reached = true;
 							break;
@@ -1739,7 +1763,7 @@ void Dam_Damage_System::calc_instat_damage_nobreak_sz(void) {
 
 					}
 
-					if (max_timestep_reached == false && until_all_active==true) {
+					if (max_timestep_reached == false && this->system_param.until_all_active==true) {
 						int counter = time_date.count()-1;
 						bool stop_flag = false;
 						do {
@@ -1769,8 +1793,8 @@ void Dam_Damage_System::calc_instat_damage_nobreak_sz(void) {
 
 
 							counter++;
-							if (counter == max_timesteps) {
-								cout << "Maximum timesteps for calculation are reached (" << max_timesteps << ")" << endl;
+							if (counter == this->system_param.max_timesteps) {
+								cout << "Maximum timesteps for calculation are reached (" << this->system_param.max_timesteps << ")" << endl;
 								Sys_Common_Output::output_dam->output_txt(&cout);
 								max_timestep_reached = true;
 								break;
@@ -1816,13 +1840,223 @@ void Dam_Damage_System::calc_instat_damage_nobreak_sz(void) {
 }
 //Calculate the instationary damage for the break scenario
 void Dam_Damage_System::calc_instat_damage_break_sz(void) {
+	ostringstream prefix;
+	prefix << "CALC> ";
+	Sys_Common_Output::output_dam->set_userprefix(&prefix);
+	emit send_hyd_thread_enable(true);
+	this->read_damage_data_per_database();
+
+
+	ostringstream cout;
+	cout << "Calculate the instationary damages for generated break scenarios..." << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+	this->set_start_warnings_number();
+	//begin time recording
+	time(&this->start_time);
+
+	//QSqlQueryModel *model;
+	//model=NULL;
+	//model=new QSqlQueryModel;
+	//check first for hydraulic results
+	for (int i = 0; i < this->number_break_sc; i++) {
+		if (this->ptr_break_sc_data[i].must_calc == true) {
+			if (Hyd_Hydraulic_System::check_hyd_results_calculated(&this->qsqldatabase, this->system_id, this->ptr_break_sc_data[i].id_hyd_sc, this->ptr_break_sc_data[i].break_sc) == false) {
+				Warning msg = this->set_warning(3);
+				ostringstream info;
+				info << "Scenario name  : " << this->ptr_break_sc_data[i].combi_name << endl;
+				info << "Scenario id    : " << this->ptr_break_sc_data[i].break_sc << endl;
+				msg.make_second_info(info.str());
+				msg.output_msg(4);
+				this->ptr_break_sc_data[i].must_calc = false;
+			}
+		}
+	}
+	//if(model!=NULL){
+	//	delete model;
+	//}
+	//count the number of scenario for calculation
+	this->number_break_sc2calc = 0;
+	for (int i = 0; i < this->number_break_sc; i++) {
+		if (this->ptr_break_sc_data[i].must_calc == true) {
+			this->number_break_sc2calc++;
+		}
+	}
+
+	if (this->number_break_sc2calc != 0) {
+		try {
+			//try {
+			//	//ecn
+			//	ostringstream prefix;
+			//	prefix << "ECN> ";
+			//	Sys_Common_Output::output_dam->set_userprefix(prefix.str());
+			//	//delete the result data
+			//	for (int i = 0; i < this->number_break_sc; i++) {
+			//		if (this->ptr_break_sc_data[i].must_calc == false) {
+			//			continue;
+			//		}
+			//		this->ecn_sys.delete_result_members_in_database(&this->qsqldatabase, this->system_id, this->ptr_break_sc_data[i].id_hyd_sc, this->ptr_break_sc_data[i].break_sc);
+			//	}
+			//	//calculation for each ecn raster
+			//	for (int i = 0; i < this->ecn_sys.get_number_raster(); i++) {
+			//		current_counter = i;
+			//		this->ecn_sys.init_damage_rasters(i, &this->qsqldatabase, this->system_id);
+			//		for (int j = 0; j < this->number_break_sc; j++) {
+			//			if (this->ptr_break_sc_data[j].must_calc == false) {
+			//				continue;
+			//			}
+			//			cout << "Read in the hydraulic impact values for break scenario " << this->ptr_break_sc_data[j].combi_name << "..." << endl;
+			//			Sys_Common_Output::output_dam->output_txt(&cout);
+			//			this->set_impact_values_hyd(this->ptr_break_sc_data[j].id_hyd_sc, this->ptr_break_sc_data[j].break_sc);
+			//			this->ecn_sys.calculate_damages(this->impact_floodplain, this->number_floodplain_impact, i);
+			//			Dam_Damage_System::check_stop_thread_flag();
+			//			this->ecn_sys.output_result_member2database(&this->qsqldatabase, this->ptr_break_sc_data[j].id_hyd_sc, this->ptr_break_sc_data[j].break_sc, i, &(this->ptr_break_sc_data[j].dam_was_output));
+			//		}
+			//		this->ecn_sys.damage_raster[i].clear_raster();
+			//	}
+			//	Sys_Common_Output::output_dam->rewind_userprefix();
+			//	prefix.str("");
+			//}
+			//catch (Error msg) {
+			//	this->ecn_sys.damage_raster[current_counter].clear_raster();
+			//	if (Dam_Damage_System::abort_thread_flag == true) {
+			//		Sys_Common_Output::output_dam->rewind_userprefix();
+			//		throw msg;
+			//	}
+			//	this->number_error++;
+			//	msg.output_msg(4);
+			//	prefix.str("");
+			//	Sys_Common_Output::output_dam->rewind_userprefix();
+			//}
 
 
 
 
+			try {
+				//sc
+				prefix << "CI> ";
+				bool max_timestep_reached = false;
+				Sys_Common_Output::output_dam->set_userprefix(prefix.str());
+				//delete the result data
+				for (int i = 0; i < this->number_break_sc; i++) {
+					if (this->ptr_break_sc_data[i].must_calc == false) {
+						continue;
+					}
+					this->ci_sys.delete_instat_result_members_in_database(&this->qsqldatabase, this->system_id, this->ptr_break_sc_data[i].id_hyd_sc, this->ptr_break_sc_data[i].break_sc);
+				}
+
+				for (int j = 0; j < this->number_break_sc; j++) {
+					if (this->ptr_break_sc_data[j].must_calc == false) {
+						continue;
+					}
+					cout << "Read in the instationary impact values for break scenario " << this->ptr_break_sc_data[j].combi_name << "..." << endl;
+					Sys_Common_Output::output_dam->output_txt(&cout);
+
+					QStringList time_date;
+					Hyd_Element_Floodplain::get_distinct_date_time_instat_results_elements_database(&time_date, &this->qsqldatabase, this->system_id, this->ptr_break_sc_data[j].id_hyd_sc, this->ptr_break_sc_data[j].break_sc);
+					cout << time_date.count() << " number of distinct date-time string found in database for break scenario " << this->ptr_break_sc_data[j].id_hyd_sc<< " " << this->ptr_break_sc_data[j].break_sc << " found" << endl;
+					Sys_Common_Output::output_dam->output_txt(&cout);
+					double timestep = 0.0;
+					timestep = Dam_Impact_Value_Floodplain::analyse_date_time(time_date);
+					double time = 0.0;
+
+					for (int i = 0; i < time_date.count(); i++) {
+						if (i == this->system_param.max_timesteps) {
+							cout << "Maximum timesteps for calculation are reached (" << this->system_param.max_timesteps << ")" << endl;
+							Sys_Common_Output::output_dam->output_txt(&cout);
+							max_timestep_reached = true;
+							break;
+
+						}
+
+						time = time + timestep;
+						cout << "Caluclate HYD-time: " << time_date.at(i).toStdString() << " as number " << i << " from " << time_date.count() << " timesteps (" << timestep << ")" << endl;
+						Sys_Common_Output::output_dam->output_txt(&cout);
+						Dam_Damage_System::check_stop_thread_flag();
+						this->set_instat_impact_values_hyd(this->ptr_break_sc_data[j].id_hyd_sc, this->ptr_break_sc_data[j].break_sc, time_date.at(i).toStdString());
+						Dam_Damage_System::check_stop_thread_flag();
+						this->ci_sys.calculate_instat_damages(this->impact_floodplain, this->number_floodplain_impact, timestep, i);
+						Dam_Damage_System::check_stop_thread_flag();
+						this->ci_sys.output_instat_result_member2database(&this->qsqldatabase, this->ptr_break_sc_data[j].id_hyd_sc, this->ptr_break_sc_data[j].break_sc, time_date.at(i).toStdString(), &(this->ptr_break_sc_data[j].dam_was_output));
+
+					
+					}
+
+
+					if (max_timestep_reached == false && this->system_param.until_all_active == true) {
+						int counter = time_date.count() - 1;
+						bool stop_flag = false;
+						do {
+							if (this->ci_sys.check_points_active_again() == true) {
+								stop_flag = true;
+							}
+							string time_str;
+							time = time + timestep;
+							time_str = functions::convert_time2time_str_without(time);
+							cout << "Caluclate CI-time: " << time_str << " as timestep number " << counter << " until all CI-elements are active is reached" << endl;
+							Sys_Common_Output::output_dam->output_txt(&cout);
+							Dam_Damage_System::check_stop_thread_flag();
+							this->set_instat_impact_values_hyd(this->ptr_break_sc_data[j].id_hyd_sc, this->ptr_break_sc_data[j].break_sc, time_str);
+							Dam_Damage_System::check_stop_thread_flag();
+							this->ci_sys.calculate_instat_damages(this->impact_floodplain, this->number_floodplain_impact, timestep, counter);
+							Dam_Damage_System::check_stop_thread_flag();
+							if (stop_flag == true) {
+								bool buff_out = false;
+								this->ci_sys.output_instat_result_member2database(&this->qsqldatabase, this->ptr_break_sc_data[j].id_hyd_sc, this->ptr_break_sc_data[j].break_sc, time_str, &buff_out);
+							}
+							else {
+								this->ci_sys.output_instat_result_member2database(&this->qsqldatabase, this->ptr_break_sc_data[j].id_hyd_sc, this->ptr_break_sc_data[j].break_sc, time_str, &(this->ptr_break_sc_data[j].dam_was_output));
+
+
+							}
 
 
 
+							counter++;
+							if (counter == this->system_param.max_timesteps) {
+								cout << "Maximum timesteps for calculation are reached (" << this->system_param.max_timesteps << ")" << endl;
+								Sys_Common_Output::output_dam->output_txt(&cout);
+								max_timestep_reached = true;
+								break;
+							}
+						} while (stop_flag == false);
+					}
+
+				}
+
+				Sys_Common_Output::output_dam->rewind_userprefix();
+				prefix.str("");
+			}
+			catch (Error msg) {
+				if (Dam_Damage_System::abort_thread_flag == true) {
+					Sys_Common_Output::output_dam->rewind_userprefix();
+					throw msg;
+				}
+				this->number_error++;
+				msg.output_msg(4);
+				prefix.str("");
+				Sys_Common_Output::output_dam->rewind_userprefix();
+			}
+
+
+		}
+		catch (Error msg) {
+			msg.output_msg(4);
+			Sys_Common_Output::output_dam->rewind_userprefix();
+		}
+	}
+	else {
+		cout << "No hydraulic results are available" << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout);
+	}
+	Sys_Common_Output::output_dam->rewind_userprefix();
+	this->set_warning_number();
+	//set the actual time
+	time(&this->actual_time);
+	this->output_final_statistic_multi_break_sz();
+
+	emit send_hyd_thread_enable(false);
+	Sys_Common_Output::output_dam->rewind_userprefix();
 }
 //Output the statistic of the damage system
 void Dam_Damage_System::output_statistic(void){
@@ -2451,6 +2685,192 @@ int Dam_Damage_System::select_data_in_erg_table(QSqlQueryModel *query, QSqlDatab
 	}
 
 	return query->rowCount();
+}
+//Create the database table for the system parameters (static)
+void Dam_Damage_System::create_Dam_system_table(QSqlDatabase *ptr_database) {
+	if (Dam_Damage_System::system_table == NULL) {
+		ostringstream cout;
+		cout << "Create Dam-system database table..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout);
+		//make specific input for this class
+		const string tab_name = dam_label::tab_dam_system;
+		const int num_col = 3;
+		_Sys_data_tab_column tab_col[num_col];
+		//init
+		for (int i = 0; i < num_col; i++) {
+			tab_col[i].key_flag = false;
+			tab_col[i].unsigned_flag = false;
+			tab_col[i].primary_key_flag = false;
+		}
+
+		tab_col[0].name = dam_label::glob_id;
+		tab_col[0].type = sys_label::tab_col_type_int;
+		tab_col[0].unsigned_flag = true;
+		tab_col[0].primary_key_flag = true;
+
+		tab_col[1].name = dam_label::max_time_step;
+		tab_col[1].type = sys_label::tab_col_type_int;
+		tab_col[1].unsigned_flag = true;
+
+		tab_col[2].name = dam_label::all_active_flag;
+		tab_col[2].type = sys_label::tab_col_type_bool;
+		tab_col[2].default_value = "true";
+
+
+
+		try {
+			Dam_Damage_System::system_table = new Tables();
+			if (Dam_Damage_System::system_table->create_non_existing_tables(tab_name, tab_col, num_col, ptr_database, _sys_table_type::dam) == false) {
+				cout << " Table exists" << endl;
+				Sys_Common_Output::output_dam->output_txt(&cout);
+			};
+		}
+		catch (bad_alloc& t) {
+			Error msg;
+			msg.set_msg("Dam_Damage_System::create_Dam_system_table(QSqlDatabase *ptr_database)", "Can not allocate the memory", "Check the memory", 10, false);
+			ostringstream info;
+			info << "Info bad alloc: " << t.what() << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+		catch (Error msg) {
+			Dam_Damage_System::close_Dam_system_table();
+			throw msg;
+		}
+		Dam_Damage_System::close_Dam_system_table();
+		Dam_Damage_System::insert_row_dam_system(ptr_database);
+		
+	}
+
+
+}
+//Insert a row in the Dam-system table (static)
+void Dam_Damage_System::insert_row_dam_system(QSqlDatabase *ptr_database) {
+	try {
+		Dam_Damage_System::set_Dam_system_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	//set the query via a query string
+	ostringstream query_string;
+	query_string << "INSERT INTO  " << Dam_Damage_System::system_table->get_table_name();
+	query_string << " ( ";
+	query_string << Dam_Damage_System::system_table->get_column_name(dam_label::glob_id) << " , ";
+	query_string << Dam_Damage_System::system_table->get_column_name(dam_label::max_time_step) << " , ";
+	query_string << Dam_Damage_System::system_table->get_column_name(dam_label::all_active_flag) << " ) ";
+
+
+	query_string << " VALUES ";
+
+	query_string << " ( ";
+	query_string << 1 << " , ";
+	query_string << 1000 << " , ";
+	query_string << "'" << functions::convert_boolean2string(true) << "')";
+
+
+	string buffer;
+	buffer = query_string.str();
+	QSqlQuery query_buff(*ptr_database);
+	Data_Base::database_request(&query_buff, buffer, ptr_database);
+
+
+	Dam_Damage_System::close_Dam_system_table();
+
+}
+//Set the database table for the system parameters: it sets the table name and the name of the columns and allocate them (static)
+void Dam_Damage_System::set_Dam_system_table(QSqlDatabase *ptr_database, const bool not_close) {
+	if (Dam_Damage_System::system_table == NULL) {
+		//make specific input for this class
+		const string tab_id_name = dam_label::tab_dam_system;
+		string tab_col[3];
+
+		tab_col[0] = dam_label::glob_id;
+		tab_col[1] = dam_label::max_time_step;
+		tab_col[2] = dam_label::all_active_flag;
+		
+
+		try {
+			Dam_Damage_System::system_table = new Tables(tab_id_name, tab_col, sizeof(tab_col) / sizeof(tab_col[0]));
+			Dam_Damage_System::system_table->set_name(ptr_database, _sys_table_type::dam);
+		}
+		catch (bad_alloc& t) {
+			Error msg;
+			msg.set_msg("set_Dam_system_table(QSqlDatabase *ptr_database)", "Can not allocate the memory", "Check the memory", 10, false);
+			ostringstream info;
+			info << "Info bad alloc: " << t.what() << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+		catch (Error msg) {
+			if (not_close == false) {
+				Dam_Damage_System::close_Dam_system_table();
+			}
+			throw msg;
+		}
+	}
+
+
+}
+//Close and delete the database table for the Dam-system parameters (static)
+void Dam_Damage_System::close_Dam_system_table(void) {
+	if (Dam_Damage_System::system_table != NULL) {
+		delete Dam_Damage_System::system_table;
+		Dam_Damage_System::system_table = NULL;
+	}
+}
+//Set system parameters by database table
+void Dam_Damage_System::set_Dam_system_parameters_db(void) {
+	QSqlQueryModel results;
+	int number = 0;
+	try {
+		Dam_Damage_System::set_Dam_system_table(&this->qsqldatabase);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+	ostringstream cout;
+	cout << "Set the Dam-system parameters in database ..." << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+
+
+	ostringstream test_filter;
+	test_filter << "Select ";
+	test_filter << Dam_Damage_System::system_table->get_column_name(dam_label::glob_id) << " , ";
+	test_filter << Dam_Damage_System::system_table->get_column_name(dam_label::max_time_step) << " , ";
+	test_filter << Dam_Damage_System::system_table->get_column_name(dam_label::all_active_flag) << "  ";
+
+	test_filter << " from " << Dam_Damage_System::system_table->get_table_name();
+
+
+	Data_Base::database_request(&results, test_filter.str(), &this->qsqldatabase);
+
+	//check the request
+	if (results.lastError().isValid()) {
+		Error msg;
+		msg.set_msg("Dam_Damage_System::set_Dam_system_parameters_db(void)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Dam_Damage_System::system_table->get_table_name() << endl;
+		info << "Table error info: " << results.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	number = results.rowCount();
+
+
+	if (number == 0) {
+		this->system_param.max_timesteps = 1000;
+		this->system_param.until_all_active = true;
+	}
+	else {
+		this->system_param.max_timesteps = results.record(0).value((Dam_Damage_System::system_table->get_column_name(dam_label::max_time_step)).c_str()).toInt();
+		this->system_param.until_all_active = results.record(0).value((Dam_Damage_System::system_table->get_column_name(dam_label::all_active_flag)).c_str()).toBool();
+
+
+	}
 }
 //Check if all damage raster are connected to the hydraulic system (static)
 bool Dam_Damage_System::check_all_raster_connected2hyd(QSqlDatabase *ptr_database, string *txt, _sys_system_id id){

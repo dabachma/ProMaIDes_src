@@ -54,8 +54,7 @@ void Dam_CI_Point::input_point_perdatabase(const QSqlQueryModel *results, const 
 		this->set_point_coordinate(x_mid, y_mid);
 		this->global_index = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::glob_id)).c_str()).toInt();
 
-		
-		//this->check_members();
+
 	}
 	catch (Error msg) {
 		ostringstream info;
@@ -1837,9 +1836,12 @@ void Dam_CI_Point::copy_instat_results(QSqlDatabase *ptr_database, const _sys_sy
 		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(risk_label::sz_break_id) << " , ";
 
 		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::sector_id) << " , ";
+		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::sector_level) << " , ";
 		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::active_flag) << " , ";
 		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::regular_flag) << " , ";
 		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::failure_duration) << " , ";
+		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::failure_type) << " , ";
+		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(hyd_label::data_time) << " , ";
 
 
 		test_filter << Dam_CI_Point::point_instat_erg_table->get_column_name(dam_label::sc_point) << "  ";
@@ -1989,6 +1991,86 @@ string Dam_CI_Point::get_datastring_instat_results2database(const int global_id,
 	buffer = query_string.str();
 	return buffer;
 
+}
+///Get the data-string to complete a insert-string for inserting the data of the connection results to database
+string Dam_CI_Point::get_datastring_conect_results2database(int *global_id, const int bound_sz, const string break_sz, const bool must_output) {
+	string buffer = label::not_set;
+	if (must_output == false) {
+		if (this->was_affected == false) {
+			return buffer;
+		}
+	}
+
+	//set the query via a query string
+	ostringstream query_string;
+	for (int i = 0; i < this->no_outgoing; i++) {
+		query_string << " ( ";
+		query_string << *global_id << " , ";
+		query_string << this->system_id.area_state << " , ";
+		query_string << this->system_id.measure_nr << " , ";
+		query_string << bound_sz << " , ";
+		query_string << "'" << break_sz << "' , ";
+		query_string << this->sector_id << " , ";
+		query_string << this->sector_level << " , ";
+		query_string << "'" << this->failure_type << "' , ";
+		query_string << "'" << functions::convert_boolean2string(this->regular_flag) << "' , ";
+
+		//Polyline gemacht werden
+
+
+		query_string << Geo_Polysegment::get_line2sql_string(this->x_coordinate, this->y_coordinate, this->outgoing[i]->get_ptr_point()->get_xcoordinate(), this->outgoing[i]->get_ptr_point()->get_ycoordinate()) << " ) ";
+		if (i < this->no_outgoing - 1) {
+			query_string << ", ";
+		}
+
+		(*global_id)++;
+	}
+
+	buffer = query_string.str();
+	return buffer;
+
+
+}
+///Get the data-string to complete a insert-string for inserting the data of the connection instationary results to database
+string Dam_CI_Point::get_datastring_conect_instat_results2database(int *global_id, const int bound_sz, const string break_sz, string date_time, const bool must_output) {
+	string buffer = label::not_set;
+	if (must_output == false) {
+		if (this->was_affected == false) {
+			return buffer;
+		}
+		if (this->failure_type_enum == _dam_ci_failure_type::no_failure && this->regular_flag == true) {
+			return buffer;
+		}
+		if (this->active_flag == false && this->regular_flag == false) {
+			return buffer;
+		}
+	}
+
+	ostringstream query_string;
+	for (int i = 0; i < this->no_outgoing; i++) {
+		query_string << " ( ";
+		query_string << *global_id << " , ";
+		query_string << this->system_id.area_state << " , ";
+		query_string << this->system_id.measure_nr << " , ";
+		query_string << bound_sz << " , ";
+		query_string << "'" << break_sz << "' , ";
+		query_string << this->sector_id << " , ";
+		query_string << this->sector_level << " , ";
+		query_string << "'" << this->failure_type << "' , ";
+		query_string << "'" << functions::convert_boolean2string(this->regular_flag) << "' , ";
+		query_string << "'" << date_time << "' , ";
+		
+
+
+		query_string << Geo_Polysegment::get_line2sql_string(this->x_coordinate, this->y_coordinate, this->outgoing[i]->get_ptr_point()->get_xcoordinate(), this->outgoing[i]->get_ptr_point()->get_ycoordinate()) << " )  ";
+		if (i < this->no_outgoing - 1) {
+			query_string << ", ";
+		}
+		(*global_id)++;
+	}
+
+	buffer = query_string.str();
+	return buffer;
 }
 //Calculate direct damages
 void Dam_CI_Point::calculate_direct_damages(Dam_Impact_Values *impact) {

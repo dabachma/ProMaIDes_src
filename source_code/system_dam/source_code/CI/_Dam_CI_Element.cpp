@@ -858,6 +858,11 @@ void _Dam_CI_Element::check_connections(void) {
 
 
 }
+//Get the pointer to the Geo_Point
+Geo_Point *_Dam_CI_Element::get_ptr_point(void) {
+	return this->ptr_point;
+
+}
 //Copy operator
 _Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
 	//Boundary value (waterlevel), when the CI element fails

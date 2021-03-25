@@ -61,6 +61,8 @@ private:
 	///Check and update the text of the hydraulic table of the hydraulic river profile result members; width_max is introduced (18.02.2021)
 	void check_update_hyd_table_river_result_width(QSqlDatabase *ptr_database, const string project_file);
 
+
+
 	///Set error(s)
 	Error set_error(const int err_type);
 };

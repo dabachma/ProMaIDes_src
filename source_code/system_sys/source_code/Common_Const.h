@@ -2579,6 +2579,13 @@ namespace dam_label{
 	///Keyword for the database table name of the damage results (Dam_Damage_System)
 	const string tab_dam_erg("DAM_RESULTS");
 
+	///Keyword for the database table name of the damage systems (Dam_Damage_System)
+	const string tab_dam_system("DAM_SYSTEM");
+	///Keyword for the database table column of the Damage system: maximum timesteps for instationary calculation [-] (Dam_Damage_System)
+	const string max_time_step("MAX_TIME_STEPS");
+	///Keyword for the database table column of the Damage system: instationary calculation CI-damage calculation until all elements are active [-] (Dam_Damage_System)
+	const string all_active_flag("ALL_ACTIVE_FLAG");
+
 	///Keyword for the database table name of the economical damage results (Dam_Ecn_Element)
 	const string tab_ecn_erg("DAM_ECN_RESULTS");
 	///Keyword for the database table column of the element results of a economical raster: immobile damages [€] (Dam_Ecn_System)
@@ -2822,6 +2829,10 @@ namespace dam_label{
 	///Keyword for the database table column of the CI-point damage results: failure duration multiplied with endusers [enduser x d] (Dam_CI_Point, Dam_CI_Polygon)
 	const string enduser_duration("FAILURE_ENDUSER_DURATION");
 	
+	///Keyword for the database table name of the CI-connection damage results (Dam_CI_Element_List)
+	const string tab_ci_connection_erg("DAM_CI_CONNECT_ERG");
+	///Keyword for the database table name of the CI-connection damage instationary results (Dam_CI_Element_List)
+	const string tab_ci_connection_instat_erg("DAM_CI_CONNECT_INSTAT_ERG");
 
 	///Keyword for the database table name of the CI-point damage instationary results (Dam_CI_Point)
 	const string tab_ci_point_instat_erg("DAM_CI_POINT_INSTAT_ERG");

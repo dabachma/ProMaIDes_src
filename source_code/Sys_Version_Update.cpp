@@ -599,110 +599,6 @@ void Sys_Version_Update::check_update_fpl_output_control(QSqlDatabase *ptr_datab
 	Fpl_Mc_Sim::close_table();
 
 }
-//____________
-//private
-//Check and update the text of the hydraulic table of the hydraulic river profile result members; width_max is introduced (18.02.2021)
-void Sys_Version_Update::check_update_hyd_table_river_result_width(QSqlDatabase *ptr_database, const string project_file) {
-
-	if (Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
-		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
-		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
-		return;
-	}
-
-	bool error = false;
-
-	//check if columns exists for max results table
-	try {
-		_Hyd_River_Profile::set_erg_table(ptr_database, true);
-	}
-	catch (Error msg) {
-		error = true;
-	}
-
-	//width
-	bool exists = false;
-	for (int i = 0; i < _Hyd_River_Profile::erg_table->get_number_col(); i++) {
-		if ((_Hyd_River_Profile::erg_table->get_ptr_col())[i].id == hyd_label::proferg_width_max) {
-			exists = (_Hyd_River_Profile::erg_table->get_ptr_col())[i].found_flag;
-		}
-	}
-	if (exists == false) {
-		Tables buffer;
-		//add new table column
-		buffer.add_columns(ptr_database, hyd_label::tab_rvprof_erg_max, hyd_label::proferg_width_max, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::hyd);
-		buffer.add_columns_file(project_file, hyd_label::tab_rvprof_erg_max, hyd_label::proferg_width_max);
-	}
-
-	_Hyd_River_Profile::close_erg_table();
-
-	error = false;
-
-	//check if columns exists for results per timestep table
-	try {
-		_Hyd_River_Profile::set_erg_instat_table(ptr_database, true);
-	}
-	catch (Error msg) {
-		error = true;
-	}
-
-	//width
-	exists = false;
-	for (int i = 0; i < _Hyd_River_Profile::erg_instat_table->get_number_col(); i++) {
-		if ((_Hyd_River_Profile::erg_instat_table->get_ptr_col())[i].id == hyd_label::proferg_width_max) {
-			exists = (_Hyd_River_Profile::erg_instat_table->get_ptr_col())[i].found_flag;
-		}
-	}
-	if (exists == false) {
-		Tables buffer;
-		//add new table column
-		buffer.add_columns(ptr_database, hyd_label::tab_rvprof_erg_instat, hyd_label::proferg_width_max, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::hyd);
-		buffer.add_columns_file(project_file, hyd_label::tab_rvprof_erg_instat, hyd_label::proferg_width_max);
-	}
-
-	_Hyd_River_Profile::close_erg_instat_table();
-
-	error = false;
-
-	//check if columns exists for results per timestep table
-	try {
-		Hyd_Element_Floodplain::set_erg_instat_table(ptr_database, true);
-	}
-	catch (Error msg) {
-		error = true;
-	}
-
-	//fp id and element id in instat erg FP tables
-	exists = false;
-	for (int i = 0; i < Hyd_Element_Floodplain::erg_instat_table->get_number_col(); i++) {
-		if ((Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].id == hyd_label::elemdata_fpno) {
-			exists = (Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].found_flag;
-		}
-	}
-	if (exists == false) {
-		Tables buffer;
-		//add new table column
-		buffer.add_columns(ptr_database, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_fpno, sys_label::tab_col_type_int,true, "-1", _sys_table_type::hyd);
-		buffer.add_columns_file(project_file, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_fpno);
-	}
-
-	exists = false;
-	for (int i = 0; i < Hyd_Element_Floodplain::erg_instat_table->get_number_col(); i++) {
-		if ((Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].id == hyd_label::elemdata_id) {
-			exists = (Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].found_flag;
-		}
-	}
-	if (exists == false) {
-		Tables buffer;
-		//add new table column
-		buffer.add_columns(ptr_database, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_id, sys_label::tab_col_type_int, true, "-1", _sys_table_type::hyd);
-		buffer.add_columns_file(project_file, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_id);
-	}
-
-	Hyd_Element_Floodplain::close_erg_instat_table();
-
-
-}
 //Check and update the CI tables for DAM-module (11.3.2021)
 void Sys_Version_Update::check_update_dam_ci(QSqlDatabase *ptr_database, const string project_file) {
 	if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd ||
@@ -729,6 +625,27 @@ void Sys_Version_Update::check_update_dam_ci(QSqlDatabase *ptr_database, const s
 	}
 
 	Dam_CI_Point::close_point_table();
+
+
+	//check system table
+	error = false;
+	//check it
+	try {
+		Dam_Damage_System::set_Dam_system_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (Dam_Damage_System::system_table->table_name.found_flag == false) {
+			Dam_Damage_System::close_Dam_system_table();
+			Dam_Damage_System::create_Dam_system_table(ptr_database);
+
+		}
+	}
+
+	Dam_Damage_System::close_Dam_system_table();
 
 
 	//check polygon table
@@ -848,6 +765,48 @@ void Sys_Version_Update::check_update_dam_ci(QSqlDatabase *ptr_database, const s
 	}
 	Dam_CI_Polygon::close_instat_erg_table();
 
+	//check connection erg table
+	error = false;
+	//check it
+	try {
+		Dam_CI_Element_List::set_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (Dam_CI_Element_List::connection_erg_table->table_name.found_flag == false) {
+			Dam_CI_Element_List::close_erg_table();
+			Dam_CI_Element_List::create_erg_table(ptr_database);
+
+		}
+	}
+	Dam_CI_Element_List::close_erg_table();
+
+
+	//check connection instat_erg table
+	error = false;
+	//check it
+	try {
+		Dam_CI_Element_List::set_instat_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+	//create it
+	if (error == true) {
+		if (Dam_CI_Element_List::connection_instat_erg_table->table_name.found_flag == false) {
+			Dam_CI_Element_List::close_instat_erg_table();
+			Dam_CI_Element_List::create_instat_erg_table(ptr_database);
+
+		}
+	}
+	Dam_CI_Element_List::close_instat_erg_table();
+
+
+
+
 	//check if columns exists for results per timestep table point
 	try {
 		Dam_CI_Point::set_instat_erg_table(ptr_database, true);
@@ -895,6 +854,110 @@ void Sys_Version_Update::check_update_dam_ci(QSqlDatabase *ptr_database, const s
 		buffer.add_columns_file(project_file, dam_label::tab_ci_polygon_instat_erg, dam_label::failure_duration);
 	}
 	Dam_CI_Polygon::close_instat_erg_table();
+
+}
+//____________
+//private
+//Check and update the text of the hydraulic table of the hydraulic river profile result members; width_max is introduced (18.02.2021)
+void Sys_Version_Update::check_update_hyd_table_river_result_width(QSqlDatabase *ptr_database, const string project_file) {
+
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
+
+	bool error = false;
+
+	//check if columns exists for max results table
+	try {
+		_Hyd_River_Profile::set_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//width
+	bool exists = false;
+	for (int i = 0; i < _Hyd_River_Profile::erg_table->get_number_col(); i++) {
+		if ((_Hyd_River_Profile::erg_table->get_ptr_col())[i].id == hyd_label::proferg_width_max) {
+			exists = (_Hyd_River_Profile::erg_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_rvprof_erg_max, hyd_label::proferg_width_max, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_rvprof_erg_max, hyd_label::proferg_width_max);
+	}
+
+	_Hyd_River_Profile::close_erg_table();
+
+	error = false;
+
+	//check if columns exists for results per timestep table
+	try {
+		_Hyd_River_Profile::set_erg_instat_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//width
+	exists = false;
+	for (int i = 0; i < _Hyd_River_Profile::erg_instat_table->get_number_col(); i++) {
+		if ((_Hyd_River_Profile::erg_instat_table->get_ptr_col())[i].id == hyd_label::proferg_width_max) {
+			exists = (_Hyd_River_Profile::erg_instat_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_rvprof_erg_instat, hyd_label::proferg_width_max, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_rvprof_erg_instat, hyd_label::proferg_width_max);
+	}
+
+	_Hyd_River_Profile::close_erg_instat_table();
+
+	error = false;
+
+	//check if columns exists for results per timestep table
+	try {
+		Hyd_Element_Floodplain::set_erg_instat_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//fp id and element id in instat erg FP tables
+	exists = false;
+	for (int i = 0; i < Hyd_Element_Floodplain::erg_instat_table->get_number_col(); i++) {
+		if ((Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].id == hyd_label::elemdata_fpno) {
+			exists = (Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_fpno, sys_label::tab_col_type_int,true, "-1", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_fpno);
+	}
+
+	exists = false;
+	for (int i = 0; i < Hyd_Element_Floodplain::erg_instat_table->get_number_col(); i++) {
+		if ((Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].id == hyd_label::elemdata_id) {
+			exists = (Hyd_Element_Floodplain::erg_instat_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_id, sys_label::tab_col_type_int, true, "-1", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_id);
+	}
+
+	Hyd_Element_Floodplain::close_erg_instat_table();
+
 
 }
 //Set error(s)

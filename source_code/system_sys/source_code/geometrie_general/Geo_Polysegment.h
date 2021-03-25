@@ -95,8 +95,10 @@ public:
 
 	///Copy polysegment
 	void copy_polysegment(Geo_Polysegment *seg);
-	///Get a string for inserting a polysegment to a sql-database (static)
+	///Get a string for inserting a polysegment to a sql-database 
 	string get_polysegment2sql_string(void);
+	///Get a string for inserting a line to a sql-database (static)
+	static string get_line2sql_string(const double x_coor1, const double y_coor1, const double x_coor2, const double y_coor2);
 
 protected:
 	//members
