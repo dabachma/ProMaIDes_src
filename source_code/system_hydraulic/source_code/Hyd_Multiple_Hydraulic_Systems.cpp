@@ -92,11 +92,13 @@ bool Hyd_Multiple_Hydraulic_Systems::set_system_number_file_gui(void){
 			text << "Choose the global system file(s) (.ilm), which " << endl;
 			text << "should be calculated"<< endl;
 			dialog.set_txt2headerlabel(text.str(),icon);
+			dialog.set_file_filters(tr("Global hydraulic data files (*.ilm)"));
 			break;
 		case (_hyd_thread_type::hyd_check_system):
 			text << "Choose the global system file(s) (.ilm), which " << endl;
 			text << "should be checked"<< endl;
 			dialog.set_txt2headerlabel(text.str(),icon);
+			dialog.set_file_filters(tr("Global hydraulic data files (*.ilm)"));
 			break;
 		case (_hyd_thread_type::hyd_add_sz):
 			text << "Choose the global system file(s) (.ilm), which " << endl;
@@ -104,6 +106,7 @@ bool Hyd_Multiple_Hydraulic_Systems::set_system_number_file_gui(void){
 			text << "The hydraulic system have to be equal to the base system"<< endl;
 			text << "in database. The scenario id(s) are incremented by 1"<< endl;
 			dialog.set_txt2headerlabel(text.str(),icon);
+			dialog.set_file_filters(tr("Global hydraulic data files (*.ilm)"));
 			break;
 		default:
 			text << "" << endl;

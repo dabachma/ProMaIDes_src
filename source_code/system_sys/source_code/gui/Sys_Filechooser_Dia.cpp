@@ -6,6 +6,7 @@ Sys_Filechooser_Dia::Sys_Filechooser_Dia(QWidget *parent) : QWidget(parent){
 	uiFileChooser.setupUi(this);
 	uiFileChooser.fileLineEdit->setReadOnly(true);
 	QObject::connect(uiFileChooser.browseButton, SIGNAL(clicked()),this, SLOT(chooseFile()));
+	this->filter = "";
 	//count the memory
 	Sys_Memory_Count::self()->add_mem((sizeof(Sys_Filechooser_Dia)), _sys_system_modules::SYS_SYS);
 
@@ -26,7 +27,7 @@ QString Sys_Filechooser_Dia::fileName(void){
 void Sys_Filechooser_Dia::chooseFile(void){
 	QFileDialog my_dia;
 	QDir my_dir;
-	QString file = my_dia.getOpenFileName(this, tr("Select File"), Sys_Project::get_current_path().c_str());
+	QString file = my_dia.getOpenFileName(this, tr("Select File"), Sys_Project::get_current_path().c_str(), this->filter);
 	if(!file.isEmpty()){
 		string buffer;
 		uiFileChooser.fileLineEdit->setText(file);
@@ -35,4 +36,9 @@ void Sys_Filechooser_Dia::chooseFile(void){
 		Sys_Project::set_current_path(buffer);
 
 	}
+}
+//Set file filters
+void Sys_Filechooser_Dia::set_file_filters(QString filter) {
+	this->filter = filter;
+
 }

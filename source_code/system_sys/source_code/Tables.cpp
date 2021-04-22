@@ -529,7 +529,7 @@ void Tables::add_columns(QSqlDatabase *ptr_database, const string name, const st
 
 	ostringstream query_string;
 	query_string <<"ALTER TABLE ";
-	query_string << tab_name << " ADD  " <<endl;
+	query_string << tab_name << " ADD  ";
 	query_string << functions::convert_string2lower_case(new_column_name) << "  " ;
 		if(Data_Base::get_driver_type()==_sys_driver_type::POSTGRESQL){
 			if(type_column==sys_label::tab_col_type_polyline || type_column==sys_label::tab_col_type_polygon
@@ -560,7 +560,7 @@ void Tables::add_columns(QSqlDatabase *ptr_database, const string name, const st
 			query_string << " DEFAULT " << default_value;
 		}
 
-	query_string <<endl;
+	
 	//end string
 	query_string << "";
 

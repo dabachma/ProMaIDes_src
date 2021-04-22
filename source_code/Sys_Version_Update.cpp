@@ -448,6 +448,18 @@ void Sys_Version_Update::check_update_hyd_table_instat_results_rv(QSqlDatabase *
 			_Hyd_River_Profile::close_erg_instat_table();
 			_Hyd_River_Profile::create_erg_instat_table(ptr_database);
 
+
+			//make indizes for max results table
+			//the table is set (the name and the column names) and allocated
+			try {
+				_Hyd_River_Profile::set_erg_table(ptr_database);
+			}
+			catch (Error msg) {
+				throw msg;
+			}
+			_Hyd_River_Profile::erg_table->create_spatial_index2column(ptr_database, _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_polygon));
+			_Hyd_River_Profile::close_erg_table();
+
 		}
 	}
 
@@ -456,20 +468,7 @@ void Sys_Version_Update::check_update_hyd_table_instat_results_rv(QSqlDatabase *
 	_Hyd_River_Profile::close_erg_instat_table();
 	this->check_update_hyd_table_river_result_width(ptr_database, project_file);
 
-	//make indizes for max results table
-	//the table is set (the name and the column names) and allocated
-	try {
-		_Hyd_River_Profile::set_erg_table(ptr_database);
-	}
-	catch (Error msg) {
-		throw msg;
-	}
 
-
-	_Hyd_River_Profile::erg_table->create_spatial_index2column(ptr_database, _Hyd_River_Profile::erg_table->get_column_name(hyd_label::elemdata_polygon));
-
-
-	_Hyd_River_Profile::close_erg_table();
 
 }
 //Check and update the hydraulic view for boundary conditions to floodplain elements / river profile (3.2.2021)
@@ -482,20 +481,24 @@ void Sys_Version_Update::check_update_hyd_view_bound2elements_profile(QSqlDataba
 	}
 	bool error = false;
 	//check it
-	try {
-		Hyd_Element_Floodplain::create_bound2elems_view(ptr_database);
-	}
-	catch (Error msg) {
-		error = true;
+	if (Hyd_Element_Floodplain::check_bound2elems_view_exists(ptr_database) == false) {
+		try {
+			Hyd_Element_Floodplain::create_bound2elems_view(ptr_database);
+		}
+		catch (Error msg) {
+			error = true;
+		}
 	}
 
 	//check it
 	error = false;
-	try {
-		_Hyd_River_Profile::create_bound2profile_view(ptr_database);
-	}
-	catch (Error msg) {
-		error = true;
+	if (_Hyd_River_Profile::check_bound2profile_view_exists(ptr_database) == false) {
+		try {
+			_Hyd_River_Profile::create_bound2profile_view(ptr_database);
+		}
+		catch (Error msg) {
+			error = true;
+		}
 	}
 }
 //Check and update the output control parameter for FPL-module (22.2.2021)
@@ -939,7 +942,7 @@ void Sys_Version_Update::check_update_hyd_table_river_result_width(QSqlDatabase 
 	if (exists == false) {
 		Tables buffer;
 		//add new table column
-		buffer.add_columns(ptr_database, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_fpno, sys_label::tab_col_type_int,true, "-1", _sys_table_type::hyd);
+		buffer.add_columns(ptr_database, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_fpno, sys_label::tab_col_type_int,true, "9999", _sys_table_type::hyd);
 		buffer.add_columns_file(project_file, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_fpno);
 	}
 
@@ -952,7 +955,7 @@ void Sys_Version_Update::check_update_hyd_table_river_result_width(QSqlDatabase 
 	if (exists == false) {
 		Tables buffer;
 		//add new table column
-		buffer.add_columns(ptr_database, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_id, sys_label::tab_col_type_int, true, "-1", _sys_table_type::hyd);
+		buffer.add_columns(ptr_database, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_id, sys_label::tab_col_type_int, true, "9999", _sys_table_type::hyd);
 		buffer.add_columns_file(project_file, hyd_label::tab_fpelem_erg_instat, hyd_label::elemdata_id);
 	}
 

@@ -37,11 +37,17 @@ public:
 	///Return the text (filename+path) displayed in the lineEdit of the FileChooser widget
 	QString fileName(void);
 
+	///Set file filters
+	void set_file_filters(QString filter);
+
 
 private:
 	//members
 	///Form class made with the Qt Designer
 	Ui::Sys_Filechooser_Dia uiFileChooser;
+
+	///Filter for the files
+	QString filter;
 
 
 private slots:

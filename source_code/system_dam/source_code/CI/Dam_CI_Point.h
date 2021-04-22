@@ -182,7 +182,8 @@ public:
 	///Calculate direct damages instationary
 	void calculate_direct_damages_instationary(Dam_Impact_Values *impact, const double time);
 
-
+	///Check the points
+	void check_members(void);
 
 
 private:
@@ -199,8 +200,7 @@ private:
 
 	//method
 
-	///Check the points
-	void check_members(void);
+
 	
 	///Set warning(s)
 	Warning set_warning(const int warn_type);

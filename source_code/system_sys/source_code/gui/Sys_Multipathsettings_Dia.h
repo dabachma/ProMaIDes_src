@@ -60,6 +60,9 @@ public:
 	///Set a widget to the layout for alraedy existing scenario
 	void set_widget2existing_scenario_layout(QWidget *scenario_wid);
 
+	///Set file filters
+	void set_file_filters(QString filter);
+
 private:
 	//members
 	///Form class made with the QT-designer for the layout of the dialog
@@ -71,9 +74,14 @@ private:
 	///Old spin box value
 	int old_spinbox_value;
 
+	///Filter for the files
+	QString filter;
+
 	//method
 	///Set the FileChooser widget for every rows
 	void setRowItem(const bool add);
+
+
 
 
 private slots:

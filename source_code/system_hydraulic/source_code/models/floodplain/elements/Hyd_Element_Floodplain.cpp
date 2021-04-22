@@ -228,71 +228,6 @@ void Hyd_Element_Floodplain::transfer_hydraulic_boundary_sz2database(QSqlDatabas
 	if(this->get_boundary_data().boundary_flag==false){
 		return;
 	}
-	////mysql query with the table_model (Change 30.1.2020: glob_elem_id is set directly!
-	//QSqlQueryModel model;
-
-	////the table is set (the name and the column names) and allocated
-	//try{
-	//	Hyd_Element_Floodplain::set_table(ptr_database);
-	//}
-	//catch(Error msg){
-	//	throw msg;
-	//}
-
-	////evaluate th global id of the element
-	//int id_glob=0;
-	////generate the filter
-	//ostringstream filter;
-	//filter << "Select ";
-	//filter << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_glob_id);
-	//filter << " from "<< Hyd_Element_Floodplain::elem_table->get_table_name();
-	//filter << " where ";
-	//filter << Hyd_Element_Floodplain::elem_table->get_column_name(label::applied_flag) << " = true";
-	//filter << " and ";
-	//filter << Hyd_Element_Floodplain::elem_table->get_column_name(label::areastate_id) << " = " << this->system_id.area_state;
-	//filter << " and (";
-	//	filter << Hyd_Element_Floodplain::elem_table->get_column_name(label::measure_id) << " = " << 0 ;
-	//	filter << " or " ;
-	//	filter << Hyd_Element_Floodplain::elem_table->get_column_name(label::measure_id) << " = " << this->system_id.measure_nr;
-	//filter << " ) " ;
-	//filter << " and ";
-	//filter << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_fpno) << " = " << fp_number;
-	//filter << " and ";
-	//filter << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_id) << " = " << this->elem_number;
-
-	////database request
-	//Data_Base::database_request(&model, filter.str(), ptr_database);
-	////check the query
-	//if(model.lastError().isValid()){
-	//	//error
-	//	Error msg=set_error(6);
-	//	ostringstream info;
-	//	info << "Table Name      : " <<Hyd_Element_Floodplain::elem_table->get_table_name() << endl;
-	//	info << "Table error info: " << model.lastError().text().toStdString() << endl;
-	//	msg.make_second_info(info.str());
-	//	throw msg;
-	//}
-	//if(model.rowCount()==0){
-	//	Error msg=this->set_error(5);
-	//	ostringstream info;
-	//	info << "Table Name      : " << Hyd_Element_Floodplain::elem_table->get_table_name() << endl;
-	//	info << "Element number  : " << this->elem_number << endl;
-
-	//	msg.make_second_info(info.str());
-	//	throw msg;
-	//}
-	//id_glob=model.record(0).value((Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_glob_id)).c_str()).toInt();
-
-	//if(model.rowCount()>1){
-	//	Warning msg=this->set_warning(4);
-	//	ostringstream info;
-	//	info << "Table Name      : " << Hyd_Element_Floodplain::elem_table->get_table_name() << endl;
-	//	info << "Element number  : " << this->elem_number << endl;
-	//	info << "Take global id  : " << id_glob << endl;
-	//	msg.make_second_info(info.str());
-	//	msg.output_msg(2);
-	//}
-
 	try{
 		//boundary condition
 		this->transfer_element_boundarydata2database(ptr_database, this->glob_elem_number);
@@ -2927,6 +2862,36 @@ void Hyd_Element_Floodplain::create_bound2elems_view(QSqlDatabase *ptr_database)
 
 
 }
+//Check if the view exists already (static) 
+bool Hyd_Element_Floodplain::check_bound2elems_view_exists(QSqlDatabase *ptr_database) {
+
+	QSqlQueryModel query;
+
+	ostringstream query_string;
+	query_string << "SELECT EXISTS ( SELECT * FROM information_schema.tables ";
+	query_string << "WHERE table_schema ='" << Sys_Project::get_complete_project_database_schemata_name() << "' ";
+	query_string << "AND table_name ='" << functions::convert_string2lower_case(hyd_label::view_fpelem2bound) << "' )";
+
+
+	Data_Base::database_request(&query, query_string.str(), ptr_database);
+	if (query.lastError().isValid() == true) {
+		Error msg;
+		msg.set_msg("Hyd_Element_Floodplain::check_bound2elems_view_exists(QSqlDatabase *ptr_database)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "View Name      : " << hyd_label::view_fpelem2bound << endl;
+		info << "View error info: " << query.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+	if (query.rowCount() > 0) {
+		return true;
+	}
+
+	return false;
+
+}
 //Set the database table for the boundary element data: it sets the table name and the name of the columns and allocate them (static)
 void Hyd_Element_Floodplain::set_element_boundary_table(QSqlDatabase *ptr_database){
 	if(Hyd_Element_Floodplain::boundary_table==NULL){
@@ -3080,6 +3045,69 @@ int Hyd_Element_Floodplain::select_relevant_boundary_cond_database(QSqlQueryMode
 	}
 
 	return number;
+}
+//Get a string for transfering the boundary data to database 
+string Hyd_Element_Floodplain::get_bound_datastring2database(QSqlDatabase *ptr_database, const int fp_number) {
+	string buffer;
+	if (this->get_boundary_data().boundary_flag == false) {
+		buffer= label::not_set;
+		return buffer;
+	}
+
+	ostringstream query_string;
+	query_string << " ( ";
+	query_string << this->glob_elem_number << " , ";
+	query_string << this->system_id.area_state << " , ";
+	query_string << this->system_id.measure_nr << " , ";
+	query_string << "true" << " , ";
+	query_string << this->hyd_sz->get_id() << " , ";
+	query_string << functions::convert_boolean2string(this->get_boundary_data().stationary_flag) << " , ";
+	if (this->get_boundary_data().stationary_flag == true) {
+		query_string << this->get_boundary_data().discharge_value << " , ";
+	}
+	else {
+		query_string << this->get_boundary_data().curve_number << " , ";
+	}
+	query_string << "'" << Hyd_Instationary_Boundary::transfrom_instatboundtype2txt(this->get_boundary_data().boundary_type) << "'" << " ) ";
+
+	buffer = query_string.str();
+	return buffer;
+
+
+
+}
+//Get the header for inserting the element boundary data to database table (static)
+string Hyd_Element_Floodplain::get_insert_header_bound_table(QSqlDatabase *ptr_database) {
+	try {
+		Hyd_Element_Floodplain::set_element_boundary_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	//set the query via a query string
+	ostringstream query_string;
+	query_string << "INSERT INTO  " << Hyd_Element_Floodplain::boundary_table->get_table_name();
+	query_string << " ( ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name(hyd_label::elemdata_glob_id) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name(label::areastate_id) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name(label::measure_id) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name(label::applied_flag) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name(hyd_label::sz_bound_id) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name(hyd_label::bounddata_stat) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name(hyd_label::bounddata_value) << " , ";
+	query_string << Hyd_Element_Floodplain::boundary_table->get_column_name(hyd_label::bounddata_type) << " ) ";
+
+
+	query_string << " VALUES  ";
+
+	string buffer;
+	buffer = query_string.str();
+	return buffer;
+
+
+
+
+
 }
 //Initialize the _Hyd_Element_Floodplain_Type; decide which type is chosen
 void Hyd_Element_Floodplain::init_element_type(_hyd_neighbouring_elems neigh_elem, double *width_x, double *width_y, double *area, Hyd_Param_Material *mat_table, const bool clone){

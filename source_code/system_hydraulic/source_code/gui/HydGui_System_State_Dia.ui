@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>315</width>
+    <width>350</width>
     <height>130</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>315</width>
+    <width>350</width>
     <height>130</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>315</width>
+    <width>350</width>
     <height>130</height>
    </size>
   </property>
@@ -47,9 +47,15 @@
     <rect>
      <x>90</x>
      <y>30</y>
-     <width>212</width>
+     <width>271</width>
      <height>16</height>
     </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>0</height>
+    </size>
    </property>
    <property name="text">
     <string>File output for database calculation required</string>
@@ -99,7 +105,7 @@
     <rect>
      <x>90</x>
      <y>60</y>
-     <width>160</width>
+     <width>251</width>
      <height>16</height>
     </rect>
    </property>

@@ -16,6 +16,7 @@ Dam_CI_Point::Dam_CI_Point(void){
 	this->final_flag=false;
 	this->ptr_point = this;
 	
+	
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Dam_CI_Point), _sys_system_modules::DAM_SYS);
@@ -2140,13 +2141,11 @@ void Dam_CI_Point::calculate_direct_damages_instationary(Dam_Impact_Values *impa
 
 
 }
-//____________
-//private
 //Check the points
 void Dam_CI_Point::check_members(void) {
 
 	//check sec_id
-	if(this->sector_name == label::not_defined) {
+	if (this->sector_name == label::not_defined) {
 		Error msg = this->set_error(0);
 		ostringstream info;
 		info << "Name         :" << this->name << endl;
@@ -2157,7 +2156,7 @@ void Dam_CI_Point::check_members(void) {
 	}
 
 	//check point in 1-4 sector no endflag
-	if (this->sector_id<=4 && this->final_flag==true) {
+	if (this->sector_id <= 4 && this->final_flag == true) {
 		Error msg = this->set_error(2);
 		ostringstream info;
 		info << "Name         :" << this->name << endl;
@@ -2175,8 +2174,8 @@ void Dam_CI_Point::check_members(void) {
 		info << "Sector name  :" << this->sector_name << endl;
 		info << "Sector level :" << this->sector_level << endl;
 		msg.make_second_info(info.str());
-		this->recovery_time=0.01;
-		msg.output_msg(4);		
+		this->recovery_time = 0.01;
+		msg.output_msg(4);
 	}
 	if (this->activation_time < 0.0) {
 		Warning msg = this->set_warning(1);
@@ -2186,11 +2185,11 @@ void Dam_CI_Point::check_members(void) {
 		info << "Sector name  :" << this->sector_name << endl;
 		info << "Sector level :" << this->sector_level << endl;
 		msg.make_second_info(info.str());
-		this->activation_time= 0.0;
+		this->activation_time = 0.0;
 		msg.output_msg(4);
 	}
 	//activation > recovery> 0
-	if (this->regular_flag==false && this->recovery_time < this->activation_time) {
+	if (this->regular_flag == false && this->recovery_time < this->activation_time) {
 		Warning msg = this->set_warning(2);
 		ostringstream info;
 		info << "Name         :" << this->name << endl;
@@ -2215,6 +2214,8 @@ void Dam_CI_Point::check_members(void) {
 
 
 }
+//____________
+//private
 //Set the warning
 Warning Dam_CI_Point::set_warning(const int warn_type) {
 	string place = "Dam_CI_Point::";

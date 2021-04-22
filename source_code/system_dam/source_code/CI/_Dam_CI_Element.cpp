@@ -838,13 +838,14 @@ void _Dam_CI_Element::check_connections(void) {
 		}
 
 	}
-	if (this->final_flag && this->sector_id <= 4){
+	if (this->final_flag==true && this->sector_id <= 4){
 		for (int i = 0; i < this->no_incoming; i++) {
 			if (this->incomings[i]->get_sector_id() != this->sector_id) {
 				Error msg = this->set_error(7);
 				ostringstream info;
-				info << "Sector id              :" << this->sector_id << endl;
+				info << "Sector id             :" << this->sector_id << endl;
 				info << "Sector name           :" << this->sector_name << endl;
+				info << "Name		           :" << this->ptr_point->get_point_name() << endl;
 				info << "Sector id incoming    :" << this->incomings[i]->get_sector_id() << endl;
 				info << "Sector name incoming  :" << this->incomings[i]->get_sector_name() << endl;
 				msg.make_second_info(info.str());
@@ -1017,7 +1018,7 @@ void _Dam_CI_Element::delete_outgoing(void) {
 }
 //Set error(s)
 Error _Dam_CI_Element::set_error(const int err_type) {
-	string place = "_Dam_CI_Element";
+	string place = "_Dam_CI_Element::";
 	string help;
 	string reason;
 	int type = 0;

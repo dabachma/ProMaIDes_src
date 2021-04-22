@@ -244,10 +244,12 @@ scenario has to be set before.
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 
 	try{
-		for(int i=0; i< this->Param_FP.FPNofY*this->Param_FP.FPNofX; i++){
-			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
-			this->floodplain_elems[i].transfer_hydraulic_boundary_sz2database(ptr_database, this->Param_FP.FPNumber);
-		}
+		//for(int i=0; i< this->Param_FP.FPNofY*this->Param_FP.FPNofX; i++){
+			//Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+			//this->floodplain_elems[i].transfer_hydraulic_boundary_sz2database(ptr_database, this->Param_FP.FPNumber);
+		//}
+		this->transfer_hydraulic_boundary_sz2database_per_elem(ptr_database);
+
 
 		//transfer instationary boundary curves
 		for(int i=0; i< this->Param_FP.number_instat_boundary; i++){
@@ -4208,6 +4210,90 @@ void Hyd_Model_Floodplain::transfer_element_members2database(QSqlDatabase *ptr_d
 	//	id_glob++;
 	//}
 }
+//Transfer a hydraulic boundary szenario from file to a database per element
+void Hyd_Model_Floodplain::transfer_hydraulic_boundary_sz2database_per_elem(QSqlDatabase *ptr_database) {
+
+
+
+	//this->floodplain_elems[i].transfer_hydraulic_boundary_sz2database(ptr_database, this->Param_FP.FPNumber);
+		//}
+	ostringstream cout;
+
+
+	//Set the query
+	QSqlQuery query_buff(*ptr_database);
+
+	//get the header for the query
+	string query_header;
+	query_header = Hyd_Element_Floodplain::get_insert_header_bound_table(ptr_database);
+
+	ostringstream query_data;
+	ostringstream query_total;
+	int counter = 0;
+	string buffer_data;
+
+	for (int i = 0; i < this->Param_FP.FPNofY*this->Param_FP.FPNofX; i++) {
+		if (i % 10000 == 0 && i > 0) {
+			cout << i << " (" << this->get_number_elements() << ") boundary data of HYD raster elements are transfered to database..." << endl;
+			Sys_Common_Output::output_hyd->output_txt(&cout);
+			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		}
+
+		buffer_data = this->floodplain_elems[i].get_bound_datastring2database(ptr_database, this->Param_FP.get_floodplain_number());
+		if (buffer_data != label::not_set) {
+			query_data << buffer_data << " ,";
+			//count the global index
+			counter++;
+		}
+
+
+		//send packages of 100
+		if (counter == 100) {
+			query_total << query_header << query_data.str();
+			//delete last komma
+			string buff = query_total.str();
+			buff.erase(buff.length() - 1);
+			Data_Base::database_request(&query_buff, buff, ptr_database);
+
+			counter = 0;
+			if (query_buff.lastError().isValid()) {
+				Warning msg = this->set_warning(5);
+				ostringstream info;
+				info << "Table Name                : " << Hyd_Element_Floodplain::boundary_table->get_table_name() << endl;
+				info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+				info << "Data string               : " << query_data.str() << endl;
+				msg.make_second_info(info.str());
+				msg.output_msg(2);
+			}
+			//delete them
+			query_total.str("");
+			query_data.str("");
+			query_buff.clear();
+		}
+	}
+	//send the rest
+	if (counter != 0) {
+		query_total << query_header << query_data.str();
+		//delete last komma
+		string buff = query_total.str();
+		buff.erase(buff.length() - 1);
+		Data_Base::database_request(&query_buff, buff, ptr_database);
+		//delete them
+		query_total.str("");
+		query_data.str("");
+		counter = 0;
+		if (query_buff.lastError().isValid()) {
+			Warning msg = this->set_warning(5);
+			ostringstream info;
+			info << "Table Name                : " << Hyd_Element_Floodplain::boundary_table->get_table_name() << endl;
+			info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(2);
+		}
+	}
+
+
+}
 //set the geometry of the cells (area and mid point)
 void Hyd_Model_Floodplain::set_elem_geometry(void){
 	int count=0;
@@ -4913,6 +4999,12 @@ Warning Hyd_Model_Floodplain::set_warning(const int warn_type){
 		case 4://result datas can not submitted
 			place.append("output_result2database(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number, const string time)");
 			reason = "Can not submit the result element data of the HYD raster to the database";
+			help = "Check the database";
+			type = 2;
+			break;
+		case 5://input datas can not submitted
+			place.append("transfer_hydraulic_boundary_sz2database_per_elem(QSqlDatabase *ptr_database)");
+			reason = "Can not submit the boundary element data of the HYD raster to the database";
 			help = "Check the database";
 			type = 2;
 			break;

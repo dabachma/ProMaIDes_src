@@ -127,6 +127,9 @@ public:
 	static void create_element_boundary_table(QSqlDatabase *ptr_database);
 	///Create the database view for the connection of boundary ids and the floodplain elements
 	static void create_bound2elems_view(QSqlDatabase *ptr_database);
+	///Check if the view exists already 
+	static bool check_bound2elems_view_exists(QSqlDatabase *ptr_database);
+
 	///Set the database table for the boundary element data: it sets the table name and the name of the columns and allocate them
 	static void set_element_boundary_table(QSqlDatabase *ptr_database);
 	///Delete the boundary condition data in the database table for a given boundary scenario
@@ -135,7 +138,10 @@ public:
 	static void delete_boundary_cond_by_system_state(QSqlDatabase *ptr_database, const _sys_system_id id);
 	///Select and count the number of relevant boundary_condition in a database table
 	static int select_relevant_boundary_cond_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int sc_bound_id, const bool with_output = true);
-
+	///Get a string for transfering the boundary data to database 
+	string get_bound_datastring2database(QSqlDatabase *ptr_database,const int fp_number);
+	///Get the header for inserting the element boundary data to database table (static)
+	static string get_insert_header_bound_table(QSqlDatabase *ptr_database);
 
 	///Create the database table for the results of an hydraulic simulation for the floodplain elements
 	static void create_erg_table(QSqlDatabase *ptr_database);

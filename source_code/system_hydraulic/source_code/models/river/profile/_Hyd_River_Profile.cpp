@@ -1083,6 +1083,35 @@ void _Hyd_River_Profile::create_bound2profile_view(QSqlDatabase *ptr_database) {
 
 
 }
+//Check if the view exists already (static)
+bool _Hyd_River_Profile::check_bound2profile_view_exists(QSqlDatabase *ptr_database) {
+	QSqlQueryModel query;
+
+	ostringstream query_string;
+	query_string << "SELECT EXISTS ( SELECT * FROM information_schema.tables ";
+	query_string << "WHERE table_schema ='" << Sys_Project::get_complete_project_database_schemata_name() << "' ";
+	query_string << "AND table_name ='" << functions::convert_string2lower_case(hyd_label::view_rvprofile2bound) << "' )";
+
+
+	Data_Base::database_request(&query, query_string.str(), ptr_database);
+	if (query.lastError().isValid() == true) {
+		Error msg;
+		msg.set_msg("_Hyd_River_Profile::check_bound2profile_view_exists(QSqlDatabase *ptr_database)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "View Name      : " << hyd_label::view_rvprofile2bound << endl;
+		info << "View error info: " << query.lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+
+	if (query.rowCount() > 0) {
+		return true;
+	}
+
+	return false;
+
+}
 //Create the database table for the wallbreak profile data (static)
 void _Hyd_River_Profile::create_profile_wallbreak_table(QSqlDatabase *ptr_database){
 	if(_Hyd_River_Profile::wallbreak_table==NULL){
@@ -1441,7 +1470,7 @@ void _Hyd_River_Profile::create_erg_table(QSqlDatabase *ptr_database){
 	}
 
 
-	_Hyd_River_Profile::erg_table->create_spatial_index2column(ptr_database, _Hyd_River_Profile::erg_table->get_column_name(hyd_label::elemdata_polygon));
+	_Hyd_River_Profile::erg_table->create_spatial_index2column(ptr_database, _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_polygon));
 
 
 	_Hyd_River_Profile::close_erg_table();

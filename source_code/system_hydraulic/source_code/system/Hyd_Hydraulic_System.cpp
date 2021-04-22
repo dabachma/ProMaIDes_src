@@ -540,7 +540,7 @@ void Hyd_Hydraulic_System::create_hyd_database_tables(void){
 		//river
 		_Hyd_River_Profile::create_erg_table(&this->database);
 		_Hyd_River_Profile::create_erg_instat_table(&this->database);
-		_Hyd_River_Profile::create_erg_instat_table(&this->database);
+
 
 		//coupling
 		Hyd_Coupling_RV2FP_Merged::create_max_h_table(&this->database);

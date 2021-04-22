@@ -737,7 +737,7 @@ void Data_Base::open_database(void){
 
 
 
-		this->database.open();
+		//this->database.open();
 		//wrong connections
 		if (!this->database.open()) {
 			this->database.setConnectOptions(); // clear options

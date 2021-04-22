@@ -41,6 +41,8 @@ void Dam_CI_System::ci_data_file2database(QSqlDatabase *ptr_database, const _sys
 		Dam_CI_Polygon::delete_data_in_erg_table(ptr_database);
 		Dam_CI_Polygon::delete_data_in_instat_erg_table(ptr_database);
 		Dam_CI_Element_List::delete_data_in_connection_table(ptr_database);
+		Dam_CI_Element_List::delete_data_in_erg_table(ptr_database);
+		Dam_CI_Element_List::delete_data_in_instat_erg_table(ptr_database);
 		
 		//Todo delte others
 
@@ -127,6 +129,16 @@ void Dam_CI_System::ci_data_file2database(QSqlDatabase *ptr_database, const _sys
 
 	}
 	catch (Error msg) {
+
+		Dam_CI_Point::delete_data_in_point_table(ptr_database);
+
+		Dam_CI_Polygon::delete_data_in_polygon_table(ptr_database);
+
+		Dam_CI_Element_List::delete_data_in_connection_table(ptr_database);
+		ostringstream info;
+		info << "All CI-data is deleted in database"<< endl;
+		msg.make_second_info(info.str());
+
 		//rewind the prefix
 		Sys_Common_Output::output_dam->rewind_userprefix();
 		if (msg.get_user_aborted_exception() == false) {
@@ -541,10 +553,12 @@ void Dam_CI_System::init_system(void) {
 	//init lists
 	for (int i = 0; i < this->no_ci_point; i++) {
 		this->dam_ci_point[i].init_sec_list();
+		this->dam_ci_point[i].check_members();
 
 	}
 	for (int i = 0; i < this->no_ci_polygon; i++) {
 		this->dam_ci_polygon[i].init_sec_list();
+		this->dam_ci_polygon[i].check_members();
 
 	}
 	//check after init
@@ -856,8 +870,9 @@ void Dam_CI_System::read_points_per_file(string fname) {
 		} while (counter < this->no_ci_point && ifile.eof() != true);
 
 		//check if all is read
-		if (counter != this->no_ci_point && ifile.eof() != true) {
+		if (counter != this->no_ci_point) {
 			ostringstream info;
+			info << "Number found          : " << counter << endl;
 			info << "Filename              : " << fname << endl;
 			info << "Error occurs near line: " << line_counter << endl;
 			Error msg = this->set_error(6);
@@ -1732,8 +1747,10 @@ void Dam_CI_System::read_polygon_per_file(string fname) {
 			} while (found_points< this->dam_ci_polygon[i].get_number_points() && ifile.eof() != true);
 
 			//check if all is read
-			if (found_points != this->dam_ci_polygon[i].get_number_points() && ifile.eof() != true) {
+			if (found_points != this->dam_ci_polygon[i].get_number_points()) {
 				ostringstream info;
+				info << "Number to find        : " << this->dam_ci_polygon[i].get_number_points() << endl;
+				info << "Number found          : " << found_points << endl;
 				info << "Filename              : " << fname << endl;
 				info << "Error occurs near line: " << line_counter << endl;
 				Error msg = this->set_error(12);
@@ -2231,10 +2248,13 @@ void Dam_CI_System::read_connection_per_file(string fname) {
 		} while (counter < found_connection && ifile.eof() != true);
 
 		//check if all is read
-		if (counter != found_connection && ifile.eof() != true) {
+		if (counter != found_connection) {
 			ostringstream info;
+			info << "Number to find        : " << found_connection << endl;
+			info << "Number found          : " << counter << endl;
 			info << "Filename              : " << fname << endl;
 			info << "Error occurs near line: " << line_counter << endl;
+
 			Error msg = this->set_error(21);
 			msg.make_second_info(info.str());
 			throw msg;
@@ -3284,7 +3304,6 @@ void Dam_CI_System::output_connection_instat_results2database(QSqlDatabase *ptr_
 	}
 
 }
-
 //Check if the points are connected to the hydraulic
 int Dam_CI_System::check_points_connected2hyd(void) {
 	int counter = 0;
@@ -3420,7 +3439,7 @@ Error Dam_CI_System::set_error(const int err_type) {
 	case 7://not all data are found
 		place.append("read_points_per_file(string fname)");
 		reason = "Not all data are found";
-		help = "Check the file";
+		help = "Check point data in file; required: d(unique) x-coordinate y-coordinate name(without_whitepace) sector_id level threshold_[m_-9999_nofailure] recovery_time_[d] regular_flag_[-] activation_time_[d] ";
 		type = 5;
 		break;
 	case 8://to much points
@@ -3443,7 +3462,7 @@ Error Dam_CI_System::set_error(const int err_type) {
 	case 11://not all info there
 		place.append("read_polygon_per_file(string fname)");
 		reason = "Not all relevant polygon data are found in file";
-		help = "Check the point data in file";
+		help = "Check the point data in file; required: Index_(starts by 0;unique) NumberOfPoints name(without_whitepace) sector_id[see CI-points] end_user[unit depends to sector, e.g. number_households?]";
 		type = 5;
 		break;
 	case 12://not all points are found
@@ -3460,7 +3479,7 @@ Error Dam_CI_System::set_error(const int err_type) {
 	case 14://not all info there
 		place.append("read_polygon_per_file(string fname)");
 		reason = "Not all relevant point data for polygon are found in file";
-		help = "Check the point data in file";
+		help = "Check the point data for polygon in file; required: x y-coordinates";
 		type = 5;
 		break;
 	case 15://wrong input sequenze
@@ -3483,7 +3502,7 @@ Error Dam_CI_System::set_error(const int err_type) {
 	case 18://not all data are found
 		place.append("read_connection_per_file(string fname)");
 		reason = "Not all data are found";
-		help = "Check the file";
+		help = "Check data in file; required: id(unique) id_in_CI_element type_in(point_polygon)  id_out_CI_element type_out(point_polygon)";
 		type = 5;
 		break;
 	case 19://wrong input sequenze

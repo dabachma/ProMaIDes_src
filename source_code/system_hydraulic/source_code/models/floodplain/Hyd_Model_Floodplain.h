@@ -369,6 +369,8 @@ private:
 	void read_elems(void);
 	///Transfer the floodplain element data to a database
 	void transfer_element_members2database(QSqlDatabase *ptr_database);
+	///Transfer a hydraulic boundary szenario from file to a database per element
+	void transfer_hydraulic_boundary_sz2database_per_elem(QSqlDatabase *ptr_database);
 
 	///Set the geometry of the elements (area and mid point)
 	void set_elem_geometry(void);

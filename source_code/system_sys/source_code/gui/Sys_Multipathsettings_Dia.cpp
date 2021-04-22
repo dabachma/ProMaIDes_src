@@ -9,6 +9,7 @@ Sys_Multipathsettings_Dia::Sys_Multipathsettings_Dia(QWidget *parent) : QDialog(
     ui.tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 	ui.tableWidget->setHorizontalHeaderLabels(QStringList() << tr("Select Files"));
 	ui.tableWidget->setAlternatingRowColors(true);
+	this->filter = "";
 	//slot connectiong
 	QObject::connect(ui.okButton, SIGNAL(clicked()), this, SLOT(accept()));
 	QObject::connect(ui.cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
@@ -104,6 +105,13 @@ void Sys_Multipathsettings_Dia::set_txt2headerlabel(const string txt, QIcon icon
 	this->setWindowIcon(icon);
 	this->ui.label_header->setText(txt.c_str());
 }
+//Set file filters
+void Sys_Multipathsettings_Dia::set_file_filters(QString filter) {
+	this->filter = filter;
+	for (int i = 0; i < ui.tableWidget->rowCount(); i++) {
+		qobject_cast<Sys_Filechooser_Dia*>(ui.tableWidget->cellWidget(i, 0))->set_file_filters(this->filter);
+	}
+}
 //_______
 //private
 //Set the FileChooser widget for every rows 
@@ -111,6 +119,7 @@ void Sys_Multipathsettings_Dia::setRowItem(const bool add){
 	for (int i = 0; i < ui.tableWidget->rowCount(); i++){
 		if(add==true){
 			Sys_Filechooser_Dia *rowItem = new Sys_Filechooser_Dia(this);
+			rowItem->set_file_filters(this->filter);
 			ui.tableWidget->resizeColumnToContents(0);
 			//! Set the FileChooser widget at every rows of the table
 			ui.tableWidget->setCellWidget(ui.tableWidget->rowCount()-1, 0, rowItem);

@@ -145,6 +145,8 @@ public:
 	static void create_profile_boundary_table(QSqlDatabase *ptr_database);
 	///Create the database view for the connection of boundary ids and theriver profiles (static)
 	static void create_bound2profile_view(QSqlDatabase *ptr_database);
+	///Check if the view exists already 
+	static bool check_bound2profile_view_exists(QSqlDatabase *ptr_database);
 
 	///Create the database table for the wallbreak profile data
 	static void create_profile_wallbreak_table(QSqlDatabase *ptr_database);

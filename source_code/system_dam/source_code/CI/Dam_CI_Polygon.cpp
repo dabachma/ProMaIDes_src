@@ -1947,8 +1947,6 @@ void Dam_CI_Polygon::check_polygon_incoming(void) {
 
 
 }
-//____________
-//private
 //Check the polygons
 void Dam_CI_Polygon::check_members(void) {
 	//check sec_id
@@ -1976,6 +1974,8 @@ void Dam_CI_Polygon::check_members(void) {
 
 
 }
+//____________
+//private
 //Create the database table for the polygon point data in a database (static)
 void Dam_CI_Polygon::create_point_table(QSqlDatabase *ptr_database) {
 	if (Dam_CI_Polygon::polygon_point_table == NULL) {
