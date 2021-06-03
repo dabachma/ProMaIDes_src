@@ -186,7 +186,8 @@ string Hyd_Element_Floodplain::get_datastring2database(QSqlDatabase *ptr_databas
 	}
 
 	//appending tables
-	this->transfer_element_boundarydata2database(ptr_database, glob_elem_id);
+	//this->transfer_element_boundarydata2database(ptr_database, glob_elem_id);
+	this->glob_elem_number = glob_elem_id;
 
 	buffer=query_string.str();
 	return buffer;

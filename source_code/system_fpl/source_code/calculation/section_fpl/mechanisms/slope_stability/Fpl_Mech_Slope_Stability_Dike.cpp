@@ -17,7 +17,8 @@ Fpl_Mech_Slope_Stability_Dike::Fpl_Mech_Slope_Stability_Dike(void){
 	this->delta_h=fpl_slope_control_param::def_delta_h;
 	this->slice_width=fpl_slope_control_param::def_slice_width;
 
-	this->number_circle_no_one=0;
+	this->number_circle_no=0;
+	this->number_circle_one = 0;
 	this->number_circle_more_two=0;
 	this->number_circle_area_small=0;
 	this->number_circle_y_small=0;
@@ -518,7 +519,7 @@ void Fpl_Mech_Slope_Stability_Dike::init_calculation(Geo_Simple_Polygon *outer_p
 	this->number_relevant_slip_circle=0;
 	//check if the slip circle is relevant
 	for(int i=0; i< this->number_slip_circle; i++){
-		this->slip_circle[i].check_interception2structure(outer_polysegment,crest_mid, &this->number_circle_no_one, &this->number_circle_more_two, &this->number_circle_y_small, outer_polygon, &this->number_circle_outer_bound);
+		this->slip_circle[i].check_interception2structure(outer_polysegment,crest_mid, &this->number_circle_no, &this->number_circle_one, &this->number_circle_more_two, &this->number_circle_y_small, outer_polygon, &this->number_circle_outer_bound);
 		//count relevant circle
 		if(this->slip_circle[i].get_relevant_circle()==true){
 			this->number_relevant_slip_circle++;
@@ -615,14 +616,14 @@ void Fpl_Mech_Slope_Stability_Dike::init_calculation(Geo_Simple_Polygon *outer_p
 		this->slip_circle[i].set_involved_cubature_segment(outer_polysegment);
 	}
 
-	if((double)this->number_relevant_slip_circle/(double)this->number_slip_circle<0.25){
+	if((double)this->number_relevant_slip_circle/(double)(this->number_slip_circle-this->number_circle_no)<0.25){
 		Warning msg=this->set_warning(8);
 		ostringstream info;
 		info << " Landside : " << functions::convert_boolean2string(this->landside_flag) <<endl;
 		msg.make_second_info(info.str());
 		msg.output_msg(1);
 	}
-	if((double)this->number_relevant_slip_circle/(double)this->number_slip_circle<0.1){
+	if((double)this->number_relevant_slip_circle/(double)(this->number_slip_circle - this->number_circle_no) <0.1){
 		Error msg=this->set_error(8);
 		ostringstream info;
 		info << " Landside : " << functions::convert_boolean2string(this->landside_flag) <<endl;
@@ -670,8 +671,11 @@ void Fpl_Mech_Slope_Stability_Dike::output_members(void){
 	cout << " Delta radius                      : " << this->delta_radius << label::m << endl;
 	cout << " Maximum radius                    : " << this->maximum_radius << label::m << endl;
 	cout << " Number slip circle                : " << this->number_slip_circle << label::no_unit << endl;
-	if(this->number_circle_no_one>0){
-		cout << "  Number no/one interception       : -" <<this->number_circle_no_one<<label::no_unit<<endl;
+	if(this->number_circle_no>0){
+		cout << "  Number no interception       : -" <<this->number_circle_no<<label::no_unit<<endl;
+	}
+	if (this->number_circle_one > 0) {
+		cout << "  Number one interception       : -" << this->number_circle_one << label::no_unit << endl;
 	}
 	if(this->number_circle_outer_bound>0){
 		cout << "  Number outer bound interception  : -" <<this->number_circle_outer_bound<<label::no_unit<<endl;

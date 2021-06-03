@@ -51,13 +51,18 @@ void Fpl_Slip_Circle::set_relevant_circle(const bool relevant){
 	this->relevant_circle=relevant;
 }
 //Check the interception with the cubature
-void Fpl_Slip_Circle::check_interception2structure(Geo_Polysegment *cubature, Geo_Point *crest_mid, int *number_no_one, int *number_more_two, int *number_y_coor, Geo_Simple_Polygon *outer_poly, int *number_outer){
+void Fpl_Slip_Circle::check_interception2structure(Geo_Polysegment *cubature, Geo_Point *crest_mid, int *number_no, int *number_one, int *number_more_two, int *number_y_coor, Geo_Simple_Polygon *outer_poly, int *number_outer){
 
 	this->points_cubature.delete_list();
 	this->check_interception2polysegment(&this->points_cubature, cubature);
-	if(this->points_cubature.get_number_points()==0 || this->points_cubature.get_number_points()==1){
+	if(this->points_cubature.get_number_points()==0 ){
 		this->relevant_circle=false;
-		(*number_no_one)++;
+		(*number_no)++;
+		return;
+	}
+	if (this->points_cubature.get_number_points() == 1) {
+		this->relevant_circle = false;
+		(*number_one)++;
 		return;
 	}
 	this->points_cubature.sort_list_x_coordinates(this->landside_flag);

@@ -170,8 +170,10 @@ private:
 	///Number of relevant slip circle
 	int number_relevant_slip_circle;
 
-	///Number of slip circles with no or one intercpetion
-	int number_circle_no_one;
+	///Number of slip circles with one intercpetion
+	int number_circle_one;
+	///Number of slip circles with no intercpetion
+	int number_circle_no;
 	///Number of slip circle with more than two interception
 	int number_circle_more_two;
 	///Number of slip circle where radius is changed

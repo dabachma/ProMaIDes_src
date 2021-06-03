@@ -209,6 +209,7 @@ void Hyd_Model_Floodplain::transfer_input_members2database(QSqlDatabase *ptr_dat
 
 	//transfer floodplain elements to database
 	this->transfer_element_members2database(ptr_database);
+	this->transfer_hydraulic_boundary_sz2database_per_elem(ptr_database);
 
 	//transfer noflow polygons
 	for(int i=0; i< this->Param_FP.number_noflow_polys; i++){

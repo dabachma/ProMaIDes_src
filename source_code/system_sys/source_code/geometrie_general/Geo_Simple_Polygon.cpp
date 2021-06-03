@@ -95,7 +95,7 @@ Geo_Point* Geo_Simple_Polygon::get_point(const int index){
 		return &(this->segments[index].point1);
 	}
 }
-///Get mid-point of the polagon
+///Get mid-point of the polygon
 Geo_Point Geo_Simple_Polygon::get_mid_point(void) {
 	Geo_Point mid;
 

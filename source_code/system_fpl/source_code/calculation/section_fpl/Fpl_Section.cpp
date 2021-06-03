@@ -2199,6 +2199,10 @@ string Fpl_Section::get_string_selection(void){
 }
 //Check the file for the fpl-section if the !$BEGIN... always are close with !$END...
 void Fpl_Section::check_input_file_section(const string file_name){
+	ostringstream cout;
+	cout << "Check FPL-file..." << endl;
+	Sys_Common_Output::output_fpl->output_txt(&cout);
+
 	int line_counter=0;
 	this->set_start_exception_number();
 	QFile ifile;
@@ -2288,6 +2292,8 @@ void Fpl_Section::check_input_file_section(const string file_name){
 	//close file
 	ifile.close();
 	this->set_exception_number();
+	cout << "Check FPL-file is done." << endl;
+	Sys_Common_Output::output_fpl->output_txt(&cout);
 	this->output_section_statistics();
 }
 //Output section statistics to display/console

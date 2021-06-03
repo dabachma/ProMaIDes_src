@@ -43,7 +43,7 @@ public:
 	void set_relevant_circle(const bool relevant);
 
 	///Check the interception with the cubature
-	void check_interception2structure(Geo_Polysegment *cubature, Geo_Point *crest_mid, int *number_no_one, int *number_more_two, int *number_y_coor, Geo_Simple_Polygon *outer_poly, int *number_outer);
+	void check_interception2structure(Geo_Polysegment *cubature, Geo_Point *crest_mid, int *number_no, int *number_one, int *number_more_two, int *number_y_coor, Geo_Simple_Polygon *outer_poly, int *number_outer);
 
 	///Initialize the slices of each slip circle
 	bool init_slices(Geo_Simple_Polygon *cubature, const double y_max, const int number_mat_zones, Fpl_Dike_Geo_Materialzone *mat_zones, Fpl_Dike_Geo_Materialzone_Connector *buffer_all_zone, const double delta_h, int *number_slice_reduced, const double y_min, int *number_slice2small);

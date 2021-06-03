@@ -3331,6 +3331,23 @@ void Dam_CI_System::check_CI_system(void) {
 			count = i;
 			this->dam_ci_point[i].check_connections();
 		}
+		count = 0; 
+		//check for uniquness
+		for (int i = 0; i < this->no_ci_point; i++) {
+			for (int j = i + 1; j < this->no_ci_point; j++) {
+				count = i;
+				if (this->dam_ci_point[i].get_number() == this->dam_ci_point[j].get_number()) {
+					ostringstream info;
+					info << "Point-Id: " << this->dam_ci_point[i].get_number() << endl;
+					Error msg = this->set_error(27);
+					msg.make_second_info(info.str());
+					throw msg;
+
+				};
+			}
+		}
+
+
 	}
 	catch(Error msg){
 		ostringstream info;
@@ -3348,6 +3365,23 @@ void Dam_CI_System::check_CI_system(void) {
 			this->dam_ci_polygon[i].check_connections();
 			this->dam_ci_polygon[i].check_polygon_incoming();
 		}
+
+		count = 0;
+		//check for uniquness
+		for (int i = 0; i < this->no_ci_polygon; i++) {
+			for (int j = i + 1; j < this->no_ci_polygon; j++) {
+				count = i;
+				if (this->dam_ci_polygon[i].get_ptr_point()->get_number() == this->dam_ci_polygon[j].get_ptr_point()->get_number()) {
+					ostringstream info;
+					info << "Polygon-Id: " << this->dam_ci_polygon[i].get_ptr_point()->get_number() << endl;
+					Error msg = this->set_error(28);
+					msg.make_second_info(info.str());
+					throw msg;
+
+				};
+			}
+		}
+
 	}
 	catch (Error msg) {
 		ostringstream info;
@@ -3541,15 +3575,27 @@ Error Dam_CI_System::set_error(const int err_type) {
 		type = 5;
 		break;
 	case 25://connection not found
-		place.append("find_mid_point_CI_element(const int id, const int point_flag) ");
+		place.append("find_mid_point_CI_element(const int id, const int point_flag)");
 		reason = "The connection is not found";
 		help = "Check the connection data and the relevant CI-point/-polygon data";
 		type = 34;
 		break;
 	case 26://connection not found
-		place.append("find_CI_element(const int id, const int point_flag) ");
+		place.append("find_CI_element(const int id, const int point_flag)");
 		reason = "The connection is not found";
 		help = "Check the connection data and the relevant CI-point/-polygon data";
+		type = 34;
+		break;
+	case 27://double id
+		place.append("check_CI_system(void)");
+		reason = "There a same point-ids found; the point-id must be a unique value";
+		help = "Check the id in the CI-point data";
+		type = 34;
+		break;
+	case 28://double id
+		place.append("check_CI_system(void)");
+		reason = "There a same polygon-ids found; the polygon-id must be a unique value";
+		help = "Check the id in the CI-polygon data";
 		type = 34;
 		break;
 	default:

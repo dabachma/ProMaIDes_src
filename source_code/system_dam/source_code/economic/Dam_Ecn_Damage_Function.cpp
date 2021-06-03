@@ -609,7 +609,7 @@ void Dam_Ecn_Damage_Function::set_function_table(QSqlDatabase *ptr_database){
 			msg.set_msg("Dam_Ecn_Damage_Function::set_function_table(QSqlDatabase *ptr_database)","Can not allocate the memory", "Check the memory", 10, false);
 			ostringstream info;
 			info<< "Info bad alloc: " << t.what() << endl;
-			msg.make_second_info(info.str());
+			msg.make_second_info(info.str()); 
 			throw msg;	
 		}
 		catch(Error msg){
