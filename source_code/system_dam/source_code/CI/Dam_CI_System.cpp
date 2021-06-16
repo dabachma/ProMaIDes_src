@@ -816,8 +816,19 @@ void Dam_CI_System::read_points_per_file(string fname) {
 
 				try {
 					if (col == 10) {
+						
+						
 						my_stream >> buff_number >> x_buffer >> y_buffer >> name_buff >> buff_sector_id >> buff_sector_level >> buff_boundary_value >> recovery_time >> reg_flag_buff_str >> active_time_buff;
-
+						if (my_stream.fail() == true) {
+							ostringstream info;
+							info << "Wrong input sequenze  : " << my_stream.str() << endl;
+							info << "Filename              : " << fname << endl;
+							info << "Error occurs near line: " << line_counter << endl;
+							info << "Point counter         : " << counter + 1 << endl;
+							Error msg = this->set_error(5);
+							msg.make_second_info(info.str());
+							throw msg;
+						}
 						buff_endflag = _Dam_CI_Element::sector_id2endflag(buff_sector_id);
 						reg_flag_buff = functions::convert_string2boolean(reg_flag_buff_str);
 							
@@ -833,21 +844,12 @@ void Dam_CI_System::read_points_per_file(string fname) {
 					ostringstream info;
 					info << "Filename              : " << fname << endl;
 					info << "Error occurs near line: " << line_counter << endl;
-					info << "Point id              : " << counter + 1 << endl;
+					info << "Point counter         : " << counter + 1 << endl;
 					msg.make_second_info(info.str());
 					throw msg;
 				}
 
-				if (my_stream.fail() == true) {
-					ostringstream info;
-					info << "Wrong input sequenze  : " << my_stream.str() << endl;
-					info << "Filename              : " << fname << endl;
-					info << "Error occurs near line: " << line_counter << endl;
-					info << "Point id              : " << counter + 1 << endl;
-					Error msg = this->set_error(4);
-					msg.make_second_info(info.str());
-					throw msg;
-				}
+
 				my_stream.clear();
 				my_stream.str("");
 				try {
@@ -861,7 +863,7 @@ void Dam_CI_System::read_points_per_file(string fname) {
 					ostringstream info;
 					info << "Filename              : " << fname << endl;
 					info << "Error occurs near line: " << line_counter << endl;
-					info << "Point id              : " << counter + 1 << endl;
+					info << "Point counter         : " << counter + 1 << endl;
 					msg.make_second_info(info.str());
 					throw msg;
 				}
@@ -1632,6 +1634,16 @@ void Dam_CI_System::read_polygon_per_file(string fname) {
 
 			if (col == 5) {
 				my_stream >> buff_number >> buff_no_point >> name_buff >> buff_sector_id >> enduser;
+				if (my_stream.fail() == true) {
+					ostringstream info;
+					info << "Wrong input sequenze  : " << my_stream.str() << endl;
+					info << "Filename              : " << fname << endl;
+					info << "Error occurs near line: " << line_counter << endl;
+					info << "Polygon counter       : " << i + 1 << endl;
+					Error msg = this->set_error(15);
+					msg.make_second_info(info.str());
+					throw msg;
+				}
 			}
 			else {
 				//Error
@@ -1639,20 +1651,11 @@ void Dam_CI_System::read_polygon_per_file(string fname) {
 				ostringstream info;
 				info << "Filename              : " << fname << endl;
 				info << "Error occurs near line: " << line_counter << endl;
-				info << "Polygon id              : " << i + 1 << endl;
+				info << "Polygon counter       : " << i + 1 << endl;
 				msg.make_second_info(info.str());
 				throw msg;
 			}
-			if (my_stream.fail() == true) {
-				ostringstream info;
-				info << "Wrong input sequenze  : " << my_stream.str() << endl;
-				info << "Filename              : " << fname << endl;
-				info << "Error occurs near line: " << line_counter << endl;
-				info << "Polygon id           : " << i + 1 << endl;
-				Error msg = this->set_error(15);
-				msg.make_second_info(info.str());
-				throw msg;
-			}
+
 			my_stream.clear();
 			my_stream.str("");
 
@@ -2169,6 +2172,16 @@ void Dam_CI_System::read_connection_per_file(string fname) {
 				try {
 					if (col == 5) {
 						my_stream >> buff_number >> id_in >> point_in >> id_out >> point_out;
+						if (my_stream.fail() == true) {
+							ostringstream info;
+							info << "Wrong input sequenze  : " << my_stream.str() << endl;
+							info << "Filename              : " << fname << endl;
+							info << "Error occurs near line: " << line_counter << endl;
+							info << "Connection count      : " << counter + 1 << endl;
+							Error msg = this->set_error(29);
+							msg.make_second_info(info.str());
+							throw msg;
+						}
 					}
 					else {
 						//Error
@@ -2185,16 +2198,6 @@ void Dam_CI_System::read_connection_per_file(string fname) {
 					throw msg;
 				}
 
-				if (my_stream.fail() == true) {
-					ostringstream info;
-					info << "Wrong input sequenze  : " << my_stream.str() << endl;
-					info << "Filename              : " << fname << endl;
-					info << "Error occurs near line: " << line_counter << endl;
-					info << "Point id              : " << counter + 1 << endl;
-					Error msg = this->set_error(20);
-					msg.make_second_info(info.str());
-					throw msg;
-				}
 				my_stream.clear();
 				my_stream.str("");
 				try {
@@ -3459,7 +3462,7 @@ Error Dam_CI_System::set_error(const int err_type) {
 		break;
 	case 5://can not read in the x-ycoordinates properly
 		place.append("read_points_per_file(string fname)");
-		reason = "Can not read in the x-, y-coordinates and data of the simple counting points properly";
+		reason = "Can not read in the x-, y-coordinates and data of the CI points properly";
 		help = "Check the coordinates and other data in file";
 		type = 5;
 		break;
@@ -3541,7 +3544,7 @@ Error Dam_CI_System::set_error(const int err_type) {
 		break;
 	case 19://wrong input sequenze
 		place.append("read_connection_per_file(string fname)");
-		reason = "Wrong input by reading the number of points";
+		reason = "Wrong input by reading the number of connections";
 		help = "Check the file";
 		type = 5;
 	case 20://not all info there
@@ -3598,6 +3601,11 @@ Error Dam_CI_System::set_error(const int err_type) {
 		help = "Check the id in the CI-polygon data";
 		type = 34;
 		break;
+	case 29://wrong input sequenze
+		place.append("read_connection_per_file(string fname)");
+		reason = "Wrong input by reading the CI connection data";
+		help = "Check the file";
+		type = 5;
 	default:
 		place.append("set_error(const int err_type)");
 		reason = "Unknown flag!";

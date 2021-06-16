@@ -15,7 +15,7 @@ Geo_Point_List::~Geo_Point_List(void){
 	this->delete_points();
 	//count the memory
 	Sys_Memory_Count::self()->minus_mem(sizeof(Geo_Point_List), _sys_system_modules::GEOSYS_SYS);
-}
+} 
 //___________
 //public
 //Get the number of points

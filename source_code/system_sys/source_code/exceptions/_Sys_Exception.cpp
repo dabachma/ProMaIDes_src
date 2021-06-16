@@ -10,7 +10,7 @@ _Sys_Exception::_Sys_Exception(void){
 	this->current_exception_number_module=0;
 	this->module_type=_sys_system_modules::SYS_SYS;
 }
-//destructor
+//destructor  
 _Sys_Exception::~_Sys_Exception(void){
 }
 //______________________________________

@@ -1472,14 +1472,16 @@ void Dam_CI_Element_List::check_members(void) {
 		throw msg;
 	}
 	//check circle
-	if (this->elem_list.last().at(0) == this->elem_list.last().at(2)) {
-		Error msg = this->set_error(2);
-		ostringstream info;
-		info << "Id in        :" << this->elem_list.last().at(0) << endl;
-		info << "Id out       :" << this->elem_list.last().at(2) << endl;
-		msg.make_second_info(info.str());
-		throw msg;
-	}
+	if (this->elem_list.last().at(1) == this->elem_list.last().at(3)) {
+		if (this->elem_list.last().at(0) == this->elem_list.last().at(2)) {
+			Error msg = this->set_error(2);
+			ostringstream info;
+			info << "Id in        :" << this->elem_list.last().at(0) << endl;
+			info << "Id out       :" << this->elem_list.last().at(2) << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+	} 
 
 
 

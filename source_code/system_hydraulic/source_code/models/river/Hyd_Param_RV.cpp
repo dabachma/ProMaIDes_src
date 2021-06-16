@@ -27,7 +27,7 @@ Hyd_Param_RV::Hyd_Param_RV(void):default_rel_tol(1.0e-7),default_abs_tol(1.0e-8)
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Param_RV), _sys_system_modules::HYD_SYS);
 }
 //copy constructor
-Hyd_Param_RV::Hyd_Param_RV(const Hyd_Param_RV& par):default_rel_tol(5.0e-7),default_abs_tol(5.0e-7){
+Hyd_Param_RV::Hyd_Param_RV(const Hyd_Param_RV& par):default_rel_tol(1.0e-7),default_abs_tol(1.0e-8){
 	this->RVName=par.RVName;
 	this->RVNumber = par.RVNumber;
 

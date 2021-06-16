@@ -38,7 +38,7 @@ Hyd_Param_FP::Hyd_Param_FP(void):default_rel_tol(1.0e-8),default_abs_tol(1.0e-5)
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Param_FP), _sys_system_modules::HYD_SYS);
 }
 //copy constructor
-Hyd_Param_FP::Hyd_Param_FP(const Hyd_Param_FP& par):default_rel_tol(1.0e-6),default_abs_tol(1.0e-5),default_wet_bound(1.0e-3){
+Hyd_Param_FP::Hyd_Param_FP(const Hyd_Param_FP& par):default_rel_tol(1.0e-8),default_abs_tol(1.0e-5),default_wet_bound(1.0e-3){
 	this->FPName=par.FPName;	
 	this->FPNumber=par.FPNumber;
 	this->FPNofX=par.FPNofX;

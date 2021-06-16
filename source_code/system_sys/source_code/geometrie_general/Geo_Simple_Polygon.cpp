@@ -96,6 +96,7 @@ Geo_Point* Geo_Simple_Polygon::get_point(const int index){
 	}
 }
 ///Get mid-point of the polygon
+//https://www.biancahoegel.de/geometrie/schwerpunkt_geometrie.html
 Geo_Point Geo_Simple_Polygon::get_mid_point(void) {
 	Geo_Point mid;
 
