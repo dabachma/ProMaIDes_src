@@ -918,7 +918,7 @@ void Sys_Version_Update::check_update_connect_results_dam_ci(QSqlDatabase *ptr_d
 	}
 
 	//check just id_in
-	exists = false;  
+	exists = false; 
 	for (int i = 0; i < Dam_CI_Element_List::connection_instat_erg_table->get_number_col(); i++) {
 		if ((Dam_CI_Element_List::connection_instat_erg_table->get_ptr_col())[i].id == dam_label::in_id) {
 			exists = (Dam_CI_Element_List::connection_instat_erg_table->get_ptr_col())[i].found_flag;
