@@ -66,10 +66,10 @@ HydGui_Floodplain_Member_Wid::HydGui_Floodplain_Member_Wid(DataRole role, QWidge
 	// TWOD_OUTPUT
 	ui.twod_output->set_label_text("Full path to 2D Output File");
 	ui.twod_output->set_tooltip("Name of file, where the 2d output is printed in tecplot-format (geometrical as well as result output) [optional; if not set, no output will be performed]");
-
+	this->ui.groupBox_2->hide();
 	// REL_TOL
 	ui.rel_tol->set_label_text("Relative tolerance");
-	ui.rel_tol->set_tooltip("Defines the relative tolerances (related to the results) for solving the system [optional; standard value = 1e-6]");
+	ui.rel_tol->set_tooltip("Defines the relative tolerances (related to the results) for solving the system [optional; standard value = 1e-8]");
 	ui.rel_tol->set_precision(2);
 	ui.rel_tol->set_range(-20, 20);
 	ui.rel_tol->set_value(0.0000005);
@@ -77,7 +77,7 @@ HydGui_Floodplain_Member_Wid::HydGui_Floodplain_Member_Wid(DataRole role, QWidge
 
 	// ABS_TOL
 	ui.abs_tol->set_label_text("Absolute tolerance");
-	ui.abs_tol->set_tooltip("Defines the absolute tolerances (related to the results) for solving the system [optional; standard value = 1e-4]");
+	ui.abs_tol->set_tooltip("Defines the absolute tolerances (related to the results) for solving the system [optional; standard value = 1e-5]");
 	ui.abs_tol->set_precision(2);
 	ui.abs_tol->set_range(-20, 20);
 	ui.abs_tol->set_value(0.0000005);
@@ -85,7 +85,7 @@ HydGui_Floodplain_Member_Wid::HydGui_Floodplain_Member_Wid(DataRole role, QWidge
 
 	// WET_TOL
 	ui.wet_tol->set_label_text("Tolerance, whether an element is regarded as wet or dry [m]");
-	ui.wet_tol->set_tooltip("Defines if an element is regarded as wet or dry [m] [optional; standard value = 1e-2]");
+	ui.wet_tol->set_tooltip("Defines if an element is regarded as wet or dry [m] [optional; standard value = 1e-3]");
 	ui.wet_tol->set_precision(2);
 	ui.wet_tol->set_range(-20, 20);
 	ui.wet_tol->set_value(0.01);

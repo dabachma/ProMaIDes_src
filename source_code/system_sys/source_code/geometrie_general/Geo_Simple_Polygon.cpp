@@ -95,21 +95,47 @@ Geo_Point* Geo_Simple_Polygon::get_point(const int index){
 		return &(this->segments[index].point1);
 	}
 }
-///Get mid-point of the polygon
+//Check if points are clockwise (true) or counter clockwise (false) sorted
+bool Geo_Simple_Polygon::check_clockwise(void) {
+	bool counterclockwise = false;
+	double buff = 0.0;
+	for (int i = 0; i < this->number_segments; i++) {
+		buff = buff + (this->segments[i].point2.get_xcoordinate() - this->segments[i].point1.get_xcoordinate())*(this->segments[i].point1.get_ycoordinate() + this->segments[i].point2.get_ycoordinate());
+
+	}
+	if (buff > 0) {
+		counterclockwise = true;
+	}
+
+	return counterclockwise;
+}
+//Get mid-point of the polygon
 //https://www.biancahoegel.de/geometrie/schwerpunkt_geometrie.html
+//https://qastack.com.de/programming/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
 Geo_Point Geo_Simple_Polygon::get_mid_point(void) {
 	Geo_Point mid;
+	double buff_area = this->calculate_area();
+	bool clockwise = this->check_clockwise();
 
 	
 	double buff_x = 0.0;
 	double buff_y = 0.0;
 	for (int i = 0; i < this->number_segments; i++) {
-		buff_x = buff_x+ (this->segments[i].point1.get_xcoordinate() + this->segments[i].point2.get_xcoordinate()) / 2.0;
-		buff_y = buff_y + (this->segments[i].point1.get_ycoordinate() + this->segments[i].point2.get_ycoordinate()) / 2.0;
+		//counterclockwise
+		if (clockwise == false) {
+			buff_x = buff_x + (this->segments[i].point1.get_xcoordinate() + this->segments[i].point2.get_xcoordinate()) * (this->segments[i].point1.get_xcoordinate()*this->segments[i].point2.get_ycoordinate() - this->segments[i].point2.get_xcoordinate()*this->segments[i].point1.get_ycoordinate());
+			buff_y = buff_y + (this->segments[i].point1.get_ycoordinate() + this->segments[i].point2.get_ycoordinate()) * (this->segments[i].point1.get_xcoordinate()*this->segments[i].point2.get_ycoordinate() - this->segments[i].point2.get_xcoordinate()*this->segments[i].point1.get_ycoordinate());
+		}
+		else {
+			//clockwise
+			buff_x = buff_x + (this->segments[i].point1.get_xcoordinate() + this->segments[i].point2.get_xcoordinate()) * (this->segments[i].point2.get_xcoordinate()*this->segments[i].point1.get_ycoordinate() - this->segments[i].point1.get_xcoordinate()*this->segments[i].point2.get_ycoordinate());
+			buff_y = buff_y + (this->segments[i].point1.get_ycoordinate() + this->segments[i].point2.get_ycoordinate()) * (this->segments[i].point2.get_xcoordinate()*this->segments[i].point1.get_ycoordinate() - this->segments[i].point1.get_xcoordinate()*this->segments[i].point2.get_ycoordinate());
+		}
+
 	}
 	if (this->number_segments != 0) {
-		buff_x = buff_x / this->number_segments;
-		buff_y = buff_y / this->number_segments;
+		buff_x = buff_x / (6.0*buff_area);
+		buff_y = buff_y / (6.0*buff_area);
 		mid.set_point_coordinate(buff_x, buff_y);
 	}
 	return mid;

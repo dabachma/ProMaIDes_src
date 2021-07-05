@@ -15,7 +15,7 @@ Dam_CI_Point::Dam_CI_Point(void){
 	this->recovery_time=0;
 	this->final_flag=false;
 	this->ptr_point = this;
-	
+	this->is_point_id = 0;
 	
 
 	//count the memory
@@ -2011,8 +2011,13 @@ string Dam_CI_Point::get_datastring_conect_results2database(int *global_id, cons
 		query_string << this->system_id.measure_nr << " , ";
 		query_string << bound_sz << " , ";
 		query_string << "'" << break_sz << "' , ";
+		query_string << this->get_ptr_point()->get_number() << " , ";
+		query_string <<  0 << " , ";
 		query_string << this->sector_id << " , ";
 		query_string << this->sector_level << " , ";
+		query_string << this->outgoing[i]->get_ptr_point()->get_number() << " , ";
+		query_string << this->outgoing[i]->get_is_point_id() << " , ";
+
 		query_string << "'" << this->failure_type << "' , ";
 		query_string << "'" << functions::convert_boolean2string(this->regular_flag) << "' , ";
 
@@ -2055,8 +2060,12 @@ string Dam_CI_Point::get_datastring_conect_instat_results2database(int *global_i
 		query_string << this->system_id.measure_nr << " , ";
 		query_string << bound_sz << " , ";
 		query_string << "'" << break_sz << "' , ";
+		query_string << this->get_ptr_point()->get_number() << " , ";
+		query_string << 0 << " , ";
 		query_string << this->sector_id << " , ";
 		query_string << this->sector_level << " , ";
+		query_string << this->outgoing[i]->get_ptr_point()->get_number() << " , ";
+		query_string << this->outgoing[i]->get_is_point_id() << " , ";
 		query_string << "'" << this->failure_type << "' , ";
 		query_string << "'" << functions::convert_boolean2string(this->regular_flag) << "' , ";
 		query_string << "'" << date_time << "' , ";

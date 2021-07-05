@@ -41,6 +41,7 @@ _Dam_CI_Element::_Dam_CI_Element(void):block_elems(50){
 	this->activation_time=0.0;
 	this->regular_flag =true;
 	this->ptr_point = NULL;
+	this->is_point_id = 0;
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(_Dam_CI_Element)+ 2*sizeof(QList<QList<int>>), _sys_system_modules::DAM_SYS);
@@ -864,6 +865,10 @@ Geo_Point *_Dam_CI_Element::get_ptr_point(void) {
 	return this->ptr_point;
 
 }
+//Get the int if the element is a point (=0) or a polygon (=1)
+int _Dam_CI_Element::get_is_point_id(void) {
+	return this->is_point_id;
+}
 //Copy operator
 _Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
 	//Boundary value (waterlevel), when the CI element fails
@@ -911,6 +916,7 @@ _Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
 	this->ptr_point = object.ptr_point;
 	this->orig_activation_time = object.orig_activation_time;
 	this->orig_recovery_time = object.orig_recovery_time;
+	this->is_point_id = object.is_point_id;
 
 	return *this;
 }

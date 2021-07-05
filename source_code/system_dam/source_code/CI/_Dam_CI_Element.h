@@ -175,7 +175,8 @@ public:
 	///Get the pointer to the Geo_Point
 	Geo_Point *get_ptr_point(void);
 
-
+	///Get the int if the element is a point (=0) or a polygon (=1)
+	int get_is_point_id(void);
 
 	///Copy operator
 	_Dam_CI_Element& operator=(const _Dam_CI_Element& object);
@@ -243,6 +244,9 @@ protected:
 	double failure_duration;
 	///Flag if the object is a final position in the net
 	bool final_flag;
+
+	///Int for deciding if it is a point (=0) or a polygon (=1)
+	int is_point_id;
 
 	///Pointer to the point of the structure
 	Geo_Point *ptr_point;

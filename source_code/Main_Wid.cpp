@@ -3239,6 +3239,7 @@ void Main_Wid::read_existing_project(void){
 			this->version_update.check_update_hyd_view_bound2elements_profile(this->system_database->get_database());
 			this->version_update.check_update_fpl_output_control(this->system_database->get_database());
 			this->version_update.check_update_dam_ci(this->system_database->get_database(), this->project_manager.get_project_file_name());
+			this->version_update.check_update_connect_results_dam_ci(this->system_database->get_database(), this->project_manager.get_project_file_name());
 
 			
 		}

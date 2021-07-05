@@ -14,6 +14,7 @@ Dam_CI_Polygon::Dam_CI_Polygon(void){
 	this->polygon_str=label::not_set;
 	this->final_flag = true;
 	this->ptr_point = &this->mid_point;
+	this->is_point_id = 1;
 	
 
 	//count the memory

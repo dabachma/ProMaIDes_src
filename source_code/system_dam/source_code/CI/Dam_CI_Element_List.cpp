@@ -507,7 +507,7 @@ void Dam_CI_Element_List::create_erg_table(QSqlDatabase *ptr_database) {
 		Sys_Common_Output::output_dam->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name = dam_label::tab_ci_connection_erg;
-		const int num_col = 11;
+		const int num_col = 15;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for (int i = 0; i < num_col; i++) {
@@ -545,23 +545,39 @@ void Dam_CI_Element_List::create_erg_table(QSqlDatabase *ptr_database) {
 		tab_col[5].type = sys_label::tab_col_type_string;
 		tab_col[5].key_flag = true;
 
-		tab_col[6].name = dam_label::sector_id;
+		tab_col[6].name = dam_label::in_id;
 		tab_col[6].type = sys_label::tab_col_type_int;
 		tab_col[6].default_value = "-1";
 
-		tab_col[7].name = dam_label::sector_level;
+		tab_col[7].name = dam_label::in_point_flag;
 		tab_col[7].type = sys_label::tab_col_type_int;
-		tab_col[7].default_value = "-1";
+		tab_col[7].default_value = "0";
 
-		tab_col[8].name = dam_label::failure_type;
-		tab_col[8].type = sys_label::tab_col_type_string;
+		tab_col[8].name = dam_label::sector_id;
+		tab_col[8].type = sys_label::tab_col_type_int;
+		tab_col[8].default_value = "-1";
 
-		tab_col[9].name = dam_label::regular_flag;
-		tab_col[9].type = sys_label::tab_col_type_bool;
-		tab_col[9].default_value = "true";
+		tab_col[9].name = dam_label::sector_level;
+		tab_col[9].type = sys_label::tab_col_type_int;
+		tab_col[9].default_value = "-1";
 
-		tab_col[10].name = hyd_label::polyseg_out;
-		tab_col[10].type = sys_label::tab_col_type_polyline;
+		tab_col[10].name = dam_label::out_id;
+		tab_col[10].type = sys_label::tab_col_type_int;
+		tab_col[10].default_value = "-1";
+
+		tab_col[11].name = dam_label::out_point_flag;
+		tab_col[11].type = sys_label::tab_col_type_int;
+		tab_col[11].default_value = "0";
+
+		tab_col[12].name = dam_label::failure_type;
+		tab_col[12].type = sys_label::tab_col_type_string;
+
+		tab_col[13].name = dam_label::regular_flag;
+		tab_col[13].type = sys_label::tab_col_type_bool;
+		tab_col[13].default_value = "true";
+
+		tab_col[14].name = hyd_label::polyseg_out;
+		tab_col[14].type = sys_label::tab_col_type_polyline;
 
 		try {
 			Dam_CI_Element_List::connection_erg_table = new Tables();
@@ -591,7 +607,7 @@ void Dam_CI_Element_List::set_erg_table(QSqlDatabase *ptr_database, const bool n
 	if (Dam_CI_Element_List::connection_erg_table == NULL) {
 		//make specific input for this class
 		const string tab_id_name = dam_label::tab_ci_connection_erg;
-		string tab_col[11];
+		string tab_col[15];
 
 		tab_col[0] = dam_label::glob_id;
 		tab_col[1] = dam_label::regular_flag;
@@ -604,6 +620,10 @@ void Dam_CI_Element_List::set_erg_table(QSqlDatabase *ptr_database, const bool n
 		tab_col[8] = dam_label::sector_level;
 		tab_col[9] = dam_label::failure_type;
 		tab_col[10] = hyd_label::polyseg_out;
+		tab_col[11] = dam_label::in_id;
+		tab_col[12] = dam_label::in_point_flag;
+		tab_col[13] = dam_label::out_id;
+		tab_col[14] = dam_label::out_point_flag;
 		
 
 		try {
@@ -805,12 +825,19 @@ string Dam_CI_Element_List::get_insert_header_erg_table(QSqlDatabase *ptr_databa
 	query_string << Dam_CI_Element_List::connection_erg_table->get_column_name(hyd_label::sz_bound_id) << " , ";
 	query_string << Dam_CI_Element_List::connection_erg_table->get_column_name(risk_label::sz_break_id) << " , ";
 	//results
+	query_string << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::in_id) << " , ";
+	query_string << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::in_point_flag) << " , ";
 	query_string << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::sector_id) << " , ";
 	query_string << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::sector_level) << " , ";
+	query_string << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::out_id) << " , ";
+	query_string << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::out_point_flag) << " , ";
 	query_string << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::failure_type) << " , ";
 	query_string << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::regular_flag) << " , ";
 
 	query_string << Dam_CI_Element_List::connection_erg_table->get_column_name(hyd_label::polyseg_out) << ")";
+
+
+
 
 	query_string << " VALUES ";
 	string buffer;
@@ -1012,6 +1039,10 @@ void Dam_CI_Element_List::copy_results(QSqlDatabase *ptr_database, const _sys_sy
 		test_filter << Dam_CI_Element_List::connection_erg_table->get_column_name(hyd_label::sz_bound_id) << " , ";
 		test_filter << Dam_CI_Element_List::connection_erg_table->get_column_name(risk_label::sz_break_id) << " , ";
 
+		test_filter << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::out_id) << " , ";
+		test_filter << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::out_point_flag) << " , ";
+		test_filter << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::in_id) << " , ";
+		test_filter << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::in_point_flag) << " , ";
 		test_filter << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::sector_id) << " , ";
 		test_filter << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::sector_level) << " , ";
 		test_filter << Dam_CI_Element_List::connection_erg_table->get_column_name(dam_label::failure_type) << " , ";
@@ -1045,7 +1076,7 @@ void Dam_CI_Element_List::create_instat_erg_table(QSqlDatabase *ptr_database) {
 		Sys_Common_Output::output_dam->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name = dam_label::tab_ci_connection_instat_erg;
-		const int num_col = 12;
+		const int num_col = 16;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for (int i = 0; i < num_col; i++) {
@@ -1085,28 +1116,46 @@ void Dam_CI_Element_List::create_instat_erg_table(QSqlDatabase *ptr_database) {
 		tab_col[5].type = sys_label::tab_col_type_string;
 		tab_col[5].key_flag = true;
 
-		tab_col[6].name = dam_label::sector_id;
+		tab_col[6].name = dam_label::in_id;
 		tab_col[6].type = sys_label::tab_col_type_int;
 		tab_col[6].default_value = "-1";
 
-		tab_col[7].name = dam_label::sector_level;
+		tab_col[7].name = dam_label::in_point_flag;
 		tab_col[7].type = sys_label::tab_col_type_int;
-		tab_col[7].default_value = "-1";
+		tab_col[7].default_value = "0";
 
 
-		tab_col[8].name = dam_label::failure_type;
-		tab_col[8].type = sys_label::tab_col_type_string;
 
-		tab_col[9].name = dam_label::regular_flag;
-		tab_col[9].type = sys_label::tab_col_type_bool;
-		tab_col[9].default_value = "true";
+		tab_col[8].name = dam_label::sector_id;
+		tab_col[8].type = sys_label::tab_col_type_int;
+		tab_col[8].default_value = "-1";
 
-		tab_col[10].name = hyd_label::data_time;
-		tab_col[10].type = sys_label::tab_col_type_string;
-		tab_col[10].default_value = "";
+		tab_col[9].name = dam_label::sector_level;
+		tab_col[9].type = sys_label::tab_col_type_int;
+		tab_col[9].default_value = "-1";
 
-		tab_col[11].name = hyd_label::polyseg_out;
-		tab_col[11].type = sys_label::tab_col_type_polyline;
+		tab_col[10].name = dam_label::out_id;
+		tab_col[10].type = sys_label::tab_col_type_int;
+		tab_col[10].default_value = "-1";
+
+		tab_col[11].name = dam_label::out_point_flag;
+		tab_col[11].type = sys_label::tab_col_type_int;
+		tab_col[11].default_value = "0";
+
+
+		tab_col[12].name = dam_label::failure_type;
+		tab_col[12].type = sys_label::tab_col_type_string;
+
+		tab_col[13].name = dam_label::regular_flag;
+		tab_col[13].type = sys_label::tab_col_type_bool;
+		tab_col[13].default_value = "true";
+
+		tab_col[14].name = hyd_label::data_time;
+		tab_col[14].type = sys_label::tab_col_type_string;
+		tab_col[14].default_value = "";
+
+		tab_col[15].name = hyd_label::polyseg_out;
+		tab_col[15].type = sys_label::tab_col_type_polyline;
 
 		try {
 			Dam_CI_Element_List::connection_instat_erg_table = new Tables();
@@ -1138,7 +1187,7 @@ void Dam_CI_Element_List::set_instat_erg_table(QSqlDatabase *ptr_database, const
 	if (Dam_CI_Element_List::connection_instat_erg_table == NULL) {
 		//make specific input for this class
 		const string tab_id_name = dam_label::tab_ci_connection_instat_erg;
-		string tab_col[12];
+		string tab_col[16];
 
 		tab_col[0] = dam_label::glob_id;
 		tab_col[1] = dam_label::regular_flag;
@@ -1152,6 +1201,10 @@ void Dam_CI_Element_List::set_instat_erg_table(QSqlDatabase *ptr_database, const
 		tab_col[9] = dam_label::sector_level;
 		tab_col[10] = dam_label::failure_type;
 		tab_col[11] = hyd_label::polyseg_out;
+		tab_col[12] = dam_label::in_id;
+		tab_col[13] = dam_label::in_point_flag;
+		tab_col[14] = dam_label::out_id;
+		tab_col[15] = dam_label::out_point_flag;
 
 
 		try {
@@ -1353,8 +1406,13 @@ string Dam_CI_Element_List::get_insert_header_instat_erg_table(QSqlDatabase *ptr
 	query_string << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(hyd_label::sz_bound_id) << " , ";
 	query_string << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(risk_label::sz_break_id) << " , ";
 	//results
+
+	query_string << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::in_id) << " , ";
+	query_string << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::in_point_flag) << " , ";
 	query_string << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::sector_id) << " , ";
 	query_string << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::sector_level) << " , ";
+	query_string << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::out_id) << " , ";
+	query_string << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::out_point_flag) << " , ";
 	query_string << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::failure_type) << " , ";
 	query_string << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::regular_flag) << " , ";
 	query_string << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(hyd_label::data_time) << " , ";
@@ -1420,6 +1478,11 @@ void Dam_CI_Element_List::copy_instat_results(QSqlDatabase *ptr_database, const 
 		test_filter << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(label::applied_flag) << " , ";
 		test_filter << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(hyd_label::sz_bound_id) << " , ";
 		test_filter << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(risk_label::sz_break_id) << " , ";
+
+		test_filter << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::out_id) << " , ";
+		test_filter << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::out_point_flag) << " , ";
+		test_filter << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::in_id) << " , ";
+		test_filter << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::in_point_flag) << " , ";
 
 		test_filter << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::sector_id) << " , ";
 		test_filter << Dam_CI_Element_List::connection_instat_erg_table->get_column_name(dam_label::sector_level) << " , ";

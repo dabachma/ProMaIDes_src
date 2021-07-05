@@ -47,7 +47,7 @@ public:
 	///Set the x-value of table; it is the depending value of an other table
 	void set_independent_values(Hyd_Tables *independent_table);
 
-	///Get the number of values stroed in the table
+	///Get the number of values stored in the table
 	int get_number_values(void);
 	///Set the y-value of the table
 	void set_values(const int counter, const double dependingvalue);

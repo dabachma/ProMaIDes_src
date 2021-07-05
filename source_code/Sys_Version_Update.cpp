@@ -449,16 +449,6 @@ void Sys_Version_Update::check_update_hyd_table_instat_results_rv(QSqlDatabase *
 			_Hyd_River_Profile::create_erg_instat_table(ptr_database);
 
 
-			//make indizes for max results table
-			//the table is set (the name and the column names) and allocated
-			try {
-				_Hyd_River_Profile::set_erg_table(ptr_database);
-			}
-			catch (Error msg) {
-				throw msg;
-			}
-			_Hyd_River_Profile::erg_table->create_spatial_index2column(ptr_database, _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_polygon));
-			_Hyd_River_Profile::close_erg_table();
 
 		}
 	}
@@ -469,6 +459,19 @@ void Sys_Version_Update::check_update_hyd_table_instat_results_rv(QSqlDatabase *
 	this->check_update_hyd_table_river_result_width(ptr_database, project_file);
 
 
+	//make indizes for max results table
+	//the table is set (the name and the column names) and allocated
+	if (error == true) {
+		try {
+			_Hyd_River_Profile::set_erg_table(ptr_database);
+		}
+		catch (Error msg) {
+			throw msg;
+		}
+		_Hyd_River_Profile::erg_table->create_spatial_index2column(ptr_database, _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_polygon));
+		_Hyd_River_Profile::close_erg_table();
+
+	}
 
 }
 //Check and update the hydraulic view for boundary conditions to floodplain elements / river profile (3.2.2021)
@@ -857,6 +860,88 @@ void Sys_Version_Update::check_update_dam_ci(QSqlDatabase *ptr_database, const s
 		buffer.add_columns_file(project_file, dam_label::tab_ci_polygon_instat_erg, dam_label::failure_duration);
 	}
 	Dam_CI_Polygon::close_instat_erg_table();
+
+}
+//Check and add columns to the CI result-tables of the CU-connectors for DAM-module (5.7.2021)
+void Sys_Version_Update::check_update_connect_results_dam_ci(QSqlDatabase *ptr_database, const string project_file) {
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
+	bool error = false;
+	//check if columns exists for stationary results of CI-connectors
+	try {
+		Dam_CI_Element_List::set_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//check just id_in
+	bool exists = false;
+	for (int i = 0; i < Dam_CI_Element_List::connection_erg_table->get_number_col(); i++) {
+		if ((Dam_CI_Element_List::connection_erg_table->get_ptr_col())[i].id == dam_label::in_id) {
+			exists = (Dam_CI_Element_List::connection_erg_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	//add
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, dam_label::tab_ci_connection_erg, dam_label::in_id, sys_label::tab_col_type_int, false, "-1", _sys_table_type::dam);
+		buffer.add_columns_file(project_file, dam_label::tab_ci_connection_erg, dam_label::in_id);
+
+		Tables buffer1;
+		buffer1.add_columns(ptr_database, dam_label::tab_ci_connection_erg, dam_label::in_point_flag, sys_label::tab_col_type_int, false, "0", _sys_table_type::dam);
+		buffer1.add_columns_file(project_file, dam_label::tab_ci_connection_erg, dam_label::in_point_flag);
+		Tables buffer2;
+		buffer2.add_columns(ptr_database, dam_label::tab_ci_connection_erg, dam_label::out_id, sys_label::tab_col_type_int, false, "-1", _sys_table_type::dam);
+		buffer2.add_columns_file(project_file, dam_label::tab_ci_connection_erg, dam_label::out_id);
+		Tables buffer3;
+		buffer3.add_columns(ptr_database, dam_label::tab_ci_connection_erg, dam_label::out_point_flag, sys_label::tab_col_type_int, false, "0", _sys_table_type::dam);
+		buffer3.add_columns_file(project_file, dam_label::tab_ci_connection_erg, dam_label::out_point_flag);
+	}
+
+	Dam_CI_Element_List::close_erg_table();
+
+	error = false;
+
+
+	//check if columns exists for instationary results of CI-connectors
+	try {
+		Dam_CI_Element_List::set_instat_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//check just id_in
+	exists = false;
+	for (int i = 0; i < Dam_CI_Element_List::connection_instat_erg_table->get_number_col(); i++) {
+		if ((Dam_CI_Element_List::connection_instat_erg_table->get_ptr_col())[i].id == dam_label::in_id) {
+			exists = (Dam_CI_Element_List::connection_instat_erg_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	//add
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, dam_label::tab_ci_connection_instat_erg, dam_label::in_id, sys_label::tab_col_type_int, false, "-1", _sys_table_type::dam);
+		buffer.add_columns_file(project_file, dam_label::tab_ci_connection_instat_erg, dam_label::in_id);
+		Tables buffer1;
+		buffer1.add_columns(ptr_database, dam_label::tab_ci_connection_instat_erg, dam_label::in_point_flag, sys_label::tab_col_type_int, false, "0", _sys_table_type::dam);
+		buffer1.add_columns_file(project_file, dam_label::tab_ci_connection_instat_erg, dam_label::in_point_flag);
+		Tables buffer2;
+		buffer2.add_columns(ptr_database, dam_label::tab_ci_connection_instat_erg, dam_label::out_id, sys_label::tab_col_type_int, false, "-1", _sys_table_type::dam);
+		buffer2.add_columns_file(project_file, dam_label::tab_ci_connection_instat_erg, dam_label::out_id);
+		Tables buffer3;
+		buffer3.add_columns(ptr_database, dam_label::tab_ci_connection_instat_erg, dam_label::out_point_flag, sys_label::tab_col_type_int, false, "0", _sys_table_type::dam);
+		buffer3.add_columns_file(project_file, dam_label::tab_ci_connection_instat_erg, dam_label::out_point_flag);
+	}
+
+	Dam_CI_Element_List::close_instat_erg_table();
 
 }
 //____________

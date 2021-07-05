@@ -38,6 +38,9 @@ public:
 	///Get a point of the polygon with the given index
 	Geo_Point* get_point(const int index);
 
+	///Check if points are clockwise (true) or counter clockwise (false) sorted
+	bool check_clockwise(void);
+
 	///Get mid-point of the polagon
 	Geo_Point get_mid_point(void);
 

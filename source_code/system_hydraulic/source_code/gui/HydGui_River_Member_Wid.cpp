@@ -31,16 +31,18 @@ HydGui_River_Member_Wid::HydGui_River_Member_Wid(DataRole role, QWidget *parent)
 	this->ui.twod_output->set_label_text("Full path to 2D Output File");
 	this->ui.twod_output->set_tooltip("Name of file, where the 2d output is printed in tecplot-format (geometrical as well as result output) [optional; if not set, no output will be performed]");
 
+	this->ui.groupBox_2->hide();
+
 	// REL_TOL
 	this->ui.rel_tol->set_label_text("Relative Tolerance");
-	this->ui.rel_tol->set_tooltip("Defines the relative tolerances (related to the results) for solving the system [optional; standard value = 5e-7]");
+	this->ui.rel_tol->set_tooltip("Defines the relative tolerances (related to the results) for solving the system [optional; standard value = 1e-7]");
 	this->ui.rel_tol->set_suffix("[-]");
 	this->ui.rel_tol->set_range(-15, 10);
 	this->ui.rel_tol->set_dataRole(role);
 
 	// ABS_TOL
 	this->ui.abs_tol->set_label_text("Absolute Tolerance");
-	this->ui.abs_tol->set_tooltip("Defines the absolute tolerances (related to the results) for solving the system [optional; standard value = 5e-7]");
+	this->ui.abs_tol->set_tooltip("Defines the absolute tolerances (related to the results) for solving the system [optional; standard value = 1e-8]");
 	this->ui.abs_tol->set_suffix("[-]");
 	this->ui.abs_tol->set_range(-15, 10);
 	this->ui.abs_tol->set_dataRole(role);
