@@ -364,7 +364,12 @@ _geo_interception_point Geo_Polysegment::calc_last_interception(Geo_Segment *my_
 			buffer.set_new_point(&buffer2);
 		}
 	}
-	return buffer.get_last_point().line_interception;
+	if (buffer.get_number_points() > 0) {
+		return buffer.get_last_point().line_interception;
+	}
+	else {
+		return intercept_point;
+	}
 
 }
 //Calculate the interception points with a Geo_Segement and fill the Geo_Interception_Point_List 
