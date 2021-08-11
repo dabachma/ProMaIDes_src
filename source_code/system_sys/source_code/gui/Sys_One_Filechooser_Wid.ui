@@ -1,42 +1,50 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>Sys_One_Filechooser_Wid</class>
- <widget class="QWidget" name="Sys_One_Filechooser_Wid" >
-  <property name="geometry" >
+ <widget class="QWidget" name="Sys_One_Filechooser_Wid">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
-    <height>80</height>
+    <width>454</width>
+    <height>89</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout">
    <item>
-    <layout class="QVBoxLayout" >
+    <layout class="QVBoxLayout">
      <item>
-      <widget class="QLabel" name="txt_label" >
-       <property name="minimumSize" >
+      <widget class="QLabel" name="txt_label">
+       <property name="minimumSize">
         <size>
          <width>430</width>
          <height>28</height>
         </size>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>Choose the global file of the hydraulic calculation (.ilm), 
  which should be transferred to the database </string>
        </property>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" >
+      <layout class="QHBoxLayout">
        <item>
-        <widget class="QLineEdit" name="fileLineEdit" />
+        <widget class="QLineEdit" name="fileLineEdit">
+         <property name="minimumSize">
+          <size>
+           <width>25</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="browseButton" >
-         <property name="text" >
+        <widget class="QPushButton" name="browseButton">
+         <property name="text">
           <string>Browse</string>
          </property>
         </widget>

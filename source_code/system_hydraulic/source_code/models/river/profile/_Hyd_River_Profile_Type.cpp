@@ -1140,6 +1140,8 @@ void _Hyd_River_Profile_Type::check_points(void){
 			ostringstream info;
 			info << "Profile point number : " << i+1 << endl;
 			info << "Given identity       : " << this->points[i].identity << endl;
+			info << "x-coordinate         : " << FORMAT_FIXED_REAL <<P(3) << this->points[i].get_global_x_y_coordinates().get_xcoordinate() << endl;
+			info << "y-coordinate         : " << this->points[i].get_global_x_y_coordinates().get_ycoordinate() << endl;
 			msg.make_second_info(info.str());
 			throw msg;
 		}
@@ -1152,6 +1154,8 @@ void _Hyd_River_Profile_Type::check_points(void){
 			info << "Given bank identity  : " << this->points[i].identity << endl;
 			info << "It is switched to    : " << this->points[i-1].identity << endl;
 			info << "Profile point number : " << i << endl;
+			info << "x-coordinate         : " << FORMAT_FIXED_REAL << P(3) << this->points[i].get_global_x_y_coordinates().get_xcoordinate() << endl;
+			info << "y-coordinate         : " << this->points[i].get_global_x_y_coordinates().get_ycoordinate() << endl;
 			//reaction
 			this->points[i].identity=this->points[i-1].identity;
 			msg.make_second_info(info.str());
@@ -1165,6 +1169,8 @@ void _Hyd_River_Profile_Type::check_points(void){
 			info << "Given bank identity  :" << this->points[i].identity << endl;
 			info << "It is switched to    :" << this->points[i+1].identity << endl;
 			info << "Profile point number : " << i << endl;
+			info << "x-coordinate         : " << FORMAT_FIXED_REAL << P(3) << this->points[i].get_global_x_y_coordinates().get_xcoordinate() << endl;
+			info << "y-coordinate         : " << this->points[i].get_global_x_y_coordinates().get_ycoordinate() << endl;
 			//reaction
 			this->points[i].identity=this->points[i+1].identity;
 			msg.make_second_info(info.str());
