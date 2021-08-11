@@ -1012,6 +1012,9 @@ void Dam_CI_System::input_perdatabase_point_data(QSqlDatabase *ptr_database, con
 		if (number_p <= 0) {
 			cout << "No CI-points are found in database" << endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
+			if (with_output == true) {
+				Sys_Common_Output::output_dam->rewind_userprefix();
+			}
 			return;
 		}
 
@@ -1911,6 +1914,9 @@ void Dam_CI_System::input_perdatabase_polygon_data(QSqlDatabase *ptr_database, c
 		if (number_p <= 0) {
 			cout << "No CI-polygon are found in database" << endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
+			if (with_output == true) {
+				Sys_Common_Output::output_dam->rewind_userprefix();
+			}
 			return;
 		}
 
@@ -2410,6 +2416,9 @@ void Dam_CI_System::input_perdatabase_connection_data(QSqlDatabase *ptr_database
 		if (number_p <= 0) {
 			cout << "No CI-connections are found in database" << endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
+			if (with_output == true) {
+				Sys_Common_Output::output_dam->rewind_userprefix();
+			}
 			return;
 		}
 

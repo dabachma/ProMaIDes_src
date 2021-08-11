@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>676</width>
+    <width>784</width>
     <height>671</height>
    </rect>
   </property>
@@ -23,9 +23,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-281</y>
-        <width>639</width>
-        <height>932</height>
+        <y>-448</y>
+        <width>739</width>
+        <height>1095</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -255,6 +255,12 @@
             </item>
             <item row="5" column="1">
              <widget class="QLineEdit" name="lineEdit_mobil_95">
+              <property name="minimumSize">
+               <size>
+                <width>170</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <pointsize>8</pointsize>
@@ -294,6 +300,12 @@
             </item>
             <item row="0" column="1">
              <widget class="QLineEdit" name="lineEdit_total_ecn">
+              <property name="minimumSize">
+               <size>
+                <width>170</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -367,6 +379,12 @@
             </item>
             <item row="0" column="1" rowspan="2">
              <widget class="QLineEdit" name="lineEdit_btype">
+              <property name="minimumSize">
+               <size>
+                <width>170</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <pointsize>9</pointsize>
@@ -434,6 +452,12 @@
             </item>
             <item row="0" column="1">
              <widget class="QLineEdit" name="lineEdit_total_eco">
+              <property name="minimumSize">
+               <size>
+                <width>170</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -507,6 +531,12 @@
             </item>
             <item row="0" column="1">
              <widget class="QLineEdit" name="lineEdit_total_sum">
+              <property name="minimumSize">
+               <size>
+                <width>170</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -580,6 +610,12 @@
             </item>
             <item row="0" column="1">
              <widget class="QLineEdit" name="lineEdit_pop_aff">
+              <property name="minimumSize">
+               <size>
+                <width>170</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -899,6 +935,12 @@
              </item>
              <item row="0" column="1">
               <widget class="QLineEdit" name="lineEdit_sc_pub">
+               <property name="minimumSize">
+                <size>
+                 <width>110</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
