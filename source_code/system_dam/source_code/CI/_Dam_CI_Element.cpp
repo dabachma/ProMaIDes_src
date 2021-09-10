@@ -808,12 +808,34 @@ void _Dam_CI_Element::check_connections(void) {
 
 	if (this->final_flag == true) {
 		if (this->no_outgoing > 0) {
-			Error msg = this->set_error(4);
-			ostringstream info;
-			info << "Sector id    :" << this->sector_id << endl;
-			info << "Sector name  :" << this->sector_name << endl;
-			msg.make_second_info(info.str());
-			throw msg;
+			for (int i = 0; i < this->no_outgoing; i++) {
+				if (this->outgoing[i]->get_is_point_id() ==0) {
+					Error msg = this->set_error(4);
+					ostringstream info;
+					info << "Sector id          : " << this->sector_id << endl;
+					info << "Sector name        : " << this->sector_name << endl;
+					msg.make_second_info(info.str());
+					throw msg;
+				}
+			}
+		}
+
+	}
+	
+	if (this->final_flag == true) {
+		if (this->no_outgoing > 0) {
+			for (int i = 0; i < this->no_outgoing; i++) {
+				if (this->outgoing[i]->get_sector_id() != this->sector_id) {
+					Error msg = this->set_error(8);
+					ostringstream info;
+					info << "Sector id          : " << this->sector_id << endl;
+					info << "Sector name        : " << this->sector_name << endl;
+					info << "Sector id outgoing : " << this->outgoing[i]->get_sector_id() << endl;
+					msg.make_second_info(info.str());
+					throw msg;
+				}
+			}
+			this->final_flag = false;
 		}
 
 	}
@@ -821,8 +843,8 @@ void _Dam_CI_Element::check_connections(void) {
 		if (this->no_incoming > 0) {
 			Error msg = this->set_error(5);
 			ostringstream info;
-			info << "Sector id    :" << this->sector_id << endl;
-			info << "Sector name  :" << this->sector_name << endl;
+			info << "Sector id    : " << this->sector_id << endl;
+			info << "Sector name  : " << this->sector_name << endl;
 			msg.make_second_info(info.str());
 			throw msg;
 		}
@@ -830,8 +852,8 @@ void _Dam_CI_Element::check_connections(void) {
 			if (this->outgoing[i]->get_end_level_flag() == false) {
 				Error msg = this->set_error(6);
 				ostringstream info;
-				info << "Sector id    :" << this->sector_id << endl;
-				info << "Sector name  :" << this->sector_name << endl;
+				info << "Sector id    : " << this->sector_id << endl;
+				info << "Sector name  : " << this->sector_name << endl;
 				msg.make_second_info(info.str());
 				throw msg;
 
@@ -844,11 +866,11 @@ void _Dam_CI_Element::check_connections(void) {
 			if (this->incomings[i]->get_sector_id() != this->sector_id) {
 				Error msg = this->set_error(7);
 				ostringstream info;
-				info << "Sector id             :" << this->sector_id << endl;
-				info << "Sector name           :" << this->sector_name << endl;
-				info << "Name		           :" << this->ptr_point->get_point_name() << endl;
+				info << "Sector id             : " << this->sector_id << endl;
+				info << "Sector name           : " << this->sector_name << endl;
+				info << "Name		           :  " << this->ptr_point->get_point_name() << endl;
 				info << "Sector id incoming    :" << this->incomings[i]->get_sector_id() << endl;
-				info << "Sector name incoming  :" << this->incomings[i]->get_sector_name() << endl;
+				info << "Sector name incoming  : " << this->incomings[i]->get_sector_name() << endl;
 				msg.make_second_info(info.str());
 				throw msg;
 
@@ -1059,7 +1081,7 @@ Error _Dam_CI_Element::set_error(const int err_type) {
 		break;
 	case 4://final has outgoings
 		place.append("check_connections(void)");
-		reason = "Final CI-elments has outgoing connections; this is not possible!";
+		reason = "Final CI-elments has outgoing connections to another point element; this is not possible! Just polygon elements of the the section id are allowed.";
 		help = "Check the connections";
 		type = 34;
 		break;
@@ -1078,6 +1100,12 @@ Error _Dam_CI_Element::set_error(const int err_type) {
 	case 7://
 		place.append("check_connections(void)");
 		reason = "An CI-polygon with sector id 1 - 4 is enduser; just incommings from the same sector are allowed";
+		help = "Check the connections";
+		type = 34;
+		break;
+	case 8://final has outgoings
+		place.append("check_connections(void)");
+		reason = "Final CI-elments has outgoing connections to another polygon element with different section id; this is not possible!";
 		help = "Check the connections";
 		type = 34;
 		break;
