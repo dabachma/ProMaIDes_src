@@ -42,6 +42,9 @@ _Dam_CI_Element::_Dam_CI_Element(void):block_elems(50){
 	this->regular_flag =true;
 	this->ptr_point = NULL;
 	this->is_point_id = 0;
+	this->stat_value = 0.0;
+	this->stat_buff = 0.0;
+	this->al_counted = false;
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(_Dam_CI_Element)+ 2*sizeof(QList<QList<int>>), _sys_system_modules::DAM_SYS);
@@ -93,6 +96,12 @@ _Dam_CI_Element::_Dam_CI_Element(const _Dam_CI_Element& object) :block_elems(50)
 	this->orig_recovery_time = 0.0;
 	this->orig_activation_time = object.orig_activation_time;
 	this->orig_recovery_time = object.orig_recovery_time;
+	this->is_point_id = object.is_point_id;
+	this->stat_value = object.stat_value;
+	this->stat_buff = object.stat_buff;
+	this->al_counted = object.al_counted;
+
+
 }
 //Default destructor
 _Dam_CI_Element::~_Dam_CI_Element(void){
@@ -300,6 +309,11 @@ void _Dam_CI_Element::add_outgoing(_Dam_CI_Element* add) {
 //Get the number of outgoing CI-elements
 int _Dam_CI_Element::get_number_outgoing(void) {
 	return this->no_outgoing;
+
+}
+//Get the number of incoming CI-elements
+int _Dam_CI_Element::get_number_incoming(void) {
+	return this->no_incoming;
 
 }
 //Get the pointer to the outgoing CI-elements
@@ -891,6 +905,150 @@ Geo_Point *_Dam_CI_Element::get_ptr_point(void) {
 int _Dam_CI_Element::get_is_point_id(void) {
 	return this->is_point_id;
 }
+//Get the statistic value of the CI-element
+double _Dam_CI_Element::get_stat_value(void) {
+	return this->stat_value;
+}
+//Set the statistic value of the CI-element
+void _Dam_CI_Element::set_stat_value(const double stat) {
+	this->stat_value = stat;
+}
+//Get number of outgoing final flag
+double _Dam_CI_Element::get_number_outgoing_final(const int sec_id, const int point_id) {
+	if (this->final_flag == true) {
+		return 0.0;
+	}
+	double number = 0.0;
+	int redundant = 0;
+	for (int i = 0; i < this->no_outgoing; i++) {
+		if (this->outgoing[i]->final_flag == true) {
+			//number = number + 1;
+			redundant=this->outgoing[i]->get_number_incoming_same_sec(sec_id, point_id)+1;
+			
+			number = number + 1/ (double)redundant;
+		}
+
+	}
+	for (int i = 0; i < this->no_outgoing; i++) {
+		number = number + this->outgoing[i]->get_number_outgoing_final(sec_id, point_id);
+	}
+	return number;
+}
+//Get number of incoming same sector id
+int _Dam_CI_Element::get_number_incoming_same_sec(const int sec_id, const int point_id) {
+	int number = -1;
+	bool found = false;
+	if (this->no_incoming == 0 ){
+		number = 0;
+		return number;
+	}
+	
+	for (int i = 0; i < this->no_incoming; i++) {
+		if (this->incomings[i]->get_sector_id() == sec_id) {
+			number = number + 1;
+			found = true;
+		}
+	}
+
+	if (number == -1) {
+		number = 0;
+	}
+	
+	for (int i = 0; i < this->no_incoming; i++) {
+		if (this->incomings[i]->ptr_point->get_number() != point_id) {
+			if (found == false) {
+				//if (this->incomings[i]->get_sector_id() == sec_id && this->incomings[i]->ptr_point->get_number() != point_id){
+				number = number + this->incomings[i]->get_number_incoming_same_sec(sec_id, point_id);
+			}
+			else {
+				if (this->incomings[i]->get_sector_id() == sec_id){
+					number = number + this->incomings[i]->get_number_incoming_same_sec(sec_id, point_id);
+
+				}
+			}
+		}
+	}
+
+	return number;
+
+}
+//Calculate the cascade vulnerability value (CV)
+void _Dam_CI_Element::calc_cv_value(void) {
+	if (this->no_incoming == 0) {
+		return;
+	}
+	if (this->get_end_level_flag() == true) {
+		this->stat_buff = 1.0;
+	}
+
+	int buff_sec = -1;
+	int buff_number = 0;
+	QList<int> sec_ids;
+	//check sec_ids
+	for (int i = 0; i < this->no_incoming; i++) {
+		if (sec_ids.contains(this->incomings[i]->get_sector_id()) == false) {
+			sec_ids.append(this->incomings[i]->get_sector_id());
+		}
+	}
+	
+	//set the values
+	for (int i = 0; i < sec_ids.count(); i++) {
+		buff_number = 0;
+		for (int j = 0; j < this->no_incoming; j++) {
+			if (sec_ids.at(i) == this->incomings[j]->get_sector_id()) {
+				buff_number++;
+			}
+		}
+		for (int j = 0; j < this->no_incoming; j++) {
+			if (sec_ids.at(i) == this->incomings[j]->get_sector_id()) {
+				this->incomings[j]->stat_buff= this->incomings[j]->stat_buff + this->stat_buff /buff_number;
+			}
+		}
+
+	}
+	//next level up
+	for (int j = 0; j < this->no_incoming; j++) {
+		this->incomings[j]->calc_cv_value();
+	}
+
+}
+//Add up the CV-value
+void _Dam_CI_Element::add_up_cv(double *sum) {
+	if (this->no_incoming == 0) {
+		return;
+	}
+	for (int i = 0; i < this->no_incoming; i++) {
+		if (this->incomings[i]->al_counted == false) {
+			*sum = *sum + this->incomings[i]->stat_buff;
+			this->incomings[i]->al_counted = true;
+		}
+	}
+	for (int i = 0; i < this->no_incoming; i++) {
+		this->incomings[i]->add_up_cv(sum);
+	}
+
+
+
+}
+//Sum and reset CP-value
+void _Dam_CI_Element::sum_reset_cp_value(void) {
+	if (this->no_incoming == 0) {
+		return;
+	}
+	//transfer
+	for (int i = 0; i < this->no_incoming; i++) {
+		this->incomings[i]->stat_value= this->incomings[i]->stat_value+this->incomings[i]->stat_buff;
+	}
+	//reset
+	for (int i = 0; i < this->no_incoming; i++) {
+		this->incomings[i]->stat_buff=0.0;
+		this->incomings[i]->al_counted = false;
+	}
+	for (int i = 0; i < this->no_incoming; i++) {
+		this->incomings[i]->sum_reset_cp_value();
+	}
+
+}
 //Copy operator
 _Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
 	//Boundary value (waterlevel), when the CI element fails
@@ -939,6 +1097,9 @@ _Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
 	this->orig_activation_time = object.orig_activation_time;
 	this->orig_recovery_time = object.orig_recovery_time;
 	this->is_point_id = object.is_point_id;
+	this->stat_value = object.stat_value;
+	this->stat_buff = object.stat_buff; 
+	this->al_counted = object.al_counted;
 
 	return *this;
 }

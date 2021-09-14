@@ -103,6 +103,10 @@ public:
 	bool check_points_active_again(void);
 
 
+	///Make network statistics
+	void make_network_statistics(void);
+
+
 private:
 
 	//members
@@ -253,6 +257,25 @@ private:
 
 	///Reset results values
 	void reset_result_values(void);
+
+	///Calculate statsistics of HUB-value
+	void calc_stat_hub(double *max, double *average, double *std);
+	///Calculate statsistics of Authority-value
+	void calc_stat_aut(double *max, double *average, double *std);
+
+	///Calculate statsistics per sector
+	void calc_stat_per_sector(int *no_elem, double *max_hub, double *average_hub, double *std_hub, double *max_aut, double *average_aut, double *std_aut, const int sec_id);
+
+	///Calculate CP (cascade potential value) per point
+	void calc_cp_per_point(void);
+	///Calculate CV (cascade vulnerability value) per final element and CP (cascade potential value) per point
+	void calc_cv_cp(void);
+	///Calculate the statistics of CP (cascade potential value)
+	void calc_stat_cp(double *max, double *average, double *std);
+	///Calculate the statistics of CV (cascade vulnerability value)
+	void calc_stat_cv(double *max, double *average, double *std);
+
+
 
 	///Set warning(s)
 	Warning set_warning(const int warn_type);

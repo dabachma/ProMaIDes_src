@@ -185,6 +185,9 @@ public:
 	///Check the points
 	void check_members(void);
 
+	///Calculate the cascade potential value (CP)
+	void calc_cp_value(void);
+
 
 private:
 
@@ -196,6 +199,8 @@ private:
 
 	///Global index of the point in the database
 	int global_index;
+
+
 
 
 	//method

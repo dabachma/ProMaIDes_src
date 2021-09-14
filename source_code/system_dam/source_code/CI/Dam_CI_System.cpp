@@ -120,6 +120,9 @@ void Dam_CI_System::ci_data_file2database(QSqlDatabase *ptr_database, const _sys
 	
 		this->init_system();
 
+		//make the network statistis
+		this->make_network_statistics();
+
 		this->set_warning_number();
 		cout << "Data-Import of the CI system is finished" << endl;
 		Sys_Common_Output::output_dam->output_txt(&cout);
@@ -687,6 +690,134 @@ bool Dam_CI_System::check_points_active_again(void) {
 	}
 
 	return true;
+}
+//Make network statistics
+void Dam_CI_System::make_network_statistics(void) {
+	ostringstream cout;
+	cout << "Generate the CI-system network statistics..." << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+	//hub value: number of outgoing
+	double max_hub = 0.0;
+	double average_hub = 0.0;
+	double std_hub = 0.0;
+	//authority value: number of incoming
+	double max_aut = 0.0;
+	double average_aut = 0.0;
+	double std_aut = 0.0;
+	//cascade vulnerability (cv) value 
+	double max_cv = 0.0;
+	double average_cv = 0.0;
+	double std_cv = 0.0;
+	//cascade potential (cp) value 
+	double max_cp = 0.0;
+	double average_cp = 0.0;
+	double std_cp = 0.0;
+
+	//make overall statistics
+	this->calc_stat_hub(&max_hub, &average_hub, &std_hub);
+	this->calc_stat_aut(&max_aut, &average_aut, &std_aut);
+	this->calc_cv_cp();
+	
+	
+	this->calc_stat_cp(&max_cp, &average_cp, &std_cp);
+	this->calc_stat_cv(&max_cv, &average_cv, &std_cv);
+
+
+	//calculate CP per point
+
+
+	//output overall statistics
+	ostringstream prefix;
+	prefix << "NETWORK-STAT> ";
+	Sys_Common_Output::output_dam->set_userprefix(prefix.str());
+	cout << "TOTAL" << endl;
+	cout << "HUB-VALUE" << endl;
+	cout << "Max HUB-value        :" << max_hub<< endl;
+	cout << "Average HUB-value    :" << average_hub << endl;
+	cout << "Std-Dev HUB-value    :" << std_hub << endl;
+	cout << "AUTHORITY-VALUE" << endl;
+	cout << "Max AUT-value        :" << max_aut << endl;
+	cout << "Average AUT-value    :" << average_aut << endl;
+	cout << "Std-Dev AUT-value    :" << std_aut << endl;
+	cout << "CASCADE-POTENTIAL-VALUE" << endl;
+	cout << "Max CP-value        :" << max_cp << endl;
+	cout << "Average CP-value    :" << average_cp << endl;
+	cout << "Std-Dev CP-value    :" << std_cp << endl;
+	cout << "CASCADE-VULNERABILITY-VALUE" << endl;
+	cout << "Max CV-value        :" << max_cv << endl;
+	cout << "Average CV-value    :" << average_cv << endl;
+	cout << "Std-Dev CV-value    :" << std_cv << endl;
+	cout << "Detailed information see logfile_DAM.txt" << endl;
+	cout << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+	int no_elem = 0;
+	//now per section id 1 to 4
+	for (int j = 1; j <= 19; j++) {
+		//reset
+		max_hub = 0.0;
+		average_hub = 0.0;
+		std_hub = 0.0; 
+		max_aut = 0.0;
+		average_aut = 0.0;
+		std_aut = 0.0;
+		no_elem = 0;
+		this->calc_stat_per_sector(&no_elem, &max_hub, &average_hub, &std_hub, &max_aut, &average_aut, &std_aut, j);
+		if (no_elem > 0) {
+			cout << "PER SECTOR ID " <<j<<" NAME "<< _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(j)) << endl;
+			cout << "No CI-elements       :" << no_elem << endl;
+			cout << "HUB-VALUE" << endl;
+			cout << "Max HUB-value        :" << max_hub << endl;
+			cout << "Average HUB-value    :" << average_hub << endl;
+			cout << "Std-Dev HUB-value    :" << std_hub << endl;
+			cout << "AUTHORITY-VALUE" << endl;
+			cout << "Max AUT-value        :" << max_aut << endl;
+			cout << "Average AUT-value    :" << average_aut << endl;
+			cout << "Std-Dev AUT-value    :" << std_aut << endl;
+			Sys_Common_Output::output_dam->output_txt(&cout, true);
+		}
+
+
+	}
+
+
+	Sys_Common_Output::output_dam->output_txt(&cout);
+	cout << endl;
+	cout << "PER CI-ELEMENT" << endl;
+	cout << "id" << " , " <<"Point_flag(0)"<<" , " << "Name" << " , " << "Sector_id" << " , " << "Sector_name" << " , " << "HUB" << " , " << "AUThority" << " , " << "Cascade_potential_CP" << " , " << "Cascade_vulnerabilty_CV" << endl;
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_end_level_flag() != true) {
+			cout << this->dam_ci_point[i].get_number() << " , " << 0 << " , " << this->dam_ci_point[i].get_point_name() << " , " << this->dam_ci_point[i].get_sector_id() << " , " << this->dam_ci_point[i].get_sector_name();
+			cout << " , " << this->dam_ci_point[i].get_number_outgoing() << " , " << this->dam_ci_point[i].get_number_incoming() << " , " << this->dam_ci_point[i].get_stat_value() << " , " << -1 << endl;
+		}
+		else {
+			cout << this->dam_ci_point[i].get_number() << " , " << 0 << " , " << this->dam_ci_point[i].get_point_name() << " , " << this->dam_ci_point[i].get_sector_id() << " , " << this->dam_ci_point[i].get_sector_name();
+			cout << " , " << this->dam_ci_point[i].get_number_outgoing() << " , " << this->dam_ci_point[i].get_number_incoming() << " , " << -1 << " , " << this->dam_ci_point[i].get_stat_value() <<endl;
+
+
+		}
+	}
+	Sys_Common_Output::output_dam->output_txt(&cout,true);
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		cout << this->dam_ci_polygon[i].get_ptr_point()->get_number() << " , " << 1 << " , " << this->dam_ci_polygon[i].get_ptr_point()->get_point_name() << " , " << this->dam_ci_polygon[i].get_sector_id() << " , " << this->dam_ci_polygon[i].get_sector_name();
+		cout << " , " << this->dam_ci_polygon[i].get_number_outgoing() << " , " << this->dam_ci_polygon[i].get_number_incoming() << " , " <<-1 << " , " << this->dam_ci_polygon[i].get_stat_value()   << endl;
+	}
+	
+	
+	//Transfer per CI_element value to database? / for result values
+
+	
+	
+	
+	Sys_Common_Output::output_dam->output_txt(&cout, true);
+
+
+	Sys_Common_Output::output_dam->rewind_userprefix();
+
+
+
+
 }
 //____________
 //private
@@ -3427,6 +3558,215 @@ void Dam_CI_System::reset_result_values(void) {
 	this->list_emergency_active_sec.clear();
 
 	this->tot_emergency_active = 0;
+
+}
+//Calculate statsistics of HUB-value
+void Dam_CI_System::calc_stat_hub(double *max, double *average, double *std) {
+	
+	for (int i = 0; i < this->no_ci_point; i++) {
+		*max = MAX(*max, this->dam_ci_point[i].get_number_outgoing());
+		*average = *average + this->dam_ci_point[i].get_number_outgoing();
+	}
+	*average = *average / this->no_ci_point;
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		*std = *std + pow((this->dam_ci_point[i].get_number_outgoing() - *average),2);
+	}
+	if (this->no_ci_point > 1) {
+		*std = pow(*std / (this->no_ci_point - 1),0.5);
+	}
+}
+//Calculate statsistics of Authority-value
+void Dam_CI_System::calc_stat_aut(double *max, double *average, double *std) {
+	for (int i = 0; i < this->no_ci_point; i++) {
+		*max = MAX(*max, this->dam_ci_point[i].get_number_incoming());
+		*average = *average + this->dam_ci_point[i].get_number_incoming();
+	}
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		*max = MAX(*max, this->dam_ci_polygon[i].get_number_incoming());
+		*average = *average + this->dam_ci_polygon[i].get_number_incoming();
+	}
+
+
+	*average = *average / (this->no_ci_point+ this->no_ci_polygon);
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		*std = *std + pow((this->dam_ci_point[i].get_number_incoming() - *average),2);
+	}
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		*std = *std + pow((this->dam_ci_polygon[i].get_number_incoming() - *average), 2);
+	}
+
+	if ((this->no_ci_point + this->no_ci_polygon) > 1) {
+		*std = pow(*std / (this->no_ci_point + this->no_ci_polygon - 1),0.5);
+	}
+
+}
+//Calculate statsistics per sector
+void Dam_CI_System::calc_stat_per_sector(int *no_elem, double *max_hub, double *average_hub, double *std_hub, double *max_aut, double *average_aut, double *std_aut, const int sec_id) {
+	//number
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_sector_id() == sec_id) {
+			*no_elem = *no_elem + 1;
+		}
+	}
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_polygon[i].get_sector_id() == sec_id) {
+			*no_elem = *no_elem + 1;
+		}
+	}
+
+	if (*no_elem == 0) {
+		return;
+	}
+
+
+
+	//aut hub
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_sector_id() == sec_id) {
+			//aut
+			*max_aut = MAX(*max_aut, this->dam_ci_point[i].get_number_incoming());
+			*average_aut = *average_aut + this->dam_ci_point[i].get_number_incoming();
+			//hub
+			*max_hub = MAX(*max_hub, this->dam_ci_point[i].get_number_outgoing());
+			*average_hub = *average_hub + this->dam_ci_point[i].get_number_outgoing();
+		}
+	}
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_polygon[i].get_sector_id() == sec_id) {
+			*max_aut = MAX(*max_aut, this->dam_ci_polygon[i].get_number_incoming());
+			*average_aut = *average_aut + this->dam_ci_polygon[i].get_number_incoming();
+		}
+	}
+
+
+	*average_aut = *average_aut / (this->no_ci_point + this->no_ci_polygon);
+	*average_hub = *average_hub / (this->no_ci_point + this->no_ci_polygon);
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_sector_id() == sec_id) {
+			//aut
+			*std_aut = *std_aut + pow((this->dam_ci_point[i].get_number_incoming() - *average_aut), 2);
+			//hub
+			*std_hub = *std_hub + pow((this->dam_ci_point[i].get_number_outgoing() - *average_hub), 2);
+		}
+	}
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_polygon[i].get_sector_id() == sec_id) {
+			*std_aut = *std_aut + pow((this->dam_ci_polygon[i].get_number_incoming() - *average_aut), 2);
+		}
+	}
+
+	if ((this->no_ci_point + this->no_ci_polygon) > 1) {
+		*std_aut = pow(*std_aut / (this->no_ci_point + this->no_ci_polygon - 1), 0.5);
+
+	}
+	if (this->no_ci_point > 1) {
+		*std_hub = pow(*std_hub / (this->no_ci_point - 1), 0.5);
+	}
+
+
+}
+//Calculate CP (cascade potential value) per point
+void Dam_CI_System::calc_cp_per_point(void) {
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		//this->dam_ci_point[i].calc_cp_value();
+
+	}
+	
+
+
+}
+//Calculate CV (cascade vulnerability value) per final element and CP (cascade potential value) per point
+void Dam_CI_System::calc_cv_cp(void) {
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_end_level_flag() == true) {
+			this->dam_ci_point[i].calc_cv_value();
+			double buff = 0.0;
+			this->dam_ci_point[i].add_up_cv(&buff);
+			this->dam_ci_point[i].set_stat_value(buff);
+			//reset and add values
+			this->dam_ci_point[i].sum_reset_cp_value();
+		}
+
+	}
+
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_polygon[i].get_end_level_flag() == true) {
+			this->dam_ci_polygon[i].calc_cv_value();
+			double buff = 0.0;
+			this->dam_ci_polygon[i].add_up_cv(&buff);
+			this->dam_ci_polygon[i].set_stat_value(buff);
+			//reset and add values
+			this->dam_ci_polygon[i].sum_reset_cp_value();
+		
+		}
+
+	}
+
+
+
+
+
+}
+//Calculate the statistics of CP (cascade potential value)
+void Dam_CI_System::calc_stat_cp(double *max, double *average, double *std) {
+	int counter = 0;
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_end_level_flag() != true) {
+			*max = MAX(*max, this->dam_ci_point[i].get_stat_value());
+			*average = *average + this->dam_ci_point[i].get_stat_value();
+			counter++;
+		}
+	}
+	*average = *average / counter;
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_end_level_flag() != true) {
+			*std = *std + pow((this->dam_ci_point[i].get_stat_value() - *average), 2);
+		}
+	}
+	if (counter > 1) {
+		*std = pow(*std / (counter - 1), 0.5);
+	}
+
+}
+//Calculate the statistics of CV (cascade vulnerability value)
+void Dam_CI_System::calc_stat_cv(double *max, double *average, double *std) {
+	int counter = 0;
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		*max = MAX(*max, this->dam_ci_polygon[i].get_stat_value());
+		*average = *average + this->dam_ci_polygon[i].get_stat_value();
+		counter++;
+	}
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_end_level_flag() == true) {
+			*max = MAX(*max, this->dam_ci_point[i].get_stat_value());
+			*average = *average + this->dam_ci_point[i].get_stat_value();
+			counter++;
+		}
+	}
+
+
+	*average = *average / counter;
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		*std = *std + pow((this->dam_ci_polygon[i].get_stat_value() - *average), 2);
+	}
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_end_level_flag() == true) {
+			*std = *std + pow((this->dam_ci_point[i].get_stat_value() - *average), 2);
+		}
+	}
+	if (counter > 1) {
+		*std = pow(*std / (counter - 1), 0.5);
+	}
 
 }
 //Set error(s)

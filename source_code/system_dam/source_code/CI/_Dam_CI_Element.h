@@ -139,6 +139,10 @@ public:
 
 	///Get the number of outgoing CI-elements
 	int get_number_outgoing(void);
+
+	///Get the number of incoming CI-elements
+	int get_number_incoming(void);
+
 	///Get the pointer to the outgoing CI-elements
 	_Dam_CI_Element **get_outgoing_elements(void);
 
@@ -177,6 +181,23 @@ public:
 
 	///Get the int if the element is a point (=0) or a polygon (=1)
 	int get_is_point_id(void);
+
+	///Get the statistic value of the CI-element
+	double get_stat_value(void);
+	///Set the statistic value of the CI-element
+	void set_stat_value(const double stat);
+	///Get number of outgoing final flag
+	double get_number_outgoing_final(const int sec_id, const int point_id);
+
+	///Get number of incoming same sector id
+	int get_number_incoming_same_sec(const int sec_id, const int point_id);
+
+	///Calculate the cascade vulnerability value (CV)
+	void calc_cv_value(void);
+	///Add up the CV-value
+	void add_up_cv(double *sum);
+	///Sum and reset CP-value
+	void sum_reset_cp_value(void);
 
 	///Copy operator
 	_Dam_CI_Element& operator=(const _Dam_CI_Element& object);
@@ -247,6 +268,13 @@ protected:
 
 	///Int for deciding if it is a point (=0) or a polygon (=1)
 	int is_point_id;
+
+	///Statistical value like CP (cascade potential value) or CV (cascade vulnerability value)
+	double stat_value;
+	///Buffer value for statistical calculation
+	double stat_buff;
+	///Flag if the stat is already counted
+	bool al_counted;
 
 	///Pointer to the point of the structure
 	Geo_Point *ptr_point;
