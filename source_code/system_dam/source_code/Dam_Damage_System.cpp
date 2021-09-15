@@ -3210,8 +3210,16 @@ int Dam_Damage_System::ask_boundary_scenarios_per_dialog(QSqlDatabase *ptr_datab
 			my_list.add_scenario2list(this->sz_bound_manager.get_ptr_sz(i));
 		}
 		else{
-			if(Hyd_Hydraulic_System::check_hyd_instat_results_calculated(ptr_database, this->system_id, this->sz_bound_manager.get_ptr_sz(i)->get_id(),"CA")==true){
-				my_list.add_scenario2list(this->sz_bound_manager.get_ptr_sz(i));
+			if (this->thread_type == _dam_thread_type::dam_sys_calc_no_break_sz) {
+				if (Hyd_Hydraulic_System::check_hyd_results_calculated(ptr_database, this->system_id, this->sz_bound_manager.get_ptr_sz(i)->get_id(), "CA") == true) {
+					my_list.add_scenario2list(this->sz_bound_manager.get_ptr_sz(i));
+				}
+
+			}
+			else if(this->thread_type == _dam_thread_type::dam_sys_instat_calc_no_break_sz) {
+				if (Hyd_Hydraulic_System::check_hyd_instat_results_calculated(ptr_database, this->system_id, this->sz_bound_manager.get_ptr_sz(i)->get_id(), "CA") == true) {
+					my_list.add_scenario2list(this->sz_bound_manager.get_ptr_sz(i));
+				}
 			}
 		}
 	}
