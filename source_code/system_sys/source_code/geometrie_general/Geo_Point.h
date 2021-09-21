@@ -131,6 +131,9 @@ protected:
 	string name;
 	///Point number
 	int number;
+
+	///buffer sum
+	double summe;
 	
 private:
 

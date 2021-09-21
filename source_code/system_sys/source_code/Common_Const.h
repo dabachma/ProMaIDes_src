@@ -167,7 +167,7 @@ namespace constant{
 	///Maximum of elements
     const int max_elems=30000000;
 	///Maximum row number to select
-	const int max_rows=400000;
+	const int max_rows=250000;
 
 	//general epsilon boundaries
 	///Epsilon boundary for the area values 
@@ -2773,6 +2773,15 @@ namespace dam_label{
 	const string regular_flag("REGULAR_FLAG");
 	///Keyword for the database table column of the category for the CI damage calculation: if the CI-Element is an emergency structure the activation time [-] (Dam_CI_Point, Dam_CI_Polygon)
 	const string activation_time("ACTIVATION_TIME");
+
+	///Keyword for the database table column of the category for the CI damage calculation: the HUB-value of a CI-element (number outgoing elements) [-] (Dam_CI_Point, Dam_CI_Polygon)
+	const string hub_value("HUB_value");
+	///Keyword for the database table column of the category for the CI damage calculation: the AUThority-value of a CI-element (number incoming elements) [-] (Dam_CI_Point, Dam_CI_Polygon)
+	const string aut_value("AUT_value");
+	///Keyword for the database table column of the category for the CI damage calculation: the cascade vulnerbility-value of a CI-element ( [-] (Dam_CI_Point, Dam_CI_Polygon)
+	const string cv_value("CV_value");
+	///Keyword for the database table column of the category for the CI damage calculation: the cascade potential-value of a CI-element  [-] (Dam_CI_Point, Dam_CI_Polygon)
+	const string cp_value("CP_value");
 
 	///Keyword for the database table column of the sector for CI damage calculation: Id of incomming CI-element for the connection [-] (Dam_CI_Element_List, Dam_CI_Point, Dam_CI_Polygon)
 	const string in_id("IN_ID");

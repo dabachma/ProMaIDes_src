@@ -47,6 +47,7 @@ void Dam_CI_Polygon::input_polygon_perdatabase(const QSqlQueryModel *results, co
 		this->mid_point.set_point_coordinate(x_mid, y_mid);
 
 		this->global_index = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::glob_id)).c_str()).toInt();
+		this->stat_value = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::cv_value)).c_str()).toDouble();
 
 	}
 	catch (Error msg) {
@@ -66,7 +67,7 @@ void Dam_CI_Polygon::create_polygon_table(QSqlDatabase *ptr_database) {
 		Sys_Common_Output::output_dam->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name = dam_label::tab_ci_polygon;
-		const int num_col = 13;
+		const int num_col = 15;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for (int i = 0; i < num_col; i++) {
@@ -113,17 +114,26 @@ void Dam_CI_Polygon::create_polygon_table(QSqlDatabase *ptr_database) {
 		tab_col[8].type = sys_label::tab_col_type_double;
 		tab_col[8].default_value = "0.0";
 
-		tab_col[9].name = dam_label::elem_mid_x;
-		tab_col[9].type = sys_label::tab_col_type_double;
+		tab_col[9].name = dam_label::aut_value;
+		tab_col[9].type = sys_label::tab_col_type_int;
+		tab_col[9].default_value = "0";
 
-		tab_col[10].name = dam_label::elem_mid_y;
+		tab_col[10].name = dam_label::cv_value;
 		tab_col[10].type = sys_label::tab_col_type_double;
+		tab_col[10].default_value = "-1.0";
 
-		tab_col[11].name = hyd_label::polygon_out;
-		tab_col[11].type = sys_label::tab_col_type_polygon;
 
-		tab_col[12].name = label::description;
-		tab_col[12].type = sys_label::tab_col_type_string;
+		tab_col[11].name = dam_label::elem_mid_x;
+		tab_col[11].type = sys_label::tab_col_type_double;
+
+		tab_col[12].name = dam_label::elem_mid_y;
+		tab_col[12].type = sys_label::tab_col_type_double;
+
+		tab_col[13].name = hyd_label::polygon_out;
+		tab_col[13].type = sys_label::tab_col_type_polygon;
+
+		tab_col[14].name = label::description;
+		tab_col[14].type = sys_label::tab_col_type_string;
 
 
 		try {
@@ -155,7 +165,7 @@ void Dam_CI_Polygon::set_polygon_table(QSqlDatabase *ptr_database, const bool no
 	if (Dam_CI_Polygon::polygon_table == NULL) {
 		//make specific input for this class
 		const string tab_id_name = dam_label::tab_ci_polygon;
-		string tab_col[13];
+		string tab_col[15];
 		
 		tab_col[0] = dam_label::glob_id;
 		tab_col[1] = label::areastate_id;
@@ -170,6 +180,10 @@ void Dam_CI_Polygon::set_polygon_table(QSqlDatabase *ptr_database, const bool no
 		tab_col[10] = dam_label::polygon_id;
 		tab_col[11]= dam_label::elem_mid_y;
 		tab_col[12] = dam_label::elem_mid_x;
+		tab_col[13] = dam_label::aut_value;
+		tab_col[14] = dam_label::cv_value;
+
+
 
 
 		try {
@@ -320,6 +334,7 @@ int Dam_CI_Polygon::select_relevant_polygon_database(QSqlQueryModel *results, QS
 	test_filter << Dam_CI_Polygon::polygon_table->get_column_name(dam_label::sector_id) << " , ";
 	test_filter << Dam_CI_Polygon::polygon_table->get_column_name(dam_label::sector_name) << " , ";
 	test_filter << Dam_CI_Polygon::polygon_table->get_column_name(dam_label::end_user) << " , ";
+	test_filter << Dam_CI_Polygon::polygon_table->get_column_name(dam_label::cv_value) << " , ";
 	//be aware an index is used in input_polygon_perdatabase
 	test_filter << " ST_ASTEXT(" << Dam_CI_Polygon::polygon_table->get_column_name(hyd_label::polygon_out) << ")";
 
@@ -388,6 +403,7 @@ int Dam_CI_Polygon::select_relevant_polygon_database(QSqlQueryModel *results, QS
 	test_filter << Dam_CI_Polygon::polygon_table->get_column_name(dam_label::sector_name) << " , ";
 
 	test_filter << Dam_CI_Polygon::polygon_table->get_column_name(dam_label::end_user) << " , ";
+	test_filter << Dam_CI_Polygon::polygon_table->get_column_name(dam_label::cv_value) << " , ";
 	//be aware an index is used in input_polygon_perdatabase
 	test_filter << " ST_ASTEXT(" << Dam_CI_Polygon::polygon_table->get_column_name(hyd_label::polygon_out) << ")";
 
@@ -484,6 +500,22 @@ int Dam_CI_Polygon::count_relevant_polygon_database(QSqlQueryModel *results, QSq
 	}
 
 	return number;
+}
+//Get a string to set the polygon data from the statistical calculation to the database table
+bool Dam_CI_Polygon::get_string_stat_polygon_data2database(ostringstream *text) {
+	//generate the filter
+	//todo
+	*text << "UPDATE " << Dam_CI_Polygon::polygon_table->get_table_name().c_str();
+	*text << " SET ";
+	*text << Dam_CI_Polygon::polygon_table->get_column_name(dam_label::aut_value).c_str() << " = " << this->no_incoming << " , ";
+	*text << Dam_CI_Polygon::polygon_table->get_column_name(dam_label::cv_value).c_str() << " = " << this->stat_value << "  ";
+
+
+
+	*text << " WHERE ";
+	*text << Dam_CI_Polygon::polygon_table->get_column_name(dam_label::glob_id) << " = " << this->global_index << "; ";
+
+	return true;
 }
 //Create the database table for the results of the damage calculation per CI-polygon (static)
 void Dam_CI_Polygon::create_erg_table(QSqlDatabase *ptr_database) {
@@ -1767,6 +1799,7 @@ void Dam_CI_Polygon::set_polygon_mid2mid_point(void) {
 //Get the data-string to complete a insert-string for inserting the data of the polygon to database
 string Dam_CI_Polygon::get_datastring_members2database(const int global_id) {
 	string buffer = label::not_set;
+	this->global_index = global_id;
 
 
 	ostringstream query_string;

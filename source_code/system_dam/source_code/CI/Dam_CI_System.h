@@ -104,7 +104,7 @@ public:
 
 
 	///Make network statistics
-	void make_network_statistics(void);
+	void make_network_statistics(QSqlDatabase *ptr_database);
 
 
 private:
@@ -176,6 +176,11 @@ private:
 	void set_intercepted_point2floodplain_id(Hyd_Model_Floodplain *fp_model);
 	///Transfer data evaluated by an interception to database: identifier of the floodplain, -floodplain element
 	void transfer_intercepted_data2database(QSqlDatabase *ptr_database);
+	///Transfer point statistic data, e.g. HUB-value, AUThority-value CV- and CP-value todatabse
+	void transfer_point_statistic_data2database(QSqlDatabase *ptr_database);
+
+	///Transfer polygon statistic data, e.g. AUThority-value CV-value todatabse
+	void transfer_polygon_statistic_data2database(QSqlDatabase *ptr_database);
 
 	///Output point member
 	void output_point_member(void);
@@ -274,6 +279,11 @@ private:
 	void calc_stat_cp(double *max, double *average, double *std);
 	///Calculate the statistics of CV (cascade vulnerability value)
 	void calc_stat_cv(double *max, double *average, double *std);
+
+	///Calculate the statistics of CP per sector (cascade potential value)
+	void calc_stat_cp_sec(const int sec_id,  double *max, double *average, double *std);
+	///Calculate the statistics of CV per sector (cascade vulnerability value)
+	void calc_stat_cv_sec(const int sec_id, double *max, double *average, double *std);
 
 
 

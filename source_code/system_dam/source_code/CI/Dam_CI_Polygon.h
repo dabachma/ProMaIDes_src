@@ -70,7 +70,8 @@ public:
 	static int select_relevant_polygon_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int offset, const int number_rows, const bool with_output = true);
 	///Count the number of relevant CI-polygon in a database table
 	static int count_relevant_polygon_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const bool with_output = true);
-	
+	///Get a string to set the polygon data from the statistical calculation to the database table
+	bool get_string_stat_polygon_data2database(ostringstream *text);
 
 
 

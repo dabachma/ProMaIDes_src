@@ -55,6 +55,16 @@ void Dam_CI_Point::input_point_perdatabase(const QSqlQueryModel *results, const 
 		this->set_point_coordinate(x_mid, y_mid);
 		this->global_index = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::glob_id)).c_str()).toInt();
 
+		double buff_cv = -1.0;
+		buff_cv = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::cp_value)).c_str()).toDouble();
+		if (buff_cv > 0.0) {
+			this->stat_value = buff_cv;
+		}
+		else {
+			buff_cv = results->record(glob_index).value((Dam_CI_Point::point_table->get_column_name(dam_label::cv_value)).c_str()).toDouble();
+			this->stat_value = buff_cv;
+		}
+
 
 	}
 	catch (Error msg) {
@@ -79,6 +89,29 @@ bool Dam_CI_Point::get_string_interception_point_data2database(ostringstream *te
 
 	return true;
 }
+//Get a string to set the point data from the statistical calculation to the database table
+bool Dam_CI_Point::get_string_stat_point_data2database(ostringstream *text) {
+	//generate the filter
+	//todo
+	*text << "UPDATE " << Dam_CI_Point::point_table->get_table_name().c_str();
+	*text << " SET ";
+	*text << Dam_CI_Point::point_table->get_column_name(dam_label::hub_value).c_str() << " = " << this->no_outgoing << " , ";
+	*text << Dam_CI_Point::point_table->get_column_name(dam_label::aut_value).c_str() << " = " << this->no_incoming << " , ";
+	if (this->get_end_level_flag() == false) {
+		*text << Dam_CI_Point::point_table->get_column_name(dam_label::cp_value).c_str() << " = " << this->stat_value << " , ";
+		*text << Dam_CI_Point::point_table->get_column_name(dam_label::cv_value).c_str() << " = " << " -1.0" << "  ";
+	}
+	else {
+		*text << Dam_CI_Point::point_table->get_column_name(dam_label::cv_value).c_str() << " = " << this->stat_value << " , ";
+		*text << Dam_CI_Point::point_table->get_column_name(dam_label::cp_value).c_str() << " = " << " -1.0" << "  ";
+	}
+
+
+	*text << " WHERE ";
+	*text << Dam_CI_Point::point_table->get_column_name(dam_label::glob_id) << " = " << this->global_index << "; ";
+
+	return true;
+}
 //Create the database table for the CI points (static)
 void Dam_CI_Point::create_point_table(QSqlDatabase *ptr_database) {
 	if (Dam_CI_Point::point_table == NULL) {
@@ -87,7 +120,7 @@ void Dam_CI_Point::create_point_table(QSqlDatabase *ptr_database) {
 		Sys_Common_Output::output_dam->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name = dam_label::tab_ci_point;
-		const int num_col = 21;
+		const int num_col = 25;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for (int i = 0; i < num_col; i++) {
@@ -156,29 +189,46 @@ void Dam_CI_Point::create_point_table(QSqlDatabase *ptr_database) {
 		tab_col[13].default_value = "0.0";
 
 
-		tab_col[14].name = dam_label::elem_mid_x;
-		tab_col[14].type = sys_label::tab_col_type_double;
+		tab_col[14].name = dam_label::hub_value;
+		tab_col[14].type = sys_label::tab_col_type_int;
+		tab_col[14].default_value = "0";
 
-		tab_col[15].name = dam_label::elem_mid_y;
-		tab_col[15].type = sys_label::tab_col_type_double;
+		tab_col[15].name = dam_label::aut_value;
+		tab_col[15].type = sys_label::tab_col_type_int;
+		tab_col[15].default_value = "0";
 
-		tab_col[16].name = dam_label::sc_point;
-		tab_col[16].type = sys_label::tab_col_type_point;
+		tab_col[16].name = dam_label::cv_value;
+		tab_col[16].type = sys_label::tab_col_type_double;
+		tab_col[16].default_value = "-1.0";
 
-		tab_col[17].name = dam_label::conn_fp_id;
-		tab_col[17].type = sys_label::tab_col_type_int;
-		tab_col[17].default_value = "-1";
+		tab_col[17].name = dam_label::cp_value;
+		tab_col[17].type = sys_label::tab_col_type_double;
+		tab_col[17].default_value = "-1.0";
 
-		tab_col[18].name = dam_label::conn_fp_elem_id;
-		tab_col[18].type = sys_label::tab_col_type_int;
-		tab_col[18].default_value = "-1";
 
-		tab_col[19].name = dam_label::raster_connected;
-		tab_col[19].type = sys_label::tab_col_type_bool;
-		tab_col[19].default_value = "false";
+		tab_col[18].name = dam_label::elem_mid_x;
+		tab_col[18].type = sys_label::tab_col_type_double;
 
-		tab_col[20].name = label::description;
-		tab_col[20].type = sys_label::tab_col_type_string;
+		tab_col[19].name = dam_label::elem_mid_y;
+		tab_col[19].type = sys_label::tab_col_type_double;
+
+		tab_col[20].name = dam_label::sc_point;
+		tab_col[20].type = sys_label::tab_col_type_point;
+
+		tab_col[21].name = dam_label::conn_fp_id;
+		tab_col[21].type = sys_label::tab_col_type_int;
+		tab_col[21].default_value = "-1";
+
+		tab_col[22].name = dam_label::conn_fp_elem_id;
+		tab_col[22].type = sys_label::tab_col_type_int;
+		tab_col[22].default_value = "-1";
+
+		tab_col[23].name = dam_label::raster_connected;
+		tab_col[23].type = sys_label::tab_col_type_bool;
+		tab_col[23].default_value = "false";
+
+		tab_col[24].name = label::description;
+		tab_col[24].type = sys_label::tab_col_type_string;
 
 		try {
 			Dam_CI_Point::point_table = new Tables();
@@ -208,7 +258,7 @@ void Dam_CI_Point::set_point_table(QSqlDatabase *ptr_database, const bool not_cl
 	if (Dam_CI_Point::point_table == NULL) {
 		//make specific input for this class
 		const string tab_id_name = dam_label::tab_ci_point;
-		string tab_col[21];
+		string tab_col[25];
 
 		tab_col[0] = dam_label::glob_id;
 		tab_col[1] = dam_label::point_id;
@@ -233,6 +283,12 @@ void Dam_CI_Point::set_point_table(QSqlDatabase *ptr_database, const bool not_cl
 		tab_col[18] = dam_label::recovery_time;
 		tab_col[19] = dam_label::regular_flag;
 		tab_col[20] = dam_label::activation_time;
+
+		tab_col[21] = dam_label::hub_value;
+		tab_col[22] = dam_label::aut_value;
+		tab_col[23] = dam_label::cv_value;
+		tab_col[24] = dam_label::cp_value;
+
 
 		
 
@@ -391,6 +447,8 @@ int Dam_CI_Point::select_relevant_points_database(QSqlQueryModel *results, QSqlD
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::recovery_time) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::regular_flag) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::activation_time) << " , ";
+	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::cv_value) << " , ";
+	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::cp_value) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::raster_connected) << "  ";
 
 
@@ -464,6 +522,8 @@ int Dam_CI_Point::select_relevant_points_database(QSqlQueryModel *results, QSqlD
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::recovery_time) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::regular_flag) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::activation_time) << " , ";
+	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::cv_value) << " , ";
+	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::cp_value) << " , ";
 	test_filter << Dam_CI_Point::point_table->get_column_name(dam_label::raster_connected) << "  ";
 
 
@@ -1894,6 +1954,7 @@ void Dam_CI_Point::set_members(const int sector_id, const int sector_level, cons
 //Get the data-string to complete a insert-string for inserting the data of the point to database
 string Dam_CI_Point::get_datastring_members2database(const int global_id) {
 	string buffer = label::not_set;
+	this->global_index = global_id;
 
 
 	ostringstream query_string;

@@ -121,7 +121,7 @@ void Dam_CI_System::ci_data_file2database(QSqlDatabase *ptr_database, const _sys
 		this->init_system();
 
 		//make the network statistis
-		this->make_network_statistics();
+		this->make_network_statistics(ptr_database);
 
 		this->set_warning_number();
 		cout << "Data-Import of the CI system is finished" << endl;
@@ -692,7 +692,7 @@ bool Dam_CI_System::check_points_active_again(void) {
 	return true;
 }
 //Make network statistics
-void Dam_CI_System::make_network_statistics(void) {
+void Dam_CI_System::make_network_statistics(QSqlDatabase *ptr_database) {
 	ostringstream cout;
 	cout << "Generate the CI-system network statistics..." << endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
@@ -724,7 +724,7 @@ void Dam_CI_System::make_network_statistics(void) {
 	this->calc_stat_cv(&max_cv, &average_cv, &std_cv);
 
 
-	//calculate CP per point
+	
 
 
 	//output overall statistics
@@ -733,21 +733,21 @@ void Dam_CI_System::make_network_statistics(void) {
 	Sys_Common_Output::output_dam->set_userprefix(prefix.str());
 	cout << "TOTAL" << endl;
 	cout << "HUB-VALUE" << endl;
-	cout << "Max HUB-value        :" << max_hub<< endl;
-	cout << "Average HUB-value    :" << average_hub << endl;
-	cout << "Std-Dev HUB-value    :" << std_hub << endl;
+	cout << " Max HUB-value        :" << max_hub<< endl;
+	cout << " Average HUB-value    :" << average_hub << endl;
+	cout << " Std-Dev HUB-value    :" << std_hub << endl;
 	cout << "AUTHORITY-VALUE" << endl;
-	cout << "Max AUT-value        :" << max_aut << endl;
-	cout << "Average AUT-value    :" << average_aut << endl;
-	cout << "Std-Dev AUT-value    :" << std_aut << endl;
+	cout << " Max AUT-value        :" << max_aut << endl;
+	cout << " Average AUT-value    :" << average_aut << endl;
+	cout << " Std-Dev AUT-value    :" << std_aut << endl;
 	cout << "CASCADE-POTENTIAL-VALUE" << endl;
-	cout << "Max CP-value        :" << max_cp << endl;
-	cout << "Average CP-value    :" << average_cp << endl;
-	cout << "Std-Dev CP-value    :" << std_cp << endl;
+	cout << " Max CP-value        :" << max_cp << endl;
+	cout << " Average CP-value    :" << average_cp << endl;
+	cout << " Std-Dev CP-value    :" << std_cp << endl;
 	cout << "CASCADE-VULNERABILITY-VALUE" << endl;
-	cout << "Max CV-value        :" << max_cv << endl;
-	cout << "Average CV-value    :" << average_cv << endl;
-	cout << "Std-Dev CV-value    :" << std_cv << endl;
+	cout << " Max CV-value        :" << max_cv << endl;
+	cout << " Average CV-value    :" << average_cv << endl;
+	cout << " Std-Dev CV-value    :" << std_cv << endl;
 	cout << "Detailed information see logfile_DAM.txt" << endl;
 	cout << endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
@@ -759,63 +759,81 @@ void Dam_CI_System::make_network_statistics(void) {
 		max_hub = 0.0;
 		average_hub = 0.0;
 		std_hub = 0.0; 
+		max_cp = 0.0;
+		average_cp = 0.0;
+		std_cp = 0.0;
+		max_cv = 0.0;
+		average_cv = 0.0;
+		std_cv = 0.0;
 		max_aut = 0.0;
 		average_aut = 0.0;
 		std_aut = 0.0;
 		no_elem = 0;
 		this->calc_stat_per_sector(&no_elem, &max_hub, &average_hub, &std_hub, &max_aut, &average_aut, &std_aut, j);
+
+		this->calc_stat_cp_sec(j, &max_cp, &average_cp, &std_cp);
+		this->calc_stat_cv_sec(j, &max_cv, &average_cv, &std_cv);
+
 		if (no_elem > 0) {
 			cout << "PER SECTOR ID " <<j<<" NAME "<< _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(j)) << endl;
-			cout << "No CI-elements       :" << no_elem << endl;
+			cout << " No CI-elements       :" << no_elem << endl;
 			cout << "HUB-VALUE" << endl;
-			cout << "Max HUB-value        :" << max_hub << endl;
-			cout << "Average HUB-value    :" << average_hub << endl;
-			cout << "Std-Dev HUB-value    :" << std_hub << endl;
+			cout << " Max HUB-value        :" << max_hub << endl;
+			cout << " Average HUB-value    :" << average_hub << endl;
+			cout << " Std-Dev HUB-value    :" << std_hub << endl;
 			cout << "AUTHORITY-VALUE" << endl;
-			cout << "Max AUT-value        :" << max_aut << endl;
-			cout << "Average AUT-value    :" << average_aut << endl;
-			cout << "Std-Dev AUT-value    :" << std_aut << endl;
+			cout << " Max AUT-value        :" << max_aut << endl;
+			cout << " Average AUT-value    :" << average_aut << endl;
+			cout << " Std-Dev AUT-value    :" << std_aut << endl;
+			cout << "CASCADE-POTENTIAL-VALUE" << endl;
+			cout << " Max CP-value        :" << max_cp << endl;
+			cout << " Average CP-value    :" << average_cp << endl;
+			cout << " Std-Dev CP-value    :" << std_cp << endl;
+			cout << "CASCADE-VULNERABILITY-VALUE" << endl;
+			cout << " Max CV-value        :" << max_cv << endl;
+			cout << " Average CV-value    :" << average_cv << endl;
+			cout << " Std-Dev CV-value    :" << std_cv << endl;
 			Sys_Common_Output::output_dam->output_txt(&cout, true);
 		}
 
 
 	}
+	cout << "  "<< endl;
+	
+	cout <<  "PER CI-ELEMENT" << endl;
 
+	cout << " id" << " , " <<"Point_flag(0)"<<" , " << "Name" << " , " << "Sector_id" << " , " << "Sector_name" << " , " << "HUB" << " , " << "AUThority" << " , " << "Cascade_potential_CP" << " , " << "Cascade_vulnerabilty_CV" << endl;
 
-	Sys_Common_Output::output_dam->output_txt(&cout);
-	cout << endl;
-	cout << "PER CI-ELEMENT" << endl;
-	cout << "id" << " , " <<"Point_flag(0)"<<" , " << "Name" << " , " << "Sector_id" << " , " << "Sector_name" << " , " << "HUB" << " , " << "AUThority" << " , " << "Cascade_potential_CP" << " , " << "Cascade_vulnerabilty_CV" << endl;
 	for (int i = 0; i < this->no_ci_point; i++) {
 		if (this->dam_ci_point[i].get_end_level_flag() != true) {
-			cout << this->dam_ci_point[i].get_number() << " , " << 0 << " , " << this->dam_ci_point[i].get_point_name() << " , " << this->dam_ci_point[i].get_sector_id() << " , " << this->dam_ci_point[i].get_sector_name();
+			cout << "  " << this->dam_ci_point[i].get_number() << " , " << 0 << " , " << this->dam_ci_point[i].get_point_name() << " , " << this->dam_ci_point[i].get_sector_id() << " , " << this->dam_ci_point[i].get_sector_name();
 			cout << " , " << this->dam_ci_point[i].get_number_outgoing() << " , " << this->dam_ci_point[i].get_number_incoming() << " , " << this->dam_ci_point[i].get_stat_value() << " , " << -1 << endl;
 		}
 		else {
-			cout << this->dam_ci_point[i].get_number() << " , " << 0 << " , " << this->dam_ci_point[i].get_point_name() << " , " << this->dam_ci_point[i].get_sector_id() << " , " << this->dam_ci_point[i].get_sector_name();
+			cout << "  " << this->dam_ci_point[i].get_number() << " , " << 0 << " , " << this->dam_ci_point[i].get_point_name() << " , " << this->dam_ci_point[i].get_sector_id() << " , " << this->dam_ci_point[i].get_sector_name();
 			cout << " , " << this->dam_ci_point[i].get_number_outgoing() << " , " << this->dam_ci_point[i].get_number_incoming() << " , " << -1 << " , " << this->dam_ci_point[i].get_stat_value() <<endl;
 
 
 		}
+
 	}
-	Sys_Common_Output::output_dam->output_txt(&cout,true);
+	Sys_Common_Output::output_dam->output_txt(&cout, true);
 	for (int i = 0; i < this->no_ci_polygon; i++) {
-		cout << this->dam_ci_polygon[i].get_ptr_point()->get_number() << " , " << 1 << " , " << this->dam_ci_polygon[i].get_ptr_point()->get_point_name() << " , " << this->dam_ci_polygon[i].get_sector_id() << " , " << this->dam_ci_polygon[i].get_sector_name();
+		cout << "  " << this->dam_ci_polygon[i].get_ptr_point()->get_number() << " , " << 1 << " , " << this->dam_ci_polygon[i].get_ptr_point()->get_point_name() << " , " << this->dam_ci_polygon[i].get_sector_id() << " , " << this->dam_ci_polygon[i].get_sector_name();
 		cout << " , " << this->dam_ci_polygon[i].get_number_outgoing() << " , " << this->dam_ci_polygon[i].get_number_incoming() << " , " <<-1 << " , " << this->dam_ci_polygon[i].get_stat_value()   << endl;
 	}
 	
-	
-	//Transfer per CI_element value to database? / for result values
-
-	
-	
-	
 	Sys_Common_Output::output_dam->output_txt(&cout, true);
+	
+	//Transfer per CI_element value to database
+	this->transfer_point_statistic_data2database(ptr_database);
+	this->transfer_polygon_statistic_data2database(ptr_database);
+	
 
+	//for result values?
 
+	
 	Sys_Common_Output::output_dam->rewind_userprefix();
-
-
 
 
 }
@@ -1327,7 +1345,7 @@ void Dam_CI_System::transfer_intercepted_data2database(QSqlDatabase *ptr_databas
 			query_total.str("");
 			counter = 0;
 			if (query_buff.lastError().isValid()) {
-				Warning msg = this->set_warning(2);
+				Warning msg = this->set_warning(17);
 				ostringstream info;
 				info << "Table Name                : " << Dam_CI_Point::point_table->get_table_name() << endl;
 				info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
@@ -1348,7 +1366,7 @@ void Dam_CI_System::transfer_intercepted_data2database(QSqlDatabase *ptr_databas
 		query_total.str("");
 		counter = 0;
 		if (query_buff.lastError().isValid()) {
-			Warning msg = this->set_warning(2);
+			Warning msg = this->set_warning(17);
 			ostringstream info;
 			info << "Table Name                : " << Dam_CI_Point::point_table->get_table_name() << endl;
 			info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
@@ -1358,6 +1376,155 @@ void Dam_CI_System::transfer_intercepted_data2database(QSqlDatabase *ptr_databas
 	}
 	query_buff.clear();
 	cout << "Transfer new data of interception of the CI-points to database is finished" << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+}
+//Transfer statistic data, e.g. HUB-value, AUThority-vale CV- and CP-avlue todatabse
+void Dam_CI_System::transfer_point_statistic_data2database(QSqlDatabase *ptr_database) {
+	//QSqlQuery elem_results(0,*ptr_database);
+	try {
+		Dam_CI_Point::set_point_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+	ostringstream cout;
+	cout << "Transfer new statistic of the CI-points to database..." << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+	ostringstream query_total;
+	int counter = 0;
+	//Set the query
+	QSqlQuery query_buff(*ptr_database);
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (i % 10000 == 0 && i > 0) {
+			cout << i << " (" << this->no_ci_point << ") CI-points are transfered to database..." << endl;
+			Sys_Common_Output::output_dam->output_txt(&cout);
+			Dam_Damage_System::check_stop_thread_flag();
+		}
+
+		if (this->dam_ci_point[i].get_string_stat_point_data2database(&query_total) == true) {
+			counter++;
+		};
+
+		//send packages of 100
+		if (counter == 100) {
+			//delete last semikolon
+			string buff = query_total.str();
+			buff.erase(buff.length() - 1);
+			Data_Base::database_request(&query_buff, buff, ptr_database);
+			//delete them
+			query_total.str("");
+			counter = 0;
+			if (query_buff.lastError().isValid()) {
+				Warning msg = this->set_warning(18);
+				ostringstream info;
+				info << "Table Name                : " << Dam_CI_Point::point_table->get_table_name() << endl;
+				info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+				msg.make_second_info(info.str());
+				msg.output_msg(4);
+			}
+		}
+	}
+
+	//send the rest
+	if (counter != 0) {
+		Sys_Common_Output::output_dam->output_txt(&cout);
+		//delete last semicolon
+		string buff = query_total.str();
+		buff.erase(buff.length() - 1);
+		Data_Base::database_request(&query_buff, buff, ptr_database);
+		//delete them
+		query_total.str("");
+		counter = 0;
+		if (query_buff.lastError().isValid()) {
+			Warning msg = this->set_warning(18);
+			ostringstream info;
+			info << "Table Name                : " << Dam_CI_Point::point_table->get_table_name() << endl;
+			info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(4);
+		}
+	}
+	query_buff.clear();
+	cout << "Transfer new statistic data of the CI-points to database is finished" << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+
+}
+///Transfer polygon statistic data, e.g. AUThority-value CV-value todatabse
+void Dam_CI_System::transfer_polygon_statistic_data2database(QSqlDatabase *ptr_database) {
+	//QSqlQuery elem_results(0,*ptr_database);
+	try {
+		Dam_CI_Polygon::set_polygon_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+	ostringstream cout;
+	cout << "Transfer new statistic of the CI-polygon to database..." << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+	ostringstream query_total;
+	int counter = 0;
+	//Set the query
+	QSqlQuery query_buff(*ptr_database);
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (i % 10000 == 0 && i > 0) {
+			cout << i << " (" << this->no_ci_polygon << ") CI-polygon are transfered to database..." << endl;
+			Sys_Common_Output::output_dam->output_txt(&cout);
+			Dam_Damage_System::check_stop_thread_flag();
+		}
+
+		if (this->dam_ci_polygon[i].get_string_stat_polygon_data2database(&query_total) == true) {
+			counter++;
+		};
+
+		//send packages of 100
+		if (counter == 100) {
+			//delete last semikolon
+			string buff = query_total.str();
+			buff.erase(buff.length() - 1);
+			Data_Base::database_request(&query_buff, buff, ptr_database);
+			//delete them
+			query_total.str("");
+			counter = 0;
+			if (query_buff.lastError().isValid()) {
+				Warning msg = this->set_warning(19);
+				ostringstream info;
+				info << "Table Name                : " << Dam_CI_Polygon::polygon_table->get_table_name() << endl;
+				info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+				msg.make_second_info(info.str());
+				msg.output_msg(4);
+			}
+		}
+	}
+
+	//send the rest
+	if (counter != 0) {
+		Sys_Common_Output::output_dam->output_txt(&cout);
+		//delete last semicolon
+		string buff = query_total.str();
+		buff.erase(buff.length() - 1);
+		Data_Base::database_request(&query_buff, buff, ptr_database);
+		//delete them
+		query_total.str("");
+		counter = 0;
+		if (query_buff.lastError().isValid()) {
+			Warning msg = this->set_warning(19);
+			ostringstream info;
+			info << "Table Name                : " << Dam_CI_Polygon::polygon_table->get_table_name() << endl;
+			info << "Table error info          : " << query_buff.lastError().text().toStdString() << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(4);
+		}
+	}
+	query_buff.clear();
+	cout << "Transfer new statistic data of the CI-polygons to database is finished" << endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
 
 }
@@ -3769,6 +3936,74 @@ void Dam_CI_System::calc_stat_cv(double *max, double *average, double *std) {
 	}
 
 }
+///Calculate the statistics of CP per sector (cascade potential value)
+void Dam_CI_System::calc_stat_cp_sec(const int sec_id, double *max, double *average, double *std) {
+	int counter = 0;
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_sector_id() == sec_id) {
+			if (this->dam_ci_point[i].get_end_level_flag() != true) {
+				*max = MAX(*max, this->dam_ci_point[i].get_stat_value());
+				*average = *average + this->dam_ci_point[i].get_stat_value();
+				counter++;
+			}
+		}
+	}
+	if (counter != 0) {
+		*average = *average / counter;
+	}
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_sector_id() == sec_id) {
+			if (this->dam_ci_point[i].get_end_level_flag() != true) {
+				*std = *std + pow((this->dam_ci_point[i].get_stat_value() - *average), 2);
+			}
+		}
+	}
+	if (counter > 1) {
+		*std = pow(*std / (counter - 1), 0.5);
+	}
+
+}
+///Calculate the statistics of CV per sector (cascade vulnerability value)
+void Dam_CI_System::calc_stat_cv_sec(const int sec_id, double *max, double *average, double *std) {
+	int counter = 0;
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_polygon[i].get_sector_id() == sec_id) {
+			*max = MAX(*max, this->dam_ci_polygon[i].get_stat_value());
+			*average = *average + this->dam_ci_polygon[i].get_stat_value();
+			counter++;
+		}
+	}
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_sector_id() == sec_id) {
+			if (this->dam_ci_point[i].get_end_level_flag() == true) {
+				*max = MAX(*max, this->dam_ci_point[i].get_stat_value());
+				*average = *average + this->dam_ci_point[i].get_stat_value();
+				counter++;
+			}
+		}
+	}
+
+	if (counter != 0) {
+		*average = *average / counter;
+	}
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_polygon[i].get_sector_id() == sec_id) {
+			*std = *std + pow((this->dam_ci_polygon[i].get_stat_value() - *average), 2);
+		}
+	}
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_sector_id() == sec_id) {
+			if (this->dam_ci_point[i].get_end_level_flag() == true) {
+				*std = *std + pow((this->dam_ci_point[i].get_stat_value() - *average), 2);
+			}
+		}
+	}
+	if (counter > 1) {
+		*std = pow(*std / (counter - 1), 0.5);
+	}
+}
 //Set error(s)
 Error Dam_CI_System::set_error(const int err_type) {
 	string place = "Dam_CI_System::";
@@ -4067,6 +4302,27 @@ Warning Dam_CI_System::set_warning(const int warn_type) {
 			help = "Check the database";
 			type = 2;
 			break;
+		case 17://input datas can not submitted
+			place.append("transfer_intercepted_data2database(QSqlDatabase *ptr_database)");
+			reason = "Can not submit the intercepted point data to the database";
+			help = "Check the database";
+			type = 2;
+			break;
+		case 18://input datas can not submitted
+			place.append("transfer_point_statistic_data2database(QSqlDatabase *ptr_database)");
+			reason = "Can not submit the statistic of points to the database";
+			help = "Check the database";
+			type = 2;
+			break;
+		case 19://input datas can not submitted
+			place.append("transfer_polygon_statistic_data2database(QSqlDatabase *ptr_database)");
+			reason = "Can not submit the statistic of polygons to the database";
+			help = "Check the database";
+			type = 2;
+			break;
+
+
+			
 		default:
 			place.append("set_warning(const int warn_type)");
 			reason = "Unknown flag!";

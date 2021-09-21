@@ -150,6 +150,8 @@ double Geo_Point::distance(Geo_Point *point){
 int Geo_Point::get_nearest_point(Geo_Point *point_1, Geo_Point *point_2){
 		double dist_1=0.0;
 		double dist_2=0.0;
+		
+
 
 		dist_1=this->distance(point_1);
 		dist_2=this->distance(point_2);

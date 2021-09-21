@@ -55,8 +55,11 @@ public:
 	///Check and update the CI tables for DAM-module (11.3.2021)
 	void check_update_dam_ci(QSqlDatabase *ptr_database, const string project_file);
 
-	///Check and add columns to the CI result-tables of the CU-connectors for DAM-module (5.7.2021)
+	///Check and add columns to the CI result-tables of the CI-connectors for DAM-module (5.7.2021)
 	void check_update_connect_results_dam_ci(QSqlDatabase *ptr_database, const string project_file);
+
+	///Check and add columns to the CI point/polygon-tables of the CI-elements for DAM-module (21.9.2021)
+	void check_update_dam_ci_elements(QSqlDatabase *ptr_database, const string project_file);
 
 
 

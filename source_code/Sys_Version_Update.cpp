@@ -944,6 +944,81 @@ void Sys_Version_Update::check_update_connect_results_dam_ci(QSqlDatabase *ptr_d
 	Dam_CI_Element_List::close_instat_erg_table();
 
 }
+///Check and add columns to the CI point/polygon-tables of the CI-elements for DAM-module (21.9.2021)
+void Sys_Version_Update::check_update_dam_ci_elements(QSqlDatabase *ptr_database, const string project_file) {
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
+	bool error = false;
+	//check if columns exists for CI-points
+	try {
+		Dam_CI_Point::set_point_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//check just id_in
+	bool exists = false;
+	for (int i = 0; i < Dam_CI_Point::point_table->get_number_col(); i++) {
+		if ((Dam_CI_Point::point_table->get_ptr_col())[i].id == dam_label::aut_value) {
+			exists = (Dam_CI_Point::point_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	//add
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, dam_label::tab_ci_point, dam_label::aut_value, sys_label::tab_col_type_int, false, "0", _sys_table_type::dam);
+		buffer.add_columns_file(project_file, dam_label::tab_ci_point, dam_label::aut_value);
+		Tables buffer1;
+		buffer1.add_columns(ptr_database, dam_label::tab_ci_point, dam_label::hub_value, sys_label::tab_col_type_int, false, "0", _sys_table_type::dam);
+		buffer1.add_columns_file(project_file, dam_label::tab_ci_point, dam_label::hub_value);
+		Tables buffer2;
+		buffer2.add_columns(ptr_database, dam_label::tab_ci_point, dam_label::cv_value, sys_label::tab_col_type_double, false, "-1.0", _sys_table_type::dam);
+		buffer2.add_columns_file(project_file, dam_label::tab_ci_point, dam_label::cv_value);
+		Tables buffer3;
+		buffer3.add_columns(ptr_database, dam_label::tab_ci_point, dam_label::cp_value, sys_label::tab_col_type_double, false, "-1.0", _sys_table_type::dam);
+		buffer3.add_columns_file(project_file, dam_label::tab_ci_point, dam_label::cp_value);
+	}
+
+	Dam_CI_Point::close_point_table();
+
+	error = false;
+
+
+	//check if columns exists for CI-polygons
+	try {
+		Dam_CI_Polygon::set_polygon_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//check just id_in
+	exists = false;
+	for (int i = 0; i < Dam_CI_Polygon::polygon_table->get_number_col(); i++) {
+		if ((Dam_CI_Polygon::polygon_table->get_ptr_col())[i].id == dam_label::aut_value) {
+			exists = (Dam_CI_Polygon::polygon_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	//add
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, dam_label::tab_ci_polygon, dam_label::aut_value, sys_label::tab_col_type_int, false, "0", _sys_table_type::dam);
+		buffer.add_columns_file(project_file, dam_label::tab_ci_polygon, dam_label::aut_value);
+		Tables buffer1;
+		buffer1.add_columns(ptr_database, dam_label::tab_ci_polygon, dam_label::cv_value, sys_label::tab_col_type_double, false, "-1.0", _sys_table_type::dam);
+		buffer1.add_columns_file(project_file, dam_label::tab_ci_polygon, dam_label::cv_value);
+	}
+
+	Dam_CI_Polygon::close_polygon_table();
+
+}
 //____________
 //private
 //Check and update the text of the hydraulic table of the hydraulic river profile result members; width_max is introduced (18.02.2021)

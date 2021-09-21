@@ -54,6 +54,9 @@ public:
 	///Get a string to set the CI point data from the raster interception to the database table: identifier of the floodplain, -floodplain element
 	bool get_string_interception_point_data2database(ostringstream *text);
 
+	///Get a string to set the point data from the statistical calculation to the database table
+	bool get_string_stat_point_data2database(ostringstream *text);
+
 	///Create the database table for the CI points
 	static void create_point_table(QSqlDatabase *ptr_database);
 	///Set the database table for the CI points: it sets the table name and the name of the columns and allocate them

@@ -14,9 +14,38 @@
 //#define sizes1
 //#define solver
 
+//#define my
+
 //
 
 using namespace std;
+//_______________________________________
+//all
+#ifdef my
+
+#include <iostream>
+using namespace std;
+
+int main(int argc, char *argv[]) {
+	Geo_Point test;
+	test.set_point(3,4,"test");
+	//ostringstream cout1;
+	//test.output_members(&cout1);
+	int n = 0;
+	cout << "hallo world" << endl;
+	cin >> n;
+
+	return 0;
+
+
+}
+
+
+
+
+
+
+#endif
 //_______________________________________
 //all
 #ifdef all1
