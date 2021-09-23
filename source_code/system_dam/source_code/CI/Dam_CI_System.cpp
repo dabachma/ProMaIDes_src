@@ -424,8 +424,11 @@ void Dam_CI_System::output_result_damage(void) {
 	for (int i = 0; i < this->list_enduser_affected_duration_sec.count(); i++) {
 		cout << "   " << _Dam_CI_Element::convert_sector_id2txt(_Dam_CI_Element::convert_id2enum(this->list_enduser_affected_duration_sec[i].at(0).toInt())) << ": " << W(10) << P(2) << FORMAT_FIXED_REAL << this->list_enduser_affected_duration_sec[i].at(1).toDouble() << endl;
 	}
+
+	
 	
 	Sys_Common_Output::output_dam->output_txt(&cout);
+	this->make_network_statistics_failed();
 
 	Sys_Common_Output::output_dam->rewind_userprefix();
 
@@ -697,6 +700,8 @@ void Dam_CI_System::make_network_statistics(QSqlDatabase *ptr_database) {
 	cout << "Generate the CI-system network statistics..." << endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
 
+
+
 	//hub value: number of outgoing
 	double max_hub = 0.0;
 	double average_hub = 0.0;
@@ -729,7 +734,7 @@ void Dam_CI_System::make_network_statistics(QSqlDatabase *ptr_database) {
 
 	//output overall statistics
 	ostringstream prefix;
-	prefix << "NETWORK-STAT> ";
+	prefix << "NET_STAT> ";
 	Sys_Common_Output::output_dam->set_userprefix(prefix.str());
 	cout << "TOTAL" << endl;
 	cout << "HUB-VALUE" << endl;
@@ -830,11 +835,99 @@ void Dam_CI_System::make_network_statistics(QSqlDatabase *ptr_database) {
 	this->transfer_polygon_statistic_data2database(ptr_database);
 	
 
-	//for result values?
+
 
 	
-	Sys_Common_Output::output_dam->rewind_userprefix();
 
+
+
+}
+//Make network statistics of failed system per scenario
+void Dam_CI_System::make_network_statistics_failed(void) {
+	ostringstream cout;
+	cout << "Generate the CI-system network statistics of the failed system..." << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+
+	//hub value: number of outgoing
+	double max_hub = 0.0;
+	double average_hub = 0.0;
+	double std_hub = 0.0;
+	//authority value: number of incoming
+	double max_aut = 0.0;
+	double average_aut = 0.0;
+	double std_aut = 0.0;
+	//cascade vulnerability (cv) value 
+	double max_cv = 0.0;
+	double average_cv = 0.0;
+	double std_cv = 0.0;
+	//cascade potential (cp) value 
+	double max_cp = 0.0;
+	double average_cp = 0.0;
+	double std_cp = 0.0;
+
+	this->calc_stat_tot_fail(&max_hub, &average_hub, &std_hub, &max_aut, &average_aut, &std_aut, &max_cp, &average_cp, &std_cp, &max_cv, &average_cv, &std_cv);
+	//output overall statistics
+	ostringstream prefix;
+	prefix << "FAIL_NET_STAT> ";
+	Sys_Common_Output::output_dam->set_userprefix(prefix.str());
+	cout << "TOTAL ALL FAILURE" << endl;
+	cout << "HUB-VALUE" << endl;
+	cout << " Max HUB-value        :" << max_hub << endl;
+	cout << " Average HUB-value    :" << average_hub << endl;
+	cout << " Std-Dev HUB-value    :" << std_hub << endl;
+	cout << "AUTHORITY-VALUE" << endl;
+	cout << " Max AUT-value        :" << max_aut << endl;
+	cout << " Average AUT-value    :" << average_aut << endl;
+	cout << " Std-Dev AUT-value    :" << std_aut << endl;
+	cout << "CASCADE-POTENTIAL-VALUE" << endl;
+	cout << " Max CP-value        :" << max_cp << endl;
+	cout << " Average CP-value    :" << average_cp << endl;
+	cout << " Std-Dev CP-value    :" << std_cp << endl;
+	cout << "CASCADE-VULNERABILITY-VALUE" << endl;
+	cout << " Max CV-value        :" << max_cv << endl;
+	cout << " Average CV-value    :" << average_cv << endl;
+	cout << " Std-Dev CV-value    :" << std_cv << endl;
+	cout << "Detailed information see logfile_DAM.txt" << endl;
+	cout << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
+
+	//reset
+	max_hub = 0.0;
+	average_hub = 0.0;
+	std_hub = 0.0;
+	max_aut = 0.0;
+	average_aut = 0.0;
+	std_aut = 0.0;
+	max_cv = 0.0;
+	average_cv = 0.0;
+	std_cv = 0.0;
+	max_cp = 0.0;
+	average_cp = 0.0;
+	std_cp = 0.0;
+	this->calc_stat_dir_fail(&max_hub, &average_hub, &std_hub, &max_aut, &average_aut, &std_aut, &max_cp, &average_cp, &std_cp, &max_cv, &average_cv, &std_cv);
+	cout << "TOTAL DIRECT FAILURE" << endl;
+	cout << "HUB-VALUE" << endl;
+	cout << " Max HUB-value        :" << max_hub << endl;
+	cout << " Average HUB-value    :" << average_hub << endl;
+	cout << " Std-Dev HUB-value    :" << std_hub << endl;
+	cout << "AUTHORITY-VALUE" << endl;
+	cout << " Max AUT-value        :" << max_aut << endl;
+	cout << " Average AUT-value    :" << average_aut << endl;
+	cout << " Std-Dev AUT-value    :" << std_aut << endl;
+	cout << "CASCADE-POTENTIAL-VALUE" << endl;
+	cout << " Max CP-value        :" << max_cp << endl;
+	cout << " Average CP-value    :" << average_cp << endl;
+	cout << " Std-Dev CP-value    :" << std_cp << endl;
+	cout << "CASCADE-VULNERABILITY-VALUE" << endl;
+	cout << " Max CV-value        :" << max_cv << endl;
+	cout << " Average CV-value    :" << average_cv << endl;
+	cout << " Std-Dev CV-value    :" << std_cv << endl;
+	cout << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout,true);
+
+
+	Sys_Common_Output::output_dam->rewind_userprefix();
 
 }
 //____________
@@ -3809,8 +3902,8 @@ void Dam_CI_System::calc_stat_per_sector(int *no_elem, double *max_hub, double *
 	}
 
 
-	*average_aut = *average_aut / (this->no_ci_point + this->no_ci_polygon);
-	*average_hub = *average_hub / (this->no_ci_point + this->no_ci_polygon);
+	*average_aut = *average_aut / (*no_elem);
+	*average_hub = *average_hub / (*no_elem);
 
 	for (int i = 0; i < this->no_ci_point; i++) {
 		if (this->dam_ci_point[i].get_sector_id() == sec_id) {
@@ -3827,12 +3920,12 @@ void Dam_CI_System::calc_stat_per_sector(int *no_elem, double *max_hub, double *
 		}
 	}
 
-	if ((this->no_ci_point + this->no_ci_polygon) > 1) {
-		*std_aut = pow(*std_aut / (this->no_ci_point + this->no_ci_polygon - 1), 0.5);
+	if ((*no_elem) > 1) {
+		*std_aut = pow(*std_aut / (*no_elem - 1), 0.5);
 
 	}
-	if (this->no_ci_point > 1) {
-		*std_hub = pow(*std_hub / (this->no_ci_point - 1), 0.5);
+	if (*no_elem > 1) {
+		*std_hub = pow(*std_hub / (*no_elem - 1), 0.5);
 	}
 
 
@@ -4004,6 +4097,271 @@ void Dam_CI_System::calc_stat_cv_sec(const int sec_id, double *max, double *aver
 		*std = pow(*std / (counter - 1), 0.5);
 	}
 }
+//Calculate statistics total failure
+void Dam_CI_System::calc_stat_tot_fail(double *max_hub, double *average_hub, double *std_hub, double *max_aut, double *average_aut, double *std_aut, double *max_cp, double *average_cp, double *std_cp, double *max_cv, double *average_cv, double *std_cv) {
+	//number
+
+
+	int no_elem = 0;
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >=1 && this->dam_ci_point[i].get_failure_type() <=3){
+			no_elem = no_elem + 1;
+		}
+	}
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+			no_elem = no_elem + 1;
+		}
+	}
+
+	if (no_elem == 0) {
+		return;
+	}
+
+
+
+	//aut hub
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+			//aut
+			*max_aut = MAX(*max_aut, this->dam_ci_point[i].get_number_incoming());
+			*average_aut = *average_aut + this->dam_ci_point[i].get_number_incoming();
+			//hub
+			*max_hub = MAX(*max_hub, this->dam_ci_point[i].get_number_outgoing());
+			*average_hub = *average_hub + this->dam_ci_point[i].get_number_outgoing();
+		}
+	}
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+			*max_aut = MAX(*max_aut, this->dam_ci_polygon[i].get_number_incoming());
+			*average_aut = *average_aut + this->dam_ci_polygon[i].get_number_incoming();
+		}
+	}
+
+
+	*average_aut = *average_aut / (no_elem);
+	*average_hub = *average_hub / (no_elem);
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+			//aut
+			*std_aut = *std_aut + pow((this->dam_ci_point[i].get_number_incoming() - *average_aut), 2);
+			//hub
+			*std_hub = *std_hub + pow((this->dam_ci_point[i].get_number_outgoing() - *average_hub), 2);
+		}
+	}
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+			*std_aut = *std_aut + pow((this->dam_ci_polygon[i].get_number_incoming() - *average_aut), 2);
+		}
+	}
+
+	if ((no_elem) > 1) {
+		*std_aut = pow(*std_aut / (no_elem - 1), 0.5);
+
+	}
+	if (no_elem > 1) {
+		*std_hub = pow(*std_hub / (no_elem - 1), 0.5);
+	}
+
+
+
+	//cp
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+			if (this->dam_ci_point[i].get_end_level_flag() != true) {
+				*max_cp = MAX(*max_cp, this->dam_ci_point[i].get_stat_value());
+				*average_cp = *average_cp + this->dam_ci_point[i].get_stat_value();
+				
+			}
+		}
+	}
+
+	*average_cp = *average_cp / no_elem;
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+			if (this->dam_ci_point[i].get_end_level_flag() != true) {
+				*std_cp = *std_cp + pow((this->dam_ci_point[i].get_stat_value() - *average_cp), 2);
+			}
+		}
+	}
+	if (no_elem > 1) {
+		*std_cp = pow(*std_cp / (no_elem - 1), 0.5);
+	}
+
+	//cv
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+			*max_cv = MAX(*max_cv, this->dam_ci_polygon[i].get_stat_value());
+			*average_cv = *average_cv + this->dam_ci_polygon[i].get_stat_value();
+
+		}
+	}
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+			if (this->dam_ci_point[i].get_end_level_flag() == true) {
+				*max_cv = MAX(*max_cv, this->dam_ci_point[i].get_stat_value());
+				*average_cv = *average_cv + this->dam_ci_point[i].get_stat_value();
+			}
+		}
+	}
+
+
+	*average_cv = *average_cv / no_elem;
+	
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+			*std_cv = *std_cv + pow((this->dam_ci_polygon[i].get_stat_value() - *average_cv), 2);
+		}
+	}
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+			if (this->dam_ci_point[i].get_end_level_flag() == true) {
+				*std_cv = *std_cv + pow((this->dam_ci_point[i].get_stat_value() - *average_cv), 2);
+			}
+		}
+	}
+	if (no_elem > 1) {
+		*std_cv = pow(*std_cv / (no_elem - 1), 0.5);
+	}
+
+
+
+}
+//Calculate statistics direct failure
+void Dam_CI_System::calc_stat_dir_fail(double *max_hub, double *average_hub, double *std_hub, double *max_aut, double *average_aut, double *std_aut, double *max_cp, double *average_cp, double *std_cp, double *max_cv, double *average_cv, double *std_cv) {
+	int no_elem = 0;
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			no_elem = no_elem + 1;
+		}
+	}
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			no_elem = no_elem + 1;
+		}
+	}
+
+	if (no_elem == 0) {
+		return;
+	}
+
+
+
+	//aut hub
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			//aut
+			*max_aut = MAX(*max_aut, this->dam_ci_point[i].get_number_incoming());
+			*average_aut = *average_aut + this->dam_ci_point[i].get_number_incoming();
+			//hub
+			*max_hub = MAX(*max_hub, this->dam_ci_point[i].get_number_outgoing());
+			*average_hub = *average_hub + this->dam_ci_point[i].get_number_outgoing();
+		}
+	}
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			*max_aut = MAX(*max_aut, this->dam_ci_polygon[i].get_number_incoming());
+			*average_aut = *average_aut + this->dam_ci_polygon[i].get_number_incoming();
+		}
+	}
+
+
+	*average_aut = *average_aut / (no_elem);
+	*average_hub = *average_hub / (no_elem);
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			//aut
+			*std_aut = *std_aut + pow((this->dam_ci_point[i].get_number_incoming() - *average_aut), 2);
+			//hub
+			*std_hub = *std_hub + pow((this->dam_ci_point[i].get_number_outgoing() - *average_hub), 2);
+		}
+	}
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			*std_aut = *std_aut + pow((this->dam_ci_polygon[i].get_number_incoming() - *average_aut), 2);
+		}
+	}
+
+	if ((no_elem) > 1) {
+		*std_aut = pow(*std_aut / (no_elem - 1), 0.5);
+
+	}
+	if (no_elem > 1) {
+		*std_hub = pow(*std_hub / (no_elem - 1), 0.5);
+	}
+
+
+
+	//cp
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			if (this->dam_ci_point[i].get_end_level_flag() != true) {
+				*max_cp = MAX(*max_cp, this->dam_ci_point[i].get_stat_value());
+				*average_cp = *average_cp + this->dam_ci_point[i].get_stat_value();
+
+			}
+		}
+	}
+
+	*average_cp = *average_cp / no_elem;
+
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			if (this->dam_ci_point[i].get_end_level_flag() != true) {
+				*std_cp = *std_cp + pow((this->dam_ci_point[i].get_stat_value() - *average_cp), 2);
+			}
+		}
+	}
+	if (no_elem > 1) {
+		*std_cp = pow(*std_cp / (no_elem - 1), 0.5);
+	}
+
+	//cv
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			*max_cv = MAX(*max_cv, this->dam_ci_polygon[i].get_stat_value());
+			*average_cv = *average_cv + this->dam_ci_polygon[i].get_stat_value();
+
+		}
+	}
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			if (this->dam_ci_point[i].get_end_level_flag() == true) {
+				*max_cv = MAX(*max_cv, this->dam_ci_point[i].get_stat_value());
+				*average_cv = *average_cv + this->dam_ci_point[i].get_stat_value();
+			}
+		}
+	}
+
+
+	*average_cv = *average_cv / no_elem;
+
+
+	for (int i = 0; i < this->no_ci_polygon; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			*std_cv = *std_cv + pow((this->dam_ci_polygon[i].get_stat_value() - *average_cv), 2);
+		}
+	}
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_failure_type() == 1) {
+			if (this->dam_ci_point[i].get_end_level_flag() == true) {
+				*std_cv = *std_cv + pow((this->dam_ci_point[i].get_stat_value() - *average_cv), 2);
+			}
+		}
+	}
+	if (no_elem > 1) {
+		*std_cv = pow(*std_cv / (no_elem - 1), 0.5);
+	}
+
+
+}
+
 //Set error(s)
 Error Dam_CI_System::set_error(const int err_type) {
 	string place = "Dam_CI_System::";

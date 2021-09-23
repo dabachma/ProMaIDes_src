@@ -106,6 +106,9 @@ public:
 	///Make network statistics
 	void make_network_statistics(QSqlDatabase *ptr_database);
 
+	///Make network statistics of failed system per scenario
+	void make_network_statistics_failed(void);
+
 
 private:
 
@@ -263,12 +266,12 @@ private:
 	///Reset results values
 	void reset_result_values(void);
 
-	///Calculate statsistics of HUB-value
+	///Calculate statistics of HUB-value
 	void calc_stat_hub(double *max, double *average, double *std);
-	///Calculate statsistics of Authority-value
+	///Calculate statistics of Authority-value
 	void calc_stat_aut(double *max, double *average, double *std);
 
-	///Calculate statsistics per sector
+	///Calculate statistics per sector
 	void calc_stat_per_sector(int *no_elem, double *max_hub, double *average_hub, double *std_hub, double *max_aut, double *average_aut, double *std_aut, const int sec_id);
 
 	///Calculate CP (cascade potential value) per point
@@ -285,6 +288,11 @@ private:
 	///Calculate the statistics of CV per sector (cascade vulnerability value)
 	void calc_stat_cv_sec(const int sec_id, double *max, double *average, double *std);
 
+	///Calculate statistics total failure
+	void calc_stat_tot_fail(double *max_hub, double *average_hub, double *std_hub, double *max_aut, double *average_aut, double *std_aut, double *max_cp, double *average_cp, double *std_cp, double *max_cv, double *average_cv, double *std_cv);
+
+	///Calculate statistics direct failure
+	void calc_stat_dir_fail(double *max_hub, double *average_hub, double *std_hub, double *max_aut, double *average_aut, double *std_aut, double *max_cp, double *average_cp, double *std_cp, double *max_cv, double *average_cv, double *std_cv);
 
 
 	///Set warning(s)
