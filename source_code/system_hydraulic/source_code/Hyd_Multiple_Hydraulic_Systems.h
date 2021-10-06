@@ -77,9 +77,13 @@ public:
 	void ask_system_number_file_console(void);
 	///Set the number of files for calculation and the global filenames per dialog (gui)
 	bool set_system_number_file_gui(void);
+	///Set one scenario for calculation directly
+	bool set_system_number_file_direct(QStringList list_id, QList<int> *new_id);
 
 	///Ask per dialog (HydGui_Boundary_Scenario_Dia), which of the availabe hydraulic boundary scenarios should be handled and return the number
 	int ask_boundary_scenarios_per_dialog(QSqlDatabase *ptr_database, QWidget *parent);
+	///Set per list, which of the availabe hydraulic boundary scenarios should be handled and return the number
+	int set_boundary_scenarios_per_list(QSqlDatabase *ptr_database, QList<int> list_id);
 
 	///Ask the file for raster conversion per dialog
 	bool ask_file_raster_conversion_dialog(void);

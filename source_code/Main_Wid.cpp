@@ -4005,6 +4005,8 @@ void Main_Wid::clear_all_output_displays(void){
 //Task by file action
 void Main_Wid::start_task_by_file(void) {
 
+	
+
 	if (this->close_flag == true) {
 		return;
 	}
@@ -4242,13 +4244,98 @@ void Main_Wid::start_task_fpl(QList<QVariant> list) {
 	else {
 		cout << "Unknown command in task-list " << buff_command << endl;
 		Sys_Common_Output::output_system->output_txt(&cout, false);
+		Sys_Common_Output::output_system->rewind_userprefix();
+		this->count_task++;
+		emit send_task_by_file_start();
 	}
 }
 //Interpret and start the task to do for HYD-module
 void Main_Wid::start_task_hyd(QList<QVariant> list) {
+	string buff_command;
+
+	buff_command = list.at(1).toString().toStdString();
+
 	ostringstream cout;
-	cout << "Currently no task defined for the HYD-module" << endl;
-	Sys_Common_Output::output_system->output_txt(&cout, false);
+	//import
+	if (buff_command == "calc_file") {
+		QStringList buff_sec;
+		for (int i = 2; i < list.count(); i++) {
+			QString buff = Sys_Project::get_main_path().c_str() + list.at(i).toString();
+			buff_sec.append(buff);
+		}
+		
+		cout << "Calculate following HYD-system(s) per file " << endl;
+		for (int i = 0; i < buff_sec.count(); i++) {
+			cout << i + 1 << " " << buff_sec.at(i).toStdString() << endl;
+		}
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+		this->set_hydcalc_per_file_task(buff_sec);
+
+	}
+	else if (buff_command == "add_db") {
+		QStringList buff_sec;
+		for (int i = 2; i < list.count(); i++) {
+			buff_sec.append(list.at(i).toString());
+		}
+		cout << "Add following HYD-scenario(s) to database " << endl;
+		if (buff_sec.count() == 4) {
+			cout << " " << buff_sec.at(0).toStdString() << " " << buff_sec.at(1).toStdString()<< " "<< buff_sec.at(2).toInt() << " " << buff_sec.at(3).toDouble() << endl;
+			Sys_Common_Output::output_system->output_txt(&cout, false);
+			this->add_hyd_boundary_sz_file2database_task(buff_sec);
+		}
+		else {
+			cout << "Wrong command; command for adding HYD-scenario is: HYD, add_db, relative_path_to_.ilm, scenario_name, annuality, probability_of_event " << endl;
+			Sys_Common_Output::output_system->output_txt(&cout, false);
+			Sys_Common_Output::output_system->rewind_userprefix();
+			this->count_task++;
+			emit send_task_by_file_start();
+		}
+
+	}
+	else if (buff_command == "delete_db") {
+
+		QList<int> buff_sec;
+		buff_sec = this->check_key_word_hyd(list.at(2).toString());
+		if (buff_sec.count() == 0) {
+			for (int i = 2; i < list.count(); i++) {
+				buff_sec.append(list.at(i).toInt());
+			}
+		}
+		cout << "Delete following HYD-scenario(s) from database " << endl;
+		for (int i = 0; i < buff_sec.count(); i++) {
+			cout << i + 1 << " " << buff_sec.at(i) << endl;
+		}
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+
+		this->delete_selected_bound_sc_task(buff_sec);
+
+	}
+	else if (buff_command == "calc_db") {
+		QList<int> buff_sec;
+		buff_sec = this->check_key_word_hyd(list.at(2).toString());
+		if (buff_sec.count() == 0) {
+			for (int i = 2; i < list.count(); i++) {
+				buff_sec.append(list.at(i).toInt());
+			}
+		}
+		cout << "HYD calculation of following HYD-scenario(s) " << endl;
+		for (int i = 0; i < buff_sec.count(); i++) {
+			cout << i + 1 << " " << buff_sec.at(i) << endl;
+		}
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+
+		this->set_hydcalc_per_task(buff_sec);
+
+
+	}
+	else {
+		cout << "Unknown command in task-list " << buff_command << endl;
+		Sys_Common_Output::output_system->output_txt(&cout, false);
+		Sys_Common_Output::output_system->rewind_userprefix();
+		this->count_task++;
+		emit send_task_by_file_start();
+	}
+
 }
 //Check for the keywords in tasks NEW, ALL section ids
 QList<int> Main_Wid::check_key_word_fpl(const QString key, const int last_number) {
@@ -4266,6 +4353,34 @@ QList<int> Main_Wid::check_key_word_fpl(const QString key, const int last_number
 		sec_id = Fpl_Section::get_list_last_section_database(this->system_database->get_database(), this->system_state.get_sys_system_id(), last_number);
 		return sec_id;
 	}
+
+	return sec_id;
+
+}
+//Check for the keywords in tasks NEW, ALL section ids
+QList<int> Main_Wid::check_key_word_hyd(const QString key) {
+	QList<int> sec_id;
+	if (key == "ALL") {
+		//fill sec_id
+		QSqlQueryModel results;
+		int buff_number = Hyd_Boundary_Szenario_Management::select_boundary_scenario_database(&results, this->system_database->get_database(), this->system_state.get_sys_system_id());
+		if (buff_number == 0) {
+
+			return sec_id;
+		}
+		else {
+			for(int i=0;i< buff_number; i++){
+				sec_id.append(results.record(i).value((Hyd_Boundary_Szenario_Management::table->get_column_name(hyd_label::sz_bound_id)).c_str()).toInt());
+			}
+			return sec_id;
+		}
+		
+	}
+	else if (key == "NEW") {
+		return this->new_hyd_sc_list;
+	}
+	
+
 
 	return sec_id;
 
@@ -5049,6 +5164,42 @@ void Main_Wid::set_hydcalc_per_file(void){
 		this->check_hyd_thread_is_running();
 	}
 }
+//Set a hydraulic calculation per file via task
+void Main_Wid::set_hydcalc_per_file_task(QStringList list_id) {
+	try {
+		this->allocate_multi_hydraulic_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->hyd_calc->set_number_required_threads(list_id.count());
+	this->hyd_calc->set_required_output2file(this->project_manager.get_stored_hydraulic_state().file_output_required);
+	this->hyd_calc->set_thread_type(_hyd_thread_type::hyd_calculation);
+
+	this->hyd_calc->set_system_number_file(&list_id);
+
+	
+
+	//connect the thread when is finished
+	QObject::connect(this->hyd_calc, SIGNAL(finished()), this, SLOT(thread_hyd_calc_finished()));
+	QObject::connect(this->hyd_calc, SIGNAL(emit_number_threads(QString)), this, SLOT(catch_thread_number_hy_calc(QString)));
+	this->action_stop_hyd_calc->setEnabled(true);
+
+	this->reset_exception_new_action();
+	//start calculation
+	this->hyd_calc->start();
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file) {
+		this->check_hyd_file_thread_is_running();
+	}
+	else {
+		this->check_hyd_thread_is_running();
+	}
+
+
+
+
+}
 //User aborted the hydraulic calculation; the hyd-thread is stopped (menu hyd)
 void Main_Wid::stop_hydcalc_thread(void){
 	//be sure that the thread is allocated and started
@@ -5090,6 +5241,7 @@ void Main_Wid::thread_hyd_calc_finished(void){
 		if (this->task_flag == true) {
 			emit send_task_by_file_start();
 		}
+
 	}
 }
 //Catch the number of threads, which are launched from the multiple hydraulic system for calculation
@@ -5189,7 +5341,7 @@ void Main_Wid::thread_hyd_check_tables_finished(void){
 		this->delete_multi_hydraulic_system();
 		this->hyd_tables_created=true;
 		emit send_table_check_is_finished();
-		if (this->task_flag == true) {
+		if (this->task_flag == true && this->project_manager.get_project_type() == _sys_project_type::proj_hyd) {
 			emit send_task_by_file_start();
 		}
 	}
@@ -5319,6 +5471,46 @@ void Main_Wid::add_hyd_boundary_sz_file2database(void){
 	catch(Error msg){
 		msg.output_msg(0);
 	}
+}
+//Import and add the hydraulic boundary szenarios per file to a database via task
+void Main_Wid::add_hyd_boundary_sz_file2database_task(QStringList list_data) {
+	try {
+		if (Hyd_Boundary_Szenario_Management::check_base_scenario_is_set(this->system_database->get_database()) == false) {
+			Sys_Diverse_Text_Dia dialog2(true);
+			ostringstream txt;
+			txt << "A HYD-base scenario must be set before any additional boundary scenario(s) can be imported!" << endl;
+			dialog2.set_dialog_question(txt.str());
+			dialog2.start_dialog();
+			return;
+		}
+
+		try {
+			this->allocate_multi_hydraulic_system();
+		}
+		catch (Error msg) {
+			msg.output_msg(0);
+			return;
+		}
+		this->hyd_calc->set_thread_type(_hyd_thread_type::hyd_add_sz);
+		this->hyd_calc->set_ptr2database(this->system_database->get_database());
+		if (this->hyd_calc->set_system_number_file_direct(list_data, &this->new_hyd_sc_list) == false) {
+			this->delete_multi_hydraulic_system();
+			return;
+		}
+
+		this->reset_exception_new_action();
+		//connect the thread when is finished
+		QObject::connect(this->hyd_calc, SIGNAL(finished()), this, SLOT(thread_hyd_import_finished()));
+		this->action_stop_hyd_import->setEnabled(true);
+
+		//start calculation
+		this->hyd_calc->start();
+		this->check_hyd_thread_is_running();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+	}
+
 }
 //User aborted the hydraulic file-import process; the hyd-thread is stopped (menu hyd)
 void Main_Wid::stop_hydimport_thread(void){
@@ -5489,6 +5681,41 @@ void Main_Wid::set_hydcalc_per_db(void){
 		this->check_hyd_thread_is_running();
 	}
 }
+//Set a hydraulic calculation per task
+void Main_Wid::set_hydcalc_per_task(QList<int> list_id) {
+	try {
+		this->allocate_multi_hydraulic_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->hyd_calc->set_thread_type(_hyd_thread_type::hyd_calculation);
+
+	this->hyd_calc->set_ptr2database(this->system_database->get_database());
+	this->hyd_calc->set_number_required_threads(list_id.count());
+	this->hyd_calc->set_required_output2file(this->project_manager.get_stored_hydraulic_state().file_output_required);
+
+	if (this->hyd_calc->set_boundary_scenarios_per_list(this->system_database->get_database(), list_id) == 0) {
+		this->delete_multi_hydraulic_system();
+		return;
+	}
+	else {
+		//connect the thread when is finished
+		QObject::connect(this->hyd_calc, SIGNAL(finished()), this, SLOT(thread_hyd_calc_finished()));
+		QObject::connect(this->hyd_calc, SIGNAL(emit_number_threads(QString)), this, SLOT(catch_thread_number_hy_calc(QString)));
+
+		this->action_Close_Connection->setEnabled(false);
+		this->action_stop_hyd_calc->setEnabled(true);
+
+		this->reset_exception_new_action();
+		//start calculation
+		this->hyd_calc->start();
+		this->check_hyd_thread_is_running();
+	}
+
+
+}
 //Delete selected boundary scenarios (menu hyd/)
 void Main_Wid::delete_selected_bound_sc(void){
 	try{
@@ -5541,6 +5768,54 @@ void Main_Wid::delete_selected_bound_sc(void){
 			return;
 		}
 	}
+}
+//Delete selected boundary scenarios via task)
+void Main_Wid::delete_selected_bound_sc_task(QList<int> list_id) {
+	try {
+		this->allocate_multi_hydraulic_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->hyd_calc->set_thread_type(_hyd_thread_type::hyd_del_sz);
+
+	this->hyd_calc->set_ptr2database(this->system_database->get_database());
+	//not the first scenario!
+	list_id.removeFirst();
+
+	if (this->hyd_calc->set_boundary_scenarios_per_list(this->system_database->get_database(), list_id) == 0) {
+		this->delete_multi_hydraulic_system();
+	}
+	else {
+
+
+
+		//connect the thread when is finished
+		QObject::connect(this->hyd_calc, SIGNAL(finished()), this, SLOT(thread_hyd_calc_finished()));
+		this->action_Close_Connection->setEnabled(false);
+
+		//delete damages
+		if (Sys_Project::get_project_type() == _sys_project_type::proj_all || Sys_Project::get_project_type() == _sys_project_type::proj_risk ||
+			Sys_Project::get_project_type() == _sys_project_type::proj_dam_hyd || Sys_Project::get_project_type() == _sys_project_type::proj_dam) {
+			this->setEnabled(false);
+			emit send_txt2statusbar("Delete damage results...", 0);
+			for (int i = 0; i < this->hyd_calc->sz_bound_manager.get_number_sz(); i++) {
+				if (this->hyd_calc->sz_bound_manager.get_ptr_sz(i)->get_is_selected() == true) {
+					Dam_Damage_System::delete_data_in_erg_table(this->system_database->get_database(), this->hyd_calc->sz_bound_manager.get_ptr_sz(i)->get_id());
+				}
+			}
+			emit send_txt2statusbar("Ready", 0);
+			this->setEnabled(true);
+		}
+
+		//start calculation
+		this->hyd_calc->start();
+		this->check_hyd_thread_is_running();
+
+	}
+
+
 }
 //Convert a given Gis-raster into a Prom-raster (menu hyd/tools)
 void Main_Wid::convert_Gis2Prom_raster(void){
@@ -5691,6 +5966,9 @@ void Main_Wid::thread_dam_calc_finished(void){
 			emit send_delete2refresh_data_view();
 		}
 		this->delete_damage_system();
+		if (this->task_flag == true) {
+			emit send_task_by_file_start();
+		}
 	}
 }
 //Recieve if a module extern uses the damage thread
@@ -5769,6 +6047,10 @@ void Main_Wid::thread_dam_check_tables_finished(void){
 		QObject::disconnect(this->dam_calc,SIGNAL(finished()),this,SLOT(thread_dam_check_tables_finished()));
 		this->delete_damage_system();
 		emit send_table_check_is_finished();
+		if (this->task_flag == true && this->project_manager.get_project_type() == _sys_project_type::proj_dam_hyd) {
+			emit send_task_by_file_start();
+		}
+		
 	}
 }
 //Set a new output flag for the dam modul(menu dam/common)
@@ -7394,6 +7676,9 @@ void Main_Wid::thread_risk_calc_finished(void){
 			emit send_delete2refresh_data_view();
 		}
 		this->delete_risk_system();
+		if (this->task_flag == true) {
+			emit send_task_by_file_start();
+		}
 	}
 }
 //Recieve if the risk thread is sleeping
@@ -7468,6 +7753,9 @@ void Main_Wid::thread_risk_check_tables_finished(void){
 		QObject::disconnect(this->risk_calc,SIGNAL(finished()),this,SLOT(thread_risk_check_tables_finished()));
 		this->delete_risk_system();
 		emit send_table_check_is_finished();
+		if (this->task_flag == true && this->project_manager.get_project_type() == _sys_project_type::proj_risk) {
+			emit send_task_by_file_start();
+		}
 	}
 }
 //Set a new output flag for the risk modul(menu risk/common)
@@ -8478,6 +8766,9 @@ void Main_Wid::thread_alt_check_tables_finished(void){
 		//disconnect the thread when is finished
 		QObject::disconnect(this->alt_calc,SIGNAL(finished()),this,SLOT(thread_alt_check_tables_finished()));
 		this->delete_alt_system();
+		if (this->task_flag == true && this->project_manager.get_project_type() == _sys_project_type::proj_all) {
+			emit send_task_by_file_start();
+		}
 		emit send_table_check_is_finished();
 	}
 }
@@ -9237,9 +9528,14 @@ void Main_Wid::read_task_file(void) {
 			qmyline = myline.c_str();
 			QStringList my_str_list;
 			my_str_list = qmyline.split(",");
+
+
+
 			QList<QVariant> buff_list;
 			for (int i = 0; i < my_str_list.count(); i++) {
-				buff_list.append(my_str_list.at(i));
+				string buff_space = my_str_list.at(i).toStdString();
+				functions::clean_string(&buff_space);
+				buff_list.append(buff_space.c_str());
 			}
 			this->task_list.append(buff_list);
 		}

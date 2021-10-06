@@ -552,6 +552,8 @@ private slots:
 	void start_task_hyd(QList<QVariant> list);
 	///Check for the keywords in tasks NEW, ALL section ids
 	QList<int> check_key_word_fpl(const QString key, const int last_number);
+	///Check for the keywords in tasks NEW, ALL section ids
+	QList<int> check_key_word_hyd(const QString key);
 
 	///Import fpl-section(s) from file to database
 	void import_section2database(void);
@@ -637,7 +639,9 @@ private slots:
 
 	///Set a hydraulic calculation per file (menu hyd/calculation/per file)
 	void set_hydcalc_per_file(void);
-	///User aborted the hydraulic calculation thread (menu hyd
+	///Set a hydraulic calculation per file via task
+	void set_hydcalc_per_file_task(QStringList list_id);
+	///User aborted the hydraulic calculation thread (menu hyd)
 	void stop_hydcalc_thread(void);
 	///Check for the normal end of the hydraulic calculation thread
 	void thread_hyd_calc_finished(void);
@@ -668,6 +672,10 @@ private slots:
 	void import_hyd_basesystem_file2database(void);
 	///Import and add the hydraulic boundary szenarios per file to a database (menu hyd/import files to database)
 	void add_hyd_boundary_sz_file2database(void);
+
+	///Import and add the hydraulic boundary szenarios per file to a database via task
+	void add_hyd_boundary_sz_file2database_task(QStringList list_data);
+
 	///User aborted the hydraulic file-import thread (menu hyd)
 	void stop_hydimport_thread(void);
 	///Check for the normal end of the hydraulic file import thread
@@ -684,8 +692,13 @@ private slots:
 
 	///Set a hydraulic calculation per database (menu hyd/calculation/per database)
 	void set_hydcalc_per_db(void);
+	///Set a hydraulic calculation per task
+	void set_hydcalc_per_task(QList<int> list_id);
+
 	///Delete selected boundary scenarios (menu hyd/)
 	void delete_selected_bound_sc(void);
+	///Delete selected boundary scenarios via task)
+	void delete_selected_bound_sc_task(QList<int> list_id);
 
 	///Convert a given Gis-raster into a Prom-raster (menu hyd/tools)
 	void convert_Gis2Prom_raster(void);
@@ -985,10 +998,13 @@ private:
 	int count_task;
 	///List of tasks
 	QList<QList<QVariant>> task_list;
-	///New section (FPL)/system (HYD) with task imported
+	///New section (FPL)/system (HYD) with task imported or calculated
 	int number_new_sec;
 	///Total error during task
 	int total_err_task;
+
+	///New HYD-scenrio-ids in task
+	QList<int> new_hyd_sc_list;
 
 	//method
 	///Allocate the table view for the database tables

@@ -561,6 +561,22 @@ bool Hyd_Boundary_Szenario_Management::ask_boundary_scenarios_per_dialog(const s
 		return false;
 	}
 }
+//Set per list, which of the availabe hydraulic boundary scenarios should be handled and return the number
+int Hyd_Boundary_Szenario_Management::set_boundary_scenarios_per_list(QSqlDatabase *ptr_database, QList<int> list_id) {
+	this->set_szenario_per_db(ptr_database);
+
+	for (int i = 0; i < list_id.count(); i++) {
+		for (int j = 0; j < this->number_sz_bound; j++) {
+			if (this->sz_bound[j].get_id() == list_id.at(i)) {
+				this->sz_bound[j].set_is_selected(true);
+				break;
+			}
+
+		}
+	}
+
+	return this->counter_number_selected_scenarios();
+}
 //Delete the data in table and create a new base szenario with id =0
 void Hyd_Boundary_Szenario_Management::delete_table_create_base_sz(QSqlDatabase *ptr_database){
 
@@ -781,10 +797,16 @@ void Hyd_Boundary_Szenario_Management::set_all_sc_bound2selected(void){
 	}
 }
 //Set new boundary scenario directly without a GUI dialog for an import via the hydraulic system
-void Hyd_Boundary_Szenario_Management::set_new_boundary_scenario_directly(Hyd_Boundary_Scenario_List *list){
+void Hyd_Boundary_Szenario_Management::set_new_boundary_scenario_directly(Hyd_Boundary_Scenario_List *list, QWidget *parent){
 	
-	this->data_dia->set_new_boundary_scenario_directly(list);
-
+	
+	try {
+		this->allocate_scenario_dia(parent);
+		this->data_dia->set_new_boundary_scenario_directly(list);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
 
 }
 

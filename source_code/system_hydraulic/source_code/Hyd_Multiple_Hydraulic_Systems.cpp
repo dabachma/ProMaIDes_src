@@ -156,6 +156,48 @@ bool Hyd_Multiple_Hydraulic_Systems::set_system_number_file_gui(void){
 	}
 	return flag;
 }
+//Set one scenario for calculation directly
+bool Hyd_Multiple_Hydraulic_Systems::set_system_number_file_direct(QStringList list_id, QList<int> *new_id) {
+	bool flag = true;
+	
+	//todo new list (member in Main_Wid!)
+
+	if (this->type == _hyd_thread_type::hyd_add_sz) {
+		//read out the number of files
+		this->number_systems = 1;
+		try {
+			this->allocate_file_names();
+		}
+		catch (Error msg) {
+			throw msg;
+		}
+
+		//first has the path in
+		this->file_names[0] = list_id.at(0).toStdString();
+		Hyd_Boundary_Scenario_List my_list;
+		Hyd_Boundary_Szenario my_sc;
+		my_sc.set_name(list_id.at(1).toStdString());
+		int id_buff = this->sz_bound_manager.get_new_hyd_sz_id(&this->qsqldatabase);
+		new_id->append(id_buff);
+		my_sc.set_members(id_buff, list_id.at(2).toDouble(), list_id.at(3).toDouble(), list_id.at(1).toStdString());
+
+		my_list.add_scenario2list(&my_sc);
+
+	
+		try {
+			this->sz_bound_manager.set_new_boundary_scenario_directly(&my_list);
+	
+		}
+		catch (Error msg) {
+			this->number_systems = 0;
+			this->delete_file_names();
+			msg.output_msg(2);
+		}
+	}
+
+	return flag;
+
+}
 //Ask per dialog (HydGui_Boundary_Scenario_Dia), which of the availabe hydraulic boundary scenarios should be handled and return the number
 int Hyd_Multiple_Hydraulic_Systems::ask_boundary_scenarios_per_dialog(QSqlDatabase *ptr_database, QWidget *parent){
 
@@ -179,6 +221,18 @@ int Hyd_Multiple_Hydraulic_Systems::ask_boundary_scenarios_per_dialog(QSqlDataba
 		this->number_systems=this->sz_bound_manager.counter_number_selected_scenarios();
 		return this->number_systems;
 	}
+}
+//Set per list, which of the availabe hydraulic boundary scenarios should be handled and return the number
+int Hyd_Multiple_Hydraulic_Systems::set_boundary_scenarios_per_list(QSqlDatabase *ptr_database, QList<int> list_id) {
+
+	if (this->sz_bound_manager.set_boundary_scenarios_per_list(ptr_database, list_id) == 0) {
+		return 0;
+	}
+	else {
+		this->number_systems = this->sz_bound_manager.counter_number_selected_scenarios();
+		return this->number_systems;
+	}
+
 }
 //Ask the file for raster conversion per dialog
 bool Hyd_Multiple_Hydraulic_Systems::ask_file_raster_conversion_dialog(void){

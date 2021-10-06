@@ -2091,7 +2091,7 @@ void Dam_CI_Polygon::set_point_table(QSqlDatabase *ptr_database, const bool not_
 
 		try {
 			Dam_CI_Polygon::polygon_point_table = new Tables(tab_id_name, tab_id_col, sizeof(tab_id_col) / sizeof(tab_id_col[0]));
-			Dam_CI_Polygon::polygon_point_table->set_name(ptr_database, _sys_table_type::hyd);
+			Dam_CI_Polygon::polygon_point_table->set_name(ptr_database, _sys_table_type::dam);
 		}
 		catch (bad_alloc& t) {
 			Error msg;

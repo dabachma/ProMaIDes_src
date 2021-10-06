@@ -85,6 +85,8 @@ public:
 	int ask_boundary_scenarios_per_dialog(QSqlDatabase *ptr_database, const string txt, QWidget *parent);
 	///Ask per dialog (HydGui_Boundary_Scenario_Dia), which of the availabe hydraulic boundary scenarios should be handled and return the number
 	bool ask_boundary_scenarios_per_dialog(const string txt, QWidget *parent, Hyd_Boundary_Scenario_List *list, int *number_selected);
+	///Set per list, which of the availabe hydraulic boundary scenarios should be handled and return the number
+	int set_boundary_scenarios_per_list(QSqlDatabase *ptr_database, QList<int> list_id);
 
 	///Delete the data in table and create a new base szenario with id =0
 	void delete_table_create_base_sz(QSqlDatabase *ptr_database);
@@ -114,7 +116,7 @@ public:
 
 
 	///Set new boundary scenario directly without a GUI dialog for an import via the hydraulic system
-	void set_new_boundary_scenario_directly(Hyd_Boundary_Scenario_List *list);
+	void set_new_boundary_scenario_directly(Hyd_Boundary_Scenario_List *list, QWidget *parent = NULL);
 
 
 	///Allocate the boundary scenario data dialog
