@@ -538,7 +538,7 @@ bool Fpl_Section::check_all_combined2hyd_system(QSqlDatabase *ptr_database, cons
 	}
 
 	ostringstream test_filter;
-	test_filter<< "SELECT ASTEXT(";
+	test_filter<< "SELECT ST_ASTEXT(";
 	test_filter <<  Fpl_Section::table->get_column_name(fpl_label::section_line);
 	test_filter << ") FROM " << Fpl_Section::table->get_table_name();
 	test_filter << " WHERE " ;

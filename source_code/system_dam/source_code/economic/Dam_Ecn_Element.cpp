@@ -1168,7 +1168,7 @@ int Dam_Ecn_Element::select_data_in_erg_table(QSqlQueryModel *results, QSqlDatab
 	query_string << Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::raster_id) << " , ";
 	query_string << Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::immob_dam) << " , ";
 	query_string << Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::mob_dam) << " , ";
-	query_string << " ASTEXT("<<Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
+	query_string << " ST_ASTEXT("<<Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
 
 	query_string<<" FROM " << Dam_Ecn_Element::elem_erg_table->get_table_name();
 	query_string << " WHERE " ;
@@ -1217,7 +1217,7 @@ int Dam_Ecn_Element::select_data_in_erg_table(QSqlQueryModel *results, QSqlDatab
 	query_string << Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::raster_id) << " , ";
 	query_string << Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::immob_dam) << " , ";
 	query_string << Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::mob_dam) << " , ";
-	query_string << " ASTEXT("<<Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
+	query_string << " ST_ASTEXT("<<Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
 
 	query_string<<" FROM " << Dam_Ecn_Element::elem_erg_table->get_table_name();
 	query_string << " WHERE " ;

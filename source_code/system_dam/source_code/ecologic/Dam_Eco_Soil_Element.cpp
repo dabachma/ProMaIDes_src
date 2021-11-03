@@ -1036,7 +1036,7 @@ int Dam_Eco_Soil_Element::select_data_in_erg_table(QSqlQueryModel *results, QSql
 	query_string << Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::elem_id) << " , ";
 	query_string << Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::raster_id) << " , ";
 	query_string << Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::soil_cost) << " , ";
-	query_string << " ASTEXT("<<Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
+	query_string << " ST_ASTEXT("<<Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
 
 	query_string<<" FROM " << Dam_Eco_Soil_Element::elem_erg_table->get_table_name();
 	query_string << " WHERE ";
@@ -1085,7 +1085,7 @@ int Dam_Eco_Soil_Element::select_data_in_erg_table(QSqlQueryModel *results, QSql
 	query_string << Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::elem_id) << " , ";
 	query_string << Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::raster_id) << " , ";
 	query_string << Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::soil_cost) << " , ";
-	query_string << " ASTEXT("<<Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
+	query_string << " ST_ASTEXT("<<Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
 
 	query_string<<" FROM " << Dam_Eco_Soil_Element::elem_erg_table->get_table_name();
 	query_string << " WHERE ";

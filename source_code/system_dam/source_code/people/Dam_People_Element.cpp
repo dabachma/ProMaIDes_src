@@ -1020,7 +1020,7 @@ int Dam_People_Element::select_data_in_erg_table(QSqlQueryModel *results, QSqlDa
 	query_string << Dam_People_Element::elem_erg_table->get_column_name(dam_label::raster_id) << " , ";
 	query_string << Dam_People_Element::elem_erg_table->get_column_name(dam_label::pop_affected) << " , ";
 	query_string << Dam_People_Element::elem_erg_table->get_column_name(dam_label::pop_endangered) << " , ";
-	query_string << " ASTEXT("<<Dam_People_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
+	query_string << " ST_ASTEXT("<<Dam_People_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
 
 	query_string<<" FROM " << Dam_People_Element::elem_erg_table->get_table_name();
 	query_string << " WHERE " ;
@@ -1070,7 +1070,7 @@ int Dam_People_Element::select_data_in_erg_table(QSqlQueryModel *results, QSqlDa
 	query_string << Dam_People_Element::elem_erg_table->get_column_name(dam_label::raster_id) << " , ";
 	query_string << Dam_People_Element::elem_erg_table->get_column_name(dam_label::pop_affected) << " , ";
 	query_string << Dam_People_Element::elem_erg_table->get_column_name(dam_label::pop_endangered) << " , ";
-	query_string << " ASTEXT("<<Dam_People_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
+	query_string << " ST_ASTEXT("<<Dam_People_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
 
 	query_string<<" FROM " << Dam_People_Element::elem_erg_table->get_table_name();
 	query_string << " WHERE " ;

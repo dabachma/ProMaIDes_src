@@ -7339,7 +7339,7 @@ void Risk_System::calc_detailed_result_element_ecn(_risk_risk_results *total){
 			elem=model.record(i).value((Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::elem_id)).c_str()).toInt();
 			buff_immob=model.record(i).value((Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::immob_dam)).c_str()).toDouble();
 			buff_mob=model.record(i).value((Dam_Ecn_Element::elem_erg_table->get_column_name(dam_label::mob_dam)).c_str()).toDouble();
-			buff_str=model.record(i).value("astext").toString().toStdString();
+			buff_str=model.record(i).value("ST_ASTEXT").toString().toStdString();
 
 			query_data << " ( ";
 			query_data << glob_id<<" , ";
@@ -7473,7 +7473,7 @@ void Risk_System::calc_detailed_result_element_eco_btype(_risk_risk_results *tot
 			raster=model.record(i).value((Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::raster_id)).c_str()).toInt();
 			elem=model.record(i).value((Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::elem_id)).c_str()).toInt();
 			buff_cost=model.record(i).value((Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::btype_cost)).c_str()).toDouble();
-			buff_str=model.record(i).value("astext").toString().toStdString();
+			buff_str=model.record(i).value("ST_ASTEXT").toString().toStdString();
 
 			query_data << " ( ";
 			query_data << glob_id<<" , ";
@@ -7597,7 +7597,7 @@ void Risk_System::calc_detailed_result_element_eco_soil(_risk_risk_results *tota
 			raster=model.record(i).value((Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::raster_id)).c_str()).toInt();
 			elem=model.record(i).value((Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::elem_id)).c_str()).toInt();
 			buff_cost=model.record(i).value((Dam_Eco_Soil_Element::elem_erg_table->get_column_name(dam_label::soil_cost)).c_str()).toDouble();
-			buff_str=model.record(i).value("astext").toString().toStdString();
+			buff_str=model.record(i).value("ST_ASTEXT").toString().toStdString();
 
 			query_data << " ( ";
 			query_data << glob_id<<" , ";
@@ -7725,7 +7725,7 @@ void Risk_System::calc_detailed_result_element_pop(_risk_risk_results *total){
 			elem=model.record(i).value((Dam_People_Element::elem_erg_table->get_column_name(dam_label::elem_id)).c_str()).toInt();
 			buff_affected=model.record(i).value((Dam_People_Element::elem_erg_table->get_column_name(dam_label::pop_affected)).c_str()).toDouble();
 			buff_endangered=model.record(i).value((Dam_People_Element::elem_erg_table->get_column_name(dam_label::pop_endangered)).c_str()).toDouble();
-			buff_str=model.record(i).value("astext").toString().toStdString();
+			buff_str=model.record(i).value("ST_ASTEXT").toString().toStdString();
 
 			query_data << " ( ";
 			query_data << glob_id<<" , ";
@@ -7879,7 +7879,7 @@ void Risk_System::calc_detailed_result_element_pys(_risk_risk_results *total){
 			buff.pys_female_dens=model.record(i).value((Dam_Pys_Element::elem_erg_table->get_column_name(dam_label::denscrit_female)).c_str()).toDouble();
 			buff.pys_owner_dens=model.record(i).value((Dam_Pys_Element::elem_erg_table->get_column_name(dam_label::denscrit_owner)).c_str()).toDouble();
 
-			buff_str=model.record(i).value("astext").toString().toStdString();
+			buff_str=model.record(i).value("ST_ASTEXT").toString().toStdString();
 
 			query_data << " ( ";
 			query_data << glob_id<<" , ";
@@ -8115,7 +8115,7 @@ void Risk_System::calc_detailed_result_point_sc(_risk_risk_results *total){
 				buff.sc_person_build=value_buff;
 			}
 			
-			buff_str=model.record(i).value("astext").toString().toStdString();
+			buff_str=model.record(i).value("ST_ASTEXT").toString().toStdString();
 
 			query_data << " ( ";
 			query_data << glob_id<<" , ";

@@ -898,7 +898,7 @@ int Dam_Sc_Point::select_data_in_erg_table(QSqlQueryModel *results, QSqlDatabase
 	query_string << Dam_Sc_Point::point_erg_table->get_column_name(dam_label::category_id) << " , ";
 	query_string << Dam_Sc_Point::point_erg_table->get_column_name(dam_label::subcategory_id) << " , ";
 
-	query_string << " ASTEXT("<<Dam_Sc_Point::point_erg_table->get_column_name(dam_label::sc_point) <<")";
+	query_string << " ST_ASTEXT("<<Dam_Sc_Point::point_erg_table->get_column_name(dam_label::sc_point) <<")";
 
 	query_string<<" FROM " << Dam_Sc_Point::point_erg_table->get_table_name();
 	query_string << " WHERE " ;
@@ -949,7 +949,7 @@ int Dam_Sc_Point::select_data_in_erg_table(QSqlQueryModel *results, QSqlDatabase
 	query_string << Dam_Sc_Point::point_erg_table->get_column_name(dam_label::category_id) << " , ";
 	query_string << Dam_Sc_Point::point_erg_table->get_column_name(dam_label::subcategory_id) << " , ";
 
-	query_string << " ASTEXT("<<Dam_Sc_Point::point_erg_table->get_column_name(dam_label::sc_point) <<")";
+	query_string << " ST_ASTEXT("<<Dam_Sc_Point::point_erg_table->get_column_name(dam_label::sc_point) <<")";
 
 	query_string<<" FROM " << Dam_Sc_Point::point_erg_table->get_table_name();
 	query_string << " WHERE " ;

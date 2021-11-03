@@ -1106,7 +1106,7 @@ int Dam_Pys_Element::select_data_in_erg_table(QSqlQueryModel *results, QSqlDatab
 	query_string << Dam_Pys_Element::elem_erg_table->get_column_name(dam_label::total_dens_score) << " , ";
 	query_string << Dam_Pys_Element::elem_erg_table->get_column_name(dam_label::total_score) << " , ";
 
-	query_string << " ASTEXT("<<Dam_Pys_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
+	query_string << " ST_ASTEXT("<<Dam_Pys_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
 
 	query_string<<" FROM " << Dam_Pys_Element::elem_erg_table->get_table_name();
 	query_string << " WHERE " ;
@@ -1166,7 +1166,7 @@ int Dam_Pys_Element::select_data_in_erg_table(QSqlQueryModel *results, QSqlDatab
 	query_string << Dam_Pys_Element::elem_erg_table->get_column_name(dam_label::total_dens_score) << " , ";
 	query_string << Dam_Pys_Element::elem_erg_table->get_column_name(dam_label::total_score) << " , ";
 
-	query_string << " ASTEXT("<<Dam_Pys_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
+	query_string << " ST_ASTEXT("<<Dam_Pys_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
 
 	query_string<<" FROM " << Dam_Pys_Element::elem_erg_table->get_table_name();
 	query_string << " WHERE " ;

@@ -981,7 +981,7 @@ int Dam_Eco_Btype_Element::select_data_in_erg_table(QSqlQueryModel *results, QSq
 	query_string << Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::elem_id) << " , ";
 	query_string << Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::raster_id) << " , ";
 	query_string << Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::btype_cost) << " , ";
-	query_string << " ASTEXT("<<Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
+	query_string << " ST_ASTEXT("<<Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
 
 	query_string<<" FROM " << Dam_Eco_Btype_Element::elem_erg_table->get_table_name();
 	query_string << " WHERE " ;
@@ -1029,7 +1029,7 @@ int Dam_Eco_Btype_Element::select_data_in_erg_table(QSqlQueryModel *results, QSq
 	query_string << Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::elem_id) << " , ";
 	query_string << Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::raster_id) << " , ";
 	query_string << Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::btype_cost) << " , ";
-	query_string << " ASTEXT("<<Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
+	query_string << " ST_ASTEXT("<<Dam_Eco_Btype_Element::elem_erg_table->get_column_name(dam_label::elem_poly) <<")";
 
 	query_string<<" FROM " << Dam_Eco_Btype_Element::elem_erg_table->get_table_name();
 	query_string << " WHERE " ;
