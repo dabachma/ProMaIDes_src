@@ -164,7 +164,7 @@ public:
 	void output_result2csv_1d(const double timepoint, const int timestep_number);
 	///Output the result members per timestep to paraview as 2d
 	void output_result2paraview_2d(const double timepoint, const int timestep_number);
-	///Output the result members per timestep to paraview as 2d
+	///Output the result members per timestep to database as 2d
 	void output_result2database_2d(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number, const string time);
 
 

@@ -2160,9 +2160,9 @@ void Dam_CI_Point::calculate_direct_damages(Dam_Impact_Values *impact) {
 		
 		this->failure_type_enum = _dam_ci_failure_type::direct;
 		this->failure_type = _Dam_CI_Element::convert_failuretype2txt(this->failure_type_enum); 
-		if (this->no_incoming == 0) {
-			this->failure_duration = this->recovery_time;
-		}
+		
+		this->failure_duration = this->recovery_time;
+		
 	}
 
 }
@@ -2179,10 +2179,10 @@ void Dam_CI_Point::calculate_direct_damages_instationary(Dam_Impact_Values *impa
 	}
 	if (this->failure_type_enum == _dam_ci_failure_type::direct) {
 		this->recovery_time = this->recovery_time - time / (constant::day_second);
-		//if (this->no_incoming == 0) {
-			this->failure_duration = this->recovery_time;
+		
+		this->failure_duration = this->recovery_time;
 
-		//}
+		
 		if (this->recovery_time <= 0.0 + constant::sec_epsilon) {
 			//this->was_affected = true;
 			this->active_flag = true;
@@ -2202,9 +2202,7 @@ void Dam_CI_Point::calculate_direct_damages_instationary(Dam_Impact_Values *impa
 			this->failure_type_enum = _dam_ci_failure_type::direct;
 			this->failure_type = _Dam_CI_Element::convert_failuretype2txt(this->failure_type_enum);
 			this->failure_duration = this->recovery_time;
-			//if (this->no_incoming == 0) {
-				
-			//}
+			
 		}
 	}
 

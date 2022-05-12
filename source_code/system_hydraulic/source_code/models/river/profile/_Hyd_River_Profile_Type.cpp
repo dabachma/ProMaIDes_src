@@ -99,7 +99,7 @@ void _Hyd_River_Profile_Type::set_profile_specific_value(const _hyd_bridge_value
 	buff=data;
 }
 //input the mebers per file
-void _Hyd_River_Profile_Type::input_members(QFile *profile_file, int *line_counter){
+void _Hyd_River_Profile_Type::input_members(QFile *profile_file, int *line_counter, const string name, const int number){
 
 	int point_counter=0;
 	try{
@@ -138,7 +138,7 @@ void _Hyd_River_Profile_Type::input_members(QFile *profile_file, int *line_count
 	this->calculate_global_minpoint_x_y();
 	//check the points
 	try{	
-		this->check_points();
+		this->check_points(name, number);
 	}
 	catch(Error msg){
 		throw msg;
@@ -146,7 +146,7 @@ void _Hyd_River_Profile_Type::input_members(QFile *profile_file, int *line_count
 
 }
 //Input the river profile point data from a selection of a database table
-void _Hyd_River_Profile_Type::input_members(const QSqlQueryModel *query_results){
+void _Hyd_River_Profile_Type::input_members(const QSqlQueryModel *query_results, const string name, const int number){
 
 
 	//read out the results for each p
@@ -165,7 +165,7 @@ void _Hyd_River_Profile_Type::input_members(const QSqlQueryModel *query_results)
 	this->calculate_global_minpoint_x_y();
 	//check the points
 	try{	
-		this->check_points();
+		this->check_points(name, number);
 	}
 	catch(Error msg){
 		throw msg;
@@ -1126,7 +1126,7 @@ void _Hyd_River_Profile_Type::set_waterlevel_direct(double const global_waterlev
 	}
 }
 //check the points and the areatypes
-void _Hyd_River_Profile_Type::check_points(void){
+void _Hyd_River_Profile_Type::check_points(const string name, const int number){
 
 	//check number of points
 	if(this->number_points<3){
@@ -1156,6 +1156,9 @@ void _Hyd_River_Profile_Type::check_points(void){
 			info << "Profile point number : " << i << endl;
 			info << "x-coordinate         : " << FORMAT_FIXED_REAL << P(3) << this->points[i].get_global_x_y_coordinates().get_xcoordinate() << endl;
 			info << "y-coordinate         : " << this->points[i].get_global_x_y_coordinates().get_ycoordinate() << endl;
+			info << "Profile name         : " << name << endl;
+			info << "Profile number       : " << number << endl;
+
 			//reaction
 			this->points[i].identity=this->points[i-1].identity;
 			msg.make_second_info(info.str());
@@ -1171,6 +1174,8 @@ void _Hyd_River_Profile_Type::check_points(void){
 			info << "Profile point number : " << i << endl;
 			info << "x-coordinate         : " << FORMAT_FIXED_REAL << P(3) << this->points[i].get_global_x_y_coordinates().get_xcoordinate() << endl;
 			info << "y-coordinate         : " << this->points[i].get_global_x_y_coordinates().get_ycoordinate() << endl;
+			info << "Profile name         : " << name << endl;
+			info << "Profile number       : " << number << endl;
 			//reaction
 			this->points[i].identity=this->points[i+1].identity;
 			msg.make_second_info(info.str());
@@ -1202,6 +1207,8 @@ void _Hyd_River_Profile_Type::check_points(void){
 		info << "Point (start/end) :" << "Start point" << endl;
 		info << "Given height start  :" << this->points[0].get_global_z_coordinate() << endl;
 		info << "Given height start + 1  :" << this->points[1].get_global_z_coordinate() << endl;
+		info << "Profile name         : " << name << endl;
+		info << "Profile number       : " << number << endl;
 		
 		//reaction
 		this->points[0].set_point_y_coordinate(this->points[1].get_ycoordinate() + 0.001);
@@ -1217,6 +1224,8 @@ void _Hyd_River_Profile_Type::check_points(void){
 		info << "Point (start/end) :" << "End point" << endl;
 		info << "Given height end  :" << this->points[this->number_points - 1].get_global_z_coordinate() << endl;
 		info << "Given height end - 1  :" << this->points[this->number_points - 2].get_global_z_coordinate() << endl;
+		info << "Profile name         : " << name << endl;
+		info << "Profile number       : " << number << endl;
 		//reaction
 		this->points[this->number_points - 1].set_point_y_coordinate(this->points[this->number_points - 2].get_ycoordinate() + 0.001);
 		msg.make_second_info(info.str());

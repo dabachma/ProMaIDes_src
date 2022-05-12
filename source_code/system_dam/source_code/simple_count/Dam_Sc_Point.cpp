@@ -1503,7 +1503,7 @@ void Dam_Sc_Point::check_members(void){
 		info << " 1 public buildings "<<endl;
 		info << " 2 ecologic perilous sites or buildings  "<<endl;
 		info << " 3 cultural heritage   "<<endl;
-		info << " 4 buildings with highly vunerable person   "<<endl;
+		info << " 4 buildings with highly vulnerable person   "<<endl;
 		Warning msg=this->set_warning(2);
 		msg.make_second_info(info.str());
 		msg.output_msg(4);

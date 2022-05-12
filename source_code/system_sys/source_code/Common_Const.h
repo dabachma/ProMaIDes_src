@@ -158,11 +158,11 @@ namespace constant{
 	const int minute_second=60;
 
 	///Bytes per KByte
-	const double kbyte_size=1024.0;
+	const double kbyte_size=1000.0;
 	///Bytes per MByte
-	const double mbyte_size=1024.0*1024.0;
+	const double mbyte_size=1000.0*1000.0;
 	///Bytes per GByte
-	const double gbyte_size=1024.0*1024.0*1024.0;
+	const double gbyte_size=1000.0*1000.0*1000.0;
 
 	///Maximum of elements
     const int max_elems=30000000;
@@ -2915,7 +2915,7 @@ namespace dam_label{
 	const string sc_eco_build("SC_ECO_PERI_SITES");
 	///String for the simple counting categories: cultural heritage  \see Dam_Sc_Point
 	const string sc_cult_build("SC_CULTURAL_HERITAGE");
-	///String for the simple counting categories: buildings with highly vunerable person  \see Dam_Sc_Point
+	///String for the simple counting categories: buildings with highly vulnerable person  \see Dam_Sc_Point
 	const string sc_person_build("SC_HIGH_VUL_PERS_SITES");
 
 	///String for the CI sector \see _Dam_CI_Element 
@@ -3108,7 +3108,7 @@ namespace risk_label{
 	const string risk_sc_eco_build_with_hyd("SC_ECO_PERI_SITES_HYD_PROB");
 	///String for the simple counting categories: cultural heritage  \see Dam_Sc_Point
 	const string risk_sc_cult_build_with_hyd("SC_CULTURAL_HERITAGE_HYD_PROB");
-	///String for the simple counting categories: buildings with highly vunerable person  \see Dam_Sc_Point
+	///String for the simple counting categories: buildings with highly vulnerable person  \see Dam_Sc_Point
 	const string risk_sc_person_build_with_hyd("SC_HIGH_VUL_PERS_SITES_HYD_PROB");
 	///Keyword for the database table column of the detailed risk results per dpoint: risk factor [-] (Risk_System)
 	const string risk_sc_fac("RISK_FACTOR");
@@ -3205,7 +3205,7 @@ namespace madm_label{
 	const string weight_risk_sc_eco("!crit_risk_sc_eco");
 	///Keyword for the file input of the madm weight sets: weight for the simple counting (cultural heritage) risk criteria (Madm_Analysis)
 	const string weight_risk_sc_cult("!crit_risk_sc_cult");
-	///Keyword for the file input of the madm weight sets: weight for the simple counting (buildings with highly vunerable person) risk criteria (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: weight for the simple counting (buildings with highly vulnerable person) risk criteria (Madm_Analysis)
 	const string weight_risk_sc_person("!crit_risk_sc_person");
 
 	///Keyword for the file input of the madm weight sets: weight for the maximum outflow discharge risk criteria (Madm_Analysis)
@@ -3260,7 +3260,7 @@ namespace madm_label{
 	const string crit_risk_sc_eco("CRIT_RISK_SC_ECO");
 	///Keyword for the database table column of divers madm tables: Criteria variation of risk for simple counting cultural heritage [score/a] (Madm_System) 
 	const string crit_risk_sc_cult("CRIT_RISK_SC_CULT");
-	///Keyword for the database table column of divers madm tables: Criteria variation of risk for simple counting buildings with highly vunerable person [score/a] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria variation of risk for simple counting buildings with highly vulnerable person [score/a] (Madm_System) 
 	const string crit_risk_sc_person("CRIT_RISK_SC_PERSON");
 
 	///Keyword for the database table column of divers madm tables: Criteria cost economic [monetary] (Madm_System) 

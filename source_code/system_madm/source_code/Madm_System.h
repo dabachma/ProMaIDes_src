@@ -76,7 +76,7 @@ namespace madm_crit_min_max{
 	const bool max_crit_risk_sc_eco=true;
 	///Criteria variation of risk simple counting cultural heritage
 	const bool max_crit_risk_sc_cult=true;
-	///Criteria variation of risk simple counting buildings with highly vunerable person
+	///Criteria variation of risk simple counting buildings with highly vulnerable person
 	const bool max_crit_risk_sc_person=true;
 
 	///Criteria cost economic

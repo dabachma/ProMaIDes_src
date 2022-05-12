@@ -1015,7 +1015,9 @@ void Hyd_Coupling_Point_FP2CO::predict_values(const int int_counter){
 		//this->predicted_h_one=this->calc_h_one+(1.0/12.0)*(23.0*this->gradient_list_h_one.at(0)-16.0*this->gradient_list_h_one.at(1)+5.0*this->gradient_list_h_one.at(2))*this->delta_t;
 		//this->predicted_h_one=this->calc_h_one+(0.5)*(3.0*this->gradient_list_h_one.at(0)-1.0*this->gradient_list_h_one.at(1))*this->delta_t;
 		if(int_counter>3){
-			this->predicted_h_one=this->calc_h_one+(this->gradient_list_h_one.at(0))*this->delta_t;
+			//this->predicted_h_one=this->calc_h_one+(this->gradient_list_h_one.at(0))*this->delta_t;
+			//explicit
+			this->predicted_h_one = this->calc_h_one;
 			//this->predicted_h_one=this->calc_h_one+(0.5)*(3.0*this->gradient_list_h_one.at(0)-1.0*this->gradient_list_h_one.at(1))*this->delta_t;
 		}
 		else{

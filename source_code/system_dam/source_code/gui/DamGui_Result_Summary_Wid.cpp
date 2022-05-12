@@ -67,7 +67,7 @@ DamGui_Result_Summary_Wid::DamGui_Result_Summary_Wid(QWidget *parent): _Sys_Resu
 	my_list.append(buffer.c_str());
 	buffer="SC Cultural heritage [score]";
 	my_list.append(buffer.c_str());
-	buffer="SC Buildings with highly vunerable person [score]";
+	buffer="SC Buildings with highly vulnerable person [score]";
 	my_list.append(buffer.c_str());
 
 

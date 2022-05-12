@@ -1225,6 +1225,9 @@ void Hyd_Model_River::output_geometrie2paraview_2d(void) {
 		msg.make_second_info(info.str());
 		throw msg;
 	}
+
+
+
 	//fileheader
 	//output the file header
 	this->tecplot_output << "# vtk DataFile Version 3.0" << endl;
@@ -1549,6 +1552,7 @@ void Hyd_Model_River::output_result2csv_1d(const double timepoint, const int tim
 	// for 1d - output
 	//results per timesteps
 	ofstream output_csv;
+	output_csv.clear();
 	if (this->Param_RV.tecplot_outfile_name_1d != label::not_set) {
 		//open the file
 		string buffer = this->Param_RV.get_filename_result2file_1d(hyd_label::paraview);
@@ -1744,7 +1748,7 @@ void Hyd_Model_River::output_result2paraview_2d(const double timepoint, const in
 	output.close();
 
 }
-//Output the result members per timestep to paraview as 2d
+//Output the result members per timestep to databse as 2d
 void Hyd_Model_River::output_result2database_2d(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number, const string time) {
 
 

@@ -77,7 +77,7 @@ RiskGui_Detailed_Risk_Summary_Wid::RiskGui_Detailed_Risk_Summary_Wid(QWidget *pa
 	buffer="risk-factor [-]";
 	my_list.append(buffer.c_str());
 
-	buffer="SC buildings with highly vunerable person risk [score]";
+	buffer="SC buildings with highly vulnerable person risk [score]";
 	my_list.append(buffer.c_str());
 	buffer="with HYD-prob [score/a]";
 	my_list.append(buffer.c_str());

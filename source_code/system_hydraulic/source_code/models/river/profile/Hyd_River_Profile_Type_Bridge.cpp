@@ -293,9 +293,9 @@ void Hyd_River_Profile_Type_Bridge::clone_profile_type(_Hyd_River_Profile_Type *
 //____________
 //private
 //Check the points and the areatypes of consistency and check the bridge specific data
-void Hyd_River_Profile_Type_Bridge::check_points(void){
+void Hyd_River_Profile_Type_Bridge::check_points(const string name, const int number){
 	try{
-		_Hyd_River_Profile_Type::check_points();
+		_Hyd_River_Profile_Type::check_points(name, number);
 	}
 	catch(Error msg){
 		throw msg;

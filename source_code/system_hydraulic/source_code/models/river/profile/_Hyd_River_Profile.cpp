@@ -220,7 +220,7 @@ void _Hyd_River_Profile::input_members(QFile *profile_file, const int profile_nu
 	//alloc and read the infos of the profile type
 	try{
 		this->decide_alloc_profile_type(buffer_number_points);
-		this->typ_of_profile->input_members(profile_file, line_counter);
+		this->typ_of_profile->input_members(profile_file, line_counter, this->name, this->profile_number);
 	}
 	catch(Error msg){
 		ostringstream info;
@@ -4342,7 +4342,8 @@ void _Hyd_River_Profile::input_profile_points_per_database(QSqlDatabase *ptr_dat
 	this->decide_alloc_profile_type(number_points);
 
 	//input the profile points
-	this->typ_of_profile->input_members(&query_result);
+	this->typ_of_profile->input_members(&query_result, this->name, this->profile_number);
+
 }
 //Calculate the watervolume in the element
 void _Hyd_River_Profile::calculate_watervolume_element(void){
@@ -4352,6 +4353,8 @@ void _Hyd_River_Profile::calculate_watervolume_element(void){
 void _Hyd_River_Profile::calculate_max_h2basepoint(void){
 	this->h_max_left_base=this->typ_of_profile->get_hmax2related_profile_point(this->index_basepoint_left);
 	this->h_max_right_base=this->typ_of_profile->get_hmax2related_profile_point(this->index_basepoint_right);
+	
+
 }
 //Check the given basepoints and set the height of the river banks
 void _Hyd_River_Profile::check_set_base_points(void){

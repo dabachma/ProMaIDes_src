@@ -1,12 +1,33 @@
 <RCC>
   <qresource>
     <file>system_sys_resource.qrc</file>
-    <file alias="prom_icon">icons/iww/prom.png</file>
+    <file alias="prom_icon">icons/hs_m/promaides.png</file>
     <file alias="default_config">icons/iww/32x32/config.png</file>
+	
     <file alias="gis_icon">icons/iww/16x16/gis.png</file>
-    <file alias="file_icon">icons/iww/16x16/files.png</file>
-    <file alias="data_icon">icons/iww/16x16/data.png</file>
-    <file alias="database_icon">icons/iww/16x16/database.png</file>
+    <file alias="file_icon">icons/hs_m/01_20x20_FILE.png</file>
+    <file alias="data_icon">icons/hs_m/01_20x20_DATA.png</file>
+    <file alias="database_icon">icons/hs_m/01_20x20_DATABASE.png</file>
+	
+
+	
+    <file alias="alt_icon">icons/iww/16x16/alt.png</file>
+	<file alias="eco_btype_icon">icons/iww/16x16/eco_btype.png</file>
+	<file alias="eco_soil_icon">icons/iww/16x16/eco_soil.png</file>
+	
+    <file alias="hyd_icon">icons/hs_m/01_20x20_HYD.png</file>
+    <file alias="fpl_icon">icons/hs_m/01_20x20_FPL.png</file>
+    <file alias="madm_icon">icons/hs_m/01_20x20_MADM.png</file>
+    <file alias="cost_icon">icons/hs_m/01_20x20_COST.png</file>
+    <file alias="dam_icon">icons/hs_m/01_20x20_DAM.png</file>
+    <file alias="risk_icon">icons/hs_m/01_20x20_RISK.png</file>
+    <file alias="excep_icon">icons/hs_m/01_20x20_EXCEP.png</file>
+	<file alias="pys_icon">icons/hs_m/01_20x20_PYS.png</file>
+    <file alias="sc_icon">icons/hs_m/01_20x20_SC.png</file>
+	<file alias="ci_icon">icons/hs_m/01_20x20_CI.png</file>
+    <file alias="pop_icon">icons/hs_m/01_20x20_POP.png</file>
+	<file alias="eco_icon">icons/hs_m/01_20x20_ECO.png</file>
+	
 	<file alias="plus_icon">icons/iww/16x16/10.png</file>
 	<file alias="minus_icon">icons/iww/16x16/11.png</file>
     <file alias="raster_icon">icons/iww/16x16/raster.png</file>
@@ -19,22 +40,8 @@
     <file alias="gate_icon">icons/iww/16x16/gate.png</file>
     <file alias="dune_icon">icons/iww/16x16/dune.png</file>
     <file alias="user_icon">icons/iww/16x16/user_def.png</file>
-    <file alias="alt_icon">icons/iww/16x16/alt.png</file>
-    <file alias="hyd_icon">icons/iww/16x16/hyd.png</file>
-    <file alias="fpl_icon">icons/iww/16x16/fpl.png</file>
-    <file alias="madm_icon">icons/iww/16x16/madm2.png</file>
-    <file alias="cost_icon">icons/iww/16x16/cost.png</file>
-    <file alias="dam_icon">icons/iww/16x16/dam.png</file>
-    <file alias="risk_icon">icons/iww/16x16/risk.png</file>
-    <file alias="excep_icon">icons/iww/16x16/exception.png</file>
-    <file alias="eco_btype_icon">icons/iww/16x16/eco_btype.png</file>
-    <file alias="eco_icon">icons/iww/16x16/eco.png</file>
-    <file alias="eco_soil_icon">icons/iww/16x16/eco_soil.png</file>
-    <file alias="pys_icon">icons/iww/16x16/pys.png</file>
-    <file alias="sc_icon">icons/iww/16x16/sc.png</file>
-	<file alias="ci_icon">icons/iww/16x16/ci.png</file>
-    <file alias="pop_icon">icons/iww/16x16/pop.png</file>
-    <file>welcome_wid_v1.png</file>
+
+    <file>welcome_wid_v2.png</file>
     <file alias="save_icon">icons/general/saveas.png</file>
     <file alias="pdf_icon">icons/general/pdf.png</file>
     <file alias="print_icon">icons/general/print.png</file>

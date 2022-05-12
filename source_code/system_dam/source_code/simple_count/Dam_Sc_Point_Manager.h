@@ -71,7 +71,7 @@ public:
 	double get_score_eco_build(void);
 	///Get the affected score for category cultural heritage
 	double get_score_cult_build(void);
-	///Get the affected score for category buildings with highly vunerable person
+	///Get the affected score for category buildings with highly vulnerable person
 	double get_score_person_build(void);
 
 
@@ -93,7 +93,7 @@ private:
 	double affected_score_eco_build;
 	///Affected score for category 3 cultural heritage
 	double affected_score_cult_build;
-	///Affected score for category 4 buildings with highly vunerable person
+	///Affected score for category 4 buildings with highly vulnerable person
 	double affected_score_person_build;
 
 	//methods

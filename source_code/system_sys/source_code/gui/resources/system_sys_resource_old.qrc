@@ -7,6 +7,8 @@
     <file alias="file_icon">icons/iww/16x16/files.png</file>
     <file alias="data_icon">icons/iww/16x16/data.png</file>
     <file alias="database_icon">icons/iww/16x16/database.png</file>
+	<file alias="plus_icon">icons/iww/16x16/10.png</file>
+	<file alias="minus_icon">icons/iww/16x16/11.png</file>
     <file alias="raster_icon">icons/iww/16x16/raster.png</file>
     <file alias="river_icon">icons/iww/16x16/river.png</file>
     <file alias="riverprof_icon">icons/iww/16x16/standard_profile.png</file>
@@ -18,7 +20,7 @@
     <file alias="dune_icon">icons/iww/16x16/dune.png</file>
     <file alias="user_icon">icons/iww/16x16/user_def.png</file>
     <file alias="alt_icon">icons/iww/16x16/alt.png</file>
-    <file alias="hyd_icon">icons/iww/16x16/hyd.png</file>
+    <file alias="hyd_icon">icons/iww/20x20/01_20x20_HYD-01.png</file>
     <file alias="fpl_icon">icons/iww/16x16/fpl.png</file>
     <file alias="madm_icon">icons/iww/16x16/madm2.png</file>
     <file alias="cost_icon">icons/iww/16x16/cost.png</file>
@@ -30,8 +32,9 @@
     <file alias="eco_soil_icon">icons/iww/16x16/eco_soil.png</file>
     <file alias="pys_icon">icons/iww/16x16/pys.png</file>
     <file alias="sc_icon">icons/iww/16x16/sc.png</file>
+	<file alias="ci_icon">icons/iww/16x16/ci.png</file>
     <file alias="pop_icon">icons/iww/16x16/pop.png</file>
-    <file>welcome_wid_v1.png</file>
+    <file>welcome_wid_v2.png</file>
     <file alias="save_icon">icons/general/saveas.png</file>
     <file alias="pdf_icon">icons/general/pdf.png</file>
     <file alias="print_icon">icons/general/print.png</file>
@@ -51,6 +54,10 @@
     <file alias="dike_wave_impact_icon">icons/iww/16x16/dike_wave_impact_ico.png</file>
     <file alias="dike_slope_stab_land_icon">icons/iww/16x16/dike_slope_stab_land_ico.png</file>
     <file alias="dike_slope_stab_water_icon">icons/iww/16x16/dike_slope_stab_water_ico.png</file>
+    <file alias="gate_overflow_icon">icons/iww/16x16/gate_overflow_ico.png</file>
+    <file alias="gate_overtop_icon">icons/iww/16x16/gate_overtopping_ico.png</file>
+    <file alias="gate_struct_icon">icons/iww/16x16/gate_struct_ico.png</file>
+    <file alias="gate_notcloseicon">icons/iww/16x16/gate_notclose_ico.png</file>
   </qresource>
   <qresource prefix="32x32">
     <file alias="config">icons/iww/32x32/config.png</file>

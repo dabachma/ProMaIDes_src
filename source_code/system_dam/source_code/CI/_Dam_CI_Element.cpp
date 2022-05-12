@@ -868,6 +868,8 @@ void _Dam_CI_Element::check_connections(void) {
 				ostringstream info;
 				info << "Sector id    : " << this->sector_id << endl;
 				info << "Sector name  : " << this->sector_name << endl;
+				info << "Name connected not final: " << this->outgoing[i]->get_ptr_point()->get_point_name() << endl;
+				//info << " i " << i << " flag " << functions::convert_boolean2string(this->outgoing[i]->get_end_level_flag()) << endl;
 				msg.make_second_info(info.str());
 				throw msg;
 

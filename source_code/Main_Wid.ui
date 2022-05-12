@@ -40,6 +40,10 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="tab_data_data">
+       <attribute name="icon">
+        <iconset resource="system_sys/source_code/gui/resources/system_sys_resource.qrc">
+         <normaloff>:/data_icon</normaloff>:/data_icon</iconset>
+       </attribute>
        <attribute name="title">
         <string>&amp;DATA</string>
        </attribute>
@@ -92,6 +96,10 @@
        </layout>
       </widget>
       <widget class="QWidget" name="tab_data_database">
+       <attribute name="icon">
+        <iconset resource="system_sys/source_code/gui/resources/system_sys_resource.qrc">
+         <normaloff>:/database_icon</normaloff>:/database_icon</iconset>
+       </attribute>
        <attribute name="title">
         <string>&amp;DATABASE</string>
        </attribute>
@@ -170,6 +178,10 @@
        </layout>
       </widget>
       <widget class="QWidget" name="tab_data_file">
+       <attribute name="icon">
+        <iconset resource="system_sys/source_code/gui/resources/system_sys_resource.qrc">
+         <normaloff>:/file_icon</normaloff>:/file_icon</iconset>
+       </attribute>
        <attribute name="title">
         <string>&amp;FILE</string>
        </attribute>
@@ -189,7 +201,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_System">
@@ -1005,6 +1017,10 @@
         <number>0</number>
        </property>
        <widget class="QWidget" name="tab_tree_data">
+        <attribute name="icon">
+         <iconset resource="system_sys/source_code/gui/resources/system_sys_resource.qrc">
+          <normaloff>:/data_icon</normaloff>:/data_icon</iconset>
+        </attribute>
         <attribute name="title">
          <string>&amp;DATA</string>
         </attribute>
@@ -1022,6 +1038,10 @@
         </layout>
        </widget>
        <widget class="QWidget" name="tab_tree_database">
+        <attribute name="icon">
+         <iconset resource="system_sys/source_code/gui/resources/system_sys_resource.qrc">
+          <normaloff>:/database_icon</normaloff>:/database_icon</iconset>
+        </attribute>
         <attribute name="title">
          <string>&amp;DATABASE</string>
         </attribute>
@@ -1032,6 +1052,10 @@
         </layout>
        </widget>
        <widget class="QWidget" name="tab_file_tree">
+        <attribute name="icon">
+         <iconset resource="system_sys/source_code/gui/resources/system_sys_resource.qrc">
+          <normaloff>:/file_icon</normaloff>:/file_icon</iconset>
+        </attribute>
         <attribute name="title">
          <string>&amp;FILE</string>
         </attribute>

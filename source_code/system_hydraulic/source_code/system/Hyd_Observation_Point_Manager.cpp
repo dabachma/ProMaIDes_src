@@ -479,6 +479,7 @@ void Hyd_Observation_Point_Manager::init_obs_points(const int num_rv, Hyd_Model_
 	bool found_flag=false;
 
 	for(int j=0; j<this->number_obs_point; j++){
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		found_flag=false;
 		//check the river models
 		for(int i=0; i<num_rv; i++){
@@ -520,7 +521,7 @@ void Hyd_Observation_Point_Manager::init_obs_points(const int num_rv, Hyd_Model_
 		}
 	}
 
-
+	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 	Sys_Common_Output::output_hyd->rewind_userprefix();
 }
 //Output members

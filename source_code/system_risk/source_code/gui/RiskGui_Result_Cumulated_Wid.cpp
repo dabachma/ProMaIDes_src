@@ -416,7 +416,7 @@ void RiskGui_Result_Cumulated_Wid::generate_sc_plots(QSqlQueryModel *model){
 	this->widget_sc->getPlotPtr()->set_curve_symbols(1, 5 ,QwtSymbol::Cross);
 	this->widget_sc->getPlotPtr()->set_curve_characteristics(2, "Cultural heritage", QwtPlotCurve::Lines, Qt::green);
 	this->widget_sc->getPlotPtr()->set_curve_symbols(2, 5 ,QwtSymbol::RTriangle);
-	this->widget_sc->getPlotPtr()->set_curve_characteristics(3, "Buildings with highly vunerable person", QwtPlotCurve::Lines, Qt::red);
+	this->widget_sc->getPlotPtr()->set_curve_characteristics(3, "Buildings with highly vulnerable person", QwtPlotCurve::Lines, Qt::red);
 	this->widget_sc->getPlotPtr()->set_curve_symbols(3, 5 ,QwtSymbol::LTriangle);
 	this->widget_sc->getPlotPtr()->set_legend(true);
 

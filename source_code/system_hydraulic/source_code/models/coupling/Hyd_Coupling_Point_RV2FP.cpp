@@ -294,11 +294,15 @@ void Hyd_Coupling_Point_RV2FP::calculate_mid_waterlevel(void){
 			this->mid_waterlevel=this->mid_fac_down*this->river_profile_down->get_actual_global_waterlevel()+this->mid_fac_up*this->river_profile_up->get_actual_global_waterlevel();	
 		}
 		else if(this->river_profile_down->typ_of_profile->get_actual_local_waterlevel_h()<=constant::dry_hyd_epsilon&& this->river_profile_up->typ_of_profile->get_actual_local_waterlevel_h()>constant::dry_hyd_epsilon){
-			this->mid_waterlevel=this->river_profile_up->get_actual_global_waterlevel();
+			//this->mid_waterlevel=this->river_profile_up->get_actual_global_waterlevel();
+			this->mid_waterlevel = this->mid_fac_down*this->river_profile_down->get_actual_global_waterlevel() + this->mid_fac_up*this->river_profile_up->get_actual_global_waterlevel();
+
 			this->horizontal_backwater_flag_upstream=true;
 		}
 		else if(this->river_profile_down->typ_of_profile->get_actual_local_waterlevel_h()>constant::dry_hyd_epsilon&& this->river_profile_up->typ_of_profile->get_actual_local_waterlevel_h()<=constant::dry_hyd_epsilon){
-			this->mid_waterlevel=this->river_profile_down->get_actual_global_waterlevel();
+			//this->mid_waterlevel=this->river_profile_down->get_actual_global_waterlevel();
+			this->mid_waterlevel = this->mid_fac_down*this->river_profile_down->get_actual_global_waterlevel() + this->mid_fac_up*this->river_profile_up->get_actual_global_waterlevel();
+
 			this->horizontal_backwater_flag=true;
 		}
 		else if(this->river_profile_down->typ_of_profile->get_actual_local_waterlevel_h()<=constant::dry_hyd_epsilon && this->river_profile_up->typ_of_profile->get_actual_local_waterlevel_h()<=constant::dry_hyd_epsilon){
@@ -513,6 +517,8 @@ void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models(const double timepo
 			if(left_river_flag==true){
 				if(this->overflow_flag==true){
 					this->syncronisation_coupled_models_overflow(timepoint, this->river_profile_up->get_overflow_poleni_left(), h_one_buff, h_two_buff);
+
+
 					if(this->horizontal_backwater_flag==false && this->horizontal_backwater_flag_upstream==false){
 						//discharge to river profile segment: division to the profiles weighted with the factors 
 						this->river_profile_up->add_coupling_discharge_left_bank(this->current_q*this->mid_fac_up);
@@ -555,6 +561,15 @@ void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models(const double timepo
 				if(this->overflow_flag==true){
 					this->syncronisation_coupled_models_overflow(timepoint, this->river_profile_up->get_overflow_poleni_right(), h_one_buff, h_two_buff);
 			
+					//if (this->floodplain_elem_index == 285692) {
+					//	//	
+					//	ostringstream cout;
+					//	cout << this->current_q << " mid_w " << this->mid_waterlevel << " pre " << this->predicted_h_two << " aver  " << h_two_buff << " mid_h " << this->mid_height << endl;
+					//	Sys_Common_Output::output_hyd->output_txt(&cout, true);
+
+
+					//}
+
 					//discharge to river profile segment: division to the profiles weighted with the factors 
 					if(this->horizontal_backwater_flag==false && this->horizontal_backwater_flag_upstream==false){
 						this->river_profile_up->add_coupling_discharge_right_bank(this->current_q*this->mid_fac_up);
@@ -1348,7 +1363,7 @@ void Hyd_Coupling_Point_RV2FP::predict_values(const int int_counter){
 
 		//this->predicted_h_one=this->calc_h_one+(1.0/12.0)*(23.0*this->gradient_list_h_one.at(0)-16.0*this->gradient_list_h_one.at(1)+5.0*this->gradient_list_h_one.at(2))*this->delta_t;
 		//this->predicted_h_one=this->calc_h_one+(0.5)*(3.0*this->gradient_list_h_one.at(0)-1.0*this->gradient_list_h_one.at(1))*this->delta_t;
-		this->predicted_h_one=this->calc_h_one+(this->gradient_list_h_one.at(0))*this->delta_t;
+		//this->predicted_h_one=this->calc_h_one+(this->gradient_list_h_one.at(0))*this->delta_t;
 
 		//two
 		this->calc_h_two=this->mid_waterlevel;
@@ -1365,8 +1380,11 @@ void Hyd_Coupling_Point_RV2FP::predict_values(const int int_counter){
 		if(int_counter>3){
 			//this->predicted_h_two=this->calc_h_two+(1.0/12.0)*(23.0*this->gradient_list_h_two.at(0)-16.0*this->gradient_list_h_two.at(1)+5.0*this->gradient_list_h_two.at(2))*this->delta_t;
 			//this->predicted_h_two=this->calc_h_two+(0.5)*(3.0*this->gradient_list_h_two.at(0)-1.0*this->gradient_list_h_two.at(1))*this->delta_t;
-			this->predicted_h_two=this->calc_h_two+(this->gradient_list_h_two.at(0))*this->delta_t;
-			this->predicted_h_one=this->calc_h_one+(this->gradient_list_h_one.at(0))*this->delta_t;
+			//this->predicted_h_two=this->calc_h_two+(this->gradient_list_h_two.at(0))*this->delta_t;
+			//this->predicted_h_one=this->calc_h_one+(this->gradient_list_h_one.at(0))*this->delta_t;
+			//changed to explicit!!!
+			this->predicted_h_two = this->calc_h_two;
+			this->predicted_h_one = this->calc_h_one;
 		}
 		else{
 			this->predicted_h_two=this->calc_h_two;

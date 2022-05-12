@@ -92,9 +92,9 @@ public:
 	///Set a profile specific value (needed for the bridge type)
 	virtual void set_profile_specific_value(const _hyd_bridge_values data);
 	///Input the members per file of the profile type
-	void input_members(QFile *profile_file, int *line_counter);
+	void input_members(QFile *profile_file, int *line_counter, const string name, const int number);
 	///Input the river profile point data from a selection of a database table
-	void input_members(const QSqlQueryModel *query_results);
+	void input_members(const QSqlQueryModel *query_results, const string name, const int number);
 
 	///Transfer the river profile point data to a database
 	void transfer_profile_points2database(QSqlDatabase *ptr_database, const int prof_id);
@@ -388,7 +388,7 @@ protected:
 	void set_waterlevel_direct(double const global_waterlevel);
 
 	///Check the points and the areatypes of consistency
-	virtual void check_points(void);
+	virtual void check_points(const string name, const int number);
 
 	///Check if there are unphysical waterlevel calculated by the solver
 	void check_unphysical_waterlevels(void);

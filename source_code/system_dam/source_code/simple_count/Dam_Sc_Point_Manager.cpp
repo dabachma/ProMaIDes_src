@@ -385,7 +385,7 @@ void Dam_Sc_Point_Manager::output_result_damage(void){
 	cout << "  1 Public buildings                          : " << P(2)<< FORMAT_FIXED_REAL << this->affected_score_pup_build << label::score<< endl;
 	cout << "  2 Ecologic perilous sites or buildings      : " << this->affected_score_eco_build << label::score<< endl;
 	cout << "  3 Cultural heritage                         : " << this->affected_score_cult_build << label::score<< endl;
-	cout << "  4 Buildings with highly vunerable person    : " << this->affected_score_person_build << label::score<< endl;
+	cout << "  4 Buildings with highly vulnerable person    : " << this->affected_score_person_build << label::score<< endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
 }
 //Sum up the total damage results from database
@@ -785,7 +785,7 @@ double Dam_Sc_Point_Manager::get_score_eco_build(void){
 double Dam_Sc_Point_Manager::get_score_cult_build(void){
 	return this->affected_score_cult_build;
 }
-//Get the affected score for category buildings with highly vunerable person
+//Get the affected score for category buildings with highly vulnerable person
 double Dam_Sc_Point_Manager::get_score_person_build(void){
 	return this->affected_score_person_build;
 }

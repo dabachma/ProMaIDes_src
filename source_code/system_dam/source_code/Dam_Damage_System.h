@@ -157,7 +157,7 @@ struct _dam_damage_results{
 	double sc_eco_build;
 	///Damage result simple counting for category cultural heritage
 	double sc_cult_build;
-	///Damage result simple counting for category buildings with highly vunerable person
+	///Damage result simple counting for category buildings with highly vulnerable person
 	double sc_person_build;
 };
 

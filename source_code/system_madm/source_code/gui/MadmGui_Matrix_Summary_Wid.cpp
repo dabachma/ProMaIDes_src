@@ -36,7 +36,7 @@ MadmGui_Matrix_Summary_Wid::MadmGui_Matrix_Summary_Wid(QWidget *parent): _Sys_Re
 	my_list.append(buffer.c_str());
 	buffer="Delta risk SC Cultural heritage [score/a]";
 	my_list.append(buffer.c_str());
-	buffer="Delta risk SC Buildings with highly vunerable person [score/a]";
+	buffer="Delta risk SC Buildings with highly vulnerable person [score/a]";
 	my_list.append(buffer.c_str());
 
 

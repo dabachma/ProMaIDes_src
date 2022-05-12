@@ -5697,7 +5697,7 @@ void Risk_System::output_detailed_risk_results(void){
 		cout << "  Public                       : " <<  this->detailed_results[i].dam_results.sc_pub_build << unit << endl;
 		cout << "  Ecologic perilous            : " <<  this->detailed_results[i].dam_results.sc_eco_build << unit << endl;
 		cout << "  Cultural heritage            : " <<  this->detailed_results[i].dam_results.sc_cult_build << unit << endl;
-		cout << "  Highly vunerable person      : " <<  this->detailed_results[i].dam_results.sc_person_build << unit << endl;
+		cout << "  Highly vulnerable person      : " <<  this->detailed_results[i].dam_results.sc_person_build << unit << endl;
 	
 		Sys_Common_Output::output_risk->output_txt(&cout, no_output);
 
@@ -5871,7 +5871,7 @@ void Risk_System::output_cumulated_risk_results(void){
 		cout << "  Public                       : " <<  this->cumulated_results[i].dam_results.sc_pub_build << label::score << endl;
 		cout << "  Ecologic perilous            : " <<  this->cumulated_results[i].dam_results.sc_eco_build << label::score << endl;
 		cout << "  Cultural heritage            : " <<  this->cumulated_results[i].dam_results.sc_cult_build<< label::score << endl;
-		cout << "  Highly vunerable person      : " <<  this->cumulated_results[i].dam_results.sc_person_build<< label::score << endl;
+		cout << "  Highly vulnerable person      : " <<  this->cumulated_results[i].dam_results.sc_person_build<< label::score << endl;
 		Sys_Common_Output::output_risk->output_txt(&cout);
 		cout << " OUTFLOW" << endl;
 		cout << "  Maximum discharge            : " <<  this->cumulated_results[i].max_outflow << label::qm_per_sec << endl;
@@ -6022,7 +6022,7 @@ void Risk_System::output_total_results(void){
 	cout << "  Public                       : " <<  this->total_results.dam_results.sc_pub_build << label::score_per_annus << endl;
 	cout << "  Ecologic perilous            : " <<  this->total_results.dam_results.sc_eco_build << label::score_per_annus << endl;
 	cout << "  Cultural heritage            : " <<  this->total_results.dam_results.sc_cult_build<< label::score_per_annus << endl;
-	cout << "  Highly vunerable person      : " <<  this->total_results.dam_results.sc_person_build<< label::score_per_annus << endl;
+	cout << "  Highly vulnerable person      : " <<  this->total_results.dam_results.sc_person_build<< label::score_per_annus << endl;
 	Sys_Common_Output::output_risk->output_txt(&cout);
 	cout << " OUTFLOW" << endl;
 	cout << "  Maximum discharge            : " <<  this->total_results.max_outflow << label::qm_per_sec_annus << endl;

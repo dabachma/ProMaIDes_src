@@ -38,7 +38,7 @@ void Dam_CI_Polygon::input_polygon_perdatabase(const QSqlQueryModel *results, co
 		this->sector_name = results->record(glob_index).value((Dam_CI_Polygon::polygon_table->get_column_name(dam_label::sector_name)).c_str()).toString().toStdString();
 		this->mid_point.set_point_name(results->record(glob_index).value((Dam_CI_Polygon::polygon_table->get_column_name(dam_label::polygon_name)).c_str()).toString().toStdString());
 		this->enduser = results->record(glob_index).value((Dam_CI_Polygon::polygon_table->get_column_name(dam_label::end_user)).c_str()).toDouble();
-		this->polygon_str = results->record(glob_index).value(9).toString().toStdString();
+		this->polygon_str = results->record(glob_index).value(9).toString().toStdString(); 
 
 		
 

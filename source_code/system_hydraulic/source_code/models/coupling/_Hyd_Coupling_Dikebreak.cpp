@@ -1060,7 +1060,7 @@ void _Hyd_Coupling_Dikebreak::open_output_file_csv(void) {
 	if (this->file_name_csv != label::not_set) {
 		this->output_file_csv.open(this->file_name_csv.c_str());
 		if (this->output_file_csv.is_open() != true) {
-			Error msg = this->set_error(0);
+			Error msg = this->set_error(2);
 			throw msg;
 		}
 		this->output_header_result2file_csv();

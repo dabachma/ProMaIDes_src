@@ -29,8 +29,8 @@ using namespace std;
 int main(int argc, char *argv[]) {
 	Geo_Point test;
 	test.set_point(3,4,"test");
-	//ostringstream cout1;
-	//test.output_members(&cout1);
+	ostringstream cout1;
+	test.output_members(&cout1);
 	int n = 0;
 	cout << "hallo world" << endl;
 	cin >> n;

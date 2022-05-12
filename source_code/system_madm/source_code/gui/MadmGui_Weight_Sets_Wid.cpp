@@ -32,7 +32,7 @@ MadmGui_Weight_Sets_Wid::MadmGui_Weight_Sets_Wid(QWidget *parent): _Sys_Data_Wid
 	my_list.append(buffer.c_str());
 	buffer="Delta risk SC Cultural heritages";
 	my_list.append(buffer.c_str());
-	buffer="Delta risk SC Buildings with highly vunerable person";
+	buffer="Delta risk SC Buildings with highly vulnerable person";
 	my_list.append(buffer.c_str());
 
 	buffer="Delta risk OUTFLOW";

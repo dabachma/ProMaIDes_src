@@ -101,7 +101,7 @@ private:
 
 	//methods
 	///Check the points and the areatypes of consistency and check the bridge specific data
-	void check_points(void);
+	void check_points(const string name, const int number);
 	///Check the segments of the bridge profile
 	void check_bridge_segments(void);
 	///Allocate and calculate the pressure flow data for each river profile segment

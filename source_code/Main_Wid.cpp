@@ -74,31 +74,31 @@ Main_Wid::Main_Wid(int argc, char *argv[]){
 	//syncronisation of the tab-widgets of the data-view and data-tree-view
 	this->tabWidget_treeview->setCurrentIndex(3);
 	QIcon my_icon1;
-	my_icon1.addFile(":gis_icon");
+	my_icon1.addFile(":data_icon");
 	this->tabWidget_treeview->setTabIcon(0,my_icon1);
 	QIcon my_icon2;
-	my_icon2.addFile(":data_icon");
+	my_icon2.addFile(":database_icon");
 	this->tabWidget_treeview->setTabIcon(1,my_icon2);
 	QIcon my_icon3;
 	my_icon3.addFile(":file_icon");
 	this->tabWidget_treeview->setTabIcon(3,my_icon3);
 	QIcon my_icon4;
-	my_icon4.addFile(":database_icon");
+	my_icon4.addFile(":file_icon");
 	this->tabWidget_treeview->setTabIcon(2,my_icon4);
 	this->tabWidget_data_view->setCurrentIndex(3);
 
 	QIcon my_icon11;
-	my_icon11.addFile(":gis_icon");
+	my_icon11.addFile(":data_icon");
 	this->tabWidget_data_view->setTabIcon(0,my_icon11);
 	QIcon my_icon21;
-	my_icon21.addFile(":data_icon");
+	my_icon21.addFile(":database_icon");
 	this->tabWidget_data_view->setTabIcon(1,my_icon21);
 
 	QIcon my_icon31;
 	my_icon31.addFile(":file_icon");
 	this->tabWidget_data_view->setTabIcon(3,my_icon31);
 	QIcon my_icon41;
-	my_icon41.addFile(":database_icon");
+	my_icon41.addFile(":file_icon");
 	this->tabWidget_data_view->setTabIcon(2,my_icon41);
 	this->menu_enable_checkdb();
 
@@ -143,7 +143,7 @@ Main_Wid::Main_Wid(int argc, char *argv[]){
 	this->welcome_wid.show();
 	this->welcome_timer.setSingleShot(true);
 	QObject::connect(&welcome_timer, SIGNAL(timeout()), this, SLOT(start_main_window()));
-	this->welcome_timer.start(4500);
+	this->welcome_timer.start(5500);
 
      this->setWindowTitle(Sys_Project::get_version_number().c_str());
 
@@ -4037,9 +4037,10 @@ void Main_Wid::start_task_by_file(void) {
 					Sys_Common_Output::output_system->set_userprefix(&prefix);
 					cout << "Peforming task no. " << this->count_task << endl;
 					Sys_Common_Output::output_system->output_txt(&cout, false);
+					this->count_task++;
 					this->interpret_task(this->task_list.at(i));
 					Sys_Common_Output::output_system->rewind_userprefix();
-					this->count_task++;
+					
 					task_found = true;
 					break;
 
@@ -5698,6 +5699,7 @@ void Main_Wid::set_hydcalc_per_task(QList<int> list_id) {
 
 	if (this->hyd_calc->set_boundary_scenarios_per_list(this->system_database->get_database(), list_id) == 0) {
 		this->delete_multi_hydraulic_system();
+		
 		return;
 	}
 	else {
@@ -5786,6 +5788,8 @@ void Main_Wid::delete_selected_bound_sc_task(QList<int> list_id) {
 
 	if (this->hyd_calc->set_boundary_scenarios_per_list(this->system_database->get_database(), list_id) == 0) {
 		this->delete_multi_hydraulic_system();
+		Sys_Common_Output::output_system->rewind_userprefix();
+		emit send_task_by_file_start();
 	}
 	else {
 
