@@ -8,7 +8,12 @@ Sys_Welcome_Wid::Sys_Welcome_Wid(QWidget *parent) : QWidget(parent, Qt::Frameles
 	this->setGeometry(350,150, 1250,700);
 
 	this->ui.label->setGeometry(0, 0, 200, 20);
-	this->ui.label->setText("<font color=\"black\">Welcome to ProMaIDes</font>");
+	QString buff;
+	buff = "<font color=\"black\">Welcome to ";
+	buff.append(Sys_Project::get_version_number().c_str());
+	buff.append("...</font>");
+	
+	this->ui.label->setText(buff);
 
 	QTimer::singleShot(2500, this, SLOT(set_new_txt()));
 	
