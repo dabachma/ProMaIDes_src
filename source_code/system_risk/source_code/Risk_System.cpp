@@ -43,6 +43,8 @@ Risk_System::Risk_System(void){
 	this->del_hyd_results=false;
 	this->del_fpl_results=false;
 
+	this->hyd_dam_fpl_del_flag = false;
+
 	this->risk_states.reliability_dam_result=false;
 	this->risk_states.reliability_fpl_result=false;
 	this->risk_states.reliability_hyd_result=false;
@@ -4656,6 +4658,10 @@ bool Risk_System::check_probability_boundary_is_reached(void){
 	}
 
 }
+//Set the flag if also the HYD-, DAM- and FPL-resuts should be deleted from database
+void Risk_System::set_del_hyd_dam_fpl_flag(const bool del_flag) {
+	this->hyd_dam_fpl_del_flag = del_flag;
+}
 //___________
 //public slots
 //Send the status of the fpl-thread
@@ -6829,9 +6835,9 @@ void Risk_System::delete_risk_result(void){
 	this->del_nobreak_result=true;
 	this->del_scenario_result=true;
 
-	this->del_dam_results=true;
-	this->del_hyd_results=true;
-	//this->del_fpl_results=true;		
+	this->del_dam_results= hyd_dam_fpl_del_flag;
+	this->del_hyd_results= hyd_dam_fpl_del_flag;
+	this->del_fpl_results= hyd_dam_fpl_del_flag;
 
 	this->delete_risk_data();
 

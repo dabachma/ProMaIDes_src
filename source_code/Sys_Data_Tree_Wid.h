@@ -109,6 +109,8 @@ namespace sys_data_tree_id{
 	const string dam_pop_id("POP");
 	///String-id for the simple counting damage model
 	const string dam_sc_id("SC");
+	///String-id for the CI damage model
+	const string dam_ci_id("CI");
 
 	///String-id for the damage raster
 	const string dam_raster_id("RASTER");
@@ -130,8 +132,11 @@ namespace sys_data_tree_id{
 
 	///String-id for the subcategories (sc)
 	const string dam_subcategory_id("SUBCATEGORY");
-	///String-id for the points (sc)
+	///String-id for the points (sc/CI)
 	const string dam_point_id("POINTS");
+
+	///String-id for the points (sc/CI)
+	const string dam_polygon_id("POLYGONS");
 
 	//fpl
 	///String-id for the fpl section

@@ -87,6 +87,8 @@ public:
 	void recieve_output_required(int thread);
 
 
+
+
 signals:
 	///Emit the number of threads as string
 	void emit_number_threads(QString number);
@@ -140,6 +142,8 @@ private:
 
 	///Flag if there should be an output for the reached probability (just use it for the automatic state geneartion of the catchment approach!)
 	bool probability_output;
+
+
 
 
 	//methods

@@ -875,7 +875,7 @@ private slots:
 	///Delete the risk data in database table (menu risk/delete results/ restore)
 	void delete_risk_data_database(void);
 	///Delete the risk result data in database table (activate by change the risk state to false)
-	void delete_risk_result_database(void);
+	void delete_risk_result_database(const bool del_hyd_dam_fpl = true);
 	///Delete the risk result data and the relvant result data of other modules (risk, fpl, dam, hyd) in database table (activate by change the risk state to true)
 	void delete_risk_relevant_results_database(void);
 

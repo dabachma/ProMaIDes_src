@@ -3867,20 +3867,28 @@ void Main_Wid::check_change_risk_state(bool flag){
 		else{
 				Sys_Diverse_Text_Dia dialog2;
 				ostringstream txt;
-				txt<<"All generated risk results of this system state and their connected hydraulic- and "<<endl;
-				txt<<"damage results will be deleted in database!"<< endl;
+				txt<<"By leaving the RISK-State the generated risk results of this system state are irretrievable deleted in database!" <<endl;
+				txt <<"It is further recommended to delete also the generated HYD, DAM and FPL results in database!" << endl;
+				txt<<"For deleting please check the box below!"<< endl;
 				txt<<"Do you want to continue?" << endl;
 				dialog2.set_dialog_question(txt.str());
-				dialog2.setIcon(QMessageBox::Warning);
+				dialog2.setIcon(QMessageBox::Critical);
+				QCheckBox my_check;
+				my_check.setText("Delete HYD, DAM and FPL results?");
+				dialog2.setCheckBox(&my_check);
+
 				bool flag2=dialog2.start_dialog();
-				if(flag2==true){
+				if (flag2 == true) {
+
 					this->reset_exception_new_action();
-					this->risk_flags.reliability_hyd_result=false;
-					this->risk_flags.reliability_fpl_result=false;
-					this->risk_flags.reliability_dam_result=false;
+					this->risk_flags.reliability_hyd_result = false;
+					this->risk_flags.reliability_fpl_result = false;
+					this->risk_flags.reliability_dam_result = false;
 					this->status_wid->reset_tooltip_risk_state_check_box();
 					//delete the generated risk results
-					this->delete_risk_result_database();
+					
+					this->delete_risk_result_database(my_check.isChecked());
+	
 					this->risk_flags.reliability_hyd_result=false;
 					this->risk_flags.reliability_fpl_result=false;
 					this->risk_flags.reliability_dam_result=false;
@@ -8305,14 +8313,16 @@ void Main_Wid::delete_risk_data_database(void){
 	this->check_risk_thread_is_running();
 }
 //Delete the risk result data in database table
-void Main_Wid::delete_risk_result_database(void){
+void Main_Wid::delete_risk_result_database(const bool del_hyd_dam_fpl){
 	try{
 		this->allocate_risk_system();
+		this->risk_calc->set_del_hyd_dam_fpl_flag(del_hyd_dam_fpl);
 	}
 	catch(Error msg){
 		msg.output_msg(0);
 		return;
 	}
+	//set flag
 	this->risk_calc->set_thread_type(_risk_thread_type::risk_del_risk_result);
 	//connect the thread when is finished
 	QObject::connect(this->risk_calc,SIGNAL(finished()),this,SLOT(thread_risk_calc_finished()));

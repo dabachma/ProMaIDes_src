@@ -449,6 +449,9 @@ public:
 	///Check if the probability boundary is reached (catchement area approach)
 	bool check_probability_boundary_is_reached(void);
 
+	///Set the flag if also the HYD-, DAM- and FPL-resuts should be deleted from database
+	void set_del_hyd_dam_fpl_flag(const bool del_flag);
+
 public slots:
 	///Send the status of the fpl-thread
 	void send_status_fpl_thread(void);
@@ -540,6 +543,9 @@ private:
 	bool del_hyd_results;
 	///Flag if the fpl results should be deleted (from which risk type depends on the flags above, like del_scenario_result or del_catchment_result)
 	bool del_fpl_results;
+
+	///Flag if also the HYD - , DAM - and FPL-results should be deleted from database
+	bool hyd_dam_fpl_del_flag;
 
 
 	///Pointer to the hydraulic system 

@@ -650,6 +650,43 @@ void Sys_Data_Tree_Wid::set_up_predefined_dam(QTreeWidgetItem *root){
 			number=Dam_Sc_Subcategory::select_relevant_subcategory_database(&raster,&this->database);
 			sub_sub_folder->setData(1, Qt::DisplayRole,number);
 
+
+			//CI
+			buff_sub.str("");
+			sub_folder = new QTreeWidgetItem(modules);
+			sub_folder->setText(0, sys_data_tree_id::dam_ci_id.c_str());
+			buff_sub << buff_main.str() << sys_data_tree_id::dam_ci_id << "/";
+			sub_folder->setData(0, Qt::AccessibleDescriptionRole, buff_sub.str().c_str());
+			sub_folder->setToolTip(0, buff_sub.str().c_str());
+
+			//set icon
+			QIcon ci_icon;
+			ci_icon.addFile(":ci_icon");
+			sub_folder->setIcon(0, ci_icon);
+
+			//sub_subfolder
+			buff_sub_sub.str("");
+			sub_sub_folder = new QTreeWidgetItem(sub_folder);
+			sub_sub_folder->setText(0, sys_data_tree_id::dam_point_id.c_str());
+			buff_sub_sub << buff_sub.str() << sys_data_tree_id::dam_point_id << "/";
+			sub_sub_folder->setData(0, Qt::AccessibleDescriptionRole, buff_sub_sub.str().c_str());
+			sub_sub_folder->setToolTip(0, buff_sub_sub.str().c_str());
+			sub_sub_folder->setData(0, Qt::UserRole, "1");
+			raster.clear();
+			number = 0;
+			number = Dam_Sc_Point::count_relevant_points_database(&raster, &this->database, *this->system_id, false);
+			sub_sub_folder->setData(1, Qt::DisplayRole, number);
+
+			buff_sub_sub.str("");
+			sub_sub_folder = new QTreeWidgetItem(sub_folder);
+			sub_sub_folder->setText(0, sys_data_tree_id::dam_polygon_id.c_str());
+			buff_sub_sub << buff_sub.str() << sys_data_tree_id::dam_polygon_id << "/";
+			sub_sub_folder->setData(0, Qt::AccessibleDescriptionRole, buff_sub_sub.str().c_str());
+			sub_sub_folder->setToolTip(0, buff_sub_sub.str().c_str());
+			sub_sub_folder->setData(0, Qt::UserRole, "1");
+			number = Dam_Sc_Subcategory::select_relevant_subcategory_database(&raster, &this->database);
+			sub_sub_folder->setData(1, Qt::DisplayRole, number);
+
 	//result
 	buff_sub.str("");
 	sub_folder=new QTreeWidgetItem(modules);
@@ -2942,6 +2979,51 @@ void Sys_Data_Tree_Wid::widget2dam(QTreeWidgetItem *item){
 	}
 	buffer.str("");
 
+
+	//ci point todo!
+	buffer << str_mod << sys_data_tree_id::dam_ci_id << "/" << sys_data_tree_id::dam_point_id << "/";
+	pos = given.find(buffer.str());
+	if (pos >= 0) {
+		DamGui_Sc_Subcategory_Wid *wid;
+		wid = new DamGui_Sc_Subcategory_Wid;
+		wid->setParent(this->ptr_data_tab_dam);
+		wid->set_treeItem(item);
+
+		//set the data
+		try {
+			wid->set_up_widget(&this->database, *this->system_id);
+		}
+		catch (Error msg) {
+			throw msg;
+		}
+		dam_lay->addWidget(wid);
+		wid->show();
+		return;
+	}
+	buffer.str("");
+
+	//ci polygon todo
+	buffer << str_mod << sys_data_tree_id::dam_ci_id << "/" << sys_data_tree_id::dam_polygon_id << "/";
+	pos = given.find(buffer.str());
+	if (pos >= 0) {
+		DamGui_Sc_Subcategory_Wid *wid;
+		wid = new DamGui_Sc_Subcategory_Wid;
+		wid->setParent(this->ptr_data_tab_dam);
+		wid->set_treeItem(item);
+
+		//set the data
+		try {
+			wid->set_up_widget(&this->database, *this->system_id);
+		}
+		catch (Error msg) {
+			throw msg;
+		}
+		dam_lay->addWidget(wid);
+		wid->show();
+		return;
+	}
+	buffer.str("");
+
 	//results
 	//summary results nobreak risk approach
 	buffer << str_mod<<sys_data_tree_id::id_results<<"/"<< risk_label::risk_nobreak<<"/"<<sys_data_tree_id::id_summary_results<<"/";
@@ -4022,6 +4104,7 @@ void Sys_Data_Tree_Wid::item_count(QTreeWidgetItem * parent, const bool first){
 	int pos1;
 	int pos2;
 	int pos3;
+	int pos4;
 	//start the search
 	int number_child=parent->childCount();
 	for(int i=0; i< number_child; i++){
@@ -4031,7 +4114,8 @@ void Sys_Data_Tree_Wid::item_count(QTreeWidgetItem * parent, const bool first){
 		pos1=childs->data(0,Qt::AccessibleDescriptionRole).toString().toStdString().find(sys_data_tree_id::id_summary_results);
 		pos2= childs->data(0,Qt::AccessibleDescriptionRole).toString().toStdString().find(sys_data_tree_id::madm_matrix);
 		pos3= childs->data(0,Qt::AccessibleDescriptionRole).toString().toStdString().find(sys_data_tree_id::dam_sc_id);
-		if(childs->data(0,Qt::UserRole).toString()!="" && pos1<0 && pos2<0 && pos3<0){
+		pos4 = childs->data(0, Qt::AccessibleDescriptionRole).toString().toStdString().find(sys_data_tree_id::dam_ci_id);
+		if(childs->data(0,Qt::UserRole).toString()!="" && pos1<0 && pos2<0 && pos3<0 && pos4<0){
 			counter_no++;
 		}
 		if(counter_no>0 && first==false){

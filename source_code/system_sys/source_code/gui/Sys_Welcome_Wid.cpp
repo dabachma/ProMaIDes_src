@@ -7,7 +7,7 @@ Sys_Welcome_Wid::Sys_Welcome_Wid(QWidget *parent) : QWidget(parent, Qt::Frameles
 	this->ui.setupUi(this);
 	this->setGeometry(350,150, 1250,700);
 
-	this->ui.label->setGeometry(0, 0, 200, 20);
+	this->ui.label->setGeometry(0, 0, 2000, 20);
 	QString buff;
 	buff = "<font color=\"black\">Welcome to ";
 	buff.append(Sys_Project::get_version_number().c_str());
