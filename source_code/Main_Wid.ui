@@ -51,11 +51,16 @@
         <item>
          <widget class="QTabWidget" name="tabWidget_data_output">
           <property name="currentIndex">
-           <number>5</number>
+           <number>1</number>
           </property>
           <property name="movable">
            <bool>true</bool>
           </property>
+          <widget class="QWidget" name="tab_hydrol_data_view">
+           <attribute name="title">
+            <string>HYDROL</string>
+           </attribute>
+          </widget>
           <widget class="QWidget" name="tab_fpl_data_view">
            <attribute name="title">
             <string>FPL</string>
@@ -783,8 +788,17 @@
     <addaction name="separator"/>
     <addaction name="menu_cost_common"/>
    </widget>
+   <widget class="QMenu" name="menu_HYDROL_system">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>HYDROL</string>
+    </property>
+   </widget>
    <addaction name="menu_System"/>
    <addaction name="menu_HAZ"/>
+   <addaction name="menu_HYDROL_system"/>
    <addaction name="menu_FPL_system"/>
    <addaction name="menu_HYD_system"/>
    <addaction name="menu_DAM_system"/>
@@ -834,7 +848,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>7</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tab_systemtxt">
         <attribute name="title">
@@ -879,6 +893,16 @@
             <bool>true</bool>
            </property>
           </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_hydroltxt">
+        <attribute name="title">
+         <string>HYDROL</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="Sys_Output_Text_Wid" name="textEdit_hydroltxt"/>
          </item>
         </layout>
        </widget>
