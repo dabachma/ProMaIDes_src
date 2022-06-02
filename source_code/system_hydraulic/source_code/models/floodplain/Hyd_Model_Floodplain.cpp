@@ -1548,7 +1548,7 @@ void Hyd_Model_Floodplain::output_geometrie2paraview(void) {
 	//open the file
 	this->tecplot_output.open(filename.c_str());
 	if (this->tecplot_output.is_open() == false) {
-		Error msg = this->set_error(7);
+		Error msg = this->set_error(21);
 		ostringstream info;
 		info << "Filename " << filename << endl;
 		msg.make_second_info(info.str());
@@ -1961,7 +1961,7 @@ void Hyd_Model_Floodplain::output_result2paraview(const double timepoint, const 
 	output.setFileName(filename.c_str());
 	output.open(QIODevice::WriteOnly);
 	if (output.isOpen() == false) {
-		Error msg = this->set_error(7);
+		Error msg = this->set_error(22);
 		ostringstream info;
 		info << "Filename " << filename << endl;
 		msg.make_second_info(info.str());
@@ -2190,7 +2190,7 @@ void Hyd_Model_Floodplain::output_result_max2tecplot(void){
 	//open the file
 	this->tecplot_output.open(filename.c_str());
 	if(this->tecplot_output.is_open()==false){
-		Error msg=this->set_error(7);
+		Error msg=this->set_error(23);
 		ostringstream info;
 		info << "Filename " << filename << endl;
 		msg.make_second_info(info.str());
@@ -2756,7 +2756,7 @@ void Hyd_Model_Floodplain::output_result_max2bluekenue(void) {
 	//open the file
 	this->bluekenue_output.open(filename.c_str());
 	if (this->bluekenue_output.is_open() == false) {
-		Error msg = this->set_error(7);
+		Error msg = this->set_error(24);
 		ostringstream info;
 		info << "Filename " << filename << endl;
 		msg.make_second_info(info.str());
@@ -3021,7 +3021,7 @@ void Hyd_Model_Floodplain::output_result_max2paraview(void) {
 	//open the file
 	this->tecplot_output.open(filename.c_str());
 	if (this->tecplot_output.is_open() == false) {
-		Error msg = this->set_error(7);
+		Error msg = this->set_error(25);
 		ostringstream info;
 		info << "Filename " << filename << endl;
 		msg.make_second_info(info.str());
@@ -5072,13 +5072,13 @@ Error Hyd_Model_Floodplain::set_error(const int err_type){
 			break;
 		case 6://could not open the tecplot file
 			place.append("output_geometrie2tecplot(void)");
-			reason="Could not open the file for the tecplot output (geometrie) of the floodpalin model";
+			reason="Could not open the file for the tecplot output (geometrie) of the floodplain model";
 			help="Check the file";
 			type=5;
 			break;
 		case 7://could not open the tecplot file
 			place.append("output_result2tecplot(const double timepoint, const int timestep_number)");
-			reason="Could not open the file for the tecplot output (geometrie) of the floodpalin model";
+			reason="Could not open the file for the tecplot output (geometrie) of the floodplain model";
 			help="Check the file";
 			type=5;
 			break;
@@ -5160,6 +5160,38 @@ Error Hyd_Model_Floodplain::set_error(const int err_type){
             help="Check the memory";
             type=10;
             break;
+		case 21://could not open the paraview/csv file
+			place.append("output_geometrie2tecplot(void)");
+			reason = "Could not open the file for the Paraview/Excel output (geometrie) of the floodplain model";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 22://could not open the paraview/csv file
+			place.append("output_result2paraview(const double timepoint, const int timestep_number)");
+			reason = "Could not open the file for the Paraview/Excel output (geometrie) of the floodplain model";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 23://could not open the tecplot file
+			place.append("output_result_max2tecplot(void)");
+			reason = "Could not open the file for the tecplot output (max-results) of the floodplain model";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 24://could not open the tecplot file
+			place.append("output_result_max2bluekenue(void)");
+			reason = "Could not open the file for the Bluekenue output (max-results) of the floodplain model";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 25://could not open the tecplot file
+			place.append("output_result_max2paraview(void)");
+			reason = "Could not open the file for the Paraview/Excel output (max-results) of the floodplain model";
+			help = "Check the file";
+			type = 5;
+			break;
+
+	
 		default:
 			place.append("set_error(const int err_type)");
 			reason ="Unknown flag!";

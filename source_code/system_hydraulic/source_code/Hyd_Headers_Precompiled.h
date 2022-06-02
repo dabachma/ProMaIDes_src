@@ -44,6 +44,9 @@
 //class for the coast model
 #include "Hyd_Coast_Model.h"
 
+//class for the groundwater model
+#include "Hyd_Model_Groundwater.h"
+
 //classes of 1d calculation
 //base clase of the river profiles
 #include "_Hyd_River_Profile.h"

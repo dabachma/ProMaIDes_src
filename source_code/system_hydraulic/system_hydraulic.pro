@@ -39,6 +39,7 @@ DEPENDPATH += . \
               source_code/gui \
               source_code/models/coupling \
               source_code/models/floodplain \
+			  source_code/models/groundwater \
               source_code/models/floodplain/elements \
               source_code/models/river \
               source_code/models/river/profile \
@@ -61,6 +62,7 @@ INCLUDEPATH += . \
                source_code/gui \
                source_code/models/coupling \
                source_code/models/floodplain \
+			   source_code/models/groundwater \
                source_code/models/floodplain/elements \
                source_code/models/river \
                source_code/models/river/profile \
@@ -173,7 +175,8 @@ HEADERS += source_code/Hyd_Multiple_Hydraulic_Systems.h \
            source_code/gui/HydGui_Profil2Dgm_Converter_Dia.h\
            source_code/models/coupling/Hyd_Coupling_FP2CO_Dikebreak.h\
            source_code/models/coupling/_Hyd_Coupling_Dikebreak.h\
-           source_code/models/coupling/Hyd_Parse_Coupling_FP2CO_Dikebreak.h
+           source_code/models/coupling/Hyd_Parse_Coupling_FP2CO_Dikebreak.h\
+		   source_code/models/groundwater\Hyd_Model_Groundwater.h
                      
 FORMS+=    source_code/gui/HydGui_System_Filechooser_Dia.ui \
 				   source_code/gui/HydGui_Boundary_Scenario_Dia.ui \
@@ -289,7 +292,8 @@ SOURCES += source_code/Hyd_Multiple_Hydraulic_Systems.cpp \
         	 source_code/gui/HydGui_Profil2Dgm_Converter_Dia.cpp\
         	 source_code/models/coupling/Hyd_Coupling_FP2CO_Dikebreak.cpp\
         	 source_code/models/coupling/_Hyd_Coupling_Dikebreak.cpp\
-        	 source_code/models/coupling/Hyd_Parse_Coupling_FP2CO_Dikebreak.cpp
+        	 source_code/models/coupling/Hyd_Parse_Coupling_FP2CO_Dikebreak.cpp\
+			 source_code/models/groundwater\Hyd_Model_Groundwater.cpp
 
 #win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../debug_solv/release/ -lsolver
 #else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../debug_solv/debug/ -lsolver
