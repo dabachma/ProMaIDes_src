@@ -4109,7 +4109,7 @@ void Dam_CI_System::calc_stat_tot_fail(double *max_hub, double *average_hub, dou
 		}
 	}
 	for (int i = 0; i < this->no_ci_polygon; i++) {
-		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+		if (this->dam_ci_polygon[i].get_failure_type() >= 1 && this->dam_ci_polygon[i].get_failure_type() <= 3) {
 			no_elem = no_elem + 1;
 		}
 	}
@@ -4132,7 +4132,7 @@ void Dam_CI_System::calc_stat_tot_fail(double *max_hub, double *average_hub, dou
 		}
 	}
 	for (int i = 0; i < this->no_ci_polygon; i++) {
-		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+		if (this->dam_ci_polygon[i].get_failure_type() >= 1 && this->dam_ci_polygon[i].get_failure_type() <= 3) {
 			*max_aut = MAX(*max_aut, this->dam_ci_polygon[i].get_number_incoming());
 			*average_aut = *average_aut + this->dam_ci_polygon[i].get_number_incoming();
 		}
@@ -4152,7 +4152,7 @@ void Dam_CI_System::calc_stat_tot_fail(double *max_hub, double *average_hub, dou
 	}
 
 	for (int i = 0; i < this->no_ci_polygon; i++) {
-		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+		if (this->dam_ci_polygon[i].get_failure_type() >= 1 && this->dam_ci_polygon[i].get_failure_type() <= 3) {
 			*std_aut = *std_aut + pow((this->dam_ci_polygon[i].get_number_incoming() - *average_aut), 2);
 		}
 	}
@@ -4193,7 +4193,7 @@ void Dam_CI_System::calc_stat_tot_fail(double *max_hub, double *average_hub, dou
 
 	//cv
 	for (int i = 0; i < this->no_ci_polygon; i++) {
-		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+		if (this->dam_ci_polygon[i].get_failure_type() >= 1 && this->dam_ci_polygon[i].get_failure_type() <= 3) {
 			*max_cv = MAX(*max_cv, this->dam_ci_polygon[i].get_stat_value());
 			*average_cv = *average_cv + this->dam_ci_polygon[i].get_stat_value();
 
@@ -4213,7 +4213,7 @@ void Dam_CI_System::calc_stat_tot_fail(double *max_hub, double *average_hub, dou
 	
 
 	for (int i = 0; i < this->no_ci_polygon; i++) {
-		if (this->dam_ci_point[i].get_failure_type() >= 1 && this->dam_ci_point[i].get_failure_type() <= 3) {
+		if (this->dam_ci_polygon[i].get_failure_type() >= 1 && this->dam_ci_polygon[i].get_failure_type() <= 3) {
 			*std_cv = *std_cv + pow((this->dam_ci_polygon[i].get_stat_value() - *average_cv), 2);
 		}
 	}

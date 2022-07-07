@@ -75,6 +75,7 @@ Sys_New_Project_Dia::Sys_New_Project_Dia(QWidget *parent) : QDialog(parent){
 		this->ui.radioButton_risk_typ->setEnabled(true);
 		this->ui.radioButton_fpl_typ->setEnabled(true);
 		this->ui.radioButton_hyd_file->setEnabled(true);
+		this->ui.radioButton_hydrol->setEnabled(true);
 		this->decide_radio_button2projecttype(_sys_project_type::proj_all);
 	#endif
 	#ifdef proj_risk_license

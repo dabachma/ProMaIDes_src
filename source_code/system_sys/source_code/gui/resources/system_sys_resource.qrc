@@ -11,7 +11,7 @@
 	
 
 	
-    <file alias="alt_icon">icons/iww/16x16/alt.png</file>
+    
 	<file alias="eco_btype_icon">icons/iww/16x16/eco_btype.png</file>
 	<file alias="eco_soil_icon">icons/iww/16x16/eco_soil.png</file>
 	
@@ -27,6 +27,9 @@
 	<file alias="ci_icon">icons/hs_m/01_20x20_CI.png</file>
     <file alias="pop_icon">icons/hs_m/01_20x20_POP.png</file>
 	<file alias="eco_icon">icons/hs_m/01_20x20_ECO.png</file>
+	<file alias="sys_icon">icons/hs_m/01_20X20_SYS.png</file>
+	<file alias="alt_icon">icons/hs_m/01_20X20_ALT.png</file>
+	<file alias="hydrol_icon">icons/hs_m/01_20X20_HYDROL.png</file>
 	
 	<file alias="plus_icon">icons/iww/16x16/10.png</file>
 	<file alias="minus_icon">icons/iww/16x16/11.png</file>

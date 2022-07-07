@@ -32,6 +32,8 @@ static Sys_Output_Division *output_risk;
 static Sys_Output_Division *output_alt;
 ///Class for all output for the cost-modul (cost modul)
 static Sys_Output_Division *output_cost;
+///Class for all output for the hydrol-modul (hydrol modul)
+static Sys_Output_Division *output_hydrol;
 
 //methods
 ///Allocate the new Sys_Output_Division class for the Sys-modul
@@ -52,6 +54,8 @@ static void new_output_risk(QTextEdit *ptr_editor=NULL);
 static void new_output_alt(QTextEdit *ptr_editor=NULL);
 ///Allocate the new Sys_Output_Division class for the cost-modul
 static void new_output_cost(QTextEdit *ptr_editor=NULL);
+///Allocate the new Sys_Output_Division class for the hydrol-modul
+static void new_output_hydrol(QTextEdit *ptr_editor = NULL);
 
 ///Delete the Sys_Output_Division class for the sys-modul
 static void delete_output_system(void);
@@ -71,6 +75,8 @@ static void delete_output_risk(void);
 static void delete_output_alt(void);
 ///Delete the Sys_Output_Division class for the cost-modul
 static void delete_output_cost(void);
+///Delete the Sys_Output_Division class for the hydrol-modul
+static void delete_output_hydrol(void);
 
 };
 #endif

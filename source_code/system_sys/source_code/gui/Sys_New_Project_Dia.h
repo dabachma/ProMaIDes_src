@@ -39,6 +39,8 @@ enum _sys_project_type{
 	proj_fpl,
 	///Failure probabilty modul (FPL) just with file is available
 	proj_fpl_file,
+	///Hydrology (HYDROL) is available
+	proj_hydrol,
 	///Not know project type
 	proj_not,
 };

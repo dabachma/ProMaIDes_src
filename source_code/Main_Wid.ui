@@ -727,14 +727,6 @@
     <addaction name="separator"/>
     <addaction name="menu_alt_ommon"/>
    </widget>
-   <widget class="QMenu" name="menu_HAZ">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="title">
-     <string>&amp;HAZ</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menu_window">
     <property name="title">
      <string>&amp;Window</string>
@@ -795,9 +787,44 @@
     <property name="title">
      <string>HYDROL</string>
     </property>
+    <widget class="QMenu" name="menu_hydrol_system_check">
+     <property name="title">
+      <string>&amp;System check</string>
+     </property>
+     <addaction name="action_hydrol_check_file"/>
+     <addaction name="action_hydrol_check_database"/>
+    </widget>
+    <widget class="QMenu" name="menu_hydrol_calculation">
+     <property name="title">
+      <string>&amp;Calculation</string>
+     </property>
+     <addaction name="action_hydrol_calc_file"/>
+     <addaction name="action_hydrol_calc_database"/>
+    </widget>
+    <widget class="QMenu" name="menu_hydrol_common">
+     <property name="title">
+      <string>&amp;Common</string>
+     </property>
+     <addaction name="action_hydrol_check_tables"/>
+     <addaction name="separator"/>
+     <addaction name="action_hydrol_set_output_flag"/>
+     <addaction name="action_hydrol_set_new_logfile"/>
+     <addaction name="action_hydrol_reset_output_display"/>
+     <addaction name="separator"/>
+     <addaction name="action_hydrol_properties"/>
+    </widget>
+    <addaction name="action_hydrol_import_file"/>
+    <addaction name="action_hydrol_stop_import"/>
+    <addaction name="separator"/>
+    <addaction name="menu_hydrol_system_check"/>
+    <addaction name="action_hydrol_stop_check"/>
+    <addaction name="separator"/>
+    <addaction name="menu_hydrol_calculation"/>
+    <addaction name="action_hydrol_stop_calculation"/>
+    <addaction name="separator"/>
+    <addaction name="menu_hydrol_common"/>
    </widget>
    <addaction name="menu_System"/>
-   <addaction name="menu_HAZ"/>
    <addaction name="menu_HYDROL_system"/>
    <addaction name="menu_FPL_system"/>
    <addaction name="menu_HYD_system"/>
@@ -2038,6 +2065,86 @@
   <action name="action_dam_instat_calculate">
    <property name="text">
     <string>&amp;Calculate instationary damage...</string>
+   </property>
+  </action>
+  <action name="action_hydrol_import_file">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Import files to database</string>
+   </property>
+  </action>
+  <action name="action_hydrol_stop_import">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Stop import...</string>
+   </property>
+  </action>
+  <action name="action_hydrol_stop_check">
+   <property name="text">
+    <string>&amp;Stop check...</string>
+   </property>
+  </action>
+  <action name="action_hydrol_stop_calculation">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Stop calculation...</string>
+   </property>
+  </action>
+  <action name="action_hydrol_check_file">
+   <property name="text">
+    <string>&amp;Per file...</string>
+   </property>
+  </action>
+  <action name="action_hydrol_check_database">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Per database...</string>
+   </property>
+  </action>
+  <action name="action_hydrol_calc_file">
+   <property name="text">
+    <string>&amp;Per file...</string>
+   </property>
+  </action>
+  <action name="action_hydrol_calc_database">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Per database...</string>
+   </property>
+  </action>
+  <action name="action_hydrol_check_tables">
+   <property name="text">
+    <string>&amp;Check tables</string>
+   </property>
+  </action>
+  <action name="action_hydrol_set_output_flag">
+   <property name="text">
+    <string>&amp;Set output flag...</string>
+   </property>
+  </action>
+  <action name="action_hydrol_set_new_logfile">
+   <property name="text">
+    <string>&amp;Set new logfile...</string>
+   </property>
+  </action>
+  <action name="action_hydrol_reset_output_display">
+   <property name="text">
+    <string>&amp;Reset output display...</string>
+   </property>
+  </action>
+  <action name="action_hydrol_properties">
+   <property name="text">
+    <string>&amp;Properties...</string>
    </property>
   </action>
  </widget>

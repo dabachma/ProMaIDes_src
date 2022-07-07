@@ -131,6 +131,8 @@ enum _sys_system_modules{
 	COST_SYS,
 	///Modul alternatives
 	ALT_SYS,
+	///Modul hydrology
+	HYDROL_SYS,
 	//..introduce further modules
 
 };
@@ -453,6 +455,9 @@ namespace sys_label{
 	const string proj_typ_hyd_file("HYD_FILE");
 	///String for the project types: fpl modul just with file input \see Sys_Project
 	const string proj_typ_fpl_file("FPL_FILE");
+
+	///String for the project types: hydrol modul \see Hydrol_Project
+	const string proj_typ_hydrol("HYDROL");
 
 	///Key word for starting a database table block for file input \see Tables
 	const string table_begin("!BEGIN_TABLE");

@@ -11,6 +11,7 @@ Sys_Output_Division *Sys_Common_Output::output_dam=NULL;
 Sys_Output_Division *Sys_Common_Output::output_risk=NULL;
 Sys_Output_Division *Sys_Common_Output::output_alt=NULL;
 Sys_Output_Division *Sys_Common_Output::output_cost=NULL;
+Sys_Output_Division *Sys_Common_Output::output_hydrol = NULL;
 
 //constructor
 Sys_Common_Output::Sys_Common_Output(void){
@@ -93,6 +94,15 @@ void Sys_Common_Output::new_output_cost(QTextEdit *ptr_editor){
 		Sys_Common_Output::output_cost->set_gui_texteditor(ptr_editor);	
 	}
 }
+//Allocate the new Sys_Output_Division class for the hydrol-modul (static)
+void Sys_Common_Output::new_output_hydrol(QTextEdit *ptr_editor) {
+	if (Sys_Common_Output::output_hydrol == NULL) {
+		Sys_Common_Output::output_hydrol = new Sys_Output_Division(_sys_system_modules::HYDROL_SYS);
+		Sys_Common_Output::output_hydrol->set_file("logfile_HYDROL");
+		Sys_Common_Output::output_hydrol->set_gui_texteditor(ptr_editor);
+	}
+
+}
 //(static) Delete the Sys_Output_Division class for the Sys-modul
 void Sys_Common_Output::delete_output_system(void){
 	if(output_system!=NULL){
@@ -154,5 +164,12 @@ void Sys_Common_Output::delete_output_cost(void){
 	if(Sys_Common_Output::output_cost!=NULL){
 		delete Sys_Common_Output::output_cost;
 		Sys_Common_Output::output_cost=NULL;
+	}
+}
+//Delete the Sys_Output_Division class for the hydrol-modul (static)
+void Sys_Common_Output::delete_output_hydrol(void) {
+	if (Sys_Common_Output::output_hydrol != NULL) {
+		delete Sys_Common_Output::output_hydrol;
+		Sys_Common_Output::output_hydrol = NULL;
 	}
 }

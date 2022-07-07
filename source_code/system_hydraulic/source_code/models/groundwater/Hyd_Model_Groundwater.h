@@ -2,7 +2,8 @@
 class Hyd_Model_Groundwater
 {
 public:
-	Hyd_Model_Groundwater();
+	///Default constructor
+	Hyd_Model_Groundwater(void);
 	~Hyd_Model_Groundwater();
 };
 

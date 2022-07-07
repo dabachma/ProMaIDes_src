@@ -28,6 +28,7 @@
 //#define proj_hyd_license
 //#define proj_fpl_license
 //#define proj_dam_license
+//#define proj_hydrol_license
 
 //define for development
 #define development

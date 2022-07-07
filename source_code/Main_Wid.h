@@ -281,6 +281,8 @@ private:
 	void output_connect_alt(void);
 	///Connect the output to GUI for module cost
 	void output_connect_cost(void);
+	///Connect the output to GUI for module hydrol
+	void output_connect_hydrol(void);
 	//..introduce further modules
 
 	///Close the windows of the text search
@@ -484,6 +486,8 @@ private slots:
 	void txt_to_alt_out(QString txt);
 	///Recieve the text from the output class COST and give it to the corresponding display tab widget
 	void txt_to_cost_out(QString txt);
+	///Recieve the text from the output class HYDROL and give it to the corresponding display tab widget
+	void txt_to_hydrol_out(QString txt);
 	//..introduce further modules
 
 	///Close all database tables (menu/sys/common)

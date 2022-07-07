@@ -424,6 +424,10 @@ void Sys_Output_Division::welcome_to_gui(void){
 				case _sys_system_modules::COST_SYS:	
                     cout << this->standard_prefix()<<"----- This is the output for the module COST ("<<Sys_Project::get_version_number()<<" from "<<Sys_Project::get_version_date() <<")----" << endl;
 					break;
+				//output for the hydrol system
+				case _sys_system_modules::HYDROL_SYS:
+					cout << this->standard_prefix() << "----- This is the output for the module HYDROL (" << Sys_Project::get_version_number() << " from " << Sys_Project::get_version_date() << ")----" << endl;
+					break;
 				default:
                 cout << this->standard_prefix()<<"----- This is the output for a not know module type ("<<Sys_Project::get_version_number()<<" from "<<Sys_Project::get_version_date() <<")-----" << endl;
 				break;
@@ -580,6 +584,10 @@ void Sys_Output_Division::welcome_to_file(void){
 			case _sys_system_modules::COST_SYS:	
                 cout << this->standard_prefix()<<"----- This is the output for the module COST ("<<Sys_Project::get_version_number()<<" from "<<Sys_Project::get_version_date() <<")----" << endl;
 				break;
+			//output for the hydrol system
+			case _sys_system_modules::HYDROL_SYS:
+				cout << this->standard_prefix() << "----- This is the output for the module HYDROL (" << Sys_Project::get_version_number() << " from " << Sys_Project::get_version_date() << ")----" << endl;
+				break;
 			default:
                 cout << this->standard_prefix()<<"----- This is the output for a not know module type ("<<Sys_Project::get_version_number()<<" from "<<Sys_Project::get_version_date() <<")-----" << endl;
 				break;
@@ -631,6 +639,10 @@ string Sys_Output_Division::standard_prefix(void){
 			case _sys_system_modules::COST_SYS: 
 				std_prefix << "COST> " ;
 				break;
+				//output for the module hydrol
+			case _sys_system_modules::HYDROL_SYS:
+				std_prefix << "HYDROL> ";
+				break;
 			default:
 				std_prefix << "NOT_KNOWN> " ;
 	}
@@ -667,6 +679,9 @@ string Sys_Output_Division::get_logfile_name(void){
 			break;
 		case _sys_system_modules::COST_SYS:
 			buffer="logfile_COST";
+			break;
+		case _sys_system_modules::HYDROL_SYS:
+			buffer = "logfile_HYDROL";
 			break;
 		default:
 			buffer="logfile_UNKNOWN";

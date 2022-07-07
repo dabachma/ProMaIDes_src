@@ -185,12 +185,10 @@ string Sys_Project::get_complete_project_database_table_prefix_name(void){
 string Sys_Project::get_version_number(void){
     return Sys_Project::version;
 }
-
 //Get version date (static)
 string Sys_Project::get_version_date(void){
     return Sys_Project::version_date;
 }
-
 //Get the current path (static)
 string Sys_Project::get_current_path(void){
 	return Sys_Project::current_path;
@@ -235,6 +233,9 @@ _sys_project_type Sys_Project::convert_txt2project_type(const string txt){
 		else if(txt==sys_label::proj_typ_fpl_file){
 			type=_sys_project_type::proj_fpl_file;
 		}
+		else if (txt == sys_label::proj_typ_hydrol) {
+			type = _sys_project_type::proj_hydrol;
+		}
 		else{
 			type=_sys_project_type::proj_not;
 		}
@@ -260,6 +261,9 @@ _sys_project_type Sys_Project::convert_txt2project_type(const string txt){
 		}
 		else if(txt==sys_label::proj_typ_fpl_file){
 			type=_sys_project_type::proj_fpl_file;
+		}
+		else if (txt == sys_label::proj_typ_hydrol) {
+			type = _sys_project_type::proj_hydrol;
 		}
 		else{
 			type=_sys_project_type::proj_not;
@@ -312,6 +316,15 @@ _sys_project_type Sys_Project::convert_txt2project_type(const string txt){
 			type=_sys_project_type::proj_not;
 		}
 	#endif
+	#ifdef proj_hydrol_license
+			if (txt == sys_label::proj_typ_hydrol) {
+				type = _sys_project_type::proj_hydrol;
+			}
+			else {
+				type = _sys_project_type::proj_not;
+			}
+	#endif
+				
 
 
 	return type;
@@ -343,6 +356,9 @@ string Sys_Project::convert_project_type2txt(const _sys_project_type type){
 			break;
 		case _sys_project_type::proj_fpl_file:
 			buffer=sys_label::proj_typ_fpl_file;
+			break;
+		case _sys_project_type::proj_hydrol:
+			buffer = sys_label::proj_typ_hydrol;
 			break;
 		default:
 			buffer=label::not_defined;
@@ -1120,6 +1136,7 @@ void Sys_Project::write_project_file(const bool copy){
 		Sys_Common_Output::output_risk->switch_logfile_path(Sys_Project::current_path,true);
 		Sys_Common_Output::output_alt->switch_logfile_path(Sys_Project::current_path,true);
 		Sys_Common_Output::output_cost->switch_logfile_path(Sys_Project::current_path,true);
+		//Sys_Common_Output::output_hydrol->switch_logfile_path(Sys_Project::current_path, true);
 		//..introduce further modules
 	}
 

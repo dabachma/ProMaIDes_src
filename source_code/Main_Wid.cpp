@@ -787,6 +787,20 @@ void Main_Wid::output_connect_cost(void){
 	//connect the slots
 	QObject::connect(Sys_Common_Output::output_cost, SIGNAL(gui_text(const QString )), this, SLOT(txt_to_cost_out(const QString )));
 }
+//Connect the output to GUI for module hydrol
+void Main_Wid::output_connect_hydrol(void) {
+	//for hydrol output
+	Sys_Common_Output::new_output_hydrol(this->textEdit_costtxt);
+	Sys_Common_Output::output_hydrol->set_ptr_parent_display_output(this->tabWidget_outtext);
+
+	this->textEdit_costtxt->connect_clear_act(this, _sys_system_modules::HYDROL_SYS);
+	this->textEdit_costtxt->connect_setDetailed_act(this, _sys_system_modules::HYDROL_SYS);
+	this->textEdit_costtxt->my_searcher.set_window_title(_sys_system_modules::HYDROL_SYS);
+
+	//connect the slots
+	QObject::connect(Sys_Common_Output::output_hydrol, SIGNAL(gui_text(const QString)), this, SLOT(txt_to_hydrol_out(const QString)));
+
+}
 //Close the windows of the text search
 void Main_Wid::close_text_searcher(void){
 	this->textEdit_systemtxt->my_searcher.close();
@@ -809,6 +823,7 @@ void Main_Wid::delete_output_classes(void){
 	Sys_Common_Output::delete_output_risk();
 	Sys_Common_Output::delete_output_cost();
 	Sys_Common_Output::delete_output_alt();
+	Sys_Common_Output::delete_output_hydrol();
 	//..introduce further modules
 }
 //Allocate and connect the status bar widget
@@ -871,6 +886,10 @@ void Main_Wid::enable_menu_project_open(const bool new_project){
 	this->menu_sys_common->setEnabled(true);
 
 	//data-tabs of the txt output icons exception
+	QIcon my_icon22;
+	my_icon22.addFile(":sys_icon");
+	this->tabWidget_outtext->addTab(this->tab_systemtxt, my_icon22, sys_label::str_sys.c_str());
+
 	QIcon my_icon4_excep;
 	my_icon4_excep.addFile(":excep_icon" );
 	this->tabWidget_outtext->addTab(this->tab_exceptiontxt, my_icon4_excep, sys_label::str_excep.c_str());
@@ -943,6 +962,7 @@ void Main_Wid::enable_menu_project_open(const bool new_project){
 		QIcon my_icon14;
 		my_icon14.addFile(":alt_icon");
 		this->tabWidget_data_output->addTab(this->tab_alt_data_view, my_icon14, sys_label::str_alt.c_str());
+		
 
 		//data-tabs of the txt output
 		QIcon my_icon4;
@@ -966,6 +986,7 @@ void Main_Wid::enable_menu_project_open(const bool new_project){
 		QIcon my_icon8;
 		my_icon8.addFile(":alt_icon");
 		this->tabWidget_outtext->addTab(this->tab_alttxt, my_icon8, sys_label::str_alt.c_str());
+
 
 		//set pointer to data-tree of the tab data widgets
 		this->treeWidget_data->set_ptr_data_tab_hyd(this->tab_hyd_data_view);
@@ -3417,6 +3438,18 @@ void Main_Wid::txt_to_cost_out(QString txt){
 	this->textEdit_costtxt->insertPlainText(txt);
 	//free interaction
 	this->textEdit_costtxt->setTextInteractionFlags(Qt::TextSelectableByMouse);
+}
+//Recieve the text from the output class HYDROL and give it to the corresponding display tab widget
+void Main_Wid::txt_to_hydrol_out(QString txt) {
+	//lock interaction
+	this->textEdit_hydroltxt->setTextInteractionFlags(Qt::NoTextInteraction);
+	//move the curser to the end
+	this->textEdit_hydroltxt->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
+	//set text
+	this->textEdit_hydroltxt->insertPlainText(txt);
+	//free interaction
+	this->textEdit_hydroltxt->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
 }
 //________
 //menu sys
