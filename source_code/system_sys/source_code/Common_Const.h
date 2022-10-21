@@ -2964,6 +2964,7 @@ namespace dam_label{
 	const string transsectoral_failure("transsectoral");
 	///String for the CI element failure type \see _Dam_CI_Element 
 	const string direct_active_failure("direct_activated");
+	
 
 }
 

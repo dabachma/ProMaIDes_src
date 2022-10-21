@@ -721,9 +721,12 @@ void Dam_CI_System::make_network_statistics(QSqlDatabase *ptr_database) {
 
 	//make overall statistics
 	this->calc_stat_hub(&max_hub, &average_hub, &std_hub);
+
 	this->calc_stat_aut(&max_aut, &average_aut, &std_aut);
+
 	this->calc_cv_cp();
 	
+
 	
 	this->calc_stat_cp(&max_cp, &average_cp, &std_cp);
 	this->calc_stat_cv(&max_cv, &average_cv, &std_cv);
@@ -1630,7 +1633,7 @@ void Dam_CI_System::output_point_member(void) {
 	Sys_Common_Output::output_dam->output_txt(&cout);
 	if (this->no_ci_point > 0) {
 		cout << W(3) << "No. " << W(8) << "x" << label::m << W(8) << "y" << label::m << W(8) << "Sec_Id" << label::no_unit << W(8) << "Sec_Name" << label::no_unit << W(8) << "Boundary" << label::m << W(8) << "Name" << label::no_unit << W(8) << "Sec_Level" << label::no_unit << W(8) << "Recovery_time" << label::day << W(8) << "End_Flag" << label::no_unit << W(8) << "Regular_flag" << label::no_unit << W(8) << "Activation_time" << label::day << endl;
-		Sys_Common_Output::output_dam->output_txt(&cout);
+		Sys_Common_Output::output_dam->output_txt(&cout,true);
 		for (int i = 0; i < this->no_ci_point; i++) {
 			cout << W(3) << this->dam_ci_point[i].get_number() << W(12) << P(2) << FORMAT_FIXED_REAL << this->dam_ci_point[i].get_xcoordinate();
 			cout << W(13) << P(2) << FORMAT_FIXED_REAL << this->dam_ci_point[i].get_ycoordinate();
@@ -1645,7 +1648,7 @@ void Dam_CI_System::output_point_member(void) {
 			cout << W(13) << P(2) << FORMAT_FIXED_REAL << this->dam_ci_point[i].get_activation_time() << endl;
 			
 
-			Sys_Common_Output::output_dam->output_txt(&cout);
+			Sys_Common_Output::output_dam->output_txt(&cout,true);
 		}
 	}
 
@@ -2363,15 +2366,16 @@ void Dam_CI_System::output_polygon_member(void) {
 	cout << " Number polygons    : " << W(13) << this->no_ci_polygon << endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
 	cout << W(3) << "No. " << W(8) << "Sec_Id" << label::no_unit << W(8) << "Sec_Name" << label::no_unit << W(8) << "Name" << label::no_unit << W(8) << "Enduser" << label::unit_variable << endl;
-	Sys_Common_Output::output_dam->output_txt(&cout);
+	Sys_Common_Output::output_dam->output_txt(&cout,true);
 	for (int i = 0; i < this->no_ci_polygon; i++) {
 		cout << W(3) << this->dam_ci_polygon[i].mid_point.get_number();
 		cout << W(13) << P(0) << FORMAT_FIXED_REAL << this->dam_ci_polygon[i].get_sector_id();
 		cout << W(23) << P(0) << FORMAT_FIXED_REAL << this->dam_ci_polygon[i].get_sector_name();
 		cout << W(33) << P(0) << FORMAT_FIXED_REAL << this->dam_ci_polygon[i].mid_point.get_point_name();
 		cout << W(13) << P(2) << FORMAT_FIXED_REAL << this->dam_ci_polygon[i].get_enduser() <<endl;
+		Sys_Common_Output::output_dam->output_txt(&cout,true);
 		this->dam_ci_polygon[i].output_point(&cout);
-		Sys_Common_Output::output_dam->output_txt(&cout);
+		Sys_Common_Output::output_dam->output_txt(&cout,true);
 	}
 }
 //Sum up the total polygon damage results for a given system-id and scenario (boundary-, break-) from the database
@@ -2867,10 +2871,10 @@ void Dam_CI_System::output_connection_member(void) {
 	cout << " Number connection    : " << W(13) << this->dam_ci_connection.get_number_connection()<< endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
 	cout << W(3) << "No. " << W(8) << "ID_in" << label::no_unit << W(8) << "Point_flag_(0:=point_1:=polygon)" << label::no_unit << W(15) << "ID_out" << label::no_unit << W(8) << "Point_flag_(0:=point_1:=polygon)" << label::no_unit << endl;
-	Sys_Common_Output::output_dam->output_txt(&cout);
+	Sys_Common_Output::output_dam->output_txt(&cout,true);
 
 	this->dam_ci_connection.output_connection(&cout);
-	Sys_Common_Output::output_dam->output_txt(&cout);
+	Sys_Common_Output::output_dam->output_txt(&cout,true);
 
 
 }
@@ -3071,36 +3075,36 @@ void Dam_CI_System::calculate_direct_damage(Dam_Impact_Value_Floodplain *impact_
 	cout << "Calculate direct damages for the CI-system..." << endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
 
-	int counter = 0;
-	int counter_fp_id = 0;
-	Dam_Impact_Values *impact;
-	//search for each damage element for the corresponding hydraulic impact element
-	for (int i = 0; i < this->no_ci_point; i++) {
-		if (this->dam_ci_point[i].get_index_floodplain() >= 0) {
-			counter = 0;
-			//search for the floodplain index
-			do {
-				if (this->dam_ci_point[i].get_index_floodplain() == impact_fp[counter_fp_id].get_index_floodplain()) {
-					break;
-				}
-				if (counter_fp_id == number - 1) {
-					counter_fp_id = 0;
-				}
-				else {
-					counter_fp_id++;
-				}
-				counter++;
-			} while (counter < number);
-			//search for the element
-			if (this->dam_ci_point[i].get_index_floodplain_element() >= 0 && this->dam_ci_point[i].get_index_floodplain_element() < impact_fp[counter_fp_id].get_number_element()) {
-				impact = &(impact_fp[counter_fp_id].impact_values[this->dam_ci_point[i].get_index_floodplain_element()]);
-				//calculate the damges
-				this->dam_ci_point[i].calculate_direct_damages(impact);
+int counter = 0;
+int counter_fp_id = 0;
+Dam_Impact_Values *impact;
+//search for each damage element for the corresponding hydraulic impact element
+for (int i = 0; i < this->no_ci_point; i++) {
+	if (this->dam_ci_point[i].get_index_floodplain() >= 0) {
+		counter = 0;
+		//search for the floodplain index
+		do {
+			if (this->dam_ci_point[i].get_index_floodplain() == impact_fp[counter_fp_id].get_index_floodplain()) {
+				break;
 			}
+			if (counter_fp_id == number - 1) {
+				counter_fp_id = 0;
+			}
+			else {
+				counter_fp_id++;
+			}
+			counter++;
+		} while (counter < number);
+		//search for the element
+		if (this->dam_ci_point[i].get_index_floodplain_element() >= 0 && this->dam_ci_point[i].get_index_floodplain_element() < impact_fp[counter_fp_id].get_number_element()) {
+			impact = &(impact_fp[counter_fp_id].impact_values[this->dam_ci_point[i].get_index_floodplain_element()]);
+			//calculate the damges
+			this->dam_ci_point[i].calculate_direct_damages(impact);
 		}
 	}
 }
-//Calculate the idirect damages
+}
+//Calculate the indirect damages
 void Dam_CI_System::calculate_indirect_damage(void) {
 	ostringstream cout;
 	cout << "Calculate indirect damages for the CI-system..." << endl;
@@ -3111,7 +3115,8 @@ void Dam_CI_System::calculate_indirect_damage(void) {
 	for (int i = 0; i < this->no_ci_point; i++) {
 		if (this->dam_ci_point[i].get_failure_type() == _dam_ci_failure_type::direct) {
 			for (int j = 0; j < this->dam_ci_point[i].get_number_outgoing(); j++) {
-				this->dam_ci_point[i].get_outgoing_elements()[j]->calculate_indirect_damages();
+				this->dam_ci_point[i].get_outgoing_elements()[j]->calculate_indirect_damages_loop();
+
 			}
 		}
 	}
@@ -3120,7 +3125,7 @@ void Dam_CI_System::calculate_indirect_damage(void) {
 		this->dam_ci_polygon[i].finalize_results();
 	}
 
-	
+
 
 }
 //Calculate the direct damages instationary
@@ -3149,12 +3154,12 @@ void Dam_CI_System::calculate_instat_direct_damage(Dam_Impact_Value_Floodplain *
 			if (this->dam_ci_point[i].get_index_floodplain_element() >= 0 && this->dam_ci_point[i].get_index_floodplain_element() < impact_fp[counter_fp_id].get_number_element()) {
 				impact = &(impact_fp[counter_fp_id].impact_values[this->dam_ci_point[i].get_index_floodplain_element()]);
 				//calculate the damges
-				this->dam_ci_point[i].calculate_direct_damages_instationary(impact,time);
+				this->dam_ci_point[i].calculate_direct_damages_instationary(impact, time);
 			}
 			else {
 				Dam_Impact_Values buffer;
 				this->dam_ci_point[i].calculate_direct_damages_instationary(&buffer, time);
-				
+
 
 			}
 		}
@@ -3168,11 +3173,18 @@ void Dam_CI_System::calculate_instat_indirect_damage(const double time) {
 
 	//go through all elements
 	for (int i = 0; i < this->no_ci_point; i++) {
-		//if (this->dam_ci_point[i].get_failure_type() == _dam_ci_failure_type::direct) {
-			for (int j = 0; j < this->dam_ci_point[i].get_number_outgoing(); j++) {
-				this->dam_ci_point[i].get_outgoing_elements()[j]->calculate_indirect_damages_instationary(time);
+		if (this->dam_ci_point[i].get_failure_type() == _dam_ci_failure_type::direct || this->dam_ci_point[i].get_last_instat_required() == true) {
+			if(this->dam_ci_point[i].get_last_instat_required() == true){
+				this->dam_ci_point[i].set_last_instat_required(false);
 			}
-		//}
+		
+			for (int j = 0; j < this->dam_ci_point[i].get_number_outgoing(); j++) {
+				
+				this->dam_ci_point[i].get_outgoing_elements()[j]->calculate_indirect_damages_instationary_loop(time);
+				
+				
+			}
+		}
 	}
 
 	for (int i = 0; i < this->no_ci_polygon; i++) {
@@ -3930,46 +3942,95 @@ void Dam_CI_System::calc_stat_per_sector(int *no_elem, double *max_hub, double *
 
 
 }
-//Calculate CP (cascade potential value) per point
-void Dam_CI_System::calc_cp_per_point(void) {
-
-	for (int i = 0; i < this->no_ci_point; i++) {
-		//this->dam_ci_point[i].calc_cp_value();
-
-	}
-	
-
-
-}
 //Calculate CV (cascade vulnerability value) per final element and CP (cascade potential value) per point
 void Dam_CI_System::calc_cv_cp(void) {
+	ostringstream cout;
+
+	//TODO check gleiche incoming!
+
+
+
+
+
+	//count number of start points
+	int count_out = 0;
+	for (int i = 0; i < this->no_ci_point; i++) {
+		if (this->dam_ci_point[i].get_number_incoming() == 0) {
+			count_out++;
+
+		}
+	}
+
+	int buff_circ = 0;
+	int buff_lin = 0;
 
 	for (int i = 0; i < this->no_ci_point; i++) {
 		if (this->dam_ci_point[i].get_end_level_flag() == true) {
+			cout << "Point start " << i << "  " << this->dam_ci_point[i].get_point_name() << " No. incoming " << this->dam_ci_point[i].get_number_incoming() << endl;
+			Sys_Common_Output::output_dam->output_txt(&cout);
+			_Dam_CI_Element::counter_circ_end = 0;
+			_Dam_CI_Element::counter_lin_end = 0;
 			this->dam_ci_point[i].calc_cv_value();
-			double buff = 0.0;
-			this->dam_ci_point[i].add_up_cv(&buff);
-			this->dam_ci_point[i].set_stat_value(buff);
+			cout << "   " << _Dam_CI_Element::counter_circ_end + _Dam_CI_Element::counter_lin_end << " total end; " << _Dam_CI_Element::counter_circ_end << " circular end; " << _Dam_CI_Element::counter_lin_end << " linear end" << endl;
+			Sys_Common_Output::output_dam->output_txt(&cout, true);
+			buff_circ = buff_circ + _Dam_CI_Element::counter_circ_end;
+			buff_lin = buff_lin + _Dam_CI_Element::counter_lin_end;
+
+			this->dam_ci_point[i].add_up_cv();
 			//reset and add values
-			this->dam_ci_point[i].sum_reset_cp_value();
+			this->sum_reset_cp();
 		}
-
 	}
-
 
 	for (int i = 0; i < this->no_ci_polygon; i++) {
 		if (this->dam_ci_polygon[i].get_end_level_flag() == true) {
+			_Dam_CI_Element::counter_circ_end = 0;
+			_Dam_CI_Element::counter_lin_end = 0;
+
+			cout << "Polygon start " << i << "  " << this->dam_ci_polygon[i].get_ptr_point()->get_point_name() << " No. incoming " << this->dam_ci_polygon[i].get_number_incoming() << endl;
+			Sys_Common_Output::output_dam->output_txt(&cout);
 			this->dam_ci_polygon[i].calc_cv_value();
-			double buff = 0.0;
-			this->dam_ci_polygon[i].add_up_cv(&buff);
-			this->dam_ci_polygon[i].set_stat_value(buff);
+			cout << "   " << _Dam_CI_Element::counter_circ_end + _Dam_CI_Element::counter_lin_end << " total end; " << _Dam_CI_Element::counter_circ_end << " circular end; " << _Dam_CI_Element::counter_lin_end << " linear end" << endl;
+			Sys_Common_Output::output_dam->output_txt(&cout, true);
+			buff_circ = buff_circ + _Dam_CI_Element::counter_circ_end;
+			buff_lin = buff_lin + _Dam_CI_Element::counter_lin_end;
+
+
+			this->dam_ci_polygon[i].add_up_cv();
 			//reset and add values
-			this->dam_ci_polygon[i].sum_reset_cp_value();
-		
+			this->sum_reset_cp();
 		}
 
 	}
+	cout << " Total circular ends: " << buff_circ << endl;
+	cout << " Total linear ends  (start points): " << buff_lin << " (" << count_out << ")" << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
 
+}
+///Sum and reset the CP-value
+void Dam_CI_System::sum_reset_cp(void) {
+	ostringstream cout;
+	for (int i = 0; i < this->no_ci_point; i++) {
+		for (int j = 0; j < this->dam_ci_point[i].cp_value_list.count(); j++) {
+			this->dam_ci_point[i].set_stat_buffer_value(this->dam_ci_point[i].cp_value_list.at(j) + this->dam_ci_point[i].get_stat_buffer_value());
+		}
+		//there is just one failure possible; if this is not set the cp values shows how many sector will fail for an end-user; e.g. end-user gets water and elec; then max cp would be 2
+		if (this->dam_ci_point[i].get_stat_buffer_value() > 1) {
+			this->dam_ci_point[i].set_stat_buffer_value(1.0);
+
+		}
+		this->dam_ci_point[i].cp_value_list.clear();
+		this->dam_ci_point[i].cv_akkumulated.clear();
+		this->dam_ci_point[i].cv_akkumulated_next.clear();
+
+
+
+		if (this->dam_ci_point[i].get_end_level_flag() == false) {
+
+			this->dam_ci_point[i].set_stat_value(this->dam_ci_point[i].get_stat_value() + this->dam_ci_point[i].get_stat_buffer_value());
+			this->dam_ci_point[i].set_stat_buffer_value(0.0);
+		}
+	}
 
 
 
@@ -4192,10 +4253,12 @@ void Dam_CI_System::calc_stat_tot_fail(double *max_hub, double *average_hub, dou
 	}
 
 	//cv
+	int count_stat = 0;
 	for (int i = 0; i < this->no_ci_polygon; i++) {
 		if (this->dam_ci_polygon[i].get_failure_type() >= 1 && this->dam_ci_polygon[i].get_failure_type() <= 3) {
 			*max_cv = MAX(*max_cv, this->dam_ci_polygon[i].get_stat_value());
 			*average_cv = *average_cv + this->dam_ci_polygon[i].get_stat_value();
+			count_stat++;
 
 		}
 	}
@@ -4204,12 +4267,14 @@ void Dam_CI_System::calc_stat_tot_fail(double *max_hub, double *average_hub, dou
 			if (this->dam_ci_point[i].get_end_level_flag() == true) {
 				*max_cv = MAX(*max_cv, this->dam_ci_point[i].get_stat_value());
 				*average_cv = *average_cv + this->dam_ci_point[i].get_stat_value();
+				count_stat++;
 			}
 		}
 	}
 
-
-	*average_cv = *average_cv / no_elem;
+	if (count_stat > 0) {
+		*average_cv = *average_cv / count_stat;
+	}
 	
 
 	for (int i = 0; i < this->no_ci_polygon; i++) {
@@ -4224,8 +4289,8 @@ void Dam_CI_System::calc_stat_tot_fail(double *max_hub, double *average_hub, dou
 			}
 		}
 	}
-	if (no_elem > 1) {
-		*std_cv = pow(*std_cv / (no_elem - 1), 0.5);
+	if (count_stat > 1) {
+		*std_cv = pow(*std_cv / (count_stat - 1), 0.5);
 	}
 
 
@@ -4361,7 +4426,6 @@ void Dam_CI_System::calc_stat_dir_fail(double *max_hub, double *average_hub, dou
 
 
 }
-
 //Set error(s)
 Error Dam_CI_System::set_error(const int err_type) {
 	string place = "Dam_CI_System::";

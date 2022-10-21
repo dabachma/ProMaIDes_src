@@ -3020,6 +3020,7 @@ void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2database(con
 		Hyd_Element_Floodplain::delete_data_in_instat_erg_table(&this->database, this->system_id, this->hyd_sz.get_id(), this->break_sz);
 	}
 
+	
 	//loop over the floodplain models
 	for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
 		//to database 

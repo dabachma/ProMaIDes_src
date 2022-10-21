@@ -86,7 +86,19 @@ string functions::convert_time2time_str(const double seconds) {
 	tm time_struct;
 
 	functions::convert_seconds2datestruct(seconds, &time_struct);
-	buff_t << "'19" << time_struct.tm_year << "-" << setw(2) << setfill('0') << time_struct.tm_mon + 1;
+	if (time_struct.tm_year >= 100) {
+		buff_t << "'20";
+		if (time_struct.tm_year - 100 < 10) {
+			buff_t << "0"<< time_struct.tm_year - 100;
+		}
+		else {
+			buff_t << time_struct.tm_year - 100;
+		}
+	}
+	else{
+		buff_t << "'19" << time_struct.tm_year;
+	}
+	buff_t  << "-" << setw(2) << setfill('0') << time_struct.tm_mon + 1;
 	buff_t << "-" << setw(2) << setfill('0') << time_struct.tm_mday << " ";
 	buff_t << setw(2) << setfill('0') << time_struct.tm_hour << ":";
 	buff_t << setw(2) << setfill('0') << time_struct.tm_min << ":" << setw(2) << setfill('0') << time_struct.tm_sec << "'";

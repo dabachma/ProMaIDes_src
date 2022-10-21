@@ -159,6 +159,7 @@ void Hyd_Profil2Dgm_Converter::intersect_stream_line_profile(void){
 	double dist1=0.0;
 	double dist2=0.0;
 	double int_h=0.0;
+	int index_last_found = 0;
 	
 	//left stream line
 	for(int i=0;i<this->no_prof; i++){
@@ -167,9 +168,12 @@ void Hyd_Profil2Dgm_Converter::intersect_stream_line_profile(void){
 			list.delete_list();
 			this->profiles[i].calculate_segment_interception(&list, this->stream_l.get_segment(j));
 			if(list.get_number_points()>0){
-				new_point.set_abs_height(-9999.0);
-				new_point.set_point(&(this->stream_l.get_segment(j)->point1));
-				list_point.set_new_point(&new_point);
+				for (int l = index_last_found; l < j + 1; l++) {
+					new_point.set_abs_height(-9999.0);
+					new_point.set_point(&(this->stream_l.get_segment(l)->point1));
+					list_point.set_new_point(&new_point);
+					index_last_found = j;
+				}
 			}
 
 			for(int k=0; k<list.get_number_points();k++){
@@ -190,6 +194,7 @@ void Hyd_Profil2Dgm_Converter::intersect_stream_line_profile(void){
 	this->stream_l.fill_marked_points_heights(-9999.0);
 	this->stream_l.output_members();
 	list_point.delete_list();
+	index_last_found = 0;
 
 	
 	//right streamline
@@ -199,9 +204,12 @@ void Hyd_Profil2Dgm_Converter::intersect_stream_line_profile(void){
 			list.delete_list();
 			this->profiles[i].calculate_segment_interception(&list, this->stream_r.get_segment(j));
 			if(list.get_number_points()>0){
-				new_point.set_abs_height(-9999.0);
-				new_point.set_point(&(this->stream_r.get_segment(j)->point1));
-				list_point.set_new_point(&new_point);
+				for (int l = index_last_found; l < j + 1; l++) {
+					new_point.set_abs_height(-9999.0);
+					new_point.set_point(&(this->stream_r.get_segment(l)->point1));
+					list_point.set_new_point(&new_point);
+					index_last_found = j;
+				}
 			}
 
 			for(int k=0; k<list.get_number_points();k++){
@@ -222,6 +230,7 @@ void Hyd_Profil2Dgm_Converter::intersect_stream_line_profile(void){
 	this->stream_r.fill_marked_points_heights(-9999.0);
 	this->stream_r.output_members();
 	list_point.delete_list();
+	index_last_found = 0;
 
 
 	//additional streamline+
@@ -232,9 +241,12 @@ void Hyd_Profil2Dgm_Converter::intersect_stream_line_profile(void){
 				list.delete_list();
 				this->profiles[i].calculate_segment_interception(&list, this->add_streamline[l].get_segment(j));
 				if(list.get_number_points()>0){
-					new_point.set_abs_height(-9999.0);
-					new_point.set_point(&(this->add_streamline[l].get_segment(j)->point1));
-					list_point.set_new_point(&new_point);
+					for (int z = index_last_found; z < j + 1; z++) {
+						new_point.set_abs_height(-9999.0);
+						new_point.set_point(&(this->add_streamline[l].get_segment(z)->point1));
+						list_point.set_new_point(&new_point);
+						index_last_found = j;
+					}
 				}
 
 				for(int k=0; k<list.get_number_points();k++){
@@ -255,6 +267,7 @@ void Hyd_Profil2Dgm_Converter::intersect_stream_line_profile(void){
 		this->add_streamline[l].fill_marked_points_heights(-9999.0);
 		this->add_streamline[l].output_members();
 		list_point.delete_list();
+		index_last_found = 0;
 
 
 	}

@@ -2190,6 +2190,7 @@ void Dam_CI_Point::calculate_direct_damages_instationary(Dam_Impact_Values *impa
 			this->failure_duration = 0.0;
 			this->boundary_value = - 999;
 			this->failure_type_enum = _dam_ci_failure_type::no_failure;
+			this->last_instat_required = true;
 			this->failure_type = _Dam_CI_Element::convert_failuretype2txt(this->failure_type_enum);
 		}
 
@@ -2282,27 +2283,7 @@ void Dam_CI_Point::check_members(void) {
 
 
 }
-//Calculate the cascade potential value (CP)
-void Dam_CI_Point::calc_cp_value(void) {
-	this->stat_value = 0.0;
 
-	int redundant = 0;
-	for (int i = 0; i < this->no_outgoing; i++) {
-		if (this->outgoing[i]->get_end_level_flag() == true) {
-			//number = number + 1;
-			redundant = this->outgoing[i]->get_number_incoming_same_sec(this->sector_id, this->ptr_point->get_number()) + 1;
-			
-			this->stat_value = this->stat_value + 1 / (double)redundant;
-		}
-
-	}
-	for (int i = 0; i < this->no_outgoing; i++) {
-		this->stat_value=this->stat_value + this->outgoing[i]->get_number_outgoing_final(this->sector_id, this->ptr_point->get_number());
-
-	}
-
-
-}
 //____________
 //private
 //Set the warning

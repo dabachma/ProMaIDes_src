@@ -274,10 +274,10 @@ private:
 	///Calculate statistics per sector
 	void calc_stat_per_sector(int *no_elem, double *max_hub, double *average_hub, double *std_hub, double *max_aut, double *average_aut, double *std_aut, const int sec_id);
 
-	///Calculate CP (cascade potential value) per point
-	void calc_cp_per_point(void);
 	///Calculate CV (cascade vulnerability value) per final element and CP (cascade potential value) per point
 	void calc_cv_cp(void);
+	///Sum and reset the CP-value
+	void sum_reset_cp(void);
 	///Calculate the statistics of CP (cascade potential value)
 	void calc_stat_cp(double *max, double *average, double *std);
 	///Calculate the statistics of CV (cascade vulnerability value)

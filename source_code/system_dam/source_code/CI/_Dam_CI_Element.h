@@ -71,6 +71,10 @@ enum _dam_ci_failure_type {
 	///Direct but activated; just for emergency CI-elements
 	direct_activ = 4,
 
+	//not more direct but one step is still required
+	direct_last=6,
+	
+
 	undefined_failure = 5
 };
 
@@ -92,6 +96,26 @@ public:
 	///Default destructor
 	virtual ~_Dam_CI_Element(void);
 
+
+	///Incomings CI elements
+	_Dam_CI_Element **incomings;
+	///Outgoings CI elements
+	_Dam_CI_Element **outgoing;
+
+	///Counter how often a circular end is hit in the network
+	static int counter_circ_end;
+	///Counter how often a linear end is hit in the network
+	static int counter_lin_end;
+
+
+
+	///Store all the cp values during statistical calculation
+	QList<double> cp_value_list;
+	///Store the sums from each path until each element
+	QList<double> cv_akkumulated;
+	///Store the pointer to the incoming element from which the akkumated sum is comming;
+	QList<_Dam_CI_Element*> cv_akkumulated_next;
+	
 
 	//method
 	///Get element active flag
@@ -161,10 +185,14 @@ public:
 	///Get regular flag
 	bool get_regular_flag(void);
 
-	///Calculate indirect damages
-	void calculate_indirect_damages(void);
-	///Calculate indirect damages instationary
-	void calculate_indirect_damages_instationary(const double time);
+	///Calculate indirect damages; here the loop is in!
+	void calculate_indirect_damages_loop(void);
+	///Calculate indirect damages instationary; here the loop is in!
+	void calculate_indirect_damages_instationary_loop(const double time);
+
+
+
+
 
 	///Convert string to failure type (_dam_ci_failure_type)
 	static _dam_ci_failure_type convert_txt2failuretype(const string txt);
@@ -186,6 +214,17 @@ public:
 	double get_stat_value(void);
 	///Set the statistic value of the CI-element
 	void set_stat_value(const double stat);
+
+	///Get the statistic buffer value (sum_up) of the CI-element
+	double get_stat_buffer_value(void);
+	///Set the statistic buffer value (sum_up)  of the CI-element
+	void set_stat_buffer_value(const double stat);
+	///Get the flag if a last instationary calcuation step is required
+	bool get_last_instat_required(void);
+	///Set the flag if a last instationary calcuation step is required
+	void set_last_instat_required(const bool flag);
+
+
 	///Get number of outgoing final flag
 	double get_number_outgoing_final(const int sec_id, const int point_id);
 
@@ -193,11 +232,17 @@ public:
 	int get_number_incoming_same_sec(const int sec_id, const int point_id);
 
 	///Calculate the cascade vulnerability value (CV)
-	void calc_cv_value(void);
+	void calc_cv_value( void);
 	///Add up the CV-value
-	void add_up_cv(double *sum);
+	void add_up_cv(void);
 	///Sum and reset CP-value
 	void sum_reset_cp_value(void);
+
+
+	///Get sum value and a pointer to the next CI_Element back from list (static)
+	static _Dam_CI_Element* get_sum_value_element(QList<double> sums, double *sum, QList<_Dam_CI_Element*> elem, QList<_Dam_CI_Element*> *check_in_list);
+
+
 
 	///Copy operator
 	_Dam_CI_Element& operator=(const _Dam_CI_Element& object);
@@ -220,6 +265,14 @@ protected:
 	///Regular flag: is the structure regular := true or emergency :=false
 	bool regular_flag;
 
+	
+	///Flag if a last instationary calculation step is required
+	bool last_instat_required;
+	
+	///Statistical value like CP (cascade potential value) or CV (cascade vulnerability value)
+	double stat_value;
+	///Buffer value for statistical calculation
+	double stat_buff;
 
 
 
@@ -232,10 +285,9 @@ protected:
 	///Global index of CI element in the database
 	int global_index;
 
-	///Incomings CI elements
-	_Dam_CI_Element **incomings;
-	///Outgoings CI elements
-	_Dam_CI_Element **outgoing;
+	///Id which is in use by the list
+	int current_id;
+
 	///Number of incoming CI elements
 	int no_incoming;
 	///Number of outgoing CI elements
@@ -269,12 +321,8 @@ protected:
 	///Int for deciding if it is a point (=0) or a polygon (=1)
 	int is_point_id;
 
-	///Statistical value like CP (cascade potential value) or CV (cascade vulnerability value)
-	double stat_value;
-	///Buffer value for statistical calculation
-	double stat_buff;
-	///Flag if the stat is already counted
-	bool al_counted;
+
+
 
 	///Pointer to the point of the structure
 	Geo_Point *ptr_point;
@@ -288,6 +336,12 @@ protected:
 
 
 private:
+	//methods
+
+	///Calculate indirect damages; here the method is in!
+	void calc_indirect_damages(_Dam_CI_Element *current);
+	///Calculate indirect damages instationary; here the method is in!
+	void calc_indirect_damages_instationary(_Dam_CI_Element *current, const double time);
 
 
 	//members

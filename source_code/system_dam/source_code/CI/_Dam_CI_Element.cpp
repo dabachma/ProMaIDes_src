@@ -1,6 +1,10 @@
 #include "source_code\Dam_Headers_Precompiled.h"
 #include "_Dam_CI_Element.h"
 
+
+int _Dam_CI_Element::counter_circ_end=0;
+int _Dam_CI_Element::counter_lin_end = 0;
+
 //Default constructor
 _Dam_CI_Element::_Dam_CI_Element(void):block_elems(50){
 
@@ -44,7 +48,12 @@ _Dam_CI_Element::_Dam_CI_Element(void):block_elems(50){
 	this->is_point_id = 0;
 	this->stat_value = 0.0;
 	this->stat_buff = 0.0;
-	this->al_counted = false;
+	this->last_instat_required = false;
+
+
+
+	
+	this->current_id = 0;
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(_Dam_CI_Element)+ 2*sizeof(QList<QList<int>>), _sys_system_modules::DAM_SYS);
@@ -99,7 +108,9 @@ _Dam_CI_Element::_Dam_CI_Element(const _Dam_CI_Element& object) :block_elems(50)
 	this->is_point_id = object.is_point_id;
 	this->stat_value = object.stat_value;
 	this->stat_buff = object.stat_buff;
-	this->al_counted = object.al_counted;
+	this->last_instat_required = object.last_instat_required;
+
+
 
 
 }
@@ -422,264 +433,110 @@ bool _Dam_CI_Element::get_regular_flag(void) {
 
 	return this->regular_flag;
 }
-//Calculate indirect damages
-void _Dam_CI_Element::calculate_indirect_damages(void) {
-	double buff_time = 0.0;
-	QList<double> buff_list;
-	QList<int> list_sec_failure;
-	if (this->failure_type_enum == _dam_ci_failure_type::no_failure) {
+//Calculate indirect damages; here the loop is in!
+void _Dam_CI_Element::calculate_indirect_damages_loop(void) {
 
 
-		for (int i = 0; i < this->list_sec_incoming.count(); i++) {
-			buff_time = 0.0;
-			for (int j = 1; j < this->list_sec_incoming[i].count(); j++) {
-				if (this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+	QList<_Dam_CI_Element *> my_list;
+	ostringstream cout;
+	my_list.append(this);
+	this->calc_indirect_damages(my_list.last());
+
+
+
+	do {
+		Dam_Damage_System::check_stop_thread_flag();
+		if (my_list.last()->current_id < my_list.last()->get_number_outgoing()) {
+			my_list.last()->current_id++;
+
+			_Dam_CI_Element *before1 = my_list.last();
+			if (my_list.contains(my_list.last()->outgoing[my_list.last()->current_id - 1]) == false) {
+				
+				
+				my_list.append(my_list.last()->outgoing[my_list.last()->current_id - 1]);
+				this->calc_indirect_damages(my_list.last());
+
+			}
+			else {
+				my_list.last()->current_id = 0;
+				my_list.removeLast();
+				continue;
+			}
+		}
+		else {
+			if (my_list.count() > 1) {
+				my_list.last()->current_id = 0;
+
+				my_list.removeLast();
+			}
+			else {
+
+				if (this->current_id == this->get_number_outgoing()) {
+					this->current_id = 0;
 					break;
 				}
-				else {
-					if (j == 1) {
-						buff_time = this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration();
-					}
-					else {
-						buff_time = min(buff_time, this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration());
-					}
-				}
-				if (j == this->list_sec_incoming[i].count() - 1) {
-					buff_list.append(buff_time);
-					this->was_affected = true;
-					this->active_flag = false;
-					if (this->sector_id == this->list_sec_incoming[i].at(0)) {
-						this->set_failure_type(_dam_ci_failure_type::sectoral);
-					}
-					else {
-						this->set_failure_type(_dam_ci_failure_type::transsectoral);
-					}
-					list_sec_failure.append(this->list_sec_incoming[i].at(0));
-				}
-			}
-		}
-
-		//check emergency structures
-		for (int i = 0; i < this->list_sec_emergency.count(); i++) {
-
-			for (int l = 0; l < list_sec_failure.count(); l++) {
-				if (this->list_sec_emergency[i].at(0) == list_sec_failure.at(l)) {
-					for (int j = 1; j < this->list_sec_emergency[i].count(); j++) {
-						if (this->incomings[this->list_sec_emergency[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
-							if (this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
-								this->incomings[this->list_sec_emergency[i].at(j)]->set_active_flag(true);
-								this->incomings[this->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
-								buff_list.replace(l, min(buff_list.at(l), this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time()));
-								if (j > 2) {
-									this->incomings[this->list_sec_emergency[i].at(j-1)]->set_active_flag(false);
-									this->incomings[this->list_sec_emergency[i].at(j-1)]->set_was_affected_flag(false);
-								}
-							}
-						}
-						else {
-							if (this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
-								this->incomings[this->list_sec_emergency[i].at(j)]->set_active_flag(true);
-								this->incomings[this->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
-								this->incomings[this->list_sec_emergency[i].at(j)]->set_failure_type(_dam_ci_failure_type::direct_activ);
-								buff_list.replace(l, min(buff_list.at(l), this->incomings[this->list_sec_emergency[i].at(j)]->get_recovery_time()));
-								if (j > 2) {
-									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_active_flag(false);
-									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_was_affected_flag(false);
-									this->incomings[this->list_sec_emergency[i].at(j-1)]->set_failure_type(_dam_ci_failure_type::direct);
-								}
-							}
-						}
-					}
-
-				}
-			}
-		}
-
-
-
-		//set the duration of failure
-		for (int i = 0; i < buff_list.count(); i++) {
-			this->failure_duration = max(this->failure_duration, buff_list.at(i));
-
-		}
-
-		//next step
-		if (this->failure_type_enum != _dam_ci_failure_type::no_failure) {
-			if (this->final_flag == true) {
-				return;
-			}
-			for (int i = 0; i < this->no_outgoing; i++) {
-				this->outgoing[i]->calculate_indirect_damages();
 
 			}
 
-		}
-	}
-	//set the duration of failure for the direct affected CI-elements
-	else if(this->failure_type_enum == _dam_ci_failure_type::direct) {
-		buff_list.append(this->recovery_time);
-		for (int i = 0; i < this->list_sec_incoming.count(); i++) {
-			buff_time = 0.0;
-			for (int j = 1; j < this->list_sec_incoming[i].count(); j++) {
-				if (this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
-					break;
-				}
-				else {
-					if (j == 1) {
-						buff_time = this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration();
-					}
-					else {
-						buff_time = min(buff_time, this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration());
-					}
-				}
-				if (j == this->list_sec_incoming[i].count() - 1) {
-					buff_list.append(buff_time);
-				}
-			}
-		}
-		//set the duration of failure
-		for (int i = 0; i < buff_list.count(); i++) {
-			this->failure_duration = max(this->failure_duration, buff_list.at(i));
+
 
 		}
 
-	}
+
+	} while (1 == 1);
+
 }
-//Calculate indirect damages instationary
-void _Dam_CI_Element::calculate_indirect_damages_instationary(const double time) {
-	double buff_time = 0.0;
-	QList<double> buff_list;
-	QList<int> list_sec_failure;
-	if (this->failure_type_enum != _dam_ci_failure_type::direct) {
-		this->failure_duration = 0.0;
+//Calculate indirect damages instationary; here the loop is in!
+void _Dam_CI_Element::calculate_indirect_damages_instationary_loop(const double time) {
 
 
-		for (int i = 0; i < this->list_sec_incoming.count(); i++) {
-			buff_time = 0.0;
-			for (int j = 1; j < this->list_sec_incoming[i].count(); j++) {
-				if (this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+	QList<_Dam_CI_Element *> my_list;
+	ostringstream cout;
+	my_list.append(this);
+	this->calc_indirect_damages_instationary(my_list.last(), time);
+
+
+
+	do {
+		Dam_Damage_System::check_stop_thread_flag();
+		if (my_list.last()->current_id < my_list.last()->get_number_outgoing()) {
+			my_list.last()->current_id++;
+
+			_Dam_CI_Element *before1 = my_list.last();
+			if (my_list.contains(my_list.last()->outgoing[my_list.last()->current_id - 1]) == false) {
+
+
+				my_list.append(my_list.last()->outgoing[my_list.last()->current_id - 1]);
+				this->calc_indirect_damages_instationary(my_list.last(), time);
+
+			}
+			else {
+				my_list.last()->current_id = 0;
+				my_list.removeLast();
+				continue;
+			}
+		}
+		else {
+			if (my_list.count() > 1) {
+				my_list.last()->current_id = 0;
+
+				my_list.removeLast();
+			}
+			else {
+
+				if (this->current_id == this->get_number_outgoing()) {
+					this->current_id = 0;
 					break;
 				}
-				else {
-					if (j == 1) {
-						buff_time = this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration();
-					}
-					else {
-						buff_time = min(buff_time, this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration());
-					}
-				}
-				if (j == this->list_sec_incoming[i].count() - 1) {
-					buff_list.append(buff_time);
-					this->was_affected = true;
-					this->active_flag = false;
-					if (this->sector_id == this->list_sec_incoming[i].at(0)) {
-						this->set_failure_type(_dam_ci_failure_type::sectoral);
-						this->set_active_flag(false);
-					}
-					else {
-						this->set_failure_type(_dam_ci_failure_type::transsectoral);
-						this->set_active_flag(false);
-					}
-					list_sec_failure.append(this->list_sec_incoming[i].at(0));
-				}
-			}
-		}
 
-		//check emergency structures
-		for (int i = 0; i < this->list_sec_emergency.count(); i++) {
-			for (int j = 1; j < this->list_sec_emergency[i].count(); j++) {
-				this->incomings[this->list_sec_emergency[i].at(j)]->set_active_flag(false);
 			}
 
-			for (int l = 0; l < list_sec_failure.count(); l++) {
-				if (this->list_sec_emergency[i].at(0) == list_sec_failure.at(l)) {
-					for (int j = 1; j < this->list_sec_emergency[i].count(); j++) {
-						if (this->incomings[this->list_sec_emergency[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
-							if (this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
-								this->incomings[this->list_sec_emergency[i].at(j)]->set_active_time_flag(true, time);
-								this->incomings[this->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
-								buff_list.replace(l, min(buff_list.at(l), this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time()));
-								if (j > 2) {
-									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_active_time_flag(false, time);
-									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_was_affected_flag(false);
-								}
-							}
-						}
-						else {
-							if (this->incomings[this->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
-								this->incomings[this->list_sec_emergency[i].at(j)]->set_active_time_flag(true, time);;
-								this->incomings[this->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
-								this->incomings[this->list_sec_emergency[i].at(j)]->set_failure_type(_dam_ci_failure_type::direct_activ);
-								buff_list.replace(l, min(buff_list.at(l), this->incomings[this->list_sec_emergency[i].at(j)]->get_recovery_time()));
-								if (j > 2) {
-									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_active_time_flag(false, time);;
-									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_was_affected_flag(false);
-									this->incomings[this->list_sec_emergency[i].at(j - 1)]->set_failure_type(_dam_ci_failure_type::direct);
-								}
-							}
-						}
-					}
 
-				}
-			}
+
 		}
 
 
-
-		//set the duration of failure
-		for (int i = 0; i < buff_list.count(); i++) {
-			this->failure_duration = max(this->failure_duration, buff_list.at(i));
-
-		}
-		if (this->failure_duration <= 0.0+constant::sec_epsilon) {
-			this->failure_duration = 0.0;
-			this->set_failure_type(_dam_ci_failure_type::no_failure);
-			this->set_active_flag(true);
-			
-		}
-
-		//next step
-		//if (this->failure_type_enum != _dam_ci_failure_type::no_failure) {
-		if (this->final_flag == true) {
-			return;
-		}
-		for (int i = 0; i < this->no_outgoing; i++) {
-			this->outgoing[i]->calculate_indirect_damages_instationary(time);
-
-		}
-
-		//}
-	}
-	//set the duration of failure for the direct affected CI-elements
-	else if (this->failure_type_enum == _dam_ci_failure_type::direct) {
-		buff_list.append(this->recovery_time);
-		this->failure_duration = 0.0;
-		for (int i = 0; i < this->list_sec_incoming.count(); i++) {
-			buff_time = 0.0;
-			for (int j = 1; j < this->list_sec_incoming[i].count(); j++) {
-				if (this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
-					break;
-				}
-				else {
-					if (j == 1) {
-						buff_time = this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration();
-					}
-					else {
-						buff_time = min(buff_time, this->incomings[this->list_sec_incoming[i].at(j)]->get_failure_duration());
-					}
-				}
-				if (j == this->list_sec_incoming[i].count() - 1) {
-					buff_list.append(buff_time);
-				}
-			}
-		}
-		//set the duration of failure
-		for (int i = 0; i < buff_list.count(); i++) {
-			this->failure_duration = max(this->failure_duration, buff_list.at(i));
-
-		}
-
-	}
+	} while (1 == 1);
 
 }
 ///Convert string to failure type (_dam_ci_failure_type) (static)
@@ -701,6 +558,7 @@ _dam_ci_failure_type _Dam_CI_Element::convert_txt2failuretype(const string txt) 
 	else if (txt == dam_label::direct_active_failure) {
 		buff = _dam_ci_failure_type::direct_activ;
 	}
+
 	else {
 
 		buff = _dam_ci_failure_type::undefined_failure;
@@ -915,6 +773,25 @@ double _Dam_CI_Element::get_stat_value(void) {
 void _Dam_CI_Element::set_stat_value(const double stat) {
 	this->stat_value = stat;
 }
+///Get the statistic buffer value (sum_up) of the CI-element
+double _Dam_CI_Element::get_stat_buffer_value(void) {
+	return this->stat_buff;
+
+}
+//Set the statistic buffer value (sum_up)  of the CI-element
+void _Dam_CI_Element::set_stat_buffer_value(const double stat) {
+	this->stat_buff = stat;
+}
+//Get the flag if a last instationary calcuation step is required
+bool _Dam_CI_Element::get_last_instat_required(void) {
+	return this->last_instat_required;
+
+}
+//Set the flag if a last instationary calcuation step is required
+void _Dam_CI_Element::set_last_instat_required(const bool flag) {
+	this->last_instat_required = flag;
+
+}
 //Get number of outgoing final flag
 double _Dam_CI_Element::get_number_outgoing_final(const int sec_id, const int point_id) {
 	if (this->final_flag == true) {
@@ -959,7 +836,7 @@ int _Dam_CI_Element::get_number_incoming_same_sec(const int sec_id, const int po
 	for (int i = 0; i < this->no_incoming; i++) {
 		if (this->incomings[i]->ptr_point->get_number() != point_id) {
 			if (found == false) {
-				//if (this->incomings[i]->get_sector_id() == sec_id && this->incomings[i]->ptr_point->get_number() != point_id){
+				
 				number = number + this->incomings[i]->get_number_incoming_same_sec(sec_id, point_id);
 			}
 			else {
@@ -979,57 +856,164 @@ void _Dam_CI_Element::calc_cv_value(void) {
 	if (this->no_incoming == 0) {
 		return;
 	}
-	if (this->get_end_level_flag() == true) {
-		this->stat_buff = 1.0;
-	}
-
-	int buff_sec = -1;
-	int buff_number = 0;
-	QList<int> sec_ids;
-	//check sec_ids
-	for (int i = 0; i < this->no_incoming; i++) {
-		if (sec_ids.contains(this->incomings[i]->get_sector_id()) == false) {
-			sec_ids.append(this->incomings[i]->get_sector_id());
-		}
-	}
 	
-	//set the values
-	for (int i = 0; i < sec_ids.count(); i++) {
-		buff_number = 0;
-		for (int j = 0; j < this->no_incoming; j++) {
-			if (sec_ids.at(i) == this->incomings[j]->get_sector_id()) {
-				buff_number++;
+	QList<_Dam_CI_Element *> my_list;
+	ostringstream cout;
+	my_list.append(this);
+	
+	this->stat_buff = 1.0;
+	this->cp_value_list.append(1.0);
+	int buff_counter_start = 0;
+	double sum=0.0;
+
+	do {
+		Dam_Damage_System::check_stop_thread_flag();
+		if (my_list.last()->current_id < my_list.last()->get_number_incoming()) {
+			my_list.last()->current_id++;
+			if (my_list.count() == 1) {
+				buff_counter_start++;
+			}
+			_Dam_CI_Element *before1 = my_list.last();
+			if (my_list.contains(my_list.last()->incomings[my_list.last()->current_id - 1]) == false) {
+				my_list.append(my_list.last()->incomings[my_list.last()->current_id - 1]);
+				int buff_number = 0;
+				//list of sectors
+				QList<int> sec_ids;
+				//make list of sector ids
+				for (int i = 0; i < before1->no_incoming; i++) {
+					if (sec_ids.contains(before1->incomings[i]->get_sector_id()) == false) {
+
+						sec_ids.append(before1->incomings[i]->get_sector_id());
+					}
+				}
+				//set the values per sector
+				for (int i = 0; i < sec_ids.count(); i++) {
+					buff_number = 0;
+					//count numbers in sector
+					for (int j = 0; j < before1->no_incoming; j++) {
+						if (sec_ids.at(i) == before1->incomings[j]->get_sector_id()) {
+							buff_number++;
+						}
+					}
+					for (int j = 0; j < before1->no_incoming; j++) {
+						if (sec_ids.at(i) == before1->incomings[j]->get_sector_id() && sec_ids.at(i) == my_list.last()->get_sector_id()) {
+
+								my_list.last()->cp_value_list.append(before1->cp_value_list.last() / buff_number);
+								
+								break;
+							
+						}
+					}
+				}
+			}
+			else {
+
+				
+				_Dam_CI_Element::counter_circ_end++;
+				if (_Dam_CI_Element::counter_circ_end % 10000 == 0) {
+					//cout << _Dam_CI_Element::counter_circ_end + _Dam_CI_Element::counter_lin_end << " total end; " << _Dam_CI_Element::counter_circ_end << " circular end; list has currently " << my_list.count() << " members" << endl;
+					//Sys_Common_Output::output_dam->output_txt(&cout,true);
+				}
+
+				sum = 0.0;
+				_Dam_CI_Element *buff_next = NULL;
+				//mark all the pointers in the line backward to the beginning
+				for (int i = my_list.count() - 1; i >= 0; i--) {
+					sum = sum + my_list.at(i)->cp_value_list.last();
+					my_list.at(i)->cv_akkumulated.append(sum);
+					if (i < my_list.count() - 1) {
+						my_list.at(i)->cv_akkumulated_next.append(buff_next);
+					}
+					buff_next = my_list.at(i);
+
+				}
+
+
+				my_list.last()->current_id = 0;
+				if (my_list.count() > 1) {
+					my_list.removeLast();
+				}
+				else {
+
+					sum = 0.0;
+				}
+				continue;
 			}
 		}
-		for (int j = 0; j < this->no_incoming; j++) {
-			if (sec_ids.at(i) == this->incomings[j]->get_sector_id()) {
-				this->incomings[j]->stat_buff= this->incomings[j]->stat_buff + this->stat_buff /buff_number;
+		else {
+
+			if (my_list.last()->get_number_incoming() == 0) {
+				_Dam_CI_Element::counter_lin_end++;
+				if (_Dam_CI_Element::counter_lin_end % 10000 == 0) {
+					//cout << _Dam_CI_Element::counter_circ_end + _Dam_CI_Element::counter_lin_end<< " total end; "<< _Dam_CI_Element::counter_lin_end << " linear end; list has currently " << my_list.count() << " members" << endl;
+					//Sys_Common_Output::output_dam->output_txt(&cout,true);
+				}
+				sum = 0.0;
+				_Dam_CI_Element *buff_next = NULL;
+				//mark all the pointers in the line backward to the beginning
+				for (int i = my_list.count() - 1; i >= 0; i--) {
+					sum = sum + my_list.at(i)->cp_value_list.last();
+					my_list.at(i)->cv_akkumulated.append(sum);
+					if (i < my_list.count() - 1){
+						my_list.at(i)->cv_akkumulated_next.append(buff_next);
+					}
+					buff_next = my_list.at(i);
+
+				}
+
 			}
+
+			if (my_list.count() > 1){
+				my_list.last()->current_id = 0;
+				my_list.removeLast();
+			}
+			else {
+				//reset sum
+				sum = 0.0;
+
+				if (this->current_id == this->get_number_incoming()) {
+					this->current_id = 0;
+					break;
+				}
+			}	
 		}
-
-	}
-	//next level up
-	for (int j = 0; j < this->no_incoming; j++) {
-		this->incomings[j]->calc_cv_value();
-	}
-
+	} while (1==1);
+	//cout <<" DEBUG: No. starting elements " << buff_counter_start << endl;
+	//Sys_Common_Output::output_dam->output_txt(&cout, true);
 }
 //Add up the CV-value
-void _Dam_CI_Element::add_up_cv(double *sum) {
+void _Dam_CI_Element::add_up_cv(void) {
+	
 	if (this->no_incoming == 0) {
 		return;
 	}
-	for (int i = 0; i < this->no_incoming; i++) {
-		if (this->incomings[i]->al_counted == false) {
-			*sum = *sum + this->incomings[i]->stat_buff;
-			this->incomings[i]->al_counted = true;
+	double sum_buff = 0.0;
+	ostringstream cout;
+	_Dam_CI_Element *buff_elem = NULL;
+	
+
+
+	buff_elem = this;
+	sum_buff = 0.0;
+	int no_before = -1;
+	QList< _Dam_CI_Element*> elem_list_check;
+	elem_list_check.append(buff_elem);
+
+	do {
+		Dam_Damage_System::check_stop_thread_flag();
+		buff_elem=_Dam_CI_Element::get_sum_value_element(buff_elem->cv_akkumulated, &sum_buff, buff_elem->cv_akkumulated_next, &elem_list_check);
+		if (buff_elem == NULL) {
+
+			break;
 		}
-	}
-	for (int i = 0; i < this->no_incoming; i++) {
-		this->incomings[i]->add_up_cv(sum);
-	}
 
 
+
+	} while (1 == 1);
+	
+
+
+	this->set_stat_value(sum_buff);
 
 }
 //Sum and reset CP-value
@@ -1037,19 +1021,126 @@ void _Dam_CI_Element::sum_reset_cp_value(void) {
 	if (this->no_incoming == 0) {
 		return;
 	}
-	//transfer
-	for (int i = 0; i < this->no_incoming; i++) {
-		this->incomings[i]->stat_value= this->incomings[i]->stat_value+this->incomings[i]->stat_buff;
-	}
-	//reset
-	for (int i = 0; i < this->no_incoming; i++) {
-		this->incomings[i]->stat_buff=0.0;
-		this->incomings[i]->al_counted = false;
-	}
-	for (int i = 0; i < this->no_incoming; i++) {
-		this->incomings[i]->sum_reset_cp_value();
+
+	QList<_Dam_CI_Element *> my_list;
+	ostringstream cout;
+	my_list.append(this);
+
+
+
+	do {
+		Dam_Damage_System::check_stop_thread_flag();
+		if (my_list.last()->current_id < my_list.last()->get_number_incoming()) {
+			my_list.last()->current_id++;
+			
+			_Dam_CI_Element *before1 = my_list.last();
+			if (my_list.contains(my_list.last()->incomings[my_list.last()->current_id - 1]) == false) {
+				my_list.append(my_list.last()->incomings[my_list.last()->current_id - 1]);
+
+				for (int i = 0; i < before1->no_incoming; i++) {
+
+					before1->incomings[i]->stat_value = before1->incomings[i]->stat_value + before1->incomings[i]->stat_buff;
+					before1->incomings[i]->stat_buff = 0.0;
+				}
+			}
+			else {
+				my_list.last()->current_id = 0;
+				my_list.removeLast();
+				continue;
+			}
+		}
+		else {
+			if (my_list.count() > 1) {
+				my_list.last()->current_id = 0;
+
+				my_list.removeLast();
+			}
+			else {
+
+				if (this->current_id == this->get_number_incoming()) {
+					this->current_id = 0;
+					break;
+				}
+
+			}
+
+
+
+		}
+
+
+	} while (1 == 1);
+
+}
+//Get sum value and a pointer to the next CI_Element back from list (static)
+_Dam_CI_Element* _Dam_CI_Element::get_sum_value_element(QList<double> sums, double *sum, QList<_Dam_CI_Element*> elem, QList<_Dam_CI_Element*> *check_in_list) {
+
+	if (elem.count() == 0) {
+		return NULL;
 	}
 
+
+	
+	Dam_Damage_System::check_stop_thread_flag();
+	//find min in sectors
+	QList<int> buff_sec_list;
+	for (int i = 0; i < elem.count(); i++) {
+		if (buff_sec_list.contains(elem.at(i)->get_sector_id()) == false) {
+			buff_sec_list.append(elem.at(i)->get_sector_id());
+		}
+	}
+	QList<double> min_sec_list;
+	QList<int> min_id_list;
+	double buff_min = 0.0;
+	int buff_min_id = 0;
+	//go through sector_ search for minimum per sector
+	for (int i = 0; i < buff_sec_list.count(); i++) {
+		buff_min = 99999999999.9;
+		for (int j = 0; j < elem.count(); j++) {
+			if (buff_sec_list.at(i) == elem.at(j)->get_sector_id()) {
+				if (buff_min > sums.at(j)) {
+					buff_min = sums.at(j);
+					buff_min_id = j;
+				}
+			}
+		}
+		min_sec_list.append(buff_min);
+		min_id_list.append(buff_min_id);
+	}
+	//maximum over all sectors
+	double buff_max = 0.0;
+	int buff_max_id = 0;
+	for (int i = 0; i < buff_sec_list.count(); i++) {
+		
+		if (buff_max < min_sec_list.at(i)) {
+			buff_max = min_sec_list.at(i);
+			buff_max_id = min_id_list.at(i);
+		}
+		
+
+	}
+	_Dam_CI_Element* buff_elem =elem.at(buff_max_id);
+	if (check_in_list->contains(buff_elem) == true) {
+		return NULL;
+	}
+	else {
+		check_in_list->append(buff_elem);
+	}
+
+
+
+	double sum_buff = 0.0;
+	for (int i = 0; i < elem.at(buff_max_id)->cp_value_list.count(); i++) {
+		sum_buff = sum_buff + elem.at(buff_max_id)->cp_value_list.at(i);
+
+	}
+	if (sum_buff > 1) {
+		sum_buff = 1;
+	}
+
+	*sum = *sum + sum_buff;
+	
+	return elem.at(buff_max_id);
 }
 //Copy operator
 _Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
@@ -1101,7 +1192,8 @@ _Dam_CI_Element& _Dam_CI_Element::operator=(const _Dam_CI_Element& object) {
 	this->is_point_id = object.is_point_id;
 	this->stat_value = object.stat_value;
 	this->stat_buff = object.stat_buff; 
-	this->al_counted = object.al_counted;
+	this->last_instat_required = object.last_instat_required;
+	
 
 	return *this;
 }
@@ -1164,6 +1256,252 @@ _dam_ci_failure_type _Dam_CI_Element::convert_failuretype2enum(const int id) {
 }
 //____________
 //private
+//Calculate indirect damages; here the method is in!
+void _Dam_CI_Element::calc_indirect_damages(_Dam_CI_Element *current) {
+
+	double buff_time = 0.0;
+	QList<double> buff_list;
+	QList<int> list_sec_failure;
+	//if (this->failure_type_enum == _dam_ci_failure_type::no_failure) {
+	if (current->failure_type_enum != _dam_ci_failure_type::direct) {
+
+
+		for (int i = 0; i < current->list_sec_incoming.count(); i++) {
+			buff_time = 0.0;
+			for (int j = 1; j < current->list_sec_incoming[i].count(); j++) {
+				if (current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+					break;
+				}
+				else {
+					if (j == 1) {
+						buff_time = current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_duration();
+					}
+					else {
+						buff_time = min(buff_time, current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_duration());
+					}
+				}
+				if (j == current->list_sec_incoming[i].count() - 1) {
+					buff_list.append(buff_time);
+					current->was_affected = true;
+					current->active_flag = false;
+					if (current->sector_id == current->list_sec_incoming[i].at(0)) {
+						current->set_failure_type(_dam_ci_failure_type::sectoral);
+					}
+					else {
+						current->set_failure_type(_dam_ci_failure_type::transsectoral);
+					}
+					list_sec_failure.append(current->list_sec_incoming[i].at(0));
+				}
+			}
+		}
+
+		//check emergency structures
+		for (int i = 0; i < current->list_sec_emergency.count(); i++) {
+
+			for (int l = 0; l < list_sec_failure.count(); l++) {
+				if (current->list_sec_emergency[i].at(0) == list_sec_failure.at(l)) {
+					for (int j = 1; j < current->list_sec_emergency[i].count(); j++) {
+						if (current->incomings[current->list_sec_emergency[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+							if (current->incomings[current->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
+								current->incomings[current->list_sec_emergency[i].at(j)]->set_active_flag(true);
+								current->incomings[current->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
+								buff_list.replace(l, min(buff_list.at(l), current->incomings[current->list_sec_emergency[i].at(j)]->get_activation_time()));
+								if (j > 2) {
+									current->incomings[current->list_sec_emergency[i].at(j - 1)]->set_active_flag(false);
+									current->incomings[current->list_sec_emergency[i].at(j - 1)]->set_was_affected_flag(false);
+								}
+							}
+						}
+						else {
+							if (current->incomings[current->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
+								current->incomings[current->list_sec_emergency[i].at(j)]->set_active_flag(true);
+								current->incomings[current->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
+								current->incomings[current->list_sec_emergency[i].at(j)]->set_failure_type(_dam_ci_failure_type::direct_activ);
+								buff_list.replace(l, min(buff_list.at(l), current->incomings[current->list_sec_emergency[i].at(j)]->get_recovery_time()));
+								if (j > 2) {
+									current->incomings[current->list_sec_emergency[i].at(j - 1)]->set_active_flag(false);
+									current->incomings[current->list_sec_emergency[i].at(j - 1)]->set_was_affected_flag(false);
+									current->incomings[current->list_sec_emergency[i].at(j - 1)]->set_failure_type(_dam_ci_failure_type::direct);
+								}
+							}
+						}
+					}
+
+				}
+			}
+		}
+
+
+
+		//set the duration of failure
+		for (int i = 0; i < buff_list.count(); i++) {
+			current->failure_duration = max(current->failure_duration, buff_list.at(i));
+
+		}
+
+
+	}
+	//set the duration of failure for the direct affected CI-elements
+	else if (current->failure_type_enum == _dam_ci_failure_type::direct) {
+		buff_list.append(current->recovery_time);
+		for (int i = 0; i < current->list_sec_incoming.count(); i++) {
+			buff_time = 0.0;
+			for (int j = 1; j < current->list_sec_incoming[i].count(); j++) {
+				if (current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+					break;
+				}
+				else {
+					if (j == 1) {
+						buff_time = current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_duration();
+					}
+					else {
+						buff_time = min(buff_time, current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_duration());
+					}
+				}
+				if (j == current->list_sec_incoming[i].count() - 1) {
+					buff_list.append(buff_time);
+				}
+			}
+		}
+		//set the duration of failure
+		for (int i = 0; i < buff_list.count(); i++) {
+			current->failure_duration = max(current->failure_duration, buff_list.at(i));
+
+		}
+
+
+	}
+
+}
+//Calculate indirect damages instationary; here the method is in!
+void _Dam_CI_Element::calc_indirect_damages_instationary(_Dam_CI_Element *current, const double time) {
+
+	double buff_time = 0.0;
+	QList<double> buff_list;
+	QList<int> list_sec_failure;
+	if (current->failure_type_enum != _dam_ci_failure_type::direct) {
+		current->failure_duration = 0.0;
+
+
+		for (int i = 0; i < current->list_sec_incoming.count(); i++) {
+			buff_time = 0.0;
+			for (int j = 1; j < current->list_sec_incoming[i].count(); j++) {
+				if (current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+					break;
+				}
+				else {
+					if (j == 1) {
+						buff_time = current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_duration();
+					}
+					else {
+						buff_time = min(buff_time, current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_duration());
+					}
+				}
+				if (j == current->list_sec_incoming[i].count() - 1) {
+					buff_list.append(buff_time);
+					current->was_affected = true;
+					current->active_flag = false;
+					if (current->sector_id == current->list_sec_incoming[i].at(0)) {
+						current->set_failure_type(_dam_ci_failure_type::sectoral);
+						current->set_active_flag(false);
+					}
+					else {
+						current->set_failure_type(_dam_ci_failure_type::transsectoral);
+						current->set_active_flag(false);
+					}
+					list_sec_failure.append(current->list_sec_incoming[i].at(0));
+				}
+			}
+		}
+
+		//check emergency structures
+		for (int i = 0; i < current->list_sec_emergency.count(); i++) {
+			for (int j = 1; j < current->list_sec_emergency[i].count(); j++) {
+				current->incomings[current->list_sec_emergency[i].at(j)]->set_active_flag(false);
+			}
+
+			for (int l = 0; l < list_sec_failure.count(); l++) {
+				if (current->list_sec_emergency[i].at(0) == list_sec_failure.at(l)) {
+					for (int j = 1; j < current->list_sec_emergency[i].count(); j++) {
+						if (current->incomings[current->list_sec_emergency[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+							if (current->incomings[current->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
+								current->incomings[current->list_sec_emergency[i].at(j)]->set_active_time_flag(true, time);
+								current->incomings[current->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
+								buff_list.replace(l, min(buff_list.at(l), current->incomings[current->list_sec_emergency[i].at(j)]->get_activation_time()));
+								if (j > 2) {
+									current->incomings[current->list_sec_emergency[i].at(j - 1)]->set_active_time_flag(false, time);
+									current->incomings[current->list_sec_emergency[i].at(j - 1)]->set_was_affected_flag(false);
+								}
+							}
+						}
+						else {
+							if (current->incomings[current->list_sec_emergency[i].at(j)]->get_activation_time() < buff_list.at(l)) {
+								current->incomings[current->list_sec_emergency[i].at(j)]->set_active_time_flag(true, time);;
+								current->incomings[current->list_sec_emergency[i].at(j)]->set_was_affected_flag(true);
+								current->incomings[current->list_sec_emergency[i].at(j)]->set_failure_type(_dam_ci_failure_type::direct_activ);
+								buff_list.replace(l, min(buff_list.at(l), current->incomings[current->list_sec_emergency[i].at(j)]->get_recovery_time()));
+								if (j > 2) {
+									current->incomings[current->list_sec_emergency[i].at(j - 1)]->set_active_time_flag(false, time);;
+									current->incomings[current->list_sec_emergency[i].at(j - 1)]->set_was_affected_flag(false);
+									current->incomings[current->list_sec_emergency[i].at(j - 1)]->set_failure_type(_dam_ci_failure_type::direct);
+								}
+							}
+						}
+					}
+
+				}
+			}
+		}
+
+
+
+		//set the duration of failure
+		for (int i = 0; i < buff_list.count(); i++) {
+			current->failure_duration = max(current->failure_duration, buff_list.at(i));
+
+		}
+		if (current->failure_duration <= 0.0 + constant::sec_epsilon) {
+			current->failure_duration = 0.0;
+			current->set_failure_type(_dam_ci_failure_type::no_failure);
+			current->set_active_flag(true);
+
+		}
+
+
+	}
+	//set the duration of failure for the direct affected CI-elements
+	else if (current->failure_type_enum == _dam_ci_failure_type::direct) {
+		buff_list.append(current->recovery_time);
+		current->failure_duration = 0.0;
+		for (int i = 0; i < current->list_sec_incoming.count(); i++) {
+			buff_time = 0.0;
+			for (int j = 1; j < current->list_sec_incoming[i].count(); j++) {
+				if (current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_type() == _dam_ci_failure_type::no_failure) {
+					break;
+				}
+				else {
+					if (j == 1) {
+						buff_time = current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_duration();
+					}
+					else {
+						buff_time = min(buff_time, current->incomings[current->list_sec_incoming[i].at(j)]->get_failure_duration());
+					}
+				}
+				if (j == current->list_sec_incoming[i].count() - 1) {
+					buff_list.append(buff_time);
+				}
+			}
+		}
+		//set the duration of failure
+		for (int i = 0; i < buff_list.count(); i++) {
+			current->failure_duration = max(current->failure_duration, buff_list.at(i));
+
+		}
+
+
+	}
+
+}
 //Allocate the incoming CI-elements
 void _Dam_CI_Element::allocate_incomings(void) {
 	try {

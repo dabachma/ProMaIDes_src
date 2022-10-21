@@ -15,8 +15,8 @@ HydGui_System_Member_Wid::HydGui_System_Member_Wid(DataRole role, QWidget *paren
 	// TSTART
 	ui.tstart->set_label_text("Start timestep [s]");
 	ui.tstart->set_tooltip("Starting time of the simulation [s] [optional; standard value =0.0]");
-	ui.tstart->set_range(0, 1000000);
-	ui.tstart->set_increment(60.0);
+	ui.tstart->set_range(0, 10000000000);
+	ui.tstart->set_increment(86400.0);
 	ui.tstart->set_dataRole(role);
 
 	// TSTEP
@@ -47,7 +47,7 @@ HydGui_System_Member_Wid::HydGui_System_Member_Wid(DataRole role, QWidget *paren
 	// MAXSTEPSIZE
 	ui.maxstepsize->set_label_text("Maximum solver stepsize [s]");
 	ui.maxstepsize->set_tooltip("Maximum solver stepsize  for the solver timesteps [s] [optional; standard value = 3000.0]");
-	ui.maxstepsize->set_range(0, 5000.0);
+	ui.maxstepsize->set_range(0, 5000000.0);
 	ui.maxstepsize->set_increment(1000.0);
 	ui.maxstepsize->set_dataRole(role);
 
