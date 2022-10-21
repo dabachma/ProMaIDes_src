@@ -1737,8 +1737,22 @@ void Dam_Damage_System::calc_instat_damage_nobreak_sz(void) {
 					Hyd_Element_Floodplain::get_distinct_date_time_instat_results_elements_database(&time_date, &this->qsqldatabase, this->system_id, this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz);
 					cout << time_date.count()<< " number of distinct date-time string found in database for scenario " << this->sz_bound_manager.get_ptr_sz(j)->get_name() << " found"<< endl;
 					Sys_Common_Output::output_dam->output_txt(&cout);
+
+
+					Hyd_Param_Global buffer_para;
+					
+					try {
+						buffer_para.globals_per_database(&this->qsqldatabase, false);
+					}
+					catch (Error msg) {
+						throw msg;
+					}
+
+
 					double timestep = 0.0;
-					timestep = Dam_Impact_Value_Floodplain::analyse_date_time(time_date);
+					double start_time_buff = buffer_para.get_startime();
+					//timestep = Dam_Impact_Value_Floodplain::analyse_date_time(time_date)- start_time_buff;
+					timestep = buffer_para.get_stepsize();
 					double time = 0.0;
 
 					for (int i = 0; i < time_date.count(); i++) {
@@ -1772,8 +1786,8 @@ void Dam_Damage_System::calc_instat_damage_nobreak_sz(void) {
 							}
 							string time_str;
 							time = time + timestep;
-							time_str=functions::convert_time2time_str_without(time);
-							cout << "Caluclate CI-time: " << time_str << " as timestep number " << counter << " until all CI-elements are active is reached" << endl;
+							time_str=functions::convert_time2time_str_without(time+ start_time_buff);
+							cout << "Calculate CI-time: " << time_str << " as timestep number " << counter << " until all CI-elements are active is reached" << endl;
 							Sys_Common_Output::output_dam->output_txt(&cout);
 							Dam_Damage_System::check_stop_thread_flag();
 							this->set_instat_impact_values_hyd(this->sz_bound_manager.get_ptr_sz(j)->get_id(), this->break_sz, time_str);
@@ -1956,8 +1970,24 @@ void Dam_Damage_System::calc_instat_damage_break_sz(void) {
 					Hyd_Element_Floodplain::get_distinct_date_time_instat_results_elements_database(&time_date, &this->qsqldatabase, this->system_id, this->ptr_break_sc_data[j].id_hyd_sc, this->ptr_break_sc_data[j].break_sc);
 					cout << time_date.count() << " number of distinct date-time string found in database for break scenario " << this->ptr_break_sc_data[j].id_hyd_sc<< " " << this->ptr_break_sc_data[j].break_sc << " found" << endl;
 					Sys_Common_Output::output_dam->output_txt(&cout);
+
+
+
+					Hyd_Param_Global buffer_para;
+
+					try {
+						buffer_para.globals_per_database(&this->qsqldatabase, false);
+					}
+					catch (Error msg) {
+						throw msg;
+					}
+
+
 					double timestep = 0.0;
-					timestep = Dam_Impact_Value_Floodplain::analyse_date_time(time_date);
+
+					double start_time_buff = buffer_para.get_startime();
+					//timestep = Dam_Impact_Value_Floodplain::analyse_date_time(time_date) - start_time_buff;
+					timestep = buffer_para.get_stepsize();
 					double time = 0.0;
 
 					for (int i = 0; i < time_date.count(); i++) {
@@ -1992,7 +2022,7 @@ void Dam_Damage_System::calc_instat_damage_break_sz(void) {
 							}
 							string time_str;
 							time = time + timestep;
-							time_str = functions::convert_time2time_str_without(time);
+							time_str = functions::convert_time2time_str_without(time + start_time_buff);
 							cout << "Caluclate CI-time: " << time_str << " as timestep number " << counter << " until all CI-elements are active is reached" << endl;
 							Sys_Common_Output::output_dam->output_txt(&cout);
 							Dam_Damage_System::check_stop_thread_flag();
