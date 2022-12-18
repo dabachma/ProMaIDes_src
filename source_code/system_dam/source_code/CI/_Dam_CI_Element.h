@@ -32,6 +32,8 @@ enum _dam_ci_sector {
 	water_supply = 3,
 	///Water treatment
 	water_treatment = 4,
+	//Energy
+	energy =5,
 
 
 	///Emergency service

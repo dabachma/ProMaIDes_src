@@ -712,7 +712,6 @@ Hyd_Model_River* Hyd_Coupling_RV2FP_Merged::get_river_model(void){
 bool Hyd_Coupling_RV2FP_Merged::get_river_model_is_setted(void){
 	return this->river_model_is_set;
 }
-
 //Get the number of coupled floodplains
 int Hyd_Coupling_RV2FP_Merged::get_number_coupled_fp(void){
 	return this->number_fp_models;
@@ -939,7 +938,7 @@ void Hyd_Coupling_RV2FP_Merged::clone_couplings(Hyd_Coupling_RV2FP_Merged *coupl
 			this->direct_coupled_fpelem_in->element_type->set_coupling_data();
 		}
 	}
-	if(this->direct_coupled_fp_out!=NULL){
+	if(coupling->direct_coupled_fp_out!=NULL){
 		this->direct_coupled_fp_out=system->get_ptr_floodplain_model(coupling->direct_coupled_fp_out->Param_FP.get_floodplain_number());	
 		this->direct_coupled_fpelem_out=this->direct_coupled_fp_out->get_ptr_floodplain_elem(this->direct_coupled_elem_index_out);
 		if(this->direct_coupled_fpelem_out!=NULL){

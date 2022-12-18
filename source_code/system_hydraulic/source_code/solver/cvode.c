@@ -1278,6 +1278,8 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
   realtype troundoff, tout_hin, rh, nrm;
   booleantype inactive_roots;
 
+  
+
   /*
    * -------------------------------------
    * 1. Check and process inputs

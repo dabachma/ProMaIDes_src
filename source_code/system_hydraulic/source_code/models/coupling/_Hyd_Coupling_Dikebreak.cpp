@@ -986,8 +986,16 @@ double _Hyd_Coupling_Dikebreak::calculate_continuous_breach(_hyd_break_parameter
 	double fak1=this->f1*pow(constant::Cgg,0.5)/break_params->resistance;
 	double fak2=this->f2*constant::Cgg/(break_params->resistance*(double)constant::hour_second);
 
+
+	//ostringstream cout;
+
 	//calculate the ideal time
 	ideal_t=this->calculate_ideal_breach_time(fak1, fak2, abs(d_h));
+	//if (abs(d_h) > 0.0) {
+
+		//cout << "t_ideal " << ideal_t <<", d_h " << d_h<<" , fak1 " << fak1<< ", fak2 " <<fak2<< endl;
+		//Sys_Common_Output::output_hyd->output_txt(&cout);
+	//}
 	
 	//calculate the delta breach width
 	grad_breach=fak1*fak2*pow(abs(d_h),1.5)*(1.0/(log(10.0)*(1.0+fak2*(ideal_t))));

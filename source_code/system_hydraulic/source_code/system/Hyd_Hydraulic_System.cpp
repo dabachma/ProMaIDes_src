@@ -2687,6 +2687,10 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 	//starttime for this internal time step
 	this->internal_time=this->output_time-this->global_parameters.GlobTStep;
 
+	//ostringstream out;
+	//out<< this->get_identifier_prefix()<<" Start internal"<<endl;
+	//Sys_Common_Output::output_hyd->output_txt(&out);
+
 	//loop over the internal timesteps
 	do{
 		//calculate optimal internal timestep
@@ -2704,6 +2708,10 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		//sycronisation of the models; set boundary condition
+
+		//out << this->get_identifier_prefix() << " syncron" << endl;
+		//Sys_Common_Output::output_hyd->output_txt(&out);
+
 		this->make_syncron_rivermodel();
 		this->make_syncron_floodplainmodel();
 		if(this->global_parameters.coastmodel_applied==true){
@@ -2722,9 +2730,16 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 		//this->get_max_changes_floodplainmodel(&buff1, false);
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
+		//out << this->get_identifier_prefix() << " RV" << endl;
+		//Sys_Common_Output::output_hyd->output_txt(&out);
+
 		//calculation river models
 		this->make_calculation_rivermodel();
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+
+		//out << this->get_identifier_prefix() << " FP" << endl;
+		//Sys_Common_Output::output_hyd->output_txt(&out);
+
 		//calculation floodplain models
 		this->make_calculation_floodplainmodel();
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
@@ -2752,6 +2767,10 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 	//reset time difference
 	this->diff_real_time=0.0;
 
+
+	//out << this->get_identifier_prefix() << " loop out" << endl;
+	//Sys_Common_Output::output_hyd->output_txt(&out);
+
 	//time calculations
 	//transform the seconds of the output time step into hours, day etc
 	this->model_time_str=functions::convert_seconds2string(this->output_time);
@@ -2769,7 +2788,8 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 
 	time=functions::convert_time2time_str(this->internal_time);
 
-
+	//out << this->get_identifier_prefix() << " output" << endl;
+	//Sys_Common_Output::output_hyd->output_txt(&out);
 
 	//output the results of the river models to file
 	this->output_calculation_steps_rivermodel2file(this->internal_time);

@@ -584,6 +584,9 @@ string _Dam_CI_Element::convert_sector_id2txt(const _dam_ci_sector sec) {
 	case _dam_ci_sector::water_treatment:
 		buffer = dam_label::ci_water_treat;
 		break;
+	case _dam_ci_sector::energy:
+		buffer = dam_label::ci_energy;
+		break;
 	case _dam_ci_sector::emergency_service:
 		buffer = dam_label::ci_emerg;
 		break;
@@ -635,6 +638,9 @@ _dam_ci_sector _Dam_CI_Element::convert_id2enum(const int id) {
 		break;
 	case 4:
 		buffer = _dam_ci_sector::water_treatment;
+		break;
+	case 5:
+		buffer = _dam_ci_sector::energy;
 		break;
 
 
@@ -735,7 +741,7 @@ void _Dam_CI_Element::check_connections(void) {
 		}
 
 	}
-	if (this->final_flag==true && this->sector_id <= 4){
+	if (this->final_flag==true && this->sector_id <= 5){
 		for (int i = 0; i < this->no_incoming; i++) {
 			if (this->incomings[i]->get_sector_id() != this->sector_id) {
 				Error msg = this->set_error(7);

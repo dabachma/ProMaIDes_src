@@ -2931,6 +2931,8 @@ namespace dam_label{
 	const string ci_water_sup("Water_supply");
 	///String for the CI sector \see _Dam_CI_Element 
 	const string ci_water_treat("Water_treatment");
+	///String for the CI sector \see _Dam_CI_Element 
+	const string ci_energy("Energy");
 
 	///String for the CI sector \see _Dam_CI_Element 
 	const string ci_emerg("Emergency_service");

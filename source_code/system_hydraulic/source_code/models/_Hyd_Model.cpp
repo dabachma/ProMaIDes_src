@@ -142,11 +142,11 @@ void _Hyd_Model::init_solver(Hyd_Param_Global *global_params){
 	}
 
 	//Set the maximum of error test failure
-	flag=CVodeSetMaxErrTestFails(this->cvode_mem, 6);
+	flag=CVodeSetMaxErrTestFails(this->cvode_mem, 10);
 	if(flag<0){
 		Error msg=this->set_error(1);
 		ostringstream info;
-		info <<"Solver function: CVodeSetMaxErrTestFails(this->cvode_mem, 7)"<< endl;
+		info <<"Solver function: CVodeSetMaxErrTestFails(this->cvode_mem, 10)"<< endl;
 		info <<"CVode: " << this->cvode_init_flags2string(flag) << endl;
 		msg.make_second_info(info.str());
 		throw msg;
@@ -348,7 +348,13 @@ void _Hyd_Model::run_solver(const double next_time_point, const string system_id
 	}
 
 	do{
+		//ostringstream out;
+		//out << "   RV " << next_time_point << endl;
+		//Sys_Common_Output::output_hyd->output_txt(&out);
+
 		okflag=CVode(this->cvode_mem, next_time_point, this->results, &this->reached_time, CV_NORMAL);
+		//out << "   RV solve finsihed "  <<okflag<< endl;
+		//Sys_Common_Output::output_hyd->output_txt(&out);
 
 		//Error
 		if(okflag<-4){

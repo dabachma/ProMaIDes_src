@@ -2439,6 +2439,15 @@ void Hyd_Model_River::solve_model(const double next_time_point, const string sys
 		ostringstream info;
 		info << "Time point  :" << next_time_point << endl;
 		info << "Rivernumber :" << this->Param_RV.RVNumber << endl;
+		string buffer = this->Param_RV.get_filename_result2file_1d(hyd_label::paraview);
+		//Add time and file type
+		buffer += "_";
+		int time = (int)next_time_point;
+		buffer += std::to_string(time);
+		buffer += hyd_label::csv;
+		info << "Exception output 1d-RV results are written in " << buffer << endl;
+		info << "Please check it for unplausible results; check the 1d-RV model " <<  endl;
+		this->output_result2csv_1d(next_time_point, -999);
 		msg.make_second_info(info.str());
 		throw msg;
 	}	
@@ -4327,6 +4336,10 @@ int __cdecl f1D_equation2solve( realtype time, N_Vector results, N_Vector da_dt,
 
 	realtype *dh_da_data=NULL;
 	dh_da_data=NV_DATA_S(da_dt);
+
+	//ostringstream out;
+	//out << "   RV solver 1 "  << time<< endl;
+	//Sys_Common_Output::output_hyd->output_txt(&out);
 	// Initialize da_dt with zero; not required
 	//N_VConst(0.0, da_dt);
 
@@ -4381,7 +4394,8 @@ int __cdecl f1D_equation2solve( realtype time, N_Vector results, N_Vector da_dt,
 		throw msg;
 	}
 
-
+	//out << "   RV solver 2 " << time << endl;
+	//Sys_Common_Output::output_hyd->output_txt(&out);
 	
 	//set the flow specific values for the inbetween profiles (the calculated area is given to the first profile of a segment)
 	for(int i=0; i < rv_data->number_inbetween_profiles; i++){
@@ -4453,6 +4467,9 @@ int __cdecl f1D_equation2solve( realtype time, N_Vector results, N_Vector da_dt,
 		throw msg;
 	}
 
+	//out << "   RV solver 3 " << time << endl;
+	//Sys_Common_Output::output_hyd->output_txt(&out);
+
 	try{
 		//set the actual river discharges
 		//for the profile after the inflow profile
@@ -4499,85 +4516,89 @@ int __cdecl f1D_equation2solve( realtype time, N_Vector results, N_Vector da_dt,
 	}
 
 	//boundary discharges are setted by syncronisation
-
-	//set the da_dt values for each river segment
-	//set the inflow discharge
-	if(rv_data->inflow_river_profile.get_h_inflow_is_given()==false){
-		dh_da_data[0]=rv_data->inflow_river_profile.get_q_inflow();	
-		//outprofile is next profile
-		if(rv_data->number_inbetween_profiles==0){
-			dh_da_data[0]=dh_da_data[0]+(-1.0)*rv_data->outflow_river_profile.get_calculated_river_discharge();
-		}
-		else{
-			//discharge through profile for first segment
-			dh_da_data[0]=dh_da_data[0]+(-1.0)*rv_data->river_profiles[0].get_actual_river_discharge();
-		}
-		dh_da_data[0]=rv_data->inflow_river_profile.get_total_boundary_coupling_discharge(time,dh_da_data[0]);
-
-	}
-	if(rv_data->number_inbetween_profiles!=0){
-		
-		//discharge through profile for last segment (!!!get actutal river discharge!!!!?)
-		dh_da_data[rv_data->number_inbetween_profiles]=rv_data->river_profiles[rv_data->number_inbetween_profiles-1].get_actual_river_discharge()+(-1.0)*rv_data->outflow_river_profile.get_calculated_river_discharge();
-		//dh_da_data[rv_data->number_inbetween_profiles] = rv_data->river_profiles[rv_data->number_inbetween_profiles - 1].get_actual_river_discharge() + (-1.0)*rv_data->outflow_river_profile.get_actual_river_discharge();
-		dh_da_data[rv_data->number_inbetween_profiles]=rv_data->river_profiles[rv_data->number_inbetween_profiles-1].get_total_boundary_coupling_discharge(time,dh_da_data[rv_data->number_inbetween_profiles]);
-
-
-		//for the inbetween profiles
-		for(int i=1; i< rv_data->number_inbetween_profiles; i++){
-			//discharge through profile for corresponding segment
-			dh_da_data[i]=rv_data->river_profiles[i-1].get_actual_river_discharge()+(-1.0)*rv_data->river_profiles[i].get_actual_river_discharge();
-			dh_da_data[i]=rv_data->river_profiles[i-1].get_total_boundary_coupling_discharge(time,dh_da_data[i]);
-		}
-		
-	}
-
-	//if a h-value is given as inflow boundary set the discharge out of the next downstream profile as inflow discharge
-	if(rv_data->inflow_river_profile.get_h_inflow_is_given()==true ){
-		rv_data->inflow_river_profile.set_q_inflow_interim(-1.0*dh_da_data[0], time);
-		dh_da_data[0]=0.0;
-	}
-
-	
-	//transform discharge [m³/s] into areas per second [m²/s] by dividing through the half segment length upstream/downstream
-	dh_da_data[0]=dh_da_data[0]/(rv_data->inflow_river_profile.get_distance2downstream()*0.5);
-	for(int i=0; i<rv_data->number_inbetween_profiles; i++){
-		dh_da_data[i+1]=dh_da_data[i+1]/((rv_data->river_profiles[i].get_distance2upstream()+rv_data->river_profiles[i].get_distance2downstream())*0.5);
-	}
-
-
-
-
-	//calculate the hydrological balance for the outflow profile
-	rv_data->outflow_river_profile.calculate_hydrological_balance_outflow(time);
-
-
-
-	//calculate the stabilization discharge (numerical reasons)
-	for(int i=0; i< rv_data->number_inbetween_profiles; i++){			
-		rv_data->river_profiles[i].calculate_stabilization_discharge();			
-	}
-	rv_data->outflow_river_profile.calculate_stabilization_discharge();
-	//add the stabilization discharge for wet dry flow (numerical reasons)
-	dh_da_data[0]=dh_da_data[0]+rv_data->inflow_river_profile.get_stabilization_discharge(); 
-	if(rv_data->number_inbetween_profiles==0){//outprofile is next profile
-		dh_da_data[0]=dh_da_data[0]+rv_data->outflow_river_profile.get_stabilization_discharge();
-	}
-	else{
-		for(int i=0; i< rv_data->number_inbetween_profiles; i++){
-			if(i==0){
-				dh_da_data[i]=dh_da_data[i]+rv_data->river_profiles[i].get_stabilization_discharge();
+	try{
+		//set the da_dt values for each river segment
+		//set the inflow discharge
+		if(rv_data->inflow_river_profile.get_h_inflow_is_given()==false){
+			dh_da_data[0]=rv_data->inflow_river_profile.get_q_inflow();	
+			//outprofile is next profile
+			if(rv_data->number_inbetween_profiles==0){
+				dh_da_data[0]=dh_da_data[0]+(-1.0)*rv_data->outflow_river_profile.get_calculated_river_discharge();
 			}
 			else{
-				
-				dh_da_data[i]=dh_da_data[i]+(-1.0)*rv_data->river_profiles[i-1].get_stabilization_discharge();
-				dh_da_data[i]=dh_da_data[i]+rv_data->river_profiles[i].get_stabilization_discharge();
+				//discharge through profile for first segment
+				dh_da_data[0]=dh_da_data[0]+(-1.0)*rv_data->river_profiles[0].get_actual_river_discharge();
 			}
+			dh_da_data[0]=rv_data->inflow_river_profile.get_total_boundary_coupling_discharge(time,dh_da_data[0]);
+
+		}
+		if(rv_data->number_inbetween_profiles!=0){
+		
+			//discharge through profile for last segment (!!!get actutal river discharge!!!!?)
+			dh_da_data[rv_data->number_inbetween_profiles]=rv_data->river_profiles[rv_data->number_inbetween_profiles-1].get_actual_river_discharge()+(-1.0)*rv_data->outflow_river_profile.get_calculated_river_discharge();
+			//dh_da_data[rv_data->number_inbetween_profiles] = rv_data->river_profiles[rv_data->number_inbetween_profiles - 1].get_actual_river_discharge() + (-1.0)*rv_data->outflow_river_profile.get_actual_river_discharge();
+			dh_da_data[rv_data->number_inbetween_profiles]=rv_data->river_profiles[rv_data->number_inbetween_profiles-1].get_total_boundary_coupling_discharge(time,dh_da_data[rv_data->number_inbetween_profiles]);
+
+
+			//for the inbetween profiles
+			for(int i=1; i< rv_data->number_inbetween_profiles; i++){
+				//discharge through profile for corresponding segment
+				dh_da_data[i]=rv_data->river_profiles[i-1].get_actual_river_discharge()+(-1.0)*rv_data->river_profiles[i].get_actual_river_discharge();
+				dh_da_data[i]=rv_data->river_profiles[i-1].get_total_boundary_coupling_discharge(time,dh_da_data[i]);
+			}
+		
 		}
 
-		//discharge through profile for last segment
-		dh_da_data[rv_data->number_inbetween_profiles]=dh_da_data[rv_data->number_inbetween_profiles]+(-1.0)*rv_data->river_profiles[rv_data->number_inbetween_profiles-1].get_stabilization_discharge();
-		dh_da_data[rv_data->number_inbetween_profiles]=dh_da_data[rv_data->number_inbetween_profiles]+rv_data->outflow_river_profile.get_stabilization_discharge();
+		//if a h-value is given as inflow boundary set the discharge out of the next downstream profile as inflow discharge
+		if(rv_data->inflow_river_profile.get_h_inflow_is_given()==true ){
+			rv_data->inflow_river_profile.set_q_inflow_interim(-1.0*dh_da_data[0], time);
+			dh_da_data[0]=0.0;
+		}
+
+	
+		//transform discharge [m³/s] into areas per second [m²/s] by dividing through the half segment length upstream/downstream
+		dh_da_data[0]=dh_da_data[0]/(rv_data->inflow_river_profile.get_distance2downstream()*0.5);
+		for(int i=0; i<rv_data->number_inbetween_profiles; i++){
+			dh_da_data[i+1]=dh_da_data[i+1]/((rv_data->river_profiles[i].get_distance2upstream()+rv_data->river_profiles[i].get_distance2downstream())*0.5);
+		}
+
+
+
+
+		//calculate the hydrological balance for the outflow profile
+		rv_data->outflow_river_profile.calculate_hydrological_balance_outflow(time);
+
+
+
+		//calculate the stabilization discharge (numerical reasons)
+		for(int i=0; i< rv_data->number_inbetween_profiles; i++){			
+			rv_data->river_profiles[i].calculate_stabilization_discharge();			
+		}
+		rv_data->outflow_river_profile.calculate_stabilization_discharge();
+		//add the stabilization discharge for wet dry flow (numerical reasons)
+		dh_da_data[0]=dh_da_data[0]+rv_data->inflow_river_profile.get_stabilization_discharge(); 
+		if(rv_data->number_inbetween_profiles==0){//outprofile is next profile
+			dh_da_data[0]=dh_da_data[0]+rv_data->outflow_river_profile.get_stabilization_discharge();
+		}
+		else{
+			for(int i=0; i< rv_data->number_inbetween_profiles; i++){
+				if(i==0){
+					dh_da_data[i]=dh_da_data[i]+rv_data->river_profiles[i].get_stabilization_discharge();
+				}
+				else{
+				
+					dh_da_data[i]=dh_da_data[i]+(-1.0)*rv_data->river_profiles[i-1].get_stabilization_discharge();
+					dh_da_data[i]=dh_da_data[i]+rv_data->river_profiles[i].get_stabilization_discharge();
+				}
+			}
+
+			//discharge through profile for last segment
+			dh_da_data[rv_data->number_inbetween_profiles]=dh_da_data[rv_data->number_inbetween_profiles]+(-1.0)*rv_data->river_profiles[rv_data->number_inbetween_profiles-1].get_stabilization_discharge();
+			dh_da_data[rv_data->number_inbetween_profiles]=dh_da_data[rv_data->number_inbetween_profiles]+rv_data->outflow_river_profile.get_stabilization_discharge();
+		}
+	}
+	catch (Error msg) {
+		throw msg;
 	}
 	return 0;
 }
