@@ -3530,90 +3530,104 @@ void _Hyd_River_Profile::output_max_results(QSqlDatabase *ptr_database, const in
 
 	//set the query via a query string
 	ostringstream query_string;
-	query_string << "INSERT INTO  " << _Hyd_River_Profile::erg_table->get_table_name();
-	query_string <<" ( ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(label::glob_id) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::profdata_rvno) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::profdata_prof_id) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(label::areastate_id) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(label::measure_id) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::sz_bound_id) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(risk_label::sz_break_id) <<" , ";
-	//volumes
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_rv_in) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_rv_out) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_struc_in) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_struc_out) <<" , ";
+	//put it in a functions
+	this->generate_max_str2database(&query_string, rv_no, polygon_string, glob_id, break_sc);
+	//query_string << "INSERT INTO  " << _Hyd_River_Profile::erg_table->get_table_name();
+	//query_string <<" ( ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(label::glob_id) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::profdata_rvno) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::profdata_prof_id) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(label::areastate_id) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(label::measure_id) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::sz_bound_id) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(risk_label::sz_break_id) <<" , ";
+	////volumes
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_rv_in) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_rv_out) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_struc_in) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_struc_out) <<" , ";
 
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_ov_in) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_ov_out) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_ov_in) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_ov_out) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_ov_in) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_ov_out) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_ov_in) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_ov_out) <<" , ";
 
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_db_in) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_db_out) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_db_in) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_db_out) <<" , ";
-	//max values
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_q_max) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_lb) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_rb) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_lb_break) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_rb_break) <<" , ";
-	//max values from profile type
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_h_max) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_s_max) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_t_hmax) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_v_max) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_width_max) << " , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_dur_wet) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_dur_dry) <<" , ";
-	query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_polygon) <<" ) ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_db_in) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_db_out) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_db_in) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_db_out) <<" , ";
+	////max values
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_q_max) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_lb) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_rb) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_lb_break) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_rb_break) <<" , ";
+	////max values from profile type
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_h_max) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_s_max) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_t_hmax) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_v_max) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_width_max) << " , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_dur_wet) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_dur_dry) <<" , ";
+	//query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_polygon) <<" ) ";
 
-	query_string << " VALUES ( ";
-	query_string << *glob_id << " , " ;
-	query_string << rv_no << " , " ;
-	query_string << this->profile_number << " , " ;
-	query_string << this->system_id.area_state << " , " ;
-	query_string << this->system_id.measure_nr << " , " ;
-	query_string << this->hyd_sz.get_id() << " , " ;
-	query_string << "'" << break_sc << "' , " ;
-	//volumes
-	query_string << this->coupling_1d_volume.volume_in << " , " ;
-	query_string << this->coupling_1d_volume.volume_out << " , " ;
-	query_string << this->structure_coupling_volume.volume_in << " , " ;
-	query_string << this->structure_coupling_volume.volume_out << " , " ;
+	//query_string << " VALUES ( ";
+	//query_string << *glob_id << " , " ;
+	//query_string << rv_no << " , " ;
+	//query_string << this->profile_number << " , " ;
+	//query_string << this->system_id.area_state << " , " ;
+	//query_string << this->system_id.measure_nr << " , " ;
+	//query_string << this->hyd_sz.get_id() << " , " ;
+	//query_string << "'" << break_sc << "' , " ;
+	////volumes
+	//query_string << this->coupling_1d_volume.volume_in << " , " ;
+	//query_string << this->coupling_1d_volume.volume_out << " , " ;
+	//query_string << this->structure_coupling_volume.volume_in << " , " ;
+	//query_string << this->structure_coupling_volume.volume_out << " , " ;
 
-	query_string << this->left_bank_overflow_volume.volume_in << " , " ;
-	query_string << this->left_bank_overflow_volume.volume_out << " , " ;
-	query_string << this->right_bank_overflow_volume.volume_in << " , " ;
-	query_string << this->right_bank_overflow_volume.volume_out << " , " ;
+	//query_string << this->left_bank_overflow_volume.volume_in << " , " ;
+	//query_string << this->left_bank_overflow_volume.volume_out << " , " ;
+	//query_string << this->right_bank_overflow_volume.volume_in << " , " ;
+	//query_string << this->right_bank_overflow_volume.volume_out << " , " ;
 
-	query_string << this->left_dikebreak_coupling_volume.volume_in << " , " ;
-	query_string << this->left_dikebreak_coupling_volume.volume_out << " , " ;
-	query_string << this->right_dikebreak_coupling_volume.volume_in << " , " ;
-	query_string << this->right_dikebreak_coupling_volume.volume_out << " , " ;
-	//max values
-	query_string << this->q_value_max.maximum << " , " ;
-	query_string << this->h_max_left_base << " , " ;
-	query_string << this->h_max_right_base << " , " ;
-	query_string << this->max_h_2break_left<< " , " ;
-	query_string << this->max_h_2break_right<< " , " ;
-	//max values from profile type
-	query_string << this->typ_of_profile->set_maximum_value2string();
-	query_string << polygon_string <<" ) ";
+	//query_string << this->left_dikebreak_coupling_volume.volume_in << " , " ;
+	//query_string << this->left_dikebreak_coupling_volume.volume_out << " , " ;
+	//query_string << this->right_dikebreak_coupling_volume.volume_in << " , " ;
+	//query_string << this->right_dikebreak_coupling_volume.volume_out << " , " ;
+	////max values
+	//query_string << this->q_value_max.maximum << " , " ;
+	//query_string << this->h_max_left_base << " , " ;
+	//query_string << this->h_max_right_base << " , " ;
+	//query_string << this->max_h_2break_left<< " , " ;
+	//query_string << this->max_h_2break_right<< " , " ;
+	////max values from profile type
+	//query_string << this->typ_of_profile->set_maximum_value2string();
+	//query_string << polygon_string <<" ) ";
 
 	//submit it to the datbase
 	Data_Base::database_request(&model, query_string.str(), ptr_database);
 
 	if(model.lastError().isValid()){
-		Warning msg=this->set_warning(3);
-		ostringstream info;
-		info << "Table Name                : " << _Hyd_River_Profile::erg_table->get_table_name() << endl;
-		info << "Table error info          : " << model.lastError().text().toStdString() << endl;
-		info << "Profile number            : " << this->profile_number << endl;
-		msg.make_second_info(info.str());
-		msg.output_msg(2);
+		//try new glob id
+		//renew it
+		*glob_id = _Hyd_River_Profile::erg_table->maximum_int_of_column(_Hyd_River_Profile::erg_table->get_column_name(label::glob_id), ptr_database)+1;
+		query_string.clear();
+		this->generate_max_str2database(&query_string, rv_no, polygon_string, glob_id, break_sc);
+		model.clear();
+		//second try
+		Data_Base::database_request(&model, query_string.str(), ptr_database);
+		if (model.lastError().isValid()) {
+			Warning msg = this->set_warning(3);
+			ostringstream info;
+			info << "Table Name                : " << _Hyd_River_Profile::erg_table->get_table_name() << endl;
+			info << "Table error info          : " << model.lastError().text().toStdString() << endl;
+			info << "Profile number            : " << this->profile_number << endl;
+			info << " Two glob ids were checked! " << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(2);
+		}
+		
 	}
 	*glob_id=(*glob_id)+1;
 }
@@ -4455,6 +4469,85 @@ void _Hyd_River_Profile::delete_bridge_data(void){
 //Calculate the river width
 void _Hyd_River_Profile::calculate_river_width(void) {
 	this->river_width = this->typ_of_profile->get_first_point()->distance(this->typ_of_profile->get_last_point());
+}
+//Generate string for output max-results to database
+void _Hyd_River_Profile::generate_max_str2database(ostringstream *query_string, const int rv_no, const string polygon_string, int *glob_id, const string break_sc) {
+	*query_string << "INSERT INTO  " << _Hyd_River_Profile::erg_table->get_table_name();
+	*query_string << " ( ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(label::glob_id) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::profdata_rvno) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::profdata_prof_id) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(label::areastate_id) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(label::measure_id) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::sz_bound_id) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(risk_label::sz_break_id) << " , ";
+	//volumes
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_rv_in) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_rv_out) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_struc_in) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_struc_out) << " , ";
+
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_ov_in) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_ov_out) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_ov_in) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_ov_out) << " , ";
+
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_db_in) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_l_db_out) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_db_in) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_cv_r_db_out) << " , ";
+	//max values
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_q_max) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_lb) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_rb) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_lb_break) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_hmax_rb_break) << " , ";
+	//max values from profile type
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_h_max) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_s_max) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_t_hmax) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_v_max) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_width_max) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_dur_wet) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_dur_dry) << " , ";
+	*query_string << _Hyd_River_Profile::erg_table->get_column_name(hyd_label::proferg_polygon) << " ) ";
+
+	*query_string << " VALUES ( ";
+	*query_string << *glob_id << " , ";
+	*query_string << rv_no << " , ";
+	*query_string << this->profile_number << " , ";
+	*query_string << this->system_id.area_state << " , ";
+	*query_string << this->system_id.measure_nr << " , ";
+	*query_string << this->hyd_sz.get_id() << " , ";
+	*query_string << "'" << break_sc << "' , ";
+	//volumes
+	*query_string << this->coupling_1d_volume.volume_in << " , ";
+	*query_string << this->coupling_1d_volume.volume_out << " , ";
+	*query_string << this->structure_coupling_volume.volume_in << " , ";
+	*query_string << this->structure_coupling_volume.volume_out << " , ";
+
+	*query_string << this->left_bank_overflow_volume.volume_in << " , ";
+	*query_string << this->left_bank_overflow_volume.volume_out << " , ";
+	*query_string << this->right_bank_overflow_volume.volume_in << " , ";
+	*query_string << this->right_bank_overflow_volume.volume_out << " , ";
+
+	*query_string << this->left_dikebreak_coupling_volume.volume_in << " , ";
+	*query_string << this->left_dikebreak_coupling_volume.volume_out << " , ";
+	*query_string << this->right_dikebreak_coupling_volume.volume_in << " , ";
+	*query_string << this->right_dikebreak_coupling_volume.volume_out << " , ";
+	//max values
+	*query_string << this->q_value_max.maximum << " , ";
+	*query_string << this->h_max_left_base << " , ";
+	*query_string << this->h_max_right_base << " , ";
+	*query_string << this->max_h_2break_left << " , ";
+	*query_string << this->max_h_2break_right << " , ";
+	//max values from profile type
+	*query_string << this->typ_of_profile->set_maximum_value2string();
+	*query_string << polygon_string << " ) ";
+
+
+
+
 }
 //Delete all data in the database table for the river profile data (static)
 void _Hyd_River_Profile::delete_data_in_profile_table(QSqlDatabase *ptr_database){

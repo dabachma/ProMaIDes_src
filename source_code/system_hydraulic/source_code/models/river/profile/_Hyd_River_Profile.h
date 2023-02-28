@@ -658,6 +658,9 @@ private:
 	///Calculate the river width
 	void calculate_river_width(void);
 
+	///Generate string for output max-results to database
+	void generate_max_str2database(ostringstream *query_string, const int rv_no, const string polygon_string, int *glob_id, const string break_sc);
+
 	///Delete all data in the database table for the river profile data
 	static void delete_data_in_profile_table(QSqlDatabase *ptr_database);
 	///Close and delete the database table for the river profile data

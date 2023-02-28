@@ -1277,6 +1277,7 @@ void Hyd_Hydraulic_System::init_solver(void){
 		throw msg;
 	}
 	//floodplain models
+	//2DGPU
 	try{
 		this->set_start_warning_number();
 		//set the parameters for Hyd_Model_Floodplain
@@ -1286,6 +1287,7 @@ void Hyd_Hydraulic_System::init_solver(void){
 			//init the solver
 			cout<<"Initialize the solver for floodplain model ..."<< endl;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
+			//2DGPU
 			this->my_fpmodels[j].init_solver(&this->global_parameters);
 
 			Sys_Common_Output::output_hyd->rewind_userprefix();
@@ -2685,6 +2687,7 @@ void Hyd_Hydraulic_System::check_models(void){
 //make the calculation the internal loop (output time steps)
 void Hyd_Hydraulic_System::make_calculation_internal(void){
 	//starttime for this internal time step
+	
 	this->internal_time=this->output_time-this->global_parameters.GlobTStep;
 
 	//ostringstream out;
@@ -2713,6 +2716,7 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 		//Sys_Common_Output::output_hyd->output_txt(&out);
 
 		this->make_syncron_rivermodel();
+		//2DGPU
 		this->make_syncron_floodplainmodel();
 		if(this->global_parameters.coastmodel_applied==true){
 			this->my_comodel->make_syncronisation((this->internal_time+this->internal_timestep_current*0.5)-this->global_parameters.get_startime());
@@ -2741,6 +2745,7 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 		//Sys_Common_Output::output_hyd->output_txt(&out);
 
 		//calculation floodplain models
+		//2DGPU
 		this->make_calculation_floodplainmodel();
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
@@ -2889,6 +2894,7 @@ void Hyd_Hydraulic_System::make_calculation_rivermodel(void){
 //Make the syncronisation of the floodplain models for each internal step
 void Hyd_Hydraulic_System::make_syncron_floodplainmodel(void){
 	//make syncronisation(boundary conditions)
+	//2DGPU
 	for(int i=0; i< this->global_parameters.GlobNofFP;i++){
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		this->my_fpmodels[i].make_syncronisation((this->internal_time+this->internal_timestep_current*0.5)-this->global_parameters.get_startime());
@@ -2921,6 +2927,7 @@ void Hyd_Hydraulic_System::reset_solver_fp_models(void){
 //make the calculation of the floodplain models
 void Hyd_Hydraulic_System::make_calculation_floodplainmodel(void){
 	//solve it
+	//2DGPU
 	for(int i=0; i< this->global_parameters.GlobNofFP;i++){
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		this->my_fpmodels[i].solve_model(this->next_internal_time-this->global_parameters.get_startime(), this->get_identifier_prefix(false));

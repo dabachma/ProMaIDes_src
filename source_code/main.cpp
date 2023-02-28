@@ -79,6 +79,7 @@ int main(int argc, char *argv[]){
     //qt-macro for inititalize the resources which are stored in a static library
         Q_INIT_RESOURCE(system_sys_resource);
         Q_INIT_RESOURCE(hydroxygen);
+		//QLocale::setDefault(QLocale("en_US"));
 		//set lib path
         QStringList buff;
         buff.append(QCoreApplication::applicationDirPath().append("/platforms"));

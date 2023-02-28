@@ -80,6 +80,7 @@ void _Hyd_Model::init_solver(Hyd_Param_Global *global_params){
 		throw msg;
 	}
 	//set the init condition
+	//2DGPU
 	this->set_initcond2resultvector();
 
 	//allocate the solver object 

@@ -1121,7 +1121,12 @@ void Hyd_Model_Floodplain::solve_model(const double next_time_point, const strin
 		this->update_opt_data_by_elems();
 		this->calc_set_max_step_size(next_time_point);
 
+		//2DGPU here if else statement (later user can set it via file and GUI)
+		
 		this->run_solver(next_time_point, system_id);
+
+		///GPU_solver()
+		//this->results_real[counter]
 
         long int counter=0;
         long int counter_wet=0;
@@ -3792,6 +3797,7 @@ void Hyd_Model_Floodplain::delete_opt_data_reduced(void){
 }
 //Initialize the optimized data
 void Hyd_Model_Floodplain::init_opt_data(void){
+	//2DGPU
 	int counter=0;
     this->NEQ_real=0;
 	for(int i=0; i<this->Param_FP.FPNofY; i++){
