@@ -12,6 +12,7 @@
 #include "Geo_Point.h"
 #include "Hyd_Element_Floodplain.h"
 #include "_Hyd_River_Profile.h"
+#include "HydTemp_Model.h"
 
 ///Data container for information per time step, which are stored in one observation point \ingroup hyd
 struct _hyd_observation_time_point{
@@ -60,6 +61,9 @@ public:
 	///Synchronise observation time
 	void synchron_obs_point(const double time);
 
+	///Synchronise observation time for temperature modelling
+	void synchron_temp_obs_point(const double time);
+
 	///Set the geometrical point information
 	void set_geo_point_info(Geo_Point *point);
 
@@ -71,6 +75,9 @@ public:
 	///Initialize the observation points for river models
 	bool init_obs_point_floodplain(Hyd_Model_Floodplain *model, const int index);
 
+	///Initialize the observation points for temperature models
+	bool init_temp_obs_point_river(HydTemp_Model *model, const int index);
+
 	///Get the flag in which model (river/floodplain) the observation point is located
 	bool get_model_flag(void);
 
@@ -78,6 +85,9 @@ public:
 	void output_obs_point2file(ofstream *output, const int counter_used);
 	///Ouput the observation point to file as csv output
 	void output_obs_point2csvfile(ofstream *output, const int counter_used);
+
+	///Ouput the temperature observation point to file as csv output
+	void output_temp_obs_point2csvfile(ofstream *output, const int counter_used);
 
 	///Output setted members
 	void output_setted_members(ostringstream *cout, const int index);
@@ -106,6 +116,8 @@ private:
 	Hyd_Element_Floodplain *element;
 	///Appendant river profile
 	_Hyd_River_Profile *profile;
+	///Appendant temperature profile
+	HydTemp_Profile *temp_profile;
 
 	///Flag, if the observation point is in a floodplain or in a river model
 	bool floodplain_flag;

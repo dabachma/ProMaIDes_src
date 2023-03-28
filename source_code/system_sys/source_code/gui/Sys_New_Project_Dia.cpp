@@ -278,6 +278,9 @@ _sys_project_type Sys_New_Project_Dia::find_project_type(void){
 	else if(this->ui.radioButton_hyd_file->isChecked()==true){
 		buffer=_sys_project_type::proj_hyd_file;
 	}
+	else if (this->ui.radioButton_hyd_temp->isChecked() == true) {
+		buffer = _sys_project_type::proj_hyd_temp;
+	}
 
 	return buffer;
 }
@@ -614,6 +617,9 @@ void Sys_New_Project_Dia::decide_radio_button2projecttype(_sys_project_type type
 		else if(type==_sys_project_type::proj_dam){
 			this->ui.radioButton_dam_typ->setChecked(true);
 		}
+		else if (type == _sys_project_type::proj_hyd_temp) {
+			this->ui.radioButton_hyd_temp->setChecked(true);
+		}
 
 }
 //Decide radion buttons for a project upgrade
@@ -624,6 +630,8 @@ void Sys_New_Project_Dia::decide_radio_button_upgrade(_sys_project_type type){
 	this->ui.radioButton_risk_typ->setEnabled(false);
 	this->ui.radioButton_fpl_typ->setEnabled(false);
 	this->ui.radioButton_hyd_file->setEnabled(false);
+	this->ui.radioButton_hydrol->setEnabled(false);
+	this->ui.radioButton_dam_typ->setEnabled(false);
 
 
 	#ifdef proj_all_license
@@ -652,6 +660,9 @@ void Sys_New_Project_Dia::decide_radio_button_upgrade(_sys_project_type type){
 		}
 		else if(type==_sys_project_type::proj_hyd_file){
 			this->ui.radioButton_hyd_file->setChecked(true);
+		}
+		else if (type == _sys_project_type::proj_hyd_temp) {
+			this->ui.radioButton_hyd_temp->setChecked(true);
 		}
 		else if(type==_sys_project_type::proj_dam){
 			this->ui.radioButton_dam_typ->setChecked(true);

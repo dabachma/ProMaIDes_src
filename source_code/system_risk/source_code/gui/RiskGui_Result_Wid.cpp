@@ -158,6 +158,34 @@ void RiskGui_Result_Wid::set_up_widget(QSqlDatabase *ptr_database,  const int gl
 	buff_stream.str("");
 
 
+
+	//ci
+	buff_stream << model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_elect_pt)).c_str()).toString().toStdString();
+	this->lineEdit_ci_elect->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+	buff_stream << model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toString().toStdString();
+	this->lineEdit_ci_info_tech->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+	buff_stream << model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toString().toStdString();
+	this->lineEdit_ci_water_sup->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+	buff_stream << model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toString().toStdString();
+	this->lineEdit_ci_water_treat->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+	buff_stream << model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_energy_pt)).c_str()).toString().toStdString();
+	this->lineEdit_ci_energy->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+	buff_stream << model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_health_pt)).c_str()).toString().toStdString();
+	this->lineEdit_ci_health->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+	buff_stream << model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_social_pt)).c_str()).toString().toStdString();
+	this->lineEdit_ci_social->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+	buff_stream << model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_mat_pt)).c_str()).toString().toStdString();
+	this->lineEdit_ci_mat->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+
+
 	//maxoutflow
 	buff_stream<<model.record(0).value((Risk_System::table_results->get_column_name(risk_label::max_outflow)).c_str()).toString().toStdString();
 	this->lineEdit_outflow->setText(buff_stream.str().c_str());

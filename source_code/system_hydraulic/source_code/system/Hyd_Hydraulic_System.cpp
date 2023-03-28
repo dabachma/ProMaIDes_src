@@ -12,6 +12,7 @@ Hyd_Hydraulic_System::Hyd_Hydraulic_System(void){
 	this->my_rvmodels=NULL;
 	this->my_fpmodels=NULL;
 	this->my_comodel=NULL;
+	this->my_temp_model = NULL;
 	this->output_time=0.0;
 	this->internal_time=0.0;
 	this->next_internal_time=0.0;
@@ -46,6 +47,7 @@ Hyd_Hydraulic_System::Hyd_Hydraulic_System(void){
 	this->output_is_running=false;
 	this->output_is_allowed=false;
 	this->output_is_required=false;
+	this->temp_calc = false;
 
 	//development static output file
 	//Hyd_Hydraulic_System::test.open("./ERG/test.dat");
@@ -78,6 +80,11 @@ Hyd_Hydraulic_System::~Hyd_Hydraulic_System(void){
 	if(this->my_comodel!=NULL){
 		delete this->my_comodel;
 		this->my_comodel=NULL;
+	}
+
+	if (this->my_temp_model != NULL) {
+		delete[]this->my_temp_model;
+		this->my_temp_model = NULL;
 	}
 
 	//count the memory
@@ -157,6 +164,13 @@ void Hyd_Hydraulic_System::set_system_per_file(const string global_file){
 		//init and set river model models with parser
 		this->input_coast_model(global_file);
 
+		//allocate it
+		if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp) {
+			this->allocate_temp_model();
+			//init and set temperaturmodel models with parser
+			this->input_temp_model(global_file);
+		}
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		this->set_final_warning_number();
 	}
 	catch(Error msg){
@@ -217,6 +231,19 @@ void Hyd_Hydraulic_System::set_system_per_database(const bool modul_extern_start
 		this->input_rivers_models(&results, &this->database);
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
+		//temp model
+		if ((Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp)) {
+			int no_temp=HydTemp_Model::select_relevant_model_database(&results, this->system_id);
+			if (no_temp > 0) {
+				this->global_parameters.tempmodel_applied = true;
+				//HydTemp_Model::select_relevant_model_database(&results, this->system_id);
+				this->allocate_temp_model();
+				this->input_temp_model(&results, &this->database);
+				Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+
+			}
+		}
+
 		//set and allocate diversion channel couplings
 		this->global_parameters.number_div_channel=Hyd_Coupling_RV2RV_Diversion::select_relevant_dv_channels_database(&results, this->system_id);
 		this->coupling_managment.set_rv2rv_diversion(this->global_parameters.number_div_channel);
@@ -274,6 +301,8 @@ void Hyd_Hydraulic_System::set_system_per_database(const bool modul_extern_start
 		this->set_final_warning_number();
 
 		this->global_parameters.calculate_total_numbers();
+
+
 	}
 	catch(Error msg){
 		Sys_Common_Output::output_hyd->rewind_userprefix();
@@ -285,6 +314,68 @@ void Hyd_Hydraulic_System::set_system_per_database(const bool modul_extern_start
 	}
 	//rewind the prefix
 	Sys_Common_Output::output_hyd->rewind_userprefix();
+}
+//Read in the hydraulic temperature system- and modelparameters from a database
+void Hyd_Hydraulic_System::set_temp_system_per_database(const bool modul_extern_startet) {
+	//set prefix for output
+	ostringstream prefix;
+	prefix << "INP> ";
+	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+
+	try {
+		this->set_start_warning_number();
+		// Get the Global information from database
+		this->global_parameters.globals_per_database(&this->database);
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+
+		//input the material parameters
+		this->material_params.matparams_per_database(&this->database);
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		//input observation points
+		this->obs_point_managment.input_obs_point(&this->database);
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+
+		//count and populate the database table model
+		QSqlTableModel results(0, this->database);
+		QSqlQueryModel query;
+
+		//river models
+		this->global_parameters.GlobNofRV = Hyd_Model_River::select_relevant_model_database(&results, this->system_id);
+		//allocate rv-models
+		this->allocate_river_models();
+		//input the river models per database
+		this->input_rivers_models(&results, &this->database);
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+
+		//temp model
+		if ((Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp)) {
+			int no_temp = HydTemp_Model::select_relevant_model_database(&results, this->system_id);
+			if (no_temp > 0) {
+				this->global_parameters.tempmodel_applied = true;
+				//HydTemp_Model::select_relevant_model_database(&results, this->system_id);
+				this->allocate_temp_model();
+				this->input_temp_model(&results, &this->database);
+				Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+
+			}
+		}
+
+	
+		this->set_final_warning_number();
+
+	}
+	catch (Error msg) {
+		Sys_Common_Output::output_hyd->rewind_userprefix();
+		this->set_final_warning_number();
+		if (modul_extern_startet == true && Hyd_Multiple_Hydraulic_Systems::get_stop_thread_flag() == false) {
+			this->error_number++;
+		}
+		throw msg;
+	}
+	//rewind the prefix
+	Sys_Common_Output::output_hyd->rewind_userprefix();
+
+
 }
 //Read in the hydraulic system- and modelparameters from a database just for the floodplain models
 void Hyd_Hydraulic_System::set_2Dsystem_per_database(const bool modul_extern_startet){
@@ -399,6 +490,19 @@ void Hyd_Hydraulic_System::import_basesystem_file2db(const string global_file){
 		//transfer it to the database
 		this->transfer_rivermodel_data2database(&this->database);
 
+
+		//temp model
+		if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp) {
+			if (this->global_parameters.tempmodel_applied == true) {
+				this->allocate_temp_model();
+				//init and set temperaturmodel models with parser
+				this->input_temp_model(global_file);
+				//transfer temp model to database
+				this->transfer_tempmodel_data2database(&this->database);
+			}
+
+		}
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		//set and allocate diversion channel couplings
 		this->coupling_managment.set_rv2rv_diversion(this->global_parameters.number_div_channel);
 		//read them in
@@ -470,6 +574,13 @@ void Hyd_Hydraulic_System::import_new_hydraulic_boundary_sz2database(void){
 		//coast model
 		if(this->global_parameters.coastmodel_applied==true){
 			this->my_comodel->transfer_hydraulic_boundary_sz2database(&this->database);
+		}
+		if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp && this->global_parameters.tempmodel_applied == true) {
+			for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+				this->my_temp_model[i].transfer_hydraulic_boundary_sz2database(&this->database);
+				Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+			}
+
 		}
 	}
 	catch(Error msg){
@@ -544,6 +655,20 @@ void Hyd_Hydraulic_System::create_hyd_database_tables(void){
 
 		//coupling
 		Hyd_Coupling_RV2FP_Merged::create_max_h_table(&this->database);
+
+
+
+		if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp) {
+			HydTemp_Model::create_table(&this->database);
+			HydTemp_Profile::create_erg_instat_table(&this->database);
+			HydTemp_Profile::create_erg_table(&this->database);
+			HydTemp_Profile::create_profile_boundary_table(&this->database);
+			HydTemp_Profile::create_profile_table(&this->database);
+			HydTemp_Profile::create_bound2profile_view(&this->database);
+
+
+		}
+
 	}
 }
 //Check all hydraulic database tables, for their existence in the database and their declaration in the database table-file
@@ -696,6 +821,30 @@ void Hyd_Hydraulic_System::check_hyd_database_tables(void){
 			Sys_Common_Output::output_hyd->output_txt(&cout,false, false);
 			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 			Hyd_Coupling_RV2FP_Merged::set_max_h_table(&this->database);
+
+			if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp) {
+				cout << "Check the temperature table..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout, false, false);
+				cout << "Check the temperature result table..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout, false, false);
+				HydTemp_Model::set_table(&this->database);
+				cout << "Check the temperature instationary result table..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout, false, false);
+				HydTemp_Profile::set_erg_instat_table(&this->database);
+				cout << "Check the temperature general parameters table..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout, false, false);
+				HydTemp_Profile::set_erg_table(&this->database);
+				cout << "Check the temperature profile table..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout, false, false);
+				HydTemp_Profile::set_profile_table(&this->database);
+				cout << "Check the temperature profile boundary data table..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout, false, false);
+				HydTemp_Profile::set_profile_boundary_table(&this->database);
+			
+
+
+			}
+
 		}
 	}
 	catch(Error msg){
@@ -746,6 +895,14 @@ void Hyd_Hydraulic_System::delete_data_hyd_database_tables(void){
 		_Hyd_Coupling_Dikebreak::delete_data_in_result_table(&this->database);
 
 		Hyd_Coupling_RV2FP_Merged::delete_data_max_h_table(&this->database);
+
+		if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp) {
+
+			HydTemp_Model::delete_data_in_table(&this->database);
+			HydTemp_Profile::delete_data_in_table(&this->database);
+
+
+		}
 	}
 }
 //Close all hydraulic database tables (static)
@@ -783,6 +940,10 @@ void Hyd_Hydraulic_System::close_hyd_database_tables(void){
 		_Hyd_Coupling_Dikebreak::close_table();
 		_Hyd_Coupling_Dikebreak::close_result_table();
 		Hyd_Coupling_RV2FP_Merged::close_max_h_table();
+		if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp) {
+			HydTemp_Model::close_table();
+			HydTemp_Profile::close_table();
+		}
 	}
 }
 //Switch applied flag of the hydraulic results for a given system id (static)
@@ -853,6 +1014,13 @@ void Hyd_Hydraulic_System::set_new_hyd_bound_sz_id(Hyd_Boundary_Szenario new_sz)
 	if(this->global_parameters.coastmodel_applied==true){
 		this->my_comodel->set_hydraulic_bound_sz(this->hyd_sz);
 	}
+	//temp model
+	if ((Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp)){
+		if (this->global_parameters.tempmodel_applied == true) {
+			this->my_temp_model->set_new_hyd_bound_sz_id(this->hyd_sz);
+		}
+
+	}
 }
 //Get a pointer to the currently used hydraulic boundary scenario
 Hyd_Boundary_Szenario* Hyd_Hydraulic_System::get_ptr_hyd_bound_scenario(void){
@@ -879,6 +1047,18 @@ void Hyd_Hydraulic_System::output_glob_models(void){
 		for (int j =0; j < this->global_parameters.GlobNofRV; j++){
 			this->my_rvmodels[j].output_members();
 		}
+	}
+
+	//temp model
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp) {
+		if (this->global_parameters.GlobNofRV > 0) {
+			cout << "Temperature model information of river..." << endl;
+			Sys_Common_Output::output_hyd->output_txt(&cout);
+			for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+				this->my_temp_model[j].output_members();
+			}
+		}
+
 	}
 
 	//floodplain models
@@ -998,7 +1178,7 @@ void Hyd_Hydraulic_System::transfer_glob_elem_id(Hyd_Hydraulic_System *to_system
 	}
 
 }
-//Clone the hydraulic system after initialisation
+//Clone the hydraulic system after initialisation TODO
 void Hyd_Hydraulic_System::clone_system(Hyd_Hydraulic_System *system){
 	ostringstream cout;
 	ostringstream prefix;
@@ -1130,6 +1310,45 @@ void Hyd_Hydraulic_System::init_models(const bool modul_extern_startet){
 	//rewind the prefix
 	Sys_Common_Output::output_hyd->rewind_userprefix();
 }
+///Initialize the temperature models
+void Hyd_Hydraulic_System::init_temp_models(const bool modul_extern_startet) {
+	//set prefix for output
+	ostringstream prefix;
+	prefix << "INIT> ";
+	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+
+	try {
+		this->set_start_warning_number();
+
+		//connect river
+		this->connect_rivers(&this->material_params);
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		this->connect_temperature_model();
+
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+
+
+
+		//check the models
+		this->check_models();
+
+		//init the observation point
+		this->obs_point_managment.init_temp_obs_points(this->global_parameters.GlobNofRV, this->my_temp_model, this->global_parameters.GlobTNof, this->global_parameters.GlobNofITS + 1);
+
+		this->set_final_warning_number();
+	}
+	catch (Error msg) {
+		this->set_final_warning_number();
+		if (modul_extern_startet == true && Hyd_Multiple_Hydraulic_Systems::get_stop_thread_flag() == false) {
+			this->error_number++;
+		}
+		throw msg;
+	}
+
+	//rewind the prefix
+	Sys_Common_Output::output_hyd->rewind_userprefix();
+
+}
 //output setted and calculated members
 void Hyd_Hydraulic_System::output_setted_members(void){
 	//set prefix for output
@@ -1249,6 +1468,29 @@ void Hyd_Hydraulic_System::output_setted_members(void){
 	//rewind the prefix
 	Sys_Common_Output::output_hyd->rewind_userprefix();
 }
+//Output setted and calculated temperature members
+void Hyd_Hydraulic_System::output_setted_temp_members(void) {
+	//set prefix for output
+	ostringstream prefix;
+	prefix << "OUT_SET> ";
+	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+
+	ostringstream cout;
+	//river models (console)
+	if (this->global_parameters.GlobNofRV > 0) {
+		cout << "Setted members of the Temperature model(s)..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+		for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+			this->my_temp_model[j].output_setted_members();
+		}
+	}
+
+	this->obs_point_managment.output_setted_temp_members();
+	//rewind the prefix
+	Sys_Common_Output::output_hyd->rewind_userprefix();
+
+
+}
 //Initialize the solver for the models; all not needed data is here deleted
 void Hyd_Hydraulic_System::init_solver(void){
 	ostringstream cout;
@@ -1300,6 +1542,36 @@ void Hyd_Hydraulic_System::init_solver(void){
 		Sys_Common_Output::output_hyd->rewind_userprefix();
 		throw msg;
 	}
+}
+//Initialize the solver for the temperature models; all not needed data is here deleted
+void Hyd_Hydraulic_System::init_temp_solver(void) {
+	ostringstream cout;
+	ostringstream prefix;
+	//delete not needed data (geometry)
+	this->clear_models();
+	//river models
+	try {
+		this->set_start_warning_number();
+		//set the parameters for Hyd_Model_River
+		for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+			prefix << "TEMPRV_" << j << "> ";
+			Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+			//init the solver
+			cout << "Initialize the solver for temperature model ..." << endl;
+			Sys_Common_Output::output_hyd->output_txt(&cout);
+			this->my_temp_model[j].init_solver(&this->global_parameters);
+			Sys_Common_Output::output_hyd->rewind_userprefix();
+			prefix.str("");
+		}
+		this->set_final_warning_number();
+	}
+	catch (Error msg) {
+		this->set_final_warning_number();
+		Sys_Common_Output::output_hyd->rewind_userprefix();
+		throw msg;
+	}
+
+
 }
 //make the calculation
 void Hyd_Hydraulic_System::make_calculation(void){
@@ -1359,6 +1631,65 @@ void Hyd_Hydraulic_System::make_calculation(void){
 	//reset the counter
 	this->timestep_counter=0;
 }
+//Make the temperature calculation of the external loop (output time steps)
+void Hyd_Hydraulic_System::make_temp_calculation(void) {
+	//set the first output time
+	this->output_time = this->global_parameters.GlobTStep + this->global_parameters.get_startime();
+	this->next_internal_time = this->global_parameters.get_startime();
+
+	this->internal_timestep_min = this->global_parameters.min_internal_step;
+
+	//loop over river model
+	ostringstream cout;
+
+	//real_time starting (begin time recording
+	time(&this->start_time);
+	this->actual_time = this->start_time;
+	this->set_start_warning_number();
+	//output header
+	if (this->thread_number == 0) {
+		//set prefix for output
+		ostringstream prefix;
+		prefix << "CALC" << "> ";
+		Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+		cout << "Start calculation..." << endl;
+		cout << W(17) << " Step " << W(15) << " Modeltime " << W(15) << " Modeltime " << W(20) << " Real time (Diff)";
+		cout << W(28) << " Solversteps (Diff)" << W(12) << " norm.Error " << W(12) << " max.Error " << W(12) << " Internal t_step (Diff)" << endl;
+		cout << W(29) << label::sec << W(23) << label::time_unit_output << W(19) << label::time_unit_output << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+		//rewind the prefix
+		Sys_Common_Output::output_hyd->rewind_userprefix();
+	}
+
+	this->internal_timestep_current = 0.0;
+	this->internal_timestep_base = this->global_parameters.GlobTStep / this->global_parameters.GlobNofITS;
+	this->internal_timestep_current = this->internal_timestep_base;
+	if (this->internal_timestep_base < this->internal_timestep_min) {
+		this->internal_timestep_min = this->internal_timestep_base;
+	}
+
+	try {
+		//loop over the output timesteps
+		for (int i = 0; i < this->global_parameters.GlobTNof; i++) {
+			//make the internal loop over the internal timesteps
+			this->make_temp_calculation_internal();
+
+			//count the next output time step
+			this->output_time = this->output_time + this->global_parameters.GlobTStep;
+			this->timestep_counter++;
+		}
+	}
+	catch (Error msg) {
+		this->set_final_warning_number();
+		throw msg;
+	}
+
+	this->set_final_warning_number();
+	//reset the counter
+	this->timestep_counter = 0;
+
+
+}
 //Set the thread number; used for the output of the calculation class; use it just before the method run(void)
 void Hyd_Hydraulic_System::set_thread_number(const int thread){
 	this->thread_number=thread;
@@ -1388,7 +1719,7 @@ void Hyd_Hydraulic_System::run(void){
 		Sys_Common_Output::output_hyd->rewind_userprefix();
 		Sys_Common_Output::output_hyd->rewind_userprefix();
 	}
-	else{
+	else if(this->temp_calc==false){
 		try{
 			this->make_calculation();
 		}
@@ -1401,6 +1732,24 @@ void Hyd_Hydraulic_System::run(void){
 				msg.output_msg(2);
 			}
 			else{
+				this->output_final_model_statistics(false);
+				msg.output_msg(2);
+			}
+		}
+	}
+	else if (this->temp_calc == true) {
+		try {
+			this->make_temp_calculation();
+		}
+		catch (Error msg) {
+			if (msg.get_user_aborted_exception() == false) {
+				ostringstream info;
+				info << "Hydraulic system : " << this->get_identifier_prefix(false) << endl;
+				msg.make_second_info(info.str());
+				this->error_number++;
+				msg.output_msg(2);
+			}
+			else {
 				this->output_final_model_statistics(false);
 				msg.output_msg(2);
 			}
@@ -1425,20 +1774,20 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 		this->set_final_warning_number();
 		this->output_final_error_warning_number();
 	}
-	else{
+	else if (this->temp_calc == false) {
 		ostringstream cout;
 		this->output_final_system_statistics();
 		//river models
-		if(this->global_parameters.GlobNofRV>0){
-			cout << "Statistics of the Rivermodel(s)..." << endl ;
+		if (this->global_parameters.GlobNofRV > 0) {
+			cout << "Statistics of the Rivermodel(s)..." << endl;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
-			for (int j =0; j < this->global_parameters.GlobNofRV; j++){
+			for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
 				this->my_rvmodels[j].output_final();
 			}
-			if(this->file_output_required==true && all_output==true){
-				cout << "Output maximum results of the Rivermodel(s) to file..." << endl ;
+			if (this->file_output_required == true && all_output == true) {
+				cout << "Output maximum results of the Rivermodel(s) to file..." << endl;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
-				
+
 				if (this->global_parameters.get_output_flags().tecplot_1d_required == true) {
 					cout << "for Tecplot..." << endl;
 					Sys_Common_Output::output_hyd->output_txt(&cout);
@@ -1466,24 +1815,24 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 				}
 
 			}
-			if(this->database_is_set==true && all_output==true){
-				cout << "Output maximum results of the Rivermodel(s) to database..." << endl ;
+			if (this->database_is_set == true && all_output == true) {
+				cout << "Output maximum results of the Rivermodel(s) to database..." << endl;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
-				for (int j =0; j < this->global_parameters.GlobNofRV; j++){
+				for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
 					this->my_rvmodels[j].output_result_max2database(&this->database, this->break_sz);
 				}
 			}
 		}
 
 		//floodplain models 
-		if(this->global_parameters.GlobNofFP>0){
-			cout << "Statistics of the Floodplainmodel(s)..." << endl ;
+		if (this->global_parameters.GlobNofFP > 0) {
+			cout << "Statistics of the Floodplainmodel(s)..." << endl;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
-			for (int j =0; j < this->global_parameters.GlobNofFP; j++){
+			for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
 				this->my_fpmodels[j].output_final();
 			}
-			if(this->file_output_required==true && all_output==true){
-				cout << "Output maximum results of the Floodplainmodel(s) to file..." << endl ;
+			if (this->file_output_required == true && all_output == true) {
+				cout << "Output maximum results of the Floodplainmodel(s) to file..." << endl;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
 				if (this->global_parameters.get_output_flags().tecplot_2d_required == true) {
 					cout << "for Tecplot..." << endl;
@@ -1511,41 +1860,41 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 					Sys_Common_Output::output_hyd->output_txt(&cout);
 				}
 			}
-			if(this->database_is_set==true && all_output==true){
+			if (this->database_is_set == true && all_output == true) {
 				//delete the data
-				Hyd_Element_Floodplain::delete_data_in_erg_table(&this->database,this->system_id, this->hyd_sz.get_id(),this->break_sz);
-				cout << "Output maximum results of the Floodplainmodel(s) to database..." << endl ;
+				Hyd_Element_Floodplain::delete_data_in_erg_table(&this->database, this->system_id, this->hyd_sz.get_id(), this->break_sz);
+				cout << "Output maximum results of the Floodplainmodel(s) to database..." << endl;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
-				bool was_output=false;
-				bool must_output=false;
+				bool was_output = false;
+				bool must_output = false;
 
-				for (int j =0; j < this->global_parameters.GlobNofFP; j++){
-					if(j==this->global_parameters.GlobNofFP-1 && was_output==false){
-						must_output=true;
+				for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
+					if (j == this->global_parameters.GlobNofFP - 1 && was_output == false) {
+						must_output = true;
 					}
-					this->my_fpmodels[j].output_result_max2database(&this->database, this->break_sz,&was_output, must_output);
+					this->my_fpmodels[j].output_result_max2database(&this->database, this->break_sz, &was_output, must_output);
 				}
 			}
 		}
 		//couplings
 		this->coupling_managment.output_final_results();
 
-		if(this->database_is_set==true && all_output==true){
-			this->coupling_managment.output_final_results(&this->database, this->hyd_sz.get_id(),this->break_sz);
-			this->coupling_managment.output_final_results_max_waterlevel(&this->database, this->hyd_sz.get_id(),this->break_sz);
+		if (this->database_is_set == true && all_output == true) {
+			this->coupling_managment.output_final_results(&this->database, this->hyd_sz.get_id(), this->break_sz);
+			this->coupling_managment.output_final_results_max_waterlevel(&this->database, this->hyd_sz.get_id(), this->break_sz);
 		}
 
 		//observation points
-		if(this->file_output_required==true){
-			string rv_buff=label::not_set;
-			string fp_buff=label::not_set;
+		if (this->file_output_required == true) {
+			string rv_buff = label::not_set;
+			string fp_buff = label::not_set;
 			//output to tecplot
-			if(this->global_parameters.get_number_river_model()>0){
-				rv_buff=this->my_rvmodels[0].Param_RV.get_filename_result2file_1d_obs_point(hyd_label::tecplot);
+			if (this->global_parameters.get_number_river_model() > 0) {
+				rv_buff = this->my_rvmodels[0].Param_RV.get_filename_result2file_1d_obs_point(hyd_label::tecplot);
 				rv_buff += hyd_label::dat;
 			}
-			if(this->global_parameters.get_number_floodplain_model()>0){
-				fp_buff=this->my_fpmodels[0].Param_FP.get_filename_obs_point2file(hyd_label::tecplot);
+			if (this->global_parameters.get_number_floodplain_model() > 0) {
+				fp_buff = this->my_fpmodels[0].Param_FP.get_filename_obs_point2file(hyd_label::tecplot);
 				fp_buff += hyd_label::dat;
 			}
 			cout << "Observation point data to file..." << endl;
@@ -1563,17 +1912,89 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 			if (this->global_parameters.get_output_flags().paraview_1d_required == true) {
 				this->obs_point_managment.output_obs_points2paraview_file(rv_buff, fp_buff);
 			}
-			if(this->global_parameters.get_output_flags().tecplot_1d_required == false && this->global_parameters.get_output_flags().paraview_1d_required == false){
+			if (this->global_parameters.get_output_flags().tecplot_1d_required == false && this->global_parameters.get_output_flags().paraview_1d_required == false) {
 				cout << "No observation point output required..." << endl;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
 
 			}
 		}
-
-		//errors/warnings
-		this->set_final_warning_number();
-		this->output_final_error_warning_number();
 	}
+	else if (this->temp_calc==true) {
+
+			ostringstream cout;
+			this->output_final_temp_system_statistics();
+			//river models
+			if (this->global_parameters.GlobNofRV > 0) {
+				cout << "Statistics of the Temperature model(s)..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+					this->my_temp_model[j].output_final();
+				}
+				if (this->file_output_required == true && all_output == true) {
+					cout << "Output maximum results of the Temperature model(s) to file..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+
+
+					if (this->global_parameters.get_output_flags().paraview_1d_required == true) {
+						cout << "for ParaView / csv 1d..." << endl;
+						Sys_Common_Output::output_hyd->output_txt(&cout);
+						for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+							this->my_temp_model[j].output_result_max2csv();
+						}
+					}
+					if (this->global_parameters.get_output_flags().paraview_2d_required == true) {
+						cout << "for ParaView 2d..." << endl;
+						Sys_Common_Output::output_hyd->output_txt(&cout);
+						for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+							this->my_temp_model[j].output_result_max2paraview2d();
+						}
+					}
+					if (this->global_parameters.get_output_flags().tecplot_1d_required == false && this->global_parameters.get_output_flags().paraview_1d_required == false) {
+						cout << "No output required..." << endl;
+						Sys_Common_Output::output_hyd->output_txt(&cout);
+					}
+
+				}
+				if (this->database_is_set == true && all_output == true) {
+					cout << "Output maximum results of the Temperature model(s) to database..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+					for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+						this->my_temp_model[j].output_result_max2database(&this->database, this->break_sz);
+					}
+				}
+			}
+
+
+			
+			//observation points
+			if (this->file_output_required == true) {
+				string rv_buff = label::not_set;
+				string fp_buff = label::not_set;
+				cout << "Observation point data to file..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				//output to csv
+				if (this->global_parameters.get_number_river_model() > 0) {
+					rv_buff = this->my_temp_model[0].Param_Temp.get_filename_result2file_1d_obs_point(hyd_label::paraview);
+				}
+				if (this->global_parameters.get_output_flags().paraview_1d_required == true) {
+					
+					this->obs_point_managment.output_temp_obs_points2paraview_file(rv_buff);
+				}
+				if (this->global_parameters.get_output_flags().tecplot_1d_required == false) {
+					cout << "No observation point output required..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+
+				}
+			}
+
+
+
+	}
+
+	//errors/warnings
+	this->set_final_warning_number();
+	this->output_final_error_warning_number();
+	
 	//rewind the prefix
 	Sys_Common_Output::output_hyd->rewind_userprefix();
 	Sys_Common_Output::output_hyd->rewind_userprefix();
@@ -1703,6 +2124,12 @@ void Hyd_Hydraulic_System::clear_boundary_conditions(void){
 	for(int i=0; i< this->global_parameters.GlobNofRV; i++){
 		this->my_rvmodels[i].clear_boundary_condition();
 	}
+	for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+		if (this->temp_calc == true) {
+			this->my_temp_model[i].clear_boundary_condition();
+
+		}
+	}
 	//floodplain models
 	for(int i=0; i< this->global_parameters.GlobNofFP; i++){
 		this->my_fpmodels[i].clear_boundary_condition();
@@ -1726,6 +2153,15 @@ void Hyd_Hydraulic_System::set_new_boundary_condition(void){
 		this->my_rvmodels[i].set_new_boundary_condition(true, &this->database);
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 	}
+	if (this->temp_calc == true) {
+		for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+			this->my_temp_model[i].set_new_hyd_bound_sz_id(this->hyd_sz);
+			this->my_temp_model[i].set_new_boundary_condition(true, &this->database);
+			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		}
+	}
+
+
 	//floodplain models
 	for(int i=0; i< this->global_parameters.GlobNofFP; i++){
 		this->my_fpmodels[i].set_new_hyd_bound_sz_id(this->hyd_sz);
@@ -1854,16 +2290,26 @@ void Hyd_Hydraulic_System::set_folder_name(const string sc_name, const bool crea
 			if(my_dir.exists(buffer.str().c_str())==false){
 				my_dir.mkdir(buffer.str().c_str());
 			}
-			else{
-				my_dir.cd(buffer.str().c_str());
-				my_dir.removeRecursively();
-				my_dir.mkdir(buffer.str().c_str());
-				//delete existing files (old style)
-				//QStringList list;
-				//list=my_dir.entryList(QDir::Files);
-				//for(int i=0; i<list.count(); i++){
-				//	my_dir.remove(list.at(i));
-				//}
+			else {
+				if (this->temp_calc == true) {
+					//delete existing files (old style)
+					QStringList list;
+					my_dir.cd(buffer.str().c_str());
+					list=my_dir.entryList(QDir::Files);
+					for(int i=0; i<list.count(); i++){
+						if (list.at(i).contains("TEMP") == true) {
+							my_dir.remove(list.at(i));
+						}
+					}
+
+				}
+				else {
+					my_dir.cd(buffer.str().c_str());
+					my_dir.removeRecursively();
+					my_dir.mkdir(buffer.str().c_str());
+				}
+
+
 			}
 			//add additional folders
 			my_dir.cd(buffer.str().c_str());
@@ -2094,11 +2540,39 @@ void Hyd_Hydraulic_System::connect_rivers(Hyd_Param_Material *mat_param){
 		throw msg;
 	}
 }
+//Initialize and connect the data of the temperature models
+void Hyd_Hydraulic_System::connect_temperature_model(void) {
+	ostringstream cout;
+	ostringstream prefix;
+	try {
+		//set the parameters for Hyd_Model_River
+		for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+			prefix << "TEMPRV_" << j << "> ";
+			Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+			prefix.str("");
+			//connect the elems
+			cout << "Initialize the data of temperature model " << j << "..." << endl;
+			Sys_Common_Output::output_hyd->output_txt(&cout);
+			this->my_temp_model[j].init_temp_model(&this->database, this->global_parameters.get_number_timesteps(), this->global_parameters.get_stepsize());
+			Sys_Common_Output::output_hyd->rewind_userprefix();
+		}
+	}
+	catch (Error msg) {
+		Sys_Common_Output::output_hyd->rewind_userprefix();
+		throw msg;
+	}
+
+}
 //Set river inflow boundary condition to true for all river models (used in Alt-System)
 void Hyd_Hydraulic_System::set_rv_inflow_flag(void){
 	for (int j =0; j < this->global_parameters.GlobNofRV; j++){
 		this->my_rvmodels[j].inflow_river_profile.set_point_bound_flag(true);	
 	}
+}
+//Set if the temperature calculation is applied
+void Hyd_Hydraulic_System::set_temp_calc_apply(const bool flag) {
+	this->temp_calc = flag;
 }
 //______________
 //private
@@ -2144,6 +2618,26 @@ void Hyd_Hydraulic_System::output_final_system_statistics(void){
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 	//rewind the prefix
 	Sys_Common_Output::output_hyd->rewind_userprefix();
+}
+//Output final statistics of the temperature system
+void Hyd_Hydraulic_System::output_final_temp_system_statistics(void) {
+	//set prefix for output
+	ostringstream prefix;
+	prefix << "GLOB> ";
+	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+	ostringstream cout;
+	cout << "Statistics of the Hydraulic-Temperature-System..." << endl;
+	cout << " TIME" << endl;
+	cout << "  Simulation time          : " << functions::convert_seconds2string(this->actual_time - this->start_time) << label::time_unit_output << endl;
+	cout << "  Real time                : " << functions::convert_seconds2string(this->output_time - this->global_parameters.GlobTStep - this->global_parameters.get_startime());
+	cout << label::time_unit_output << endl;
+	cout << "  Relation (Sim t)/(Real t): " << P(3) << FORMAT_FIXED_REAL;
+	cout << (this->actual_time - this->start_time) / ((this->output_time - this->global_parameters.GlobTStep - this->global_parameters.get_startime()) / 3600.0) << label::sec_per_hour << endl;
+	
+	Sys_Common_Output::output_hyd->output_txt(&cout);
+	//rewind the prefix
+	Sys_Common_Output::output_hyd->rewind_userprefix();
+
 }
 //Allocate the floodplain model
 void Hyd_Hydraulic_System::allocate_floodplain_models(void){
@@ -2397,6 +2891,105 @@ void Hyd_Hydraulic_System::input_coast_model(const QSqlQueryModel *query_result,
 			throw msg;
 		}
 	}
+}
+//Allocate the temperature model
+void Hyd_Hydraulic_System::allocate_temp_model(void) {
+	if (this->global_parameters.tempmodel_applied == true && this->global_parameters.GlobNofRV>0) {
+		try {
+			this->my_temp_model = new HydTemp_Model[this->global_parameters.GlobNofRV];
+		}
+		catch (bad_alloc &) {
+			Error msg = this->set_error(0);
+			throw msg;
+		}
+		//set the szenario data
+		for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+			this->my_temp_model[i].set_ptr2RV(&(this->my_rvmodels[i]));
+			this->my_temp_model[i].set_systemid(this->system_id);
+			this->my_temp_model[i].set_new_hyd_bound_sz_id(this->hyd_sz);
+			
+			
+			if (this->file_output_required == true) {
+				this->my_temp_model[i].set_output_folder(this->file_output_folder);
+			}
+		}
+	}
+	else {
+		this->global_parameters.tempmodel_applied =false;
+		Warning msg = this->set_warning(1);
+		msg.output_msg(2);
+	}
+
+}
+//Read in the temperature model of the system with HydTemp_Parse
+void Hyd_Hydraulic_System::input_temp_model(const string global_file) {
+	ostringstream cout;
+
+	if (this->global_parameters.GlobNofRV > 0) {
+		cout << "Read in temperature model of " << this->global_parameters.GlobNofRV << " Rivermodel(s) per parser..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+	try {
+		//set the parameters for Hyd_Model_River
+		for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+			cout << "Set temperature model " << j << " with file..." << endl;
+			Sys_Common_Output::output_hyd->output_txt(&cout);
+			this->my_temp_model[j].input_members(global_file, j, this->global_parameters.get_global_path());
+			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		}
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+
+
+}
+//Transfer the data of the river models to the database
+void Hyd_Hydraulic_System::transfer_tempmodel_data2database(QSqlDatabase *ptr_database) {
+	ostringstream cout;
+
+	if (this->global_parameters.GlobNofRV > 1) {
+		cout << "Transfer data of " << this->global_parameters.GlobNofRV << " Temperature model(s) to database..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+	try {
+		//transfer the data of Hyd_Model_River
+		for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+			cout << "Transfer data of Temperature model " << j << "..." << endl;
+			Sys_Common_Output::output_hyd->output_txt(&cout);
+			this->my_temp_model[j].transfer_input_members2database(ptr_database);
+		}
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
+}
+//Read in the temperature model of the system from selection of a database
+void Hyd_Hydraulic_System::input_temp_model(const QSqlTableModel *query_result, QSqlDatabase *ptr_database, const bool with_output) {
+	ostringstream cout;
+
+	if (this->global_parameters.GlobNofRV > 0) {
+		cout << "Read in temperature model of " << this->global_parameters.GlobNofRV << " Rivermodel(s) from database..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+	try {
+		//set the parameters for Hyd_Model_River
+		for (int j = 0; j < this->global_parameters.GlobNofRV; j++) {
+			this->my_temp_model[j].set_systemid(this->system_id);
+
+			this->my_temp_model[j].input_members(j, query_result, ptr_database, false, true, with_output);
+			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		}
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+
 }
 //Make the geometrical interceptions between the models
 void Hyd_Hydraulic_System::make_geometrical_interception(void){
@@ -2829,6 +3422,101 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 	//reset internal timestep counter
 	this->timestep_internal_counter=0;
 }
+//Make the temperature calculation for the internal loop
+void Hyd_Hydraulic_System::make_temp_calculation_internal(void) {
+	//starttime for this internal time step
+
+	this->internal_time = this->output_time - this->global_parameters.GlobTStep;
+
+	//ostringstream out;
+	//out<< this->get_identifier_prefix()<<" Start internal"<<endl;
+	//Sys_Common_Output::output_hyd->output_txt(&out);
+
+	//loop over the internal timesteps
+	do {
+		//calculate optimal internal timestep
+		this->internal_timestep_current = this->check_internal_timestep();
+		this->internal_timestep_current = this->internal_timestep_base;
+
+		//evaluate the internal timestep
+		if (this->next_internal_time + this->internal_timestep_current <= this->output_time) {
+			this->next_internal_time = this->next_internal_time + this->internal_timestep_current;
+		}
+		else {
+			this->internal_timestep_current = this->output_time - this->next_internal_time;
+			this->next_internal_time = this->output_time;
+		}
+
+		this->make_syncron_tempmodel();
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+
+		//calculation  models
+		this->make_calculation_tempmodel();
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();		
+
+		//max values and hydrological balance of the models
+		this->make_hyd_balance_max_tempmodel();
+		
+		//syncronisation of observation points
+		this->obs_point_managment.syncron_temp_obs_points(this->next_internal_time - this->global_parameters.get_startime());
+
+
+		this->internal_time = this->next_internal_time;
+
+		this->timestep_internal_counter++;
+		this->total_internal_timestep++;
+
+		//reset the solver tolerances for the next step
+		this->reset_solver_tolerances();
+	}//end of interal loop
+	while (abs(this->internal_time - this->output_time) > constant::sec_epsilon);
+	//reset time difference
+	this->diff_real_time = 0.0;
+
+	//time calculations
+	//transform the seconds of the output time step into hours, day etc
+	this->model_time_str = functions::convert_seconds2string(this->output_time);
+	//set the actual time
+	this->diff_real_time = this->actual_time;
+	time(&this->actual_time);
+	this->diff_real_time = this->actual_time - this->diff_real_time;
+	//time difference
+	this->real_time_str = functions::convert_seconds2string(this->actual_time - this->start_time);
+	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+
+	//time string
+	string time;
+
+
+	time = functions::convert_time2time_str(this->internal_time);
+
+	//output the results of the  models to file
+	this->output_calculation_steps_tempmodel2file(this->internal_time);
+
+	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+
+	this->output_is_running = false;
+	this->output_is_allowed = false;
+	this->output_is_required = true;
+	emit output_required(this->thread_number);
+
+	this->waitloop_output_calculation2display();
+	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+	this->output_calculation_steps_tempmodel2display(this->internal_time);
+	this->output_calculation_steps_tempmodel2database(this->internal_time, time);
+
+	if (Hyd_Hydraulic_System::qt_thread_applied == true) {
+		Sys_Common_Output::output_hyd->insert_separator(0);
+	}
+	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+	this->output_is_required = false;
+	this->output_is_running = false;
+	this->output_is_allowed = false;
+
+	//reset internal timestep counter
+	this->timestep_internal_counter = 0;
+
+}
 //Reset the solver-tolerances of each model
 void Hyd_Hydraulic_System::reset_solver_tolerances(void){
 	for(int i=0; i< this->global_parameters.GlobNofRV;i++){
@@ -2854,6 +3542,15 @@ void Hyd_Hydraulic_System::make_syncron_rivermodel(void){
 		this->my_rvmodels[i].make_syncronisation((this->internal_time+this->internal_timestep_current*0.5)-this->global_parameters.get_startime());
 	}
 }
+//Make the syncronisation of the temperature models for each internal step
+void Hyd_Hydraulic_System::make_syncron_tempmodel(void) {
+	//make syncronisation(boundary conditions)
+	for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		this->my_temp_model[i].make_syncronisation((this->internal_time + this->internal_timestep_current*0.5) - this->global_parameters.get_startime());
+	}
+
+}
 //Get the maximum change in a element of a river model as well as the maximum change of the explicitly velocity head
 void Hyd_Hydraulic_System::get_max_changes_rivermodel(double *max_change_h, double *max_change_v, const bool timecheck, const double timestep){
 	double buff_h=0.0;
@@ -2876,6 +3573,14 @@ void Hyd_Hydraulic_System::make_hyd_balance_max_rivermodel(void){
 		this->my_rvmodels[i].make_hyd_balance_max(this->next_internal_time-this->global_parameters.get_startime());
 	}
 }
+//Calculate the hydrological balance and the maximum values of the temperature models for each internal step
+void Hyd_Hydraulic_System::make_hyd_balance_max_tempmodel(void) {
+	for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		this->my_temp_model[i].make_hyd_balance_max(this->next_internal_time - this->global_parameters.get_startime());
+	}
+
+}
 //Reset the solver of the river models
 void Hyd_Hydraulic_System::reset_solver_rv_models(void){
 	for(int i=0; i< this->global_parameters.GlobNofRV;i++){
@@ -2889,6 +3594,14 @@ void Hyd_Hydraulic_System::make_calculation_rivermodel(void){
 	for(int i=0; i< this->global_parameters.GlobNofRV;i++){
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		this->my_rvmodels[i].solve_model(this->next_internal_time-this->global_parameters.get_startime(), this->get_identifier_prefix(false));
+	}
+}
+//Make the calculation of the temperature models for each internal step
+void Hyd_Hydraulic_System::make_calculation_tempmodel(void) {
+	//solve it
+	for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		this->my_temp_model[i].solve_model(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false));
 	}
 }
 //Make the syncronisation of the floodplain models for each internal step
@@ -2992,6 +3705,68 @@ void Hyd_Hydraulic_System::output_calculation_steps_rivermodel2database(const do
 		if (global_parameters.get_output_flags().database_instat_required == true) {
 
 			this->my_rvmodels[i].output_result2database_2d(&this->database, this->break_sz, timestep, this->timestep_counter, time);
+		}
+	}
+}
+///Output the results of the calculation steps of the temperature models to file
+void Hyd_Hydraulic_System::output_calculation_steps_tempmodel2file(const double timestep) {
+	if (this->file_output_required == true) {
+		if (this->global_parameters.get_output_flags().tecplot_1d_required == true || this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+			for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+				//to the tecplot file
+				if (this->global_parameters.get_output_flags().tecplot_1d_required == true) {
+					//this->my_temp_model[i].output_result2tecplot_1d(timestep, this->timestep_counter);
+				}
+				if (this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+					//this->my_temp_model[i].output_result2tecplot_2d(timestep, this->timestep_counter);
+				}
+			}
+		}
+		if (this->global_parameters.get_output_flags().paraview_1d_required == true || this->global_parameters.get_output_flags().paraview_2d_required == true) {
+			for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+				//to the csv / paraview file
+				if (this->global_parameters.get_output_flags().paraview_1d_required == true) {
+					this->my_temp_model[i].output_result2csv_1d(timestep, this->timestep_counter);
+				}
+				if (this->global_parameters.get_output_flags().paraview_2d_required == true) {
+					this->my_temp_model[i].output_result2paraview_2d(timestep, this->timestep_counter);
+				}
+			}
+
+		}
+	}
+}
+///Output the calculation steps (time, solversteps etc) of the temperature models to display/console
+void Hyd_Hydraulic_System::output_calculation_steps_tempmodel2display(const double timestep) {
+	for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+		//set prefix for output
+		ostringstream prefix;
+		prefix << this->get_identifier_prefix();
+		prefix << "CALC> ";
+		Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+		//to console/display (for development)
+		//this->my_temp_model[i].output_result_members_per_timestep();
+
+		this->my_temp_model[i].output_solver_errors(timestep, this->timestep_counter, this->model_time_str, this->real_time_str, this->diff_real_time, this->total_internal_timestep, this->timestep_internal_counter);
+		//rewind two times the prefix
+		Sys_Common_Output::output_hyd->rewind_userprefix();
+		Sys_Common_Output::output_hyd->rewind_userprefix();
+	}
+}
+///Output the calculation steps (time, solversteps etc) of the temperature models to databse
+void Hyd_Hydraulic_System::output_calculation_steps_tempmodel2database(const double timestep, const string time) {
+	if (this->database_is_set == false) {
+		return;
+	}
+	//delete results
+	if (this->timestep_counter == 0) {
+		HydTemp_Profile::delete_instat_results_in_table(&this->database, this->system_id, this->hyd_sz.get_id(), this->break_sz);
+	}
+	for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+		//to database 
+		if (global_parameters.get_output_flags().database_instat_required == true) {
+
+			this->my_temp_model[i].output_result2database_2d(&this->database, this->break_sz, timestep, this->timestep_counter, time);
 		}
 	}
 }
@@ -3260,6 +4035,13 @@ Warning Hyd_Hydraulic_System::set_warning(const int warn_type){
 			reaction="No reaction";
 			help= "Check the existing workspace of your PC";
 			type=13;
+			break;
+		case 1://approximate worksape requirement > 1gb
+			place.append("allocate_temp_model(void)");
+			reason = "For applying a temperature model, 1d-river models are required";
+			reaction = "The applied for the temperature model is set to false";
+			help = "Check the model parameter setting in file";
+			type = 1;
 			break;
 		default:
 			place.append("set_warning(const int warn_type)");

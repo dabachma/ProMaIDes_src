@@ -696,6 +696,10 @@ private slots:
 
 	///Set a hydraulic calculation per database (menu hyd/calculation/per database)
 	void set_hydcalc_per_db(void);
+
+	///Set a hydraulic temperature calculation per database (menu hyd/calculation/temp per database)
+	void set_hydtempcalc_per_db(void);
+
 	///Set a hydraulic calculation per task
 	void set_hydcalc_per_task(QList<int> list_id);
 

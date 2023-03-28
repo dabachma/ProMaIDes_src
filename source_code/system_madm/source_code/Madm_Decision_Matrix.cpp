@@ -63,11 +63,11 @@ Madm_Decision_Matrix::~Madm_Decision_Matrix(void){
 //_________
 //public
 //Set the database table for the decision matrix: it sets the table name and the name of the columns and allocate them (static)
-void Madm_Decision_Matrix::set_table_matrix(QSqlDatabase *ptr_database){
+void Madm_Decision_Matrix::set_table_matrix(QSqlDatabase *ptr_database, const bool not_close){
 	if(Madm_Decision_Matrix::table_matrix==NULL){
 		//make specific input for this class
 		const string tab_id_name=madm_label::tab_matrix;
-		string tab_col[15];
+		string tab_col[23];
 		tab_col[0]=label::glob_id;
 		tab_col[1]=label::areastate_id;
 		tab_col[2]=label::measure_id;
@@ -83,6 +83,14 @@ void Madm_Decision_Matrix::set_table_matrix(QSqlDatabase *ptr_database){
 		tab_col[12]=madm_label::crit_risk_sc_eco;
 		tab_col[13]=madm_label::crit_risk_sc_cult;
 		tab_col[14]=madm_label::crit_risk_sc_person;
+		tab_col[15] = madm_label::crit_risk_ci_elect_pt;
+		tab_col[16] = madm_label::crit_risk_ci_info_tec_pt;
+		tab_col[17] = madm_label::crit_risk_ci_water_sup_pt;
+		tab_col[18] = madm_label::crit_risk_ci_water_treat_pt;
+		tab_col[19] = madm_label::crit_risk_ci_energy_pt;
+		tab_col[20] = madm_label::crit_risk_ci_health_pt;
+		tab_col[21] = madm_label::crit_risk_ci_social_pt;
+		tab_col[22] = madm_label::crit_risk_ci_mat_pt;
 
 
 		
@@ -100,7 +108,9 @@ void Madm_Decision_Matrix::set_table_matrix(QSqlDatabase *ptr_database){
 			throw msg;
 		}
 		catch(Error msg){
-			Madm_Decision_Matrix::close_table_matrix();
+			if (not_close == false) {
+				Madm_Decision_Matrix::close_table_matrix();
+			}
 			throw msg;
 		}
 	}
@@ -113,7 +123,7 @@ void Madm_Decision_Matrix::create_table_matrix(QSqlDatabase *ptr_database){
 		Sys_Common_Output::output_madm->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name=madm_label::tab_matrix;
-		const int num_col=15;
+		const int num_col=23;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for(int i=0; i< num_col; i++){
@@ -167,12 +177,38 @@ void Madm_Decision_Matrix::create_table_matrix(QSqlDatabase *ptr_database){
 		tab_col[12].name=madm_label::crit_risk_sc_person;
 		tab_col[12].type=sys_label::tab_col_type_double;
 
-		tab_col[13].name=madm_label::crit_risk_outflow;
-		tab_col[13].type=sys_label::tab_col_type_double;
+		
+		tab_col[13].name = madm_label::crit_risk_ci_elect_pt;
+		tab_col[13].type = sys_label::tab_col_type_double;
 
-		tab_col[14].name=madm_label::crit_cost_ecn;
-		tab_col[14].type=sys_label::tab_col_type_double;
-		tab_col[14].unsigned_flag=true;
+		tab_col[14].name = madm_label::crit_risk_ci_info_tec_pt;
+		tab_col[14].type = sys_label::tab_col_type_double;
+
+		tab_col[15].name = madm_label::crit_risk_ci_water_sup_pt;
+		tab_col[15].type = sys_label::tab_col_type_double;
+
+
+		tab_col[16].name = madm_label::crit_risk_ci_water_treat_pt;
+		tab_col[16].type = sys_label::tab_col_type_double;
+
+		tab_col[17].name = madm_label::crit_risk_ci_energy_pt;
+		tab_col[17].type = sys_label::tab_col_type_double;
+
+		tab_col[18].name = madm_label::crit_risk_ci_health_pt;
+		tab_col[18].type = sys_label::tab_col_type_double;
+
+		tab_col[19].name = madm_label::crit_risk_ci_social_pt;
+		tab_col[19].type = sys_label::tab_col_type_double;
+
+		tab_col[20].name = madm_label::crit_risk_ci_mat_pt;
+		tab_col[20].type = sys_label::tab_col_type_double;
+
+		tab_col[21].name=madm_label::crit_risk_outflow;
+		tab_col[21].type=sys_label::tab_col_type_double;
+
+		tab_col[22].name=madm_label::crit_cost_ecn;
+		tab_col[22].type=sys_label::tab_col_type_double;
+		tab_col[22].unsigned_flag=true;
 
 		try{
 			Madm_Decision_Matrix::table_matrix= new Tables();
@@ -386,8 +422,22 @@ void Madm_Decision_Matrix::read_matrix_per_database(QSqlDatabase *ptr_database, 
 			this->matrix[i][6]=model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_sc_eco)).c_str()).toDouble();
 			this->matrix[i][7]=model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_sc_cult)).c_str()).toDouble();
 			this->matrix[i][8]=model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_sc_person)).c_str()).toDouble();
-			this->matrix[i][9]=model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_outflow)).c_str()).toDouble();
-			this->matrix[i][10]=model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_cost_ecn)).c_str()).toDouble();
+
+			this->matrix[i][9] = model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_elect_pt)).c_str()).toDouble();
+			this->matrix[i][10] = model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_info_tec_pt)).c_str()).toDouble();
+
+			this->matrix[i][11] = model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_water_sup_pt)).c_str()).toDouble();
+			this->matrix[i][12] = model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_water_treat_pt)).c_str()).toDouble();
+
+
+			this->matrix[i][13] = model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_energy_pt)).c_str()).toDouble();
+			this->matrix[i][14] = model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_health_pt)).c_str()).toDouble();
+
+			this->matrix[i][15] = model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_social_pt)).c_str()).toDouble();
+			this->matrix[i][16] = model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_mat_pt)).c_str()).toDouble();
+
+			this->matrix[i][17]=model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_outflow)).c_str()).toDouble();
+			this->matrix[i][18]=model.record(0).value((Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_cost_ecn)).c_str()).toDouble();
 
 	
 
@@ -409,6 +459,15 @@ bool Madm_Decision_Matrix::set_matrix_values2database(QSqlDatabase *ptr_database
 	double base_sc_cult_risk=0.0;
 	double base_sc_person_risk=0.0;
 
+	double base_ci_elect_risk = 0.0;
+	double base_ci_info_tec_risk = 0.0;
+	double base_ci_water_sup_risk = 0.0;
+	double base_ci_water_treat_risk = 0.0;
+	double base_ci_energy_risk = 0.0;
+	double base_ci_health_risk = 0.0;
+	double base_ci_social_risk = 0.0;
+	double base_ci_mat_risk = 0.0;
+
 	double buff_ecn_risk=0.0;
 	double buff_eco_risk=0.0;
 	double buff_pop_aff_risk=0.0;
@@ -420,6 +479,15 @@ bool Madm_Decision_Matrix::set_matrix_values2database(QSqlDatabase *ptr_database
 	double buff_sc_eco_risk=0.0;
 	double buff_sc_cult_risk=0.0;
 	double buff_sc_person_risk=0.0;
+
+	double buff_ci_elect_risk = 0.0;
+	double buff_ci_info_tec_risk = 0.0;
+	double buff_ci_water_sup_risk = 0.0;
+	double buff_ci_water_treat_risk = 0.0;
+	double buff_ci_energy_risk = 0.0;
+	double buff_ci_health_risk = 0.0;
+	double buff_ci_social_risk = 0.0;
+	double buff_ci_mat_risk = 0.0;
 
 	_sys_system_id buff_id;
 	buff_id.area_state=area_state;
@@ -449,6 +517,16 @@ bool Madm_Decision_Matrix::set_matrix_values2database(QSqlDatabase *ptr_database
 		base_sc_cult_risk=risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::sc_cult_build)).c_str()).toDouble();
 		base_sc_person_risk=risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::sc_person_build)).c_str()).toDouble();
 
+		base_ci_elect_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_elect_pt)).c_str()).toDouble();
+		base_ci_info_tec_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toDouble();
+		base_ci_water_sup_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toDouble();
+		base_ci_water_treat_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toDouble();
+		base_ci_energy_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_energy_pt)).c_str()).toDouble();
+
+		base_ci_health_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_health_pt)).c_str()).toDouble();
+		base_ci_social_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_social_pt)).c_str()).toDouble();
+		base_ci_mat_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_mat_pt)).c_str()).toDouble();
+
 	}
 
 	ostringstream filter_header;
@@ -469,6 +547,16 @@ bool Madm_Decision_Matrix::set_matrix_values2database(QSqlDatabase *ptr_database
 	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_sc_eco) <<" , ";
 	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_sc_cult) <<" , ";
 	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_sc_person) <<" , ";
+
+	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_elect_pt) << " , ";
+	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_info_tec_pt) << " , ";
+	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_water_sup_pt) << " , ";
+	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_water_treat_pt) << " , ";
+	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_energy_pt) << " , ";
+	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_health_pt) << " , ";
+	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_social_pt) << " , ";
+	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_ci_mat_pt) << " , ";
+
 	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_risk_outflow) <<" , ";
 	filter_header << Madm_Decision_Matrix::table_matrix->get_column_name(madm_label::crit_cost_ecn) ;
 	filter_header<<" ) ";
@@ -515,6 +603,17 @@ bool Madm_Decision_Matrix::set_matrix_values2database(QSqlDatabase *ptr_database
 			buff_sc_cult_risk=risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::sc_cult_build)).c_str()).toDouble();
 			buff_sc_person_risk=risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::sc_person_build)).c_str()).toDouble();
 
+			buff_ci_elect_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_elect_pt)).c_str()).toDouble();
+			buff_ci_info_tec_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toDouble();
+			buff_ci_water_sup_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toDouble();
+			buff_ci_water_treat_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toDouble();
+			buff_ci_energy_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_energy_pt)).c_str()).toDouble();
+
+			buff_ci_health_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_health_pt)).c_str()).toDouble();
+			buff_ci_social_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_social_pt)).c_str()).toDouble();
+			buff_ci_mat_risk = risk_model.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_mat_pt)).c_str()).toDouble();
+
+
 		}
 
 
@@ -532,6 +631,18 @@ bool Madm_Decision_Matrix::set_matrix_values2database(QSqlDatabase *ptr_database
 		data << base_sc_eco_risk-buff_sc_eco_risk << " , " ;
 		data << base_sc_cult_risk-buff_sc_cult_risk << " , " ;
 		data << base_sc_person_risk-buff_sc_person_risk << " , " ;
+
+
+		data << base_ci_elect_risk - buff_ci_elect_risk << " , ";
+		data << base_ci_info_tec_risk - buff_ci_info_tec_risk << " , ";
+		data << base_ci_water_sup_risk - buff_ci_water_sup_risk << " , ";
+		data << base_ci_water_treat_risk - buff_ci_water_treat_risk << " , ";
+		data << base_ci_energy_risk - buff_ci_energy_risk << " , ";
+		data << base_ci_health_risk - buff_ci_health_risk << " , ";
+		data << base_ci_social_risk - buff_ci_social_risk << " , ";
+		data << base_ci_mat_risk - buff_ci_mat_risk << " , ";
+
+
 		data << base_outflow_risk-buff_outflow_risk << " , " ;
 		data << buff_ecn_cost << " ) " ;
 		total << filter_header.str() << data.str();
@@ -570,6 +681,14 @@ bool Madm_Decision_Matrix::set_matrix_values2database(QSqlDatabase *ptr_database
 	data << 0.0 << " , " ;
 	data << 0.0 << " , " ;
 	data << 0.0 << " , " ;
+	data << 0.0 << " , ";
+	data << 0.0 << " , ";
+	data << 0.0 << " , ";
+	data << 0.0 << " , ";
+	data << 0.0 << " , ";
+	data << 0.0 << " , ";
+	data << 0.0 << " , ";
+	data << 0.0 << " , ";
 	data << 0.0 << " ) " ;
 	total << filter_header.str() << data.str();
 	Data_Base::database_request(&madm_model, total.str(), ptr_database);

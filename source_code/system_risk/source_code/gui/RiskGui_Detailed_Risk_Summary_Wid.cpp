@@ -5,7 +5,7 @@
 //Default constructor
 RiskGui_Detailed_Risk_Summary_Wid::RiskGui_Detailed_Risk_Summary_Wid(QWidget *parent): _Sys_Result_Summary_Wid(parent){
 	//set number columns
-	this->tableWidget->setColumnCount(37);
+	this->tableWidget->setColumnCount(61);
 
 	QStringList my_list;
 	string buffer;
@@ -84,6 +84,65 @@ RiskGui_Detailed_Risk_Summary_Wid::RiskGui_Detailed_Risk_Summary_Wid(QWidget *pa
 	buffer="risk-factor [-]";
 	my_list.append(buffer.c_str());
 
+
+	buffer = "CI Population time Sector Electricity 1 [P x s]";
+	my_list.append(buffer.c_str());
+	buffer = "with HYD-prob [(P x s)/a]";
+	my_list.append(buffer.c_str());
+	buffer = "risk-factor [-]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Sector Information techology 2 [P x s]";
+	my_list.append(buffer.c_str());
+	buffer = "with HYD-prob [(P x s)/a]";
+	my_list.append(buffer.c_str());
+	buffer = "risk-factor [-]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Sector Water supply 3  [P x s]";
+	my_list.append(buffer.c_str());
+	buffer = "with HYD-prob [(P x s)/a]";
+	my_list.append(buffer.c_str());
+	buffer = "risk-factor [-]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Sector Water treatment 4  [P x s]";
+	my_list.append(buffer.c_str());
+	buffer = "with HYD-prob [(P x s)/a]";
+	my_list.append(buffer.c_str());
+	buffer = "risk-factor [-]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Sector Energy 5  [P x s]";
+	my_list.append(buffer.c_str());
+	buffer = "with HYD-prob [(P x s)/a]";
+	my_list.append(buffer.c_str());
+	buffer = "risk-factor [-]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Cum-Sector Health (10+11)  [P x s]";
+	my_list.append(buffer.c_str());
+	buffer = "with HYD-prob [(P x s)/a]";
+	my_list.append(buffer.c_str());
+	buffer = "risk-factor [-]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Cum-Sector Social (14+17+18+19) [P x s]";
+	my_list.append(buffer.c_str());
+	buffer = "with HYD-prob [(P x s)/a]";
+	my_list.append(buffer.c_str());
+	buffer = "risk-factor [-]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Cum-Sector Material (12+13+15+16) [P x s]";
+	my_list.append(buffer.c_str());
+	buffer = "with HYD-prob [(P x s)/a]";
+	my_list.append(buffer.c_str());
+	buffer = "risk-factor [-]";
+	my_list.append(buffer.c_str());
+
+
+
 	buffer="MAX-outflow risk [(m³/s)]";
 	my_list.append(buffer.c_str());
 	buffer="with HYD-prob [(m³/s)/a]";
@@ -144,6 +203,7 @@ void RiskGui_Detailed_Risk_Summary_Wid::set_up_widget(QSqlDatabase *ptr_database
 	QColor my_color4(Qt::darkMagenta);
 	QColor my_color5(Qt::cyan);
 	QColor my_color6(Qt::lightGray);
+	QColor my_color7(Qt::darkYellow);
 
 	for(int i=0; i<this->tableWidget->rowCount(); i++){
 		for(int j=0; j<this->tableWidget->columnCount(); j++){
@@ -169,8 +229,11 @@ void RiskGui_Detailed_Risk_Summary_Wid::set_up_widget(QSqlDatabase *ptr_database
 			else if(j>=22 && j<=33){
 				this->tableWidget->item(i,j)->setBackgroundColor(my_color6);
 			}
-			else if(j>=34 && j<=37){
+			else if(j>=58 && j<=62){
 				this->tableWidget->item(i,j)->setBackgroundColor(my_color5);
+			}
+			else if (j >= 34 && j <= 57) {
+				this->tableWidget->item(i, j)->setBackgroundColor(my_color7);
 			}
 		}
 	}
@@ -215,6 +278,16 @@ void RiskGui_Detailed_Risk_Summary_Wid::set_up_widget(QSqlDatabase *ptr_database
 		total_results.dam_results.sc_cult_build=total.record(0).value((Risk_System::table_results->get_column_name(dam_label::sc_cult_build)).c_str()).toDouble();
 		total_results.dam_results.sc_person_build=total.record(0).value((Risk_System::table_results->get_column_name(dam_label::sc_person_build)).c_str()).toDouble();
 
+		//ci
+		total_results.dam_results.ci_elect_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_elect_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_info_tec_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_water_sup_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_water_treat_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_energy_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_energy_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_health_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_health_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_social_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_social_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_mat_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_mat_pt)).c_str()).toDouble();
+	
 		//max outflow
 		total_results.max_outflow=total.record(0).value((Risk_System::table_results->get_column_name(risk_label::max_outflow)).c_str()).toDouble();
 	}
@@ -377,16 +450,100 @@ void RiskGui_Detailed_Risk_Summary_Wid::set_up_widget(QSqlDatabase *ptr_database
 				this->tableWidget->item(i,33)->setData(Qt::DisplayRole, buffer);
 			}
 
+			//ci
+			results.dam_results.ci_elect_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_elect_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_elect_pt;
+			this->tableWidget->item(i, 34)->setData(Qt::DisplayRole, buffer);
+			buffer = results.dam_results.ci_elect_pt*prob_hyd;
+			this->tableWidget->item(i, 35)->setData(Qt::DisplayRole, buffer);
+			if (total_results.dam_results.ci_elect_pt > 0.0) {
+				buffer = results.dam_results.ci_elect_pt*prob_hyd / total_results.dam_results.ci_elect_pt;
+				this->tableWidget->item(i, 36)->setData(Qt::DisplayRole, buffer);
+			}
+
+			results.dam_results.ci_info_tec_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_info_tec_pt;
+			this->tableWidget->item(i, 37)->setData(Qt::DisplayRole, buffer);
+			buffer = results.dam_results.ci_info_tec_pt*prob_hyd;
+			this->tableWidget->item(i, 38)->setData(Qt::DisplayRole, buffer);
+			if (total_results.dam_results.ci_info_tec_pt > 0.0) {
+				buffer = results.dam_results.ci_info_tec_pt*prob_hyd / total_results.dam_results.ci_info_tec_pt;
+				this->tableWidget->item(i, 39)->setData(Qt::DisplayRole, buffer);
+			}
+
+			results.dam_results.ci_water_sup_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_water_sup_pt;
+			this->tableWidget->item(i, 40)->setData(Qt::DisplayRole, buffer);
+			buffer = results.dam_results.ci_water_sup_pt*prob_hyd;
+			this->tableWidget->item(i, 41)->setData(Qt::DisplayRole, buffer);
+			if (total_results.dam_results.ci_water_sup_pt > 0.0) {
+				buffer = results.dam_results.ci_water_sup_pt*prob_hyd / total_results.dam_results.ci_water_sup_pt;
+				this->tableWidget->item(i, 42)->setData(Qt::DisplayRole, buffer);
+			}
+
+			results.dam_results.ci_water_treat_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_water_treat_pt;
+			this->tableWidget->item(i, 43)->setData(Qt::DisplayRole, buffer);
+			buffer = results.dam_results.ci_water_treat_pt*prob_hyd;
+			this->tableWidget->item(i, 44)->setData(Qt::DisplayRole, buffer);
+			if (total_results.dam_results.ci_water_treat_pt > 0.0) {
+				buffer = results.dam_results.ci_water_treat_pt*prob_hyd / total_results.dam_results.ci_water_treat_pt;
+				this->tableWidget->item(i, 45)->setData(Qt::DisplayRole, buffer);
+			}
+
+			results.dam_results.ci_energy_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_energy_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_energy_pt;
+			this->tableWidget->item(i, 46)->setData(Qt::DisplayRole, buffer);
+			buffer = results.dam_results.ci_energy_pt*prob_hyd;
+			this->tableWidget->item(i, 47)->setData(Qt::DisplayRole, buffer);
+			if (total_results.dam_results.ci_energy_pt > 0.0) {
+				buffer = results.dam_results.ci_energy_pt*prob_hyd / total_results.dam_results.ci_energy_pt;
+				this->tableWidget->item(i, 48)->setData(Qt::DisplayRole, buffer);
+			}
+
+			results.dam_results.ci_health_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_health_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_health_pt;
+			this->tableWidget->item(i, 49)->setData(Qt::DisplayRole, buffer);
+			buffer = results.dam_results.ci_health_pt*prob_hyd;
+			this->tableWidget->item(i, 50)->setData(Qt::DisplayRole, buffer);
+			if (total_results.dam_results.ci_health_pt > 0.0) {
+				buffer = results.dam_results.ci_health_pt*prob_hyd / total_results.dam_results.ci_health_pt;
+				this->tableWidget->item(i, 51)->setData(Qt::DisplayRole, buffer);
+			}
+
+
+			results.dam_results.ci_social_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_social_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_social_pt;
+			this->tableWidget->item(i, 52)->setData(Qt::DisplayRole, buffer);
+			buffer = results.dam_results.ci_social_pt*prob_hyd;
+			this->tableWidget->item(i, 53)->setData(Qt::DisplayRole, buffer);
+			if (total_results.dam_results.ci_social_pt > 0.0) {
+				buffer = results.dam_results.ci_social_pt*prob_hyd / total_results.dam_results.ci_social_pt;
+				this->tableWidget->item(i, 54)->setData(Qt::DisplayRole, buffer);
+			}
+
+
+			results.dam_results.ci_mat_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_mat_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_mat_pt;
+			this->tableWidget->item(i, 55)->setData(Qt::DisplayRole, buffer);
+			buffer = results.dam_results.ci_mat_pt*prob_hyd;
+			this->tableWidget->item(i, 56)->setData(Qt::DisplayRole, buffer);
+			if (total_results.dam_results.ci_mat_pt > 0.0) {
+				buffer = results.dam_results.ci_mat_pt*prob_hyd / total_results.dam_results.ci_mat_pt;
+				this->tableWidget->item(i, 57)->setData(Qt::DisplayRole, buffer);
+			}
+
+
 
 			//max outflow
 			results.max_outflow=model.record(i).value((Risk_System::table_detailed_results->get_column_name(risk_label::max_outflow)).c_str()).toDouble();
 			buffer=results.max_outflow;
-			this->tableWidget->item(i,34)->setData(Qt::DisplayRole, buffer);
+			this->tableWidget->item(i,58)->setData(Qt::DisplayRole, buffer);
 			buffer=results.max_outflow*prob_hyd;
-			this->tableWidget->item(i,35)->setData(Qt::DisplayRole, buffer);
+			this->tableWidget->item(i,59)->setData(Qt::DisplayRole, buffer);
 			if(total_results.max_outflow>0.0){
 				buffer=results.max_outflow*prob_hyd/total_results.max_outflow;
-				this->tableWidget->item(i,36)->setData(Qt::DisplayRole, buffer);
+				this->tableWidget->item(i,60)->setData(Qt::DisplayRole, buffer);
 			}
 
 		}
@@ -484,12 +641,50 @@ void RiskGui_Detailed_Risk_Summary_Wid::set_up_widget(QSqlDatabase *ptr_database
 			this->tableWidget->item(i,32)->setData(Qt::DisplayRole, buffer);
 
 
+			//ci
+			results.dam_results.ci_elect_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_elect_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_elect_pt;
+			this->tableWidget->item(i, 35)->setData(Qt::DisplayRole, buffer);
+
+			results.dam_results.ci_info_tec_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_info_tec_pt;
+			this->tableWidget->item(i, 38)->setData(Qt::DisplayRole, buffer);
+
+
+			results.dam_results.ci_water_sup_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_water_sup_pt;
+			this->tableWidget->item(i, 41)->setData(Qt::DisplayRole, buffer);
+
+
+			results.dam_results.ci_water_treat_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_water_treat_pt;
+			this->tableWidget->item(i, 44)->setData(Qt::DisplayRole, buffer);
+
+
+			results.dam_results.ci_energy_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_energy_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_energy_pt;
+			this->tableWidget->item(i, 47)->setData(Qt::DisplayRole, buffer);
+
+			results.dam_results.ci_health_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_health_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_health_pt;
+			this->tableWidget->item(i, 50)->setData(Qt::DisplayRole, buffer);
+
+
+			results.dam_results.ci_social_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_social_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_social_pt;
+			this->tableWidget->item(i, 53)->setData(Qt::DisplayRole, buffer);
+
+
+			results.dam_results.ci_mat_pt = model.record(i).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_mat_pt)).c_str()).toDouble();
+			buffer = results.dam_results.ci_mat_pt;
+			this->tableWidget->item(i, 56)->setData(Qt::DisplayRole, buffer);
+
 
 
 			//max outflow
 			results.max_outflow=model.record(i).value((Risk_System::table_detailed_results->get_column_name(risk_label::max_outflow)).c_str()).toDouble();
 			buffer=results.max_outflow;
-			this->tableWidget->item(i,35)->setData(Qt::DisplayRole, buffer);
+			this->tableWidget->item(i,59)->setData(Qt::DisplayRole, buffer);
 
 
 		}

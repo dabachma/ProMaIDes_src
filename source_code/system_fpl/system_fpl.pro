@@ -62,6 +62,7 @@ DEPENDPATH += . \
               ../system_hydraulic/source_code/models/river \
               ../system_hydraulic/source_code/models/river/profile \
               ../system_hydraulic/source_code/models/coast\
+			  ../system_hydraulic/source_code/models/temperature\
 			../../debug/\
                 ../../debug_hyd/			  
               
@@ -101,6 +102,7 @@ INCLUDEPATH += . \
                ../system_hydraulic/source_code/models/river \
                ../system_hydraulic/source_code/models/river/profile \
                ../system_hydraulic/source_code/models/coast\
+			   ../system_hydraulic/source_code/models/temperature\
 			   ../../debug/\
                 ../../debug_hyd/
 			  

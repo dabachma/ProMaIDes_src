@@ -159,6 +159,46 @@ struct _dam_damage_results{
 	double sc_cult_build;
 	///Damage result simple counting for category buildings with highly vulnerable person
 	double sc_person_build;
+
+
+
+	///Damage result ci for population time sector electricity
+	double ci_elect_pt;
+	///Damage result ci for population time sector information technology
+	double ci_info_tec_pt;
+	///Damage result ci for population time sector water supply
+	double ci_water_sup_pt;
+	///Damage result ci for population time sector water treatment
+	double ci_water_treat_pt;
+	///Damage result ci for population time sector energy
+	double ci_energy_pt;
+	///Damage result ci for population time cummulated sector health
+	double ci_health_pt;
+	///Damage result ci for population time cummulated sector social
+	double ci_social_pt;
+	///Damage result ci for population time cummulated sector material
+	double ci_mat_pt;
+
+
+
+	///Damage result ci for population sector electricity
+	double ci_elect_p;
+	///Damage result ci for population sector information technology
+	double ci_info_tec_p;
+	///Damage result ci for population sector water supply
+	double ci_water_sup_p;
+	///Damage result ci for population sector water treatment
+	double ci_water_treat_p;
+	///Damage result ci for population sector energy
+	double ci_energy_p;
+	///Damage result ci for population cummulated sector health
+	double ci_health_p;
+	///Damage result ci for population cummulated sector social
+	double ci_social_p;
+	///Damage result ci for population cummulated sector material
+	double ci_mat_p;
+
+
 };
 
 ///Data structure for combining the hydraulic boundary scenario data with the break scenario data (\see Risk_Break_Scenario) \ingroup dam
@@ -293,7 +333,7 @@ public:
 	///Create the database table for the results of the damage calculation
 	static void create_erg_table(QSqlDatabase *ptr_database);
 	///Set the database table for the results of the damage calculation: it sets the table name and the name of the columns and allocate them
-	static void set_erg_table(QSqlDatabase *ptr_database);
+	static void set_erg_table(QSqlDatabase *ptr_database, const bool not_close = false);
 	///Delete all data in the database table for the results of the damage calculation
 	static void delete_data_in_erg_table(QSqlDatabase *ptr_database);
 	///Delete the data in the database table for the results of the damage calculation specified by the system id

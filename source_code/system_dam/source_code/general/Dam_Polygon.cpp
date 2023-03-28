@@ -52,6 +52,7 @@ void Dam_Polygon::input_members(const int index, const string filename){
 				if(pos>=0){
 					myline.erase(pos+6);
 				}
+
 			}
 			while(myline!="!BEGIN" && ifile.eof()!=true);
 			if(ifile.eof()==true){
@@ -166,6 +167,9 @@ void Dam_Polygon::input_members(const int index, const string filename){
 			}
 			else{
 				i--;
+				if (ifile.eof() == true) {
+					break;
+				}
 			}
 
 		}
@@ -246,7 +250,7 @@ Error Dam_Polygon::set_error(const int err_type){
 			break;
 		case 4://not all points are found
 			place.append("input_members(const int index, const string filename)");
-			reason="Not all points for the noflow polygon are found";
+			reason="Not all points for the DAM-polygon are found";
 			help="Check the number of points and the given point coordinates";
 			info << "Number of searched points " << this->number_segments << endl;
 			type=5;

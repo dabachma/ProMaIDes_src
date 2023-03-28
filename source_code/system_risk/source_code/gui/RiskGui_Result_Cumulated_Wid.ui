@@ -30,8 +30,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>620</width>
-        <height>864</height>
+        <width>616</width>
+        <height>860</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -371,6 +371,33 @@
          <layout class="QVBoxLayout" name="verticalLayout_9">
           <item>
            <widget class="Sys_Plot_Frame" name="widget_sc" native="true">
+            <property name="font">
+             <font>
+              <family>MS Shell Dlg 2</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_ci">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>12</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="title">
+          <string>CI</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="Sys_Plot_Frame" name="widget_ci" native="true">
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>

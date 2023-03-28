@@ -93,6 +93,9 @@
 //simple-counting information in a simple counting point
 #include "Dam_Sc_Point.h"
 
+
+
+
 //CI
 //management of CI
 #include "_Dam_CI_Element.h"
@@ -133,6 +136,9 @@
 #include "DamGui_Ecn_Func_Wid.h"
 #include "DamGui_Sc_Point_Wid.h"
 #include "DamGui_Sc_Subcategory_Wid.h"
+
+#include "DamGui_Ci_Point_Wid.h"
+#include "DamGui_Ci_Polygon_Wid.h"
 
 //raster dialog class
 #include "DamGui_Raster_Dia.h"

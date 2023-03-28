@@ -71,7 +71,7 @@ public:
 
 	//method
 	///Set the database table for the decision matrix: it sets the table name and the name of the columns and allocate them
-	static void set_table_matrix(QSqlDatabase *ptr_database);
+	static void set_table_matrix(QSqlDatabase *ptr_database, const bool not_close = false);
 	///Create the database table for the decision matrix
 	static void create_table_matrix(QSqlDatabase *ptr_database);
 	///Delete all data in the database table for the decision matrix

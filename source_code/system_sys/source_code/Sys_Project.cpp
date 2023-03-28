@@ -236,6 +236,9 @@ _sys_project_type Sys_Project::convert_txt2project_type(const string txt){
 		else if (txt == sys_label::proj_typ_hydrol) {
 			type = _sys_project_type::proj_hydrol;
 		}
+		else if (txt == sys_label::proj_typ_hyd_temp) {
+			type = _sys_project_type::proj_hyd_temp;
+		}
 		else{
 			type=_sys_project_type::proj_not;
 		}
@@ -292,6 +295,9 @@ _sys_project_type Sys_Project::convert_txt2project_type(const string txt){
 		}
 		else if(txt==sys_label::proj_typ_hyd_file){
 			type=_sys_project_type::proj_hyd_file;
+		}
+		else if (txt == sys_label::proj_typ_hyd_temp) {
+			type = _sys_project_type::proj_hyd_temp;
 		}
 		else{
 			type=_sys_project_type::proj_not;
@@ -359,6 +365,9 @@ string Sys_Project::convert_project_type2txt(const _sys_project_type type){
 			break;
 		case _sys_project_type::proj_hydrol:
 			buffer = sys_label::proj_typ_hydrol;
+			break;
+		case _sys_project_type::proj_hyd_temp:
+			buffer = sys_label::proj_typ_hyd_temp;
 			break;
 		default:
 			buffer=label::not_defined;
@@ -439,7 +448,7 @@ void Sys_Project::read_existing_project(void){
 	else if(this->project_type==_sys_project_type::proj_dam_hyd){
 		must_found=14;
 	}
-	else if(this->project_type==_sys_project_type::proj_hyd_file || this->project_type==_sys_project_type::proj_hyd){
+	else if(this->project_type==_sys_project_type::proj_hyd_file || this->project_type==_sys_project_type::proj_hyd || this->project_type == _sys_project_type::proj_hyd_temp){
 		must_found=13;
 	}
 	else if(this->project_type==_sys_project_type::proj_fpl || this->project_type==_sys_project_type::proj_dam){
@@ -1770,7 +1779,7 @@ void Sys_Project::create_project_folder_data(void){
 		}
 		buffer2.str("");
 	}
-	else if(this->project_type==_sys_project_type::proj_hyd){
+	else if(this->project_type==_sys_project_type::proj_hyd || this->project_type == _sys_project_type::proj_hyd_temp){
 		//hyd
 		buffer2<<buffer.str()<< sys_label::str_hyd<<"/";
 		if(my_dir.exists(buffer2.str().c_str())==false){
@@ -2013,7 +2022,7 @@ void Sys_Project::create_project_folder_output(void){
 		}
 		buffer2.str("");
 	}
-	else if(this->project_type==_sys_project_type::proj_hyd){
+	else if(this->project_type==_sys_project_type::proj_hyd || this->project_type == _sys_project_type::proj_hyd_temp){
 		//hyd
 		buffer2<<buffer.str()<< sys_label::str_hyd<<"/";
 		if(my_dir.exists(buffer2.str().c_str())==false){
@@ -2180,7 +2189,7 @@ string Sys_Project::generate_project_txt2file(void){
 	txt<< sys_label::key_project_measure_state << " " << this->system_id.measure_nr <<endl;
 	txt<<"#Detailed output flags"<<endl;
 	txt<< sys_label::key_project_sys_out_detailed << " " << functions::convert_boolean2string(Sys_Common_Output::output_system->get_detailflag()) <<endl;
-	if(this->project_type==_sys_project_type::proj_hyd_file || this->project_type==_sys_project_type::proj_hyd){
+	if(this->project_type==_sys_project_type::proj_hyd_file || this->project_type==_sys_project_type::proj_hyd || this->project_type == _sys_project_type::proj_hyd_temp){
 		txt<< sys_label::key_project_hyd_out_detailed << " " << functions::convert_boolean2string(Sys_Common_Output::output_hyd->get_detailflag()) <<endl;
 	}
 	else if(this->project_type==_sys_project_type::proj_fpl){
@@ -2212,7 +2221,7 @@ string Sys_Project::generate_project_txt2file(void){
 
 	if(this->project_type==_sys_project_type::proj_all || this->project_type==_sys_project_type::proj_risk ||
 		this->project_type==_sys_project_type::proj_dam_hyd || this->project_type==_sys_project_type::proj_hyd ||
-		this->project_type==_sys_project_type::proj_hyd_file){
+		this->project_type==_sys_project_type::proj_hyd_file || this->project_type == _sys_project_type::proj_hyd_temp){
 		txt<<"#Hydraulic data"<<endl;
 		txt<< sys_label::key_project_hyd_file_out << " " << functions::convert_boolean2string(this->hyd_state.file_output_required) <<endl;
 		txt<< sys_label::key_project_hyd_thread << " " << this->hyd_state.number_threads <<endl;

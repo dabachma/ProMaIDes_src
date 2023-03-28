@@ -109,6 +109,9 @@ public:
 	///Make network statistics of failed system per scenario
 	void make_network_statistics_failed(void);
 
+	///Get value from the result list
+	double get_result_from_list(const int sec_id, const bool pop_t);
+
 
 private:
 

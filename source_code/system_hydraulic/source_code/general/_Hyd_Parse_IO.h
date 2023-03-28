@@ -82,6 +82,8 @@ enum _hyd_keyword_file{
 	eNOFRV,
 	///Marker for the flag for a applied coast model (true/false)
 	eCOASTMODEL,
+	///Marker for the flag for a applied coast model (true/false)
+	eTEMPMODEL,
 	///Marker for the number of diversion channels
 	eNOFDC,
 	///Marker for the number of structure couplings (1d-2d)
@@ -177,6 +179,7 @@ enum _hyd_keyword_file{
 	eFLOODPLAINFILE,
 	///Marker for the limits for the 1d/2d calculation (main keyword)
 	eLIMITS,
+    ///Marker for the temperature model (main keyword)
 	///Marker for the relative tolerance
 	eRTOL,
 	///Marker for the absolute tolerance
@@ -191,6 +194,26 @@ enum _hyd_keyword_file{
 	///Marker for the path and name of the 2d-output file 
 	e2DOUTPUT,
 	
+	///Marker for the temperature model (main keyword)
+	eTEMP_INFO,
+	///Groundwater temperature
+	eGW_TEMP,
+	///Brunt coefficient
+	eBRUNT,	
+	///View-to-sky coefficient
+	eVIEW2SKY,
+	///Coefficient of heat conductivity multiplied by the distance
+	eHEAT_COND,
+	///Bed temperature
+	eBED_TEMP,
+	///Coefficient bed warming
+	eBED_WARM,
+	///Coefficient diffusive solar radiation
+	eSOLAR_RAD,
+
+
+
+
 	// River Model specific
 	///Marker for the path and name of the geometry file with the profile data
 	eGEOMETRYFILE,

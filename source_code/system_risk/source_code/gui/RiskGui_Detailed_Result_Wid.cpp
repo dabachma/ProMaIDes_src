@@ -90,6 +90,33 @@ void RiskGui_Detailed_Result_Wid::set_up_widget(QSqlDatabase *ptr_database,  con
 	results.dam_results.sc_cult_build=model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::sc_cult_build)).c_str()).toDouble();
 	results.dam_results.sc_person_build=model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::sc_person_build)).c_str()).toDouble();
 
+	//ci
+	results.dam_results.ci_elect_pt = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_elect_pt)).c_str()).toDouble();
+	results.dam_results.ci_info_tec_pt = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toDouble();
+	results.dam_results.ci_water_sup_pt = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toDouble();
+	results.dam_results.ci_water_treat_pt = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toDouble();
+	results.dam_results.ci_energy_pt = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_energy_pt)).c_str()).toDouble();
+
+	results.dam_results.ci_health_pt = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_health_pt)).c_str()).toDouble();
+	results.dam_results.ci_social_pt = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_social_pt)).c_str()).toDouble();
+	results.dam_results.ci_mat_pt = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_mat_pt)).c_str()).toDouble();
+
+	results.dam_results.ci_elect_p = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_elect_p)).c_str()).toDouble();
+	results.dam_results.ci_info_tec_p = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_info_tec_p)).c_str()).toDouble();
+	results.dam_results.ci_water_sup_p = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_sup_p)).c_str()).toDouble();
+	results.dam_results.ci_water_treat_p = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_treat_p)).c_str()).toDouble();
+	results.dam_results.ci_energy_p = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_energy_p)).c_str()).toDouble();
+
+	results.dam_results.ci_health_p = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_health_p)).c_str()).toDouble();
+	results.dam_results.ci_social_p = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_social_p)).c_str()).toDouble();
+	results.dam_results.ci_mat_p = model.record(0).value((Risk_System::table_detailed_results->get_column_name(dam_label::ci_mat_p)).c_str()).toDouble();
+
+
+
+
+
+
+
 	
 	//max outflow
 	results.max_outflow=model.record(0).value((Risk_System::table_detailed_results->get_column_name(risk_label::max_outflow)).c_str()).toDouble();
@@ -125,6 +152,28 @@ void RiskGui_Detailed_Result_Wid::set_up_widget(QSqlDatabase *ptr_database,  con
 		total_results.dam_results.sc_cult_build=total.record(0).value((Risk_System::table_results->get_column_name(dam_label::sc_cult_build)).c_str()).toDouble();
 		total_results.dam_results.sc_person_build=total.record(0).value((Risk_System::table_results->get_column_name(dam_label::sc_person_build)).c_str()).toDouble();
 	
+
+		//ci
+		total_results.dam_results.ci_elect_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_elect_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_info_tec_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_water_sup_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_water_treat_pt= total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_energy_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_energy_pt)).c_str()).toDouble();
+
+		total_results.dam_results.ci_health_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_health_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_social_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_social_pt)).c_str()).toDouble();
+		total_results.dam_results.ci_mat_pt = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_mat_pt)).c_str()).toDouble();
+
+		total_results.dam_results.ci_elect_p = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_elect_p)).c_str()).toDouble();
+		total_results.dam_results.ci_info_tec_p = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_info_tec_p)).c_str()).toDouble();
+		total_results.dam_results.ci_water_sup_p = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_sup_p)).c_str()).toDouble();
+		total_results.dam_results.ci_water_treat_p = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_water_treat_p)).c_str()).toDouble();
+		total_results.dam_results.ci_energy_p = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_energy_p)).c_str()).toDouble();
+
+		total_results.dam_results.ci_health_p = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_health_p)).c_str()).toDouble();
+		total_results.dam_results.ci_social_p = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_social_p)).c_str()).toDouble();
+		total_results.dam_results.ci_mat_p = total.record(0).value((Risk_System::table_results->get_column_name(dam_label::ci_mat_p)).c_str()).toDouble();
+
 		//max outflow
 		total_results.max_outflow=total.record(0).value((Risk_System::table_results->get_column_name(risk_label::max_outflow)).c_str()).toDouble();
 	}
@@ -246,6 +295,50 @@ void RiskGui_Detailed_Result_Wid::set_up_widget(QSqlDatabase *ptr_database,  con
 		this->lineEdit_sc_person_hyd->setText(buff_stream.str().c_str());
 		this->lineEdit_sc_person_hyd->setToolTip("Total risk [.../a]");
 		buff_stream.str("");
+
+
+		//ci
+		buff_stream << results.dam_results.ci_elect_pt;
+		this->lineEdit_ci_elect_hyd->setText(buff_stream.str().c_str());
+		this->lineEdit_ci_elect_hyd->setToolTip("Total risk [.../a]");
+		buff_stream.str("");
+
+		buff_stream << results.dam_results.ci_info_tec_pt;
+		this->lineEdit_ci_info_tec_hyd->setText(buff_stream.str().c_str());
+		this->lineEdit_ci_info_tec_hyd->setToolTip("Total risk [.../a]");
+		buff_stream.str("");
+
+		buff_stream << results.dam_results.ci_water_sup_pt;
+		this->lineEdit_ci_water_sup_hyd->setText(buff_stream.str().c_str());
+		this->lineEdit_ci_water_sup_hyd->setToolTip("Total risk [.../a]");
+		buff_stream.str("");
+
+		buff_stream << results.dam_results.ci_water_treat_pt;
+		this->lineEdit_ci_water_treat_hyd->setText(buff_stream.str().c_str());
+		this->lineEdit_ci_water_treat_hyd->setToolTip("Total risk [.../a]");
+		buff_stream.str("");
+
+		buff_stream << results.dam_results.ci_energy_pt;
+		this->lineEdit_ci_energy_hyd->setText(buff_stream.str().c_str());
+		this->lineEdit_ci_energy_hyd->setToolTip("Total risk [.../a]");
+		buff_stream.str("");
+
+
+		buff_stream << results.dam_results.ci_health_pt;
+		this->lineEdit_ci_health_hyd->setText(buff_stream.str().c_str());
+		this->lineEdit_ci_health_hyd->setToolTip("Total risk [.../a]");
+		buff_stream.str("");
+
+		buff_stream << results.dam_results.ci_social_pt;
+		this->lineEdit_ci_social_hyd->setText(buff_stream.str().c_str());
+		this->lineEdit_ci_social_hyd->setToolTip("Total risk [.../a]");
+		buff_stream.str("");
+
+		buff_stream << results.dam_results.ci_mat_pt;
+		this->lineEdit_ci_mat_hyd->setText(buff_stream.str().c_str());
+		this->lineEdit_ci_mat_hyd->setToolTip("Total risk [.../a]");
+		buff_stream.str("");
+
 
 		//max outflow
 		buff_stream << results.max_outflow;
@@ -593,6 +686,125 @@ void RiskGui_Detailed_Result_Wid::set_up_widget(QSqlDatabase *ptr_database,  con
 			buff_stream.str("");
 		}
 		buff_stream<< FORMAT_FIXED_REAL<< P(1);
+
+
+
+		//ci
+		buff_stream << results.dam_results.ci_elect_pt;
+		this->lineEdit_ci_elect->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << results.dam_results.ci_elect_pt*prob_hyd;
+		this->lineEdit_ci_elect_hyd->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << FORMAT_SCIENTIFIC_REAL << P(2);
+		if ((total_results.dam_results.ci_elect_pt) > 0.0) {
+			buff_stream << (results.dam_results.ci_elect_pt)*prob_hyd / (total_results.dam_results.ci_elect_pt);
+			this->lineEdit_ci_elect_fac->setText(buff_stream.str().c_str());
+			buff_stream.str("");
+		}
+		buff_stream << FORMAT_FIXED_REAL << P(1);
+
+		buff_stream << results.dam_results.ci_info_tec_pt;
+		this->lineEdit_ci_info_tec->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << results.dam_results.ci_info_tec_pt*prob_hyd;
+		this->lineEdit_ci_info_tec_hyd->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << FORMAT_SCIENTIFIC_REAL << P(2);
+		if ((total_results.dam_results.ci_info_tec_pt) > 0.0) {
+			buff_stream << (results.dam_results.ci_info_tec_pt)*prob_hyd / (total_results.dam_results.ci_info_tec_pt);
+			this->lineEdit_ci_info_tec_fac->setText(buff_stream.str().c_str());
+			buff_stream.str("");
+		}
+		buff_stream << FORMAT_FIXED_REAL << P(1);
+
+		buff_stream << results.dam_results.ci_water_sup_pt;
+		this->lineEdit_ci_water_sup->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << results.dam_results.ci_water_sup_pt*prob_hyd;
+		this->lineEdit_ci_water_sup_hyd->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << FORMAT_SCIENTIFIC_REAL << P(2);
+		if ((total_results.dam_results.ci_water_sup_pt) > 0.0) {
+			buff_stream << (results.dam_results.ci_water_sup_pt)*prob_hyd / (total_results.dam_results.ci_water_sup_pt);
+			this->lineEdit_ci_water_sup_fac->setText(buff_stream.str().c_str());
+			buff_stream.str("");
+		}
+		buff_stream << FORMAT_FIXED_REAL << P(1);
+
+		buff_stream << results.dam_results.ci_water_treat_pt;
+		this->lineEdit_ci_water_treat->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << results.dam_results.ci_water_treat_pt*prob_hyd;
+		this->lineEdit_ci_water_treat_hyd->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << FORMAT_SCIENTIFIC_REAL << P(2);
+		if ((total_results.dam_results.ci_water_treat_pt) > 0.0) {
+			buff_stream << (results.dam_results.ci_water_treat_pt)*prob_hyd / (total_results.dam_results.ci_water_treat_pt);
+			this->lineEdit_ci_water_treat_fac->setText(buff_stream.str().c_str());
+			buff_stream.str("");
+		}
+		buff_stream << FORMAT_FIXED_REAL << P(1);
+
+		buff_stream << results.dam_results.ci_energy_pt;
+		this->lineEdit_ci_energy->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << results.dam_results.ci_energy_pt*prob_hyd;
+		this->lineEdit_ci_energy_hyd->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << FORMAT_SCIENTIFIC_REAL << P(2);
+		if ((total_results.dam_results.ci_energy_pt) > 0.0) {
+			buff_stream << (results.dam_results.ci_energy_pt)*prob_hyd / (total_results.dam_results.ci_energy_pt);
+			this->lineEdit_ci_energy_fac->setText(buff_stream.str().c_str());
+			buff_stream.str("");
+		}
+		buff_stream << FORMAT_FIXED_REAL << P(1);
+
+		buff_stream << results.dam_results.ci_health_pt;
+		this->lineEdit_ci_health->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << results.dam_results.ci_health_pt*prob_hyd;
+		this->lineEdit_ci_health_hyd->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << FORMAT_SCIENTIFIC_REAL << P(2);
+		if ((total_results.dam_results.ci_health_pt) > 0.0) {
+			buff_stream << (results.dam_results.ci_health_pt)*prob_hyd / (total_results.dam_results.ci_health_pt);
+			this->lineEdit_ci_health_fac->setText(buff_stream.str().c_str());
+			buff_stream.str("");
+		}
+		buff_stream << FORMAT_FIXED_REAL << P(1);
+
+		buff_stream << results.dam_results.ci_social_pt;
+		this->lineEdit_ci_social->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << results.dam_results.ci_social_pt*prob_hyd;
+		this->lineEdit_ci_social_hyd->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << FORMAT_SCIENTIFIC_REAL << P(2);
+		if ((total_results.dam_results.ci_social_pt) > 0.0) {
+			buff_stream << (results.dam_results.ci_social_pt)*prob_hyd / (total_results.dam_results.ci_social_pt);
+			this->lineEdit_ci_social_fac->setText(buff_stream.str().c_str());
+			buff_stream.str("");
+		}
+		buff_stream << FORMAT_FIXED_REAL << P(1);
+
+
+		buff_stream << results.dam_results.ci_mat_pt;
+		this->lineEdit_ci_mat->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << results.dam_results.ci_mat_pt*prob_hyd;
+		this->lineEdit_ci_mat_hyd->setText(buff_stream.str().c_str());
+		buff_stream.str("");
+		buff_stream << FORMAT_SCIENTIFIC_REAL << P(2);
+		if ((total_results.dam_results.ci_mat_pt) > 0.0) {
+			buff_stream << (results.dam_results.ci_mat_pt)*prob_hyd / (total_results.dam_results.ci_mat_pt);
+			this->lineEdit_ci_mat_fac->setText(buff_stream.str().c_str());
+			buff_stream.str("");
+		}
+		buff_stream << FORMAT_FIXED_REAL << P(1);
+
+
+
 
 		//max outflow
 		buff_stream << results.max_outflow;

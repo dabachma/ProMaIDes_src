@@ -32,6 +32,16 @@ enum _hyd_bound_type{
 	length_type,
 	///Waterlevel value [m]; used for Hyd_River_Profile_Connection_Outflow or Hyd_Coast_Model
 	waterlevel_type,
+
+	//this are for the temperature model
+	///Temperature [K]
+	temperature,
+	///No unit between 0 and 1
+	percentage,
+	///Solar radiation [W/m²]
+	radiation,
+	//Speed [m/s]
+	speed
 };
 
 ///Enumerator for the different types of hydraulic models \ingroup hyd
@@ -94,6 +104,9 @@ public:
 	void transfer_instat_curve2database_table(QSqlDatabase *ptr_database, _hyd_model_type model_type, const int model_id);
 	///Set the instationary boundary curves from a given selection of a database table
 	void read_value(QSqlTableModel *results, const int index);
+
+	///Set the instationary boundary curves directly with given values
+	void set_curve_dircetly(QList<double> time, QList<double> value, const _hyd_bound_type type);
 
 	///Get the curve number
 	int get_curve_number(void);

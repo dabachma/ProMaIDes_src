@@ -2162,7 +2162,26 @@ void Dam_Damage_System::output_result_members2database(QSqlDatabase *ptr_databas
 	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::sc_pub_build) <<" , ";
 	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::sc_eco_build) <<" , ";
 	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::sc_cult_build) <<" , ";
-	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::sc_person_build) <<" ) ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::sc_person_build) <<" , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_elect_pt) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_info_tec_pt) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_sup_pt) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_treat_pt) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_energy_pt) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_health_pt) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_social_pt) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_mat_pt) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_elect_p) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_info_tec_p) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_sup_p) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_treat_p) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_energy_p) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_health_p) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_social_p) << " , ";
+	query_string << Dam_Damage_System::erg_table->get_column_name(dam_label::ci_mat_p) << " ) ";
+
+
+
 
 	query_string << " VALUES ( ";
 	query_string << id_glob << " , " ;
@@ -2196,7 +2215,26 @@ void Dam_Damage_System::output_result_members2database(QSqlDatabase *ptr_databas
 	query_string << this->sc_sys.point_manager.get_score_pub_build() << " , " ;
 	query_string << this->sc_sys.point_manager.get_score_eco_build() << " , " ;
 	query_string << this->sc_sys.point_manager.get_score_cult_build() << " , " ;
-	query_string << this->sc_sys.point_manager.get_score_person_build() << " ) " ;
+	query_string << this->sc_sys.point_manager.get_score_person_build() << " , " ;
+	query_string << this->ci_sys.get_result_from_list(1,true) << " , ";
+	query_string << this->ci_sys.get_result_from_list(2, true) << " , ";
+	query_string << this->ci_sys.get_result_from_list(3, true) << " , ";
+	query_string << this->ci_sys.get_result_from_list(4, true) << " , ";
+	query_string << this->ci_sys.get_result_from_list(5, true) << " , ";
+	query_string << this->ci_sys.get_result_from_list(10, true)+ this->ci_sys.get_result_from_list(11, true) << " , ";
+	query_string << this->ci_sys.get_result_from_list(14, true) + this->ci_sys.get_result_from_list(17, true) + this->ci_sys.get_result_from_list(18, true) + this->ci_sys.get_result_from_list(19, true) << " , ";
+	query_string << this->ci_sys.get_result_from_list(12, true) + this->ci_sys.get_result_from_list(13, true) + this->ci_sys.get_result_from_list(15, true)+ this->ci_sys.get_result_from_list(16, true) << " , ";
+	query_string << this->ci_sys.get_result_from_list(1, false) << " , ";
+	query_string << this->ci_sys.get_result_from_list(2, false) << " , ";
+	query_string << this->ci_sys.get_result_from_list(3, false) << " , ";
+	query_string << this->ci_sys.get_result_from_list(4, false) << " , ";
+	query_string << this->ci_sys.get_result_from_list(5, false) << " , ";
+	query_string << this->ci_sys.get_result_from_list(10, false) + this->ci_sys.get_result_from_list(11, false) << " , ";
+	query_string << this->ci_sys.get_result_from_list(14, false) + this->ci_sys.get_result_from_list(17, false) + this->ci_sys.get_result_from_list(18, false) + this->ci_sys.get_result_from_list(19, false) << " , ";
+	query_string << this->ci_sys.get_result_from_list(12, false) + this->ci_sys.get_result_from_list(13, false) + this->ci_sys.get_result_from_list(15, false) + this->ci_sys.get_result_from_list(16, false) << " ) ";
+
+
+
 
 	Data_Base::database_request(&model, query_string.str(), ptr_database);
 
@@ -2218,7 +2256,7 @@ void Dam_Damage_System::create_erg_table(QSqlDatabase *ptr_database){
 			Sys_Common_Output::output_dam->output_txt(&cout);
 			//make specific input for this class
 			const string tab_name=dam_label::tab_dam_erg;
-			const int num_col=28;
+			const int num_col=44;
 			_Sys_data_tab_column tab_col[num_col];
 			//init
 			for(int i=0; i< num_col; i++){
@@ -2361,10 +2399,103 @@ void Dam_Damage_System::create_erg_table(QSqlDatabase *ptr_database){
 			tab_col[26].default_value="0.0";
 			tab_col[26].unsigned_flag=true;
 
-			tab_col[27].name=dam_label::sc_person_build;
-			tab_col[27].type=sys_label::tab_col_type_double;
-			tab_col[27].default_value="0.0";
-			tab_col[27].unsigned_flag=true;
+
+			tab_col[27].name = dam_label::sc_person_build;
+			tab_col[27].type = sys_label::tab_col_type_double;
+			tab_col[27].default_value = "0.0";
+			tab_col[27].unsigned_flag = true;
+
+
+
+			tab_col[28].name = dam_label::ci_elect_pt;
+			tab_col[28].type = sys_label::tab_col_type_double;
+			tab_col[28].default_value = "0.0";
+			tab_col[28].unsigned_flag = true;
+
+			tab_col[29].name = dam_label::ci_info_tec_pt;
+			tab_col[29].type = sys_label::tab_col_type_double;
+			tab_col[29].default_value = "0.0";
+			tab_col[29].unsigned_flag = true;
+
+			tab_col[30].name = dam_label::ci_water_sup_pt;
+			tab_col[30].type = sys_label::tab_col_type_double;
+			tab_col[30].default_value = "0.0";
+			tab_col[30].unsigned_flag = true;
+
+			tab_col[31].name = dam_label::ci_water_treat_pt;
+			tab_col[31].type = sys_label::tab_col_type_double;
+			tab_col[31].default_value = "0.0";
+			tab_col[31].unsigned_flag = true;
+
+			tab_col[32].name = dam_label::ci_energy_pt;
+			tab_col[32].type = sys_label::tab_col_type_double;
+			tab_col[32].default_value = "0.0";
+			tab_col[32].unsigned_flag = true;
+
+
+
+			tab_col[33].name = dam_label::ci_health_pt;
+			tab_col[33].type = sys_label::tab_col_type_double;
+			tab_col[33].default_value = "0.0";
+			tab_col[33].unsigned_flag = true;
+
+			tab_col[34].name = dam_label::ci_social_pt;
+			tab_col[34].type = sys_label::tab_col_type_double;
+			tab_col[34].default_value = "0.0";
+			tab_col[34].unsigned_flag = true;
+
+			tab_col[35].name = dam_label::ci_mat_pt;
+			tab_col[35].type = sys_label::tab_col_type_double;
+			tab_col[35].default_value = "0.0";
+			tab_col[35].unsigned_flag = true;
+
+
+
+			tab_col[36].name = dam_label::ci_elect_p;
+			tab_col[36].type = sys_label::tab_col_type_double;
+			tab_col[36].default_value = "0.0";
+			tab_col[36].unsigned_flag = true;
+
+			tab_col[37].name = dam_label::ci_info_tec_p;
+			tab_col[37].type = sys_label::tab_col_type_double;
+			tab_col[37].default_value = "0.0";
+			tab_col[37].unsigned_flag = true;
+
+			tab_col[38].name = dam_label::ci_water_sup_p;
+			tab_col[38].type = sys_label::tab_col_type_double;
+			tab_col[38].default_value = "0.0";
+			tab_col[38].unsigned_flag = true;
+
+			tab_col[39].name = dam_label::ci_water_treat_p;
+			tab_col[39].type = sys_label::tab_col_type_double;
+			tab_col[39].default_value = "0.0";
+			tab_col[39].unsigned_flag = true;
+
+			tab_col[40].name = dam_label::ci_energy_p;
+			tab_col[40].type = sys_label::tab_col_type_double;
+			tab_col[40].default_value = "0.0";
+			tab_col[40].unsigned_flag = true;
+
+
+
+			tab_col[41].name = dam_label::ci_health_p;
+			tab_col[41].type = sys_label::tab_col_type_double;
+			tab_col[41].default_value = "0.0";
+			tab_col[41].unsigned_flag = true;
+
+			tab_col[42].name = dam_label::ci_social_p;
+			tab_col[42].type = sys_label::tab_col_type_double;
+			tab_col[42].default_value = "0.0";
+			tab_col[42].unsigned_flag = true;
+
+			tab_col[43].name = dam_label::ci_mat_p;
+			tab_col[43].type = sys_label::tab_col_type_double;
+			tab_col[43].default_value = "0.0";
+			tab_col[43].unsigned_flag = true;
+
+
+
+
 
 			try{
 				Dam_Damage_System::erg_table= new Tables();
@@ -2390,11 +2521,11 @@ void Dam_Damage_System::create_erg_table(QSqlDatabase *ptr_database){
 	}
 }
 //Set the database table for the results of the damage calculation: it sets the table name and the name of the columns and allocate them (static)
-void Dam_Damage_System::set_erg_table(QSqlDatabase *ptr_database){
+void Dam_Damage_System::set_erg_table(QSqlDatabase *ptr_database, const bool not_close){
 	if(Dam_Damage_System::erg_table==NULL){
 		//make specific input for this class
 		const string tab_id_name=dam_label::tab_dam_erg;
-		string tab_col[28];
+		string tab_col[44];
 
 		tab_col[0] =dam_label::glob_id;
 		tab_col[1] =label::areastate_id;
@@ -2425,6 +2556,24 @@ void Dam_Damage_System::set_erg_table(QSqlDatabase *ptr_database){
 		tab_col[26]=dam_label::sc_cult_build;
 		tab_col[27]=dam_label::sc_person_build;
 
+		tab_col[28] = dam_label::ci_elect_pt;
+		tab_col[29]= dam_label::ci_info_tec_pt;
+		tab_col[30]= dam_label::ci_water_sup_pt;
+		tab_col[31] = dam_label::ci_water_treat_pt;
+		tab_col[32] = dam_label::ci_energy_pt;
+		tab_col[33] = dam_label::ci_health_pt;
+		tab_col[34] = dam_label::ci_social_pt;
+		tab_col[35] = dam_label::ci_mat_pt;
+		tab_col[36] = dam_label::ci_elect_p;
+		tab_col[37] = dam_label::ci_info_tec_p;
+		tab_col[38] = dam_label::ci_water_sup_p;
+		tab_col[39] = dam_label::ci_water_treat_p;
+		tab_col[40] = dam_label::ci_energy_p;
+		tab_col[41] = dam_label::ci_health_p;
+		tab_col[42] = dam_label::ci_social_p;
+		tab_col[43] = dam_label::ci_mat_p;
+
+
 		try{
 			Dam_Damage_System::erg_table= new Tables(tab_id_name, tab_col, sizeof(tab_col)/sizeof(tab_col[0]));
 			Dam_Damage_System::erg_table->set_name(ptr_database, _sys_table_type::dam);
@@ -2438,9 +2587,12 @@ void Dam_Damage_System::set_erg_table(QSqlDatabase *ptr_database){
 			throw msg;
 		}
 		catch(Error msg){
-			Dam_Damage_System::close_erg_table();
+			if (not_close == false) {
+				Dam_Damage_System::close_erg_table();
+			}
 			throw msg;
 		}
+
 	}
 }
 //Delete all data in the database table for the results of the damage calculation (static)
@@ -3340,8 +3492,13 @@ void Dam_Damage_System::input_polygons_per_file(const string file_name){
 	poly_file.close();
 
 	//input the polygons
-	for(int i=0; i< this->number_polygons; i++){
-		this->polygons[i].input_members(i, file_name);
+	try{
+		for(int i=0; i< this->number_polygons; i++){
+			this->polygons[i].input_members(i, file_name);
+		}
+	}
+	catch (Error msg) {
+		throw msg;
 	}
 }
 //Intercept the damage raster with the polygons for the measure "resettlement"
@@ -3356,6 +3513,8 @@ void Dam_Damage_System::intercept_raster_resettlement(QList <int> btype_replace)
 	this->intercept_eco_btype_raster(buff_current, btype_replace);
 	this->intercept_pop_category_raster(buff_current, buff_new);
 	this->intercept_pys_category_raster(buff_current, buff_new);
+	cout << "Interception is finished" << endl;
+	Sys_Common_Output::output_dam->output_txt(&cout);
 }
 //Intercept the economical damage raster with the polygons for the measure "change ECN-damage function"
 void Dam_Damage_System::intercept_ecn_raster(QList <int> current_id, QList <int> new_id){

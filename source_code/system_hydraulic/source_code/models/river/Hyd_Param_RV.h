@@ -27,6 +27,9 @@ class Hyd_Param_RV
 	friend class Hyd_Parse_RV;
 	///The members, which are stored in Hyd_Param_RV are used in Hyd_Model_River
 	friend class Hyd_Model_River;
+	///This class uses also some river information
+	friend class HydTemp_Param;
+	friend class HydTemp_Model;
 
 public:
 	///Default constructor

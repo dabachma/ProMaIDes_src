@@ -61,6 +61,8 @@ public:
 	///Check and add columns to the CI point/polygon-tables of the CI-elements for DAM-module (21.9.2021)
 	void check_update_dam_ci_elements(QSqlDatabase *ptr_database, const string project_file);
 
+	///Check and add columns to the Dam-result and risk-result table for CI-results for DAM/RISK-module (8.3.2023)
+	void check_update_ci_reults(QSqlDatabase *ptr_database, const string project_file);
 
 
 private:

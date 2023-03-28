@@ -199,27 +199,51 @@ bool Hyd_Multiple_Hydraulic_Systems::set_system_number_file_direct(QStringList l
 
 }
 //Ask per dialog (HydGui_Boundary_Scenario_Dia), which of the availabe hydraulic boundary scenarios should be handled and return the number
-int Hyd_Multiple_Hydraulic_Systems::ask_boundary_scenarios_per_dialog(QSqlDatabase *ptr_database, QWidget *parent){
+int Hyd_Multiple_Hydraulic_Systems::ask_boundary_scenarios_per_dialog(QSqlDatabase *ptr_database, QWidget *parent) {
 
 
 	ostringstream buff;
-	if(this->type==_hyd_thread_type::hyd_calculation){
-		buff <<"Select scenario(s) for calculation from the available hydraulic boundary scenario(s)" <<endl;
+	if (this->type == _hyd_thread_type::hyd_calculation) {
+		buff << "Select scenario(s) for calculation from the available hydraulic boundary scenario(s)" << endl;
 	}
-	else if(this->type==_hyd_thread_type::hyd_del_sz){
-		buff <<"Select scenario(s) for deleting from the available hydraulic boundary scenario(s)" <<endl;
+	else if (this->type == _hyd_thread_type::hyd_temp_calculation) {
+		buff << "Select scenario(s) for temperature calculation from the available \nhydraulic boundary scenario(s) with instat results" << endl;
 	}
-	else{
-		buff <<"Select scenario(s) for unknown handling from the available hydraulic boundary scenario(s)" <<endl;
+	else if (this->type == _hyd_thread_type::hyd_del_sz) {
+		buff << "Select scenario(s) for deleting from the available hydraulic boundary scenario(s)" << endl;
+	}
+	else {
+		buff << "Select scenario(s) for unknown handling from the available hydraulic boundary scenario(s)" << endl;
 	}
 
-
-	if(this->sz_bound_manager.ask_boundary_scenarios_per_dialog(ptr_database, buff.str(), parent)==0){
-		return 0;
+	if (this->type != _hyd_thread_type::hyd_temp_calculation){
+		if (this->sz_bound_manager.ask_boundary_scenarios_per_dialog(ptr_database, buff.str(), parent) == 0) {
+			return 0;
+		}
+		else {
+			this->number_systems = this->sz_bound_manager.counter_number_selected_scenarios();
+			return this->number_systems;
+		}
 	}
-	else{
-		this->number_systems=this->sz_bound_manager.counter_number_selected_scenarios();
-		return this->number_systems;
+	else {
+
+		this->sz_bound_manager.set_szenario_per_db(ptr_database);
+		Hyd_Boundary_Scenario_List my_list;
+		for (int i = 0; i < this->sz_bound_manager.get_number_sz(); i++) {
+
+			if (Hyd_Hydraulic_System::check_hyd_results_calculated(ptr_database, this->system_id, this->sz_bound_manager.get_ptr_sz(i)->get_id(), "CA") == true) {
+				my_list.add_scenario2list(this->sz_bound_manager.get_ptr_sz(i));
+			}
+
+		}
+
+		int number_selected = 0;
+		this->sz_bound_manager.ask_boundary_scenarios_per_dialog(buff.str(), parent, &my_list, &number_selected);
+		this->number_systems = number_selected;
+		return number_selected;
+
+
+
 	}
 }
 //Set per list, which of the availabe hydraulic boundary scenarios should be handled and return the number
@@ -370,6 +394,14 @@ void Hyd_Multiple_Hydraulic_Systems::run(void){
 			}
 		}
 	}
+	//temperature calculation
+	else if (this->type == _hyd_thread_type::hyd_temp_calculation) {
+		if (this->number_systems > 0) {
+			this->set_required_threads();
+			this->calculate_hydraulic_temp_system_database();
+		}
+
+	}	
 	//file import of the base hydraulic system
 	else if(this->type==_hyd_thread_type::hyd_data_import){
 		if(this->number_systems>0){
@@ -618,6 +650,10 @@ void Hyd_Multiple_Hydraulic_Systems::allocate_hyd_threads(void){
 			this->threads[i].set_file_output_flag(this->output2file_required);
 			this->threads[i].set_ptr2database(&this->qsqldatabase,i);
 		}
+		if (this->type == _hyd_thread_type::hyd_temp_calculation) {
+			this->threads[i].set_temp_calc_apply(true);
+
+		}
 		QObject::connect(&this->threads[i], SIGNAL(output_required(int)), this, SLOT(recieve_output_required(int )));
 
 	}
@@ -704,10 +740,22 @@ void Hyd_Multiple_Hydraulic_Systems::decide_new_reset_db(int *counter_sys){
 	for(int i=0; i<this->required_threads; i++){
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		if(this->threads[i].get_preproc_flag()==false){
-			this->set_hyd_system_new_db(counter_sys, i);
+			if (this->type == _hyd_thread_type::hyd_temp_calculation) {
+
+				this->set_hyd_temp_system_new_db(counter_sys, i);
+			}
+			else{
+				this->set_hyd_system_new_db(counter_sys, i);
+			}
 		}
 		else{
-			this->reset_hyd_system_boundaries_db(counter_sys, i);
+			if (this->type == _hyd_thread_type::hyd_temp_calculation) {
+				this->reset_hyd_temp_system_boundaries_db(counter_sys, i);
+
+			}
+			else {
+				this->reset_hyd_system_boundaries_db(counter_sys, i);
+			}
 		}
 	}
 }
@@ -898,6 +946,201 @@ void Hyd_Multiple_Hydraulic_Systems::reset_hyd_system_boundaries_db(int *counter
 	while(*counter_sys<this->sz_bound_manager.get_number_sz() && this->threads[i].get_preproc_flag()==false);
 
 }
+//Set hydraulic temperature system(s) of the threads the first time per database for calculation
+void Hyd_Multiple_Hydraulic_Systems::set_hyd_temp_system_new_db(int *counter_sys, const int i) {
+		ostringstream cout;
+	ostringstream prefix;
+	
+	do{
+		if(*counter_sys==this->sz_bound_manager.get_number_sz()){
+			break;
+		}
+		if(this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_is_selected()==true){
+			//new setting of the system
+			if(i==0){
+				this->threads[i].set_system_number(this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_id());
+				ostringstream buffer;
+				buffer << this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_id()<<"-"<<this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_name();
+				this->threads[i].set_identifier_string(buffer.str());
+				
+
+				//set hydraulic boundary scenario id
+				this->threads[i].set_new_hyd_bound_sz_id(*this->sz_bound_manager.get_ptr_sz(*counter_sys));
+				cout <<"Preprocessing of temperature system " << this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_name() << " thread no. " << i<<"..."<< endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				prefix << this->threads[i].get_identifier_prefix();
+				Sys_Common_Output::output_hyd->set_userprefix(&prefix);
+				try{
+					
+					//preprocessing
+					this->threads[i].set_temp_system_per_database();
+					buffer << ".CA";
+					this->threads[i].set_folder_name(buffer.str(), true);
+					Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+					this->threads[i].output_glob_models();
+					Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+					this->threads[i].init_temp_models();
+					Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+					this->threads[i].output_setted_temp_members();
+					Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+					this->threads[i].init_temp_solver();
+					this->threads[i].set_preproc_flag(true);
+				}
+				catch(Error msg){
+					if(msg.get_user_aborted_exception()==false){
+						ostringstream info;
+						info <<"Number hydraulic system : "<< *counter_sys<< endl;
+						info <<"Name hydraulic system   : "<< this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_name()<< endl;
+						msg.make_second_info(info.str());
+						this->counter_error++;
+						this->threads[i].increase_error_number();
+						msg.output_msg(2);
+						this->threads[i].output_final_model_statistics();
+						this->counter_warnings=this->counter_warnings+this->threads[i].get_number_warnings();
+						this->threads[i].total_reset();
+					}
+					else{
+						Sys_Common_Output::output_hyd->rewind_userprefix();
+						throw msg;
+					}
+
+				}
+				Sys_Common_Output::output_hyd->rewind_userprefix();
+			}
+			//just cloning
+			else{
+				try{
+					this->threads[i].clone_system(&this->threads[0]);
+				}
+				catch(Error msg){
+					if(msg.get_user_aborted_exception()==false){
+						ostringstream info;
+						info <<"Thread number : "<< i << endl;
+						msg.make_second_info(info.str());
+						this->counter_error++;
+						this->threads[i].increase_error_number();
+						msg.output_msg(2);
+						this->threads[i].output_final_model_statistics();
+						this->counter_warnings=this->counter_warnings+this->threads[i].get_number_warnings();
+						this->threads[i].total_reset();
+					}
+					else{
+						throw msg;
+					}
+				}
+				this->counter_warnings=this->counter_warnings+this->threads[i].get_number_warnings();
+				//set boundary
+				this->threads[i].reset_system();
+				this->threads[i].set_system_number(this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_id());
+				ostringstream buffer;
+				buffer << this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_id()<<"-"<<this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_name();
+				this->threads[i].set_identifier_string(buffer.str());
+				buffer<<".CA";
+				this->threads[i].set_folder_name(buffer.str(), true);
+				//set hydraulic boundary scenario id
+				this->threads[i].set_new_hyd_bound_sz_id(*this->sz_bound_manager.get_ptr_sz(*counter_sys));
+				cout <<"Preprocessing of hydraulic boundary condition for system " << this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_name() << " thread no. " << i<<"..."<< endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				prefix << this->threads[i].get_identifier_prefix();
+				Sys_Common_Output::output_hyd->set_userprefix(&prefix);
+				try{
+					//preprocessing
+					this->threads[i].clear_boundary_conditions();
+					Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+					this->threads[i].set_new_boundary_condition();
+					Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+					this->threads[i].set_preproc_flag(true);
+				}
+				catch(Error msg){
+					if(msg.get_user_aborted_exception()==false){
+						ostringstream info;
+						info <<"Number hydraulic system : "<< *counter_sys<< endl;
+						info <<"Name hydraulic system   : "<< this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_name()<< endl;
+						msg.make_second_info(info.str());
+						this->counter_error++;
+						this->threads[i].increase_error_number();
+						msg.output_msg(2);
+						this->threads[i].output_final_model_statistics();
+						this->counter_warnings=this->counter_warnings+this->threads[i].get_number_warnings();
+						this->threads[i].reset_system();
+					}
+					else{
+						Sys_Common_Output::output_hyd->rewind_userprefix();
+						throw msg;
+					}
+				}
+				Sys_Common_Output::output_hyd->rewind_userprefix();
+			}
+			
+		}
+		(*counter_sys)++;
+	}
+	while(*counter_sys<this->sz_bound_manager.get_number_sz() && this->threads[i].get_preproc_flag()==false);
+
+
+
+
+
+
+}
+//Reset hydraulic temperature system(s) boundary condition and set them new per databse for calculation
+void Hyd_Multiple_Hydraulic_Systems::reset_hyd_temp_system_boundaries_db(int *counter_sys, const int i) {
+
+	ostringstream cout;
+	ostringstream prefix;
+	this->threads[i].reset_system();
+	do {
+		if (*counter_sys == this->sz_bound_manager.get_number_sz()) {
+			break;
+		}
+		if (this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_is_selected() == true) {
+			this->threads[i].set_system_number(this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_id());
+			ostringstream buffer;
+			buffer << this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_id() << "-" << this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_name();
+			this->threads[i].set_identifier_string(buffer.str());
+			buffer << ".CA";
+			this->threads[i].set_folder_name(buffer.str(), true);
+			//set hydraulic boundary scenario id
+			this->threads[i].set_new_hyd_bound_sz_id(*this->sz_bound_manager.get_ptr_sz(*counter_sys));
+			cout << "Preprocessing of temperature boundary condition for system " << this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_name() << " thread no. " << i << "..." << endl;
+			Sys_Common_Output::output_hyd->output_txt(&cout);
+			prefix << this->threads[i].get_identifier_prefix();
+			Sys_Common_Output::output_hyd->set_userprefix(&prefix);
+			try {
+				//preprocessing
+				this->threads[i].clear_boundary_conditions();
+				Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+				this->threads[i].set_new_boundary_condition();
+				Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+				this->threads[i].set_preproc_flag(true);
+			}
+			catch (Error msg) {
+				if (msg.get_user_aborted_exception() == false) {
+					ostringstream info;
+					info << "Number hydraulic system : " << *counter_sys << endl;
+					info << "Name hydraulic system   : " << this->sz_bound_manager.get_ptr_sz(*counter_sys)->get_name() << endl;
+					msg.make_second_info(info.str());
+					this->counter_error++;
+					this->threads[i].increase_error_number();
+					msg.output_msg(2);
+					this->threads[i].output_final_model_statistics();
+					this->counter_warnings = this->counter_warnings + this->threads[i].get_number_warnings();
+					this->threads[i].reset_system();
+				}
+				else {
+					Sys_Common_Output::output_hyd->rewind_userprefix();
+					throw msg;
+				}
+
+			}
+			Sys_Common_Output::output_hyd->rewind_userprefix();
+		}
+		(*counter_sys)++;
+	} while (*counter_sys < this->sz_bound_manager.get_number_sz() && this->threads[i].get_preproc_flag() == false);
+
+
+
+}
 //Calculate the hydraulic system
 void Hyd_Multiple_Hydraulic_Systems::calculate_hyd_system(void){
 	for(int i=0; i<this->required_threads; i++){
@@ -913,6 +1156,24 @@ void Hyd_Multiple_Hydraulic_Systems::calculate_hyd_system(void){
 			this->counter_error=this->counter_error+this->threads[i].get_number_errors();
 		}
 	}
+}
+//Calculate the hydraulic temperature system
+void Hyd_Multiple_Hydraulic_Systems::calculate_hyd_temp_system(void) {
+	for (int i = 0; i < this->required_threads; i++) {
+		
+		if (threads[i].get_preproc_flag() == true) {
+			this->threads[i].start();
+		}
+	}
+	this->wait_loop();
+
+	//count errors
+	for (int i = 0; i < this->required_threads; i++) {
+		if (threads[i].get_preproc_flag() == true) {
+			this->counter_error = this->counter_error + this->threads[i].get_number_errors();
+		}
+	}
+
 }
 //Perform the postprocessing of the hydraulic system(s)
 void Hyd_Multiple_Hydraulic_Systems::make_postprocessing_hyd_system(void){
@@ -938,6 +1199,32 @@ void Hyd_Multiple_Hydraulic_Systems::make_postprocessing_hyd_system(void){
 			}
 		}
 	}
+}
+//Perform the postprocessing of the hydraulic temperature system(s) calculation 
+void Hyd_Multiple_Hydraulic_Systems::make_postprocessing_hyd_temp_system(void) {
+	if (Hyd_Multiple_Hydraulic_Systems::abort_thread_flag == false) {
+		for (int i = 0; i < this->required_threads; i++) {
+			if (threads[i].get_preproc_flag() == true) {
+				try {
+					ostringstream cout;
+					cout << "Postprocessing of hydraulic temperature system " << this->threads[i].get_identifier_prefix(false) << "..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+					this->threads[i].output_final_model_statistics();
+					this->counter_warnings = this->counter_warnings + this->threads[i].get_number_warnings();
+					Sys_Common_Output::output_hyd->insert_separator(4);
+				}
+				catch (Error msg) {
+					ostringstream info;
+					info << "Number hydraulic temperature system : " << this->threads[i].get_identifier_prefix(false) << endl;
+					msg.make_second_info(info.str());
+					this->counter_error++;
+					this->threads[i].increase_error_number();
+					msg.output_msg(2);
+				}
+			}
+		}
+	}
+
 }
 //Waiting loop for the threads
 void Hyd_Multiple_Hydraulic_Systems::wait_loop(void){
@@ -1428,6 +1715,49 @@ void Hyd_Multiple_Hydraulic_Systems::calculate_hydraulic_system_database(void){
 		else{
 			for(int i=0; i<this->required_threads; i++){
 				this->counter_warnings=this->counter_warnings+this->threads[i].get_number_warnings();
+			}
+		}
+
+	}
+
+	//set the actual time
+	time(&this->actual_time);
+	this->output_final_statistic_multi_hydsz();
+
+}
+//Calculate one/multiple hydraulic temperature system, read in from a database
+void Hyd_Multiple_Hydraulic_Systems::calculate_hydraulic_temp_system_database(void) {
+
+	int counter_sys = 0;
+	ostringstream cout;
+	//begin time recording	
+	time(&this->start_time);
+
+	try {
+		this->allocate_hyd_threads();
+		do {
+			if (counter_sys > 0) {
+				cout.str("");
+				cout << counter_sys << " of " << this->sz_bound_manager.get_number_sz();
+				emit_number_performed_calculation(cout.str().c_str());
+			}
+			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+			this->decide_new_reset_db(&counter_sys);
+			this->calculate_hyd_temp_system();
+			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+			this->make_postprocessing_hyd_temp_system();
+
+
+		} while (counter_sys < this->sz_bound_manager.get_number_sz());
+	}
+	catch (Error msg) {
+		if (msg.get_user_aborted_exception() == false) {
+			this->counter_error++;
+			msg.output_msg(2);
+		}
+		else {
+			for (int i = 0; i < this->required_threads; i++) {
+				this->counter_warnings = this->counter_warnings + this->threads[i].get_number_warnings();
 			}
 		}
 

@@ -25,6 +25,8 @@
 enum _hyd_thread_type{
 	///Thread is performing a hydraulic calculation
 	hyd_calculation,
+	///Thread is performing a temperature hydraulic calculation
+	hyd_temp_calculation,
 	///Thread is importing the hydraulic input data of a file to a database ass the base hydraulic system
 	hyd_data_import,
 	///Thread is creating the hydraulic tables for a database project
@@ -223,10 +225,20 @@ private:
 	void set_hyd_system_new_db(int *counter_sys, const int i);
 	///Reset hydraulic system(s) boundary condition and set them new per databse for calculation
 	void reset_hyd_system_boundaries_db(int *counter_sys, const int i);
+
+	///Set hydraulic temperature system(s) of the threads the first time per database for calculation
+	void set_hyd_temp_system_new_db(int *counter_sys, const int i);
+	///Reset hydraulic temperature system(s) boundary condition and set them new per databse for calculation
+	void reset_hyd_temp_system_boundaries_db(int *counter_sys, const int i);
+
 	///Calculate the hydraulic system
 	void calculate_hyd_system(void);
+	///Calculate the hydraulic temperature system
+	void calculate_hyd_temp_system(void);
 	///Perform the postprocessing of the hydraulic system(s) calculation 
 	void make_postprocessing_hyd_system(void);
+	///Perform the postprocessing of the hydraulic temperature system(s) calculation 
+	void make_postprocessing_hyd_temp_system(void);
 	///Waiting loop for the threads
 	void wait_loop(void);
 
@@ -255,6 +267,9 @@ private:
 	void check_hydraulic_system_database(void);
 	///Calculate one/multiple hydraulic system, read in from a database
 	void calculate_hydraulic_system_database(void);
+
+	///Calculate one/multiple hydraulic temperature system, read in from a database
+	void calculate_hydraulic_temp_system_database(void);
 
 	///Delete selected boundary scenarios from the database table
 	void delete_selected_scenarios(void);

@@ -93,7 +93,7 @@ void Sys_Data_Tree_Wid::set_up_tree_data(void){
 			this->set_up_current_data_madm();
 			this->set_up_current_data_alt();
 		}
-		else if(Sys_Project::get_project_type()==_sys_project_type::proj_hyd){
+		else if(Sys_Project::get_project_type()==_sys_project_type::proj_hyd || Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp){
 			this->set_up_current_data_hyd();
 		}
 		else if(Sys_Project::get_project_type()==_sys_project_type::proj_dam){
@@ -359,7 +359,7 @@ void Sys_Data_Tree_Wid::set_up_tree_predefinied(void){
 		this->set_up_predefined_madm(root);
 		this->set_up_predefined_alt(root);
 	}
-	else if(Sys_Project::get_project_type()==_sys_project_type::proj_hyd){
+	else if(Sys_Project::get_project_type()==_sys_project_type::proj_hyd || Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp){
 		this->set_up_predefined_hyd(root);
 	}
 	else if(Sys_Project::get_project_type()==_sys_project_type::proj_dam){
@@ -674,7 +674,7 @@ void Sys_Data_Tree_Wid::set_up_predefined_dam(QTreeWidgetItem *root){
 			sub_sub_folder->setData(0, Qt::UserRole, "1");
 			raster.clear();
 			number = 0;
-			number = Dam_Sc_Point::count_relevant_points_database(&raster, &this->database, *this->system_id, false);
+			number = Dam_CI_Point::count_relevant_points_database(&raster, &this->database, *this->system_id, false);
 			sub_sub_folder->setData(1, Qt::DisplayRole, number);
 
 			buff_sub_sub.str("");
@@ -684,7 +684,7 @@ void Sys_Data_Tree_Wid::set_up_predefined_dam(QTreeWidgetItem *root){
 			sub_sub_folder->setData(0, Qt::AccessibleDescriptionRole, buff_sub_sub.str().c_str());
 			sub_sub_folder->setToolTip(0, buff_sub_sub.str().c_str());
 			sub_sub_folder->setData(0, Qt::UserRole, "1");
-			number = Dam_Sc_Subcategory::select_relevant_subcategory_database(&raster, &this->database);
+			number = Dam_CI_Polygon::count_relevant_polygon_database(&raster, &this->database, *this->system_id, false);
 			sub_sub_folder->setData(1, Qt::DisplayRole, number);
 
 	//result
@@ -2980,12 +2980,12 @@ void Sys_Data_Tree_Wid::widget2dam(QTreeWidgetItem *item){
 	buffer.str("");
 
 
-	//ci point todo!
+	//ci point 
 	buffer << str_mod << sys_data_tree_id::dam_ci_id << "/" << sys_data_tree_id::dam_point_id << "/";
 	pos = given.find(buffer.str());
 	if (pos >= 0) {
-		DamGui_Sc_Subcategory_Wid *wid;
-		wid = new DamGui_Sc_Subcategory_Wid;
+		DamGui_Ci_Point_Wid *wid;
+		wid = new DamGui_Ci_Point_Wid;
 		wid->setParent(this->ptr_data_tab_dam);
 		wid->set_treeItem(item);
 
@@ -3002,12 +3002,12 @@ void Sys_Data_Tree_Wid::widget2dam(QTreeWidgetItem *item){
 	}
 	buffer.str("");
 
-	//ci polygon todo
+	//ci polygon 
 	buffer << str_mod << sys_data_tree_id::dam_ci_id << "/" << sys_data_tree_id::dam_polygon_id << "/";
 	pos = given.find(buffer.str());
 	if (pos >= 0) {
-		DamGui_Sc_Subcategory_Wid *wid;
-		wid = new DamGui_Sc_Subcategory_Wid;
+		DamGui_Ci_Polygon_Wid *wid;
+		wid = new DamGui_Ci_Polygon_Wid;
 		wid->setParent(this->ptr_data_tab_dam);
 		wid->set_treeItem(item);
 

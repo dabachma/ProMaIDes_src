@@ -44,6 +44,7 @@ DEPENDPATH += . \
               source_code/models/river \
               source_code/models/river/profile \
               source_code/models/coast \
+			  source_code/models/temperature \
               ../system_sys/source_code \
               ../system_sys/source_code/exceptions \
               ../system_sys/source_code/geometrie_general \
@@ -67,6 +68,7 @@ INCLUDEPATH += . \
                source_code/models/river \
                source_code/models/river/profile \
                source_code/models/coast \
+			   source_code/models/temperature \
                ../system_sys/source_code \
                ../system_sys/source_code/exceptions \
                ../system_sys/source_code/geometrie_general \
@@ -126,6 +128,10 @@ HEADERS += source_code/Hyd_Multiple_Hydraulic_Systems.h \
            source_code/models/river/profile/Hyd_River_Profile_Point.h \
            source_code/models/coast\Hyd_Coast_Model.h \
            source_code/models/coast\Hyd_Parse_CO.h \
+		   source_code/models/temperature\HydTemp_Parse.h\
+		   source_code/models/temperature\HydTemp_Param.h\
+		   source_code/models/temperature\HydTemp_Model.h\  
+		   source_code/models/temperature\HydTemp_Profile.h\ 
            source_code/models/coupling/Hyd_Coupling_Model_List.h \
            source_code/models/coupling/Hyd_Coupling_Management.h \
            source_code/models/coupling/Hyd_Coupling_RV2CO.h \
@@ -243,6 +249,10 @@ SOURCES += source_code/Hyd_Multiple_Hydraulic_Systems.cpp \
            source_code/models/river/profile/Hyd_River_Profile_Point.cpp \
            source_code/models/coast/Hyd_Coast_Model.cpp \
            source_code/models/coast/Hyd_Parse_CO.cpp \
+		   source_code/models/temperature\HydTemp_Parse.cpp\
+		   source_code/models/temperature\HydTemp_Param.cpp\
+		   source_code/models/temperature\HydTemp_Model.cpp\
+		   source_code/models/temperature\HydTemp_Profile.cpp\
            source_code/models/coupling/Hyd_Coupling_Model_List.cpp \
            source_code/models/coupling/Hyd_Coupling_Management.cpp \
            source_code/models/coupling/Hyd_Coupling_RV2CO.cpp \

@@ -173,6 +173,9 @@ void Hyd_Instationary_Boundary::read_value(const string file_name, const int ind
 			}
 			else{
 				i--;
+				if (ifile.eof() == true) {
+					break;
+				}
 			}
 
 		}
@@ -668,6 +671,35 @@ void Hyd_Instationary_Boundary::read_value(QSqlTableModel *results, const int in
 
 
 }
+//Set the instationary boundary curves directly with given values
+void Hyd_Instationary_Boundary::set_curve_dircetly(QList<double> time, QList<double> value, const _hyd_bound_type type) {
+	this->given_type=type;
+
+	if (time.count() != value.count()) {
+		Error msg = this->set_error(12);
+		ostringstream info;
+		info << "Number time " << time.count() << endl;
+		info << "Number values " << value.count() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+
+	}
+
+	this->number_of_points = time.count();
+
+	//allocate the points
+	this->alloc_points();
+	//read in points
+	for (int i = 0; i < this->number_of_points; i++) {
+		this->boundary_points[i].value = value.at(i);
+		this->boundary_points[i].hour = time.at(i) ;
+
+	}
+
+	//check the time values
+	this->check_time_values();
+
+}
 //Set the type of the instationary boundary curve (e.g. a point length or an area);
 void Hyd_Instationary_Boundary::set_type( _hyd_bound_type bound_type){
 	this->setted_type=bound_type;
@@ -704,6 +736,18 @@ void Hyd_Instationary_Boundary::output_member(void){
 		}
 		else if(this->given_type==_hyd_bound_type::waterlevel_type){
 			cout << " Waterlevel value " <<label::m <<endl;
+		}
+		else if (this->given_type == _hyd_bound_type::temperature) {
+			cout << " Temperature value " << label::kelvin << endl;
+		}
+		else if (this->given_type == _hyd_bound_type::radiation) {
+			cout << " Radiation value " << label::watt_per_square_m << endl;
+		}
+		else if (this->given_type == _hyd_bound_type::percentage) {
+			cout << " Percentage value [0-1] " << label::no_unit << endl;
+		}
+		else if (this->given_type == _hyd_bound_type::percentage) {
+			cout << " Speed value " << label::m_per_sec << endl;
 		}
 		else{
 			cout <<" Discharge value is related to a point " << label::qm_per_sec<<endl;
@@ -835,6 +879,18 @@ _hyd_bound_type Hyd_Instationary_Boundary::transfrom_txt2_instatboundtype(string
 	else if(txt==hyd_label::Waterlevel_Boundary){
 		buffer=_hyd_bound_type::waterlevel_type;
 	}
+	else if (txt == hyd_label::Temp_Boundary) {
+		buffer = _hyd_bound_type::temperature;
+	}
+	else if (txt == hyd_label::Solar_rad_Boundary) {
+		buffer = _hyd_bound_type::radiation;
+	}
+	else if (txt == hyd_label::Perc_Boundary) {
+		buffer = _hyd_bound_type::percentage;
+	}
+	else if (txt == hyd_label::Speed_Boundary) {
+		buffer = _hyd_bound_type::speed;
+	}
 	else{
 		Error msg;
 		string place="Hyd_Instationary_Boundary::";
@@ -848,6 +904,15 @@ _hyd_bound_type Hyd_Instationary_Boundary::transfrom_txt2_instatboundtype(string
 		info <<" " << hyd_label::Area_Boundary <<endl;
 		info <<" " << hyd_label::Length_Boundary<<endl;
 		info <<" " << hyd_label::Waterlevel_Boundary<<endl;
+		if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp) {
+			info << "Additonally for the temperature model: " << endl;
+			info << " " << hyd_label::Temp_Boundary << endl;
+			info << " " << hyd_label::Solar_rad_Boundary << endl;
+			info << " " << hyd_label::Perc_Boundary << endl;
+			info << " " << hyd_label::Speed_Boundary << endl;
+		}
+
+
 		msg.set_msg(place, reason, help, 1, false);
 		msg.make_second_info(info.str());
 		throw msg;
@@ -871,7 +936,22 @@ _hyd_bound_type Hyd_Instationary_Boundary::transfrom_txt2_instatboundtype(string
 	else if(type==_hyd_bound_type::waterlevel_type){
 		return hyd_label::Waterlevel_Boundary;
 	}
+	else if (type == _hyd_bound_type::temperature) {
+		return hyd_label::Temp_Boundary;
+	}
+	else if (type == _hyd_bound_type::radiation) {
+		return hyd_label::Solar_rad_Boundary;
+	}
+	else if (type == _hyd_bound_type::speed) {
+		return hyd_label::Speed_Boundary;
+	}
+	else if (type == _hyd_bound_type::percentage) {
+		return hyd_label::Perc_Boundary;
+	}
+
+
 	return label::not_set;
+
 
 }
  //Clear the instationary boundary curve, delete the points
@@ -1140,6 +1220,15 @@ Error Hyd_Instationary_Boundary::set_error(const int err_type){
 			help="Check the curve";
 			type=3;
 			break;
+		case 12://There are negative time values
+			place.append("Hyd_Instationary_Boundary::set_curve_dircetly(QList<double> time, QList<double> value, const _hyd_bound_type type)");
+			reason = "The number of time and values is not equal";
+			help = "Please check the given lists";
+			type = 6;
+			break;
+
+
+			
 		default:
 			place.append("set_error(const int err_type)");
 			reason ="Unknown flag!";

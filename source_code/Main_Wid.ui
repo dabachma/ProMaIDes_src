@@ -369,6 +369,7 @@
      </property>
      <addaction name="action_hydcalc_per_file"/>
      <addaction name="action_hydcalc_per_db"/>
+     <addaction name="actionTemp_per_database"/>
     </widget>
     <widget class="QMenu" name="menu_hyd_check">
      <property name="title">
@@ -462,6 +463,8 @@
      <addaction name="action_calc_nobreak_risk"/>
      <addaction name="action_calc_scenario_risk"/>
      <addaction name="menu_catchment_risk"/>
+     <addaction name="separator"/>
+     <addaction name="action_CI_DAM_instat_calculation"/>
     </widget>
     <addaction name="menu_risk_calc"/>
     <addaction name="action_stop_risk_calc"/>
@@ -2145,6 +2148,16 @@
   <action name="action_hydrol_properties">
    <property name="text">
     <string>&amp;Properties...</string>
+   </property>
+  </action>
+  <action name="action_CI_DAM_instat_calculation">
+   <property name="text">
+    <string>CI-DAM instat calculation</string>
+   </property>
+  </action>
+  <action name="actionTemp_per_database">
+   <property name="text">
+    <string>Temp per database...</string>
    </property>
   </action>
  </widget>

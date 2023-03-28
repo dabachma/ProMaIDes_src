@@ -3883,7 +3883,7 @@ void Hyd_Model_River::count_profile_types(void){
 		}
 	}
 }
-//Output the hydrological balance of the floodplain model
+//Output the hydrological balance of the river model
 void Hyd_Model_River::output_hydrological_balance(void){
 	ostringstream cout;
 
@@ -3950,7 +3950,7 @@ void Hyd_Model_River::output_hydrological_balance(void){
 	cout << " Error [%]                                :"<<W(15)<< P(1) << FORMAT_FIXED_REAL << this->error_hydrological_balance << endl;
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 }
-//Calculate the hydrological balance of the floodplain model
+//Calculate the hydrological balance of the river model
 void Hyd_Model_River::calculate_total_hydrological_balance(void){
 	//reset the values
 	this->reset_total_hydrological_balance();
@@ -4023,7 +4023,7 @@ void Hyd_Model_River::calculate_total_hydrological_balance(void){
 	}
 
 }
-//Reset the total hydraological balance values
+//Reset the total hydrological balance values
 void Hyd_Model_River::reset_total_hydrological_balance(void){
 	//reset the values
 	this->total_watervolume=0.0;

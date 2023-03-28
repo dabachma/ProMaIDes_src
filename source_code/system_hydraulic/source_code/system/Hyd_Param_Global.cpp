@@ -19,6 +19,7 @@ Hyd_Param_Global::Hyd_Param_Global(void):default_max_steps(40000), default_init_
 	this->GlobNofFP=0;
 	this->GlobNofRV=0;
 	this->coastmodel_applied=false;
+	this->tempmodel_applied = false;
 	//setted couplings
 	this->number_div_channel=0;
 	this->number_struc_coupling=0;
@@ -69,6 +70,7 @@ Hyd_Param_Global::Hyd_Param_Global(Hyd_Param_Global &par):default_max_steps(4000
 	this->GlobNofFP=par.GlobNofFP;
 	this->GlobNofRV=par.GlobNofRV;
 	this->coastmodel_applied=par.coastmodel_applied;
+	this->tempmodel_applied = par.tempmodel_applied;
 	//setted couplings
 	this->number_div_channel=par.number_div_channel;
 	this->number_struc_coupling=par.number_struc_coupling;
@@ -704,6 +706,16 @@ void Hyd_Param_Global::check_members(void){
 		this->max_v_change_rv=this->default_max_v_change_rv;
 		msg.output_msg(2);
 	}
+	if (Sys_Project::get_project_type() != _sys_project_type::proj_hyd_temp && this->tempmodel_applied == true) {
+		Warning msg = this->set_warning(11);
+		stringstream info;
+		info << "Project type: " << Sys_Project::convert_project_type2txt(Sys_Project::get_project_type()) << endl;
+		msg.make_second_info(info.str());
+		//reaction
+		this->tempmodel_applied = false;
+		msg.output_msg(2);
+
+	}
 
 }
 //(static) Filename conversion functions
@@ -839,6 +851,7 @@ Hyd_Param_Global& Hyd_Param_Global::operator= (const Hyd_Param_Global& par){
 	this->GlobNofFP=par.GlobNofFP;
 	this->GlobNofRV=par.GlobNofRV;
 	this->coastmodel_applied=par.coastmodel_applied;
+	this->tempmodel_applied = par.tempmodel_applied;
 	//setted couplings
 	this->number_div_channel=par.number_div_channel;
 	this->number_struc_coupling=par.number_struc_coupling;
@@ -1154,8 +1167,15 @@ Warning Hyd_Param_Global::set_warning(const int warn_type){
 			place.append("check_members(void)") ;
 			reason="The maximum of explicit velocity head change in the river models per syncronisation timestep is smaller or equal than 0.0";
 			reaction="Default maximum of explicit velocity head change per syncronisation timestep is used";
-			help= "Check the mmaximum of explicit velocity head change per syncronisation timestep";
+			help= "Check the maximum of explicit velocity head change per syncronisation timestep";
 			type=3;	
+			break;
+		case 11://temperature model applied but not the right projetc type
+			place.append("check_members(void)");
+			reason = "The flag for applying the temperature model ist set to true; however with the given project type no temperature model is applicable";
+			reaction = "The applied flag of the temperature model is set to false";
+			help = "Check the project type and the applied flag of the temperature model in the *.ilm-file";
+			type = 3;
 			break;
 		default:
 			place.append("set_warning(const int warn_type)");

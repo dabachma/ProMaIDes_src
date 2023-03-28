@@ -933,6 +933,29 @@ void Dam_CI_System::make_network_statistics_failed(void) {
 	Sys_Common_Output::output_dam->rewind_userprefix();
 
 }
+///Get value from the result list
+double Dam_CI_System::get_result_from_list(const int sec_id, const bool pop_t) {
+
+	if (pop_t == true) {
+
+		for (int i = 0; i < this->list_enduser_affected_duration_sec.count(); i++) {
+			if (sec_id == this->list_enduser_affected_duration_sec[i].at(0).toInt()){
+				return this->list_enduser_affected_duration_sec[i].at(1).toDouble();
+			}
+		}
+	}
+	else{
+
+		for (int i = 0; i < this->list_enduser_affected_sec.count(); i++) {
+			if (sec_id == this->list_enduser_affected_sec[i].at(0).toInt()) {
+				return this->list_enduser_affected_sec[i].at(1).toDouble();
+			}
+		}
+	}
+
+	return 0.0;
+
+}
 //____________
 //private
 //Read in the CI point data from file

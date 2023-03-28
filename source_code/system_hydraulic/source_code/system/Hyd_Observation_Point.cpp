@@ -10,6 +10,7 @@ Hyd_Observation_Point::Hyd_Observation_Point(void){
 	this->time_point=NULL;
 	this->element=NULL;
 	this->profile=NULL;
+	this->temp_profile = NULL;
 	this->floodplain_flag=true;
 	this->index_model=-1;
 	this->index=-1;
@@ -109,6 +110,76 @@ void Hyd_Observation_Point::synchron_obs_point(const double time){
 
 	}
 }
+//Synchronise observation time for temperature modelling
+void Hyd_Observation_Point::synchron_temp_obs_point(const double time) {
+	//do not rename them...just use the sequence of the names
+
+	if (this->floodplain_flag == false) {
+		if (this->temp_profile != NULL) {
+			this->time_point[this->counter_time_points].time = time;
+			this->time_point[this->counter_time_points].s_value = this->temp_profile->get_actual_temperature();
+			//Add with get function of other variables!! TODO UDO
+			//this->time_point[this->counter_time_points].waterlevel = this->temp_profile->get;
+/*			this->time_point[this->counter_time_points].ds2dt_fr = this->element->element_type->get_ds2dt_value()*60.0;
+			this->time_point[this->counter_time_points].velocity = this->element->element_type->get_flowvelocity_vtotal();
+			this->time_point[this->counter_time_points].x_velocity = this->element->element_type->get_flowvelocity_vx();
+			this->time_point[this->counter_time_points].y_velocity = this->element->element_type->get_flowvelocity_vy();
+			this->time_point[this->counter_time_points].y_velocity = this->element->element_type->get_flowvelocity_vy();
+			this->time_point[this->counter_time_points].ds2dt_coupling = this->element->element_type->get_coupling_ds2dt()*/;
+		}
+	}
+
+	this->counter_time_points++;
+	//make block allocation
+	if (this->counter_time_points > 0 && this->counter_time_points == this->number_time_point - 1) {
+		const int add = 250;
+		_hyd_observation_time_point *buffer = NULL;
+		int count_buff = this->counter_time_points;
+		try {
+			buffer = new _hyd_observation_time_point[this->number_time_point + add];
+			Sys_Memory_Count::self()->add_mem(sizeof(_hyd_observation_time_point)*(this->number_time_point + add), _sys_system_modules::HYD_SYS);
+
+		}
+		catch (bad_alloc &) {
+			Error msg = this->set_error(1);
+			throw msg;
+		}
+		//copy the points
+		for (int i = 0; i < this->number_time_point; i++) {
+			buffer[i].s_value = this->time_point[i].s_value;	
+			buffer[i].time = this->time_point[i].time;
+			buffer[i].waterlevel = this->time_point[i].waterlevel;
+			buffer[i].velocity = this->time_point[i].velocity;
+			buffer[i].x_velocity = this->time_point[i].x_velocity;
+			buffer[i].y_velocity = this->time_point[i].y_velocity;
+			buffer[i].ds2dt_fr = this->time_point[i].ds2dt_fr;
+			buffer[i].ds2dt_coupling = this->time_point[i].ds2dt_coupling;
+			buffer[i].discharge = this->time_point[i].discharge;
+		}
+		//reset the new setted points
+		for (int i = this->number_time_point - 1; i < this->number_time_point + add; i++) {
+			buffer[i].s_value = -9999.9;
+			buffer[i].time = -9999.9;
+			buffer[i].waterlevel = -9999.9;
+			buffer[i].velocity = -9999.9;
+			buffer[i].x_velocity = -9999.9;
+			buffer[i].y_velocity = -9999.9;
+			buffer[i].ds2dt_fr = -9999.9;
+			buffer[i].ds2dt_coupling = -9999.9;
+			buffer[i].discharge = -9999.9;
+		}
+		//delete them
+		this->delete_time_point();
+		//recopy
+		this->time_point = buffer;
+		this->counter_time_points = count_buff;
+		//add the new to number
+		this->number_time_point = this->number_time_point + add;
+
+	}
+
+
+}
 //Set the geometrical point information
 void Hyd_Observation_Point::set_geo_point_info(Geo_Point *point){
 	this->set_point_coordinate(point->get_xcoordinate(), point->get_ycoordinate());
@@ -168,6 +239,30 @@ bool Hyd_Observation_Point::init_obs_point_floodplain(Hyd_Model_Floodplain *mode
 
 
 	return found_flag;
+
+}
+//Initialize the observation points for temperature models
+bool Hyd_Observation_Point::init_temp_obs_point_river(HydTemp_Model *model, const int index) {
+	bool found_flag = false;
+
+	if (model->ptr_river_model->river_polygon.check_point_inside(this) == true) {
+		this->index = model->ptr_river_model->find_river_profile_id_by_point(this);
+		if (this->index > 0) {
+
+			this->temp_profile = model->get_ptr_profile(this->index);
+			if (this->temp_profile != NULL) {
+				this->index_model = index;
+				found_flag = true;
+				this->floodplain_flag = false;
+			}
+			else {
+				this->profile = NULL;
+				this->index = -1;
+			}
+		}
+	}
+	return found_flag;
+
 
 }
 //Get the flag in which model (river/floodplain) the observation point is located
@@ -234,6 +329,26 @@ void Hyd_Observation_Point::output_obs_point2csvfile(ofstream *output, const int
 			}
 		}
 	}
+}
+//Ouput the temperature observation point to file as csv output
+void Hyd_Observation_Point::output_temp_obs_point2csvfile(ofstream *output, const int counter_used) {
+	if (this->temp_profile==NULL) {
+		return;
+	}
+
+
+
+
+	for (int i = 0; i < counter_used; i++) {
+		if (this->time_point[i].time >= 0.0) {
+			*output << this->time_point[i].time << W(15) << "," << this->time_point[i].s_value << endl;
+			//add further if required (UDO)
+			//*output << "," << this->time_point[i].velocity << W(15) << "," << this->time_point[i].ds2dt_fr << W(15) << "," << this->time_point[i].discharge << endl;
+			output->flush();
+		}
+	}
+	
+
 }
 //Output setted members
 void Hyd_Observation_Point::output_setted_members(ostringstream *cout, const int index){

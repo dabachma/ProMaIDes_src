@@ -171,6 +171,9 @@ void Hyd_Floodplain_Polygon::input_members(const int index, const string filenam
 			}
 			else{
 				i--;
+				if (ifile.eof() == true) {
+					break;
+				}
 			}
 
 		}

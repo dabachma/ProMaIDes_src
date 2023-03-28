@@ -65,6 +65,7 @@ void RiskGui_Result_Cumulated_Wid::set_member(QSqlDatabase *ptr_database, const 
 	this->generate_pop_plots(&model);
 	this->generate_pys_plots(&model);
 	this->generate_sc_plots(&model);
+	this->generate_ci_plots(&model);
 	this->generate_max_q_plot(&model);
 
 	this->delete_data();
@@ -442,6 +443,93 @@ void RiskGui_Result_Cumulated_Wid::generate_sc_plots(QSqlQueryModel *model){
 	this->widget_sc->getPlotPtr()->set_curve_data(3, this->number_data, this->array_x, this->array_y);
 
 	this->widget_sc->getPlotPtr()->show_plot();
+
+}
+//Generate the plot for the ci risk
+void RiskGui_Result_Cumulated_Wid::generate_ci_plots(QSqlQueryModel *model) {
+
+	//set plot and curve general settings
+	this->widget_ci->getPlotPtr()->set_number_curves(8);
+
+	this->widget_ci->getPlotPtr()->set_plot_title("CI Population time risk");
+
+	this->widget_ci->getPlotPtr()->set_axis_title("Annuality [a]", "Risk [P x s]");
+
+	this->widget_ci->getPlotPtr()->set_curve_characteristics(0, "Sector Electricity 1", QwtPlotCurve::Lines, Qt::black);
+	this->widget_ci->getPlotPtr()->set_curve_symbols(0, 5, QwtSymbol::Diamond);
+	this->widget_ci->getPlotPtr()->set_curve_characteristics(1, "Sector Information techology 2", QwtPlotCurve::Lines, Qt::gray);
+	this->widget_ci->getPlotPtr()->set_curve_symbols(1, 5, QwtSymbol::Cross);
+	this->widget_ci->getPlotPtr()->set_curve_characteristics(2, "Sector Water supply 3", QwtPlotCurve::Lines, Qt::blue);
+	this->widget_ci->getPlotPtr()->set_curve_symbols(2, 5, QwtSymbol::RTriangle);
+	this->widget_ci->getPlotPtr()->set_curve_characteristics(3, "Sector Water treatment 4", QwtPlotCurve::Lines, Qt::darkBlue);
+	this->widget_ci->getPlotPtr()->set_curve_symbols(3, 5, QwtSymbol::LTriangle);
+	this->widget_ci->getPlotPtr()->set_curve_characteristics(4, "Sector Energy 5", QwtPlotCurve::Lines, Qt::darkGray);
+	this->widget_ci->getPlotPtr()->set_curve_symbols(4, 5, QwtSymbol::DTriangle);
+
+	this->widget_ci->getPlotPtr()->set_curve_characteristics(5, "Sector Health (10+11)", QwtPlotCurve::Lines, Qt::red);
+	this->widget_ci->getPlotPtr()->set_curve_symbols(5, 5, QwtSymbol::Ellipse);
+
+	this->widget_ci->getPlotPtr()->set_curve_characteristics(6, "Sector Social (14+17+18+19)", QwtPlotCurve::Lines, Qt::green);
+	this->widget_ci->getPlotPtr()->set_curve_symbols(6, 5, QwtSymbol::Hexagon);
+
+
+	this->widget_ci->getPlotPtr()->set_curve_characteristics(7, "Sector Material (12+13+15+16)", QwtPlotCurve::Lines, Qt::lightGray);
+	this->widget_ci->getPlotPtr()->set_curve_symbols(7, 5, QwtSymbol::Star1);
+
+
+
+
+	this->widget_ci->getPlotPtr()->set_legend(true);
+
+
+
+	//set data
+	for (int i = 0; i < this->number_data; i++) {
+		this->array_y[i] = model->record(i).value((Risk_System::table_cumulated_results->get_column_name(dam_label::ci_elect_pt)).c_str()).toDouble();
+	}
+	this->widget_ci->getPlotPtr()->set_curve_data(0, this->number_data, this->array_x, this->array_y);
+
+	for (int i = 0; i < this->number_data; i++) {
+		this->array_y[i] = model->record(i).value((Risk_System::table_cumulated_results->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toDouble();
+	}
+	this->widget_ci->getPlotPtr()->set_curve_data(1, this->number_data, this->array_x, this->array_y);
+
+	for (int i = 0; i < this->number_data; i++) {
+		this->array_y[i] = model->record(i).value((Risk_System::table_cumulated_results->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toDouble();
+	}
+	this->widget_ci->getPlotPtr()->set_curve_data(2, this->number_data, this->array_x, this->array_y);
+
+	for (int i = 0; i < this->number_data; i++) {
+		this->array_y[i] = model->record(i).value((Risk_System::table_cumulated_results->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toDouble();
+	}
+	this->widget_ci->getPlotPtr()->set_curve_data(3, this->number_data, this->array_x, this->array_y);
+
+	for (int i = 0; i < this->number_data; i++) {
+		this->array_y[i] = model->record(i).value((Risk_System::table_cumulated_results->get_column_name(dam_label::ci_energy_pt)).c_str()).toDouble();
+	}
+	this->widget_ci->getPlotPtr()->set_curve_data(4, this->number_data, this->array_x, this->array_y);
+
+	for (int i = 0; i < this->number_data; i++) {
+		this->array_y[i] = model->record(i).value((Risk_System::table_cumulated_results->get_column_name(dam_label::ci_health_pt)).c_str()).toDouble();
+	}
+	this->widget_ci->getPlotPtr()->set_curve_data(5, this->number_data, this->array_x, this->array_y);
+
+	for (int i = 0; i < this->number_data; i++) {
+		this->array_y[i] = model->record(i).value((Risk_System::table_cumulated_results->get_column_name(dam_label::ci_social_pt)).c_str()).toDouble();
+	}
+	this->widget_ci->getPlotPtr()->set_curve_data(6, this->number_data, this->array_x, this->array_y);
+
+	for (int i = 0; i < this->number_data; i++) {
+		this->array_y[i] = model->record(i).value((Risk_System::table_cumulated_results->get_column_name(dam_label::ci_mat_pt)).c_str()).toDouble();
+	}
+	this->widget_ci->getPlotPtr()->set_curve_data(7, this->number_data, this->array_x, this->array_y);
+
+
+
+	this->widget_ci->getPlotPtr()->show_plot();
+
+
+
 
 }
 //Generate the plot for the maximum dicharge risk

@@ -47,6 +47,16 @@
 //class for the groundwater model
 #include "Hyd_Model_Groundwater.h"
 
+//classes for the temperature model
+//class for the temperature model
+#include "HydTemp_Model.h"
+//class for the parameters of the temperature model
+#include "HydTemp_Param.h"
+//class for the parser of the parameters of the temperature model
+#include "HydTemp_Parse.h"
+//class for the profiles of the temperature model
+#include "HydTemp_Profile.h"
+
 //classes of 1d calculation
 //base clase of the river profiles
 #include "_Hyd_River_Profile.h"

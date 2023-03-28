@@ -156,4 +156,39 @@ void DamGui_Result_Wid::set_up_widget(QSqlDatabase *ptr_database,  const int glo
 	this->lineEdit_sc_person->setText(buff_stream.str().c_str());
 	buff_stream.str("");
 
+	buff_stream << model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_elect_pt)).c_str()).toString().toStdString();
+	this->lineEdit_elect->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+
+	buff_stream << model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toString().toStdString();
+	this->lineEdit_info_tec->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+
+	buff_stream << model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toString().toStdString();
+	this->lineEdit_water_sup->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+
+	buff_stream << model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toString().toStdString();
+	this->lineEdit_water_treat->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+
+	buff_stream << model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_energy_pt)).c_str()).toString().toStdString();
+	this->lineEdit_energy->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+
+	buff_stream << model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_health_pt)).c_str()).toString().toStdString();
+	this->lineEdit_health->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+
+
+	buff_stream << model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_social_pt)).c_str()).toString().toStdString();
+	this->lineEdit_social->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+
+	buff_stream << model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_mat_pt)).c_str()).toString().toStdString();
+	this->lineEdit_mat->setText(buff_stream.str().c_str());
+	buff_stream.str("");
+
+
+
 }

@@ -524,6 +524,57 @@ void Hyd_Observation_Point_Manager::init_obs_points(const int num_rv, Hyd_Model_
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 	Sys_Common_Output::output_hyd->rewind_userprefix();
 }
+///Initialize the observation points of temperature models
+void Hyd_Observation_Point_Manager::init_temp_obs_points(const int num_rv, HydTemp_Model *temp_model, const int no_output, const int no_internal) {
+	//set prefix for output
+	ostringstream prefix;
+	prefix << "OBS> ";
+	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+
+	ostringstream cout;
+	cout << "Initialize the observation points of the temperature model..." << endl;
+	Sys_Common_Output::output_hyd->output_txt(&cout);
+
+	bool found_flag = false;
+
+	for (int j = 0; j < this->number_obs_point; j++) {
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		found_flag = false;
+		//check the river models
+		for (int i = 0; i < num_rv; i++) {
+			found_flag = this->obs_point[j].init_temp_obs_point_river(&(temp_model[i]), i);
+			if (found_flag == true) {
+				break;
+			}
+
+		}
+
+		if (found_flag == true) {
+			this->obs_point[j].set_number_time_point(no_output, no_internal);
+		}
+	}
+
+	this->count_number_rv_fp_obs_point();
+
+	//check the points
+	for (int i = 0; i < this->number_obs_point; i++) {
+		if (this->obs_point[i].get_index_elem_prof() < 0) {
+			//Set warning
+			ostringstream info;
+			info << "Point id      : " << i << endl;
+			info << "Name          : " << this->obs_point[i].get_point_name() << endl;
+			info << "x-coordinate  : " << this->obs_point[i].get_xcoordinate() << label::m << endl;
+			info << "y-coordinate  : " << this->obs_point[i].get_ycoordinate() << label::m << endl;
+			Warning msg = this->set_warning(2);
+			msg.make_second_info(info.str());
+			msg.output_msg(2);
+		}
+	}
+
+	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+	Sys_Common_Output::output_hyd->rewind_userprefix();
+
+}
 //Output members
 void Hyd_Observation_Point_Manager::output_setted_members(void){
 	ostringstream cout;
@@ -555,11 +606,47 @@ void Hyd_Observation_Point_Manager::output_setted_members(void){
 	}
 	Sys_Common_Output::output_hyd->rewind_userprefix();
 }
+//Output members of the temperature observation points
+void Hyd_Observation_Point_Manager::output_setted_temp_members(void) {
+	ostringstream cout;
+	//set prefix for output
+	ostringstream prefix;
+	prefix << "OBS> ";
+	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+	cout << "Temperature observation points..." << endl;
+	Sys_Common_Output::output_hyd->output_txt(&cout);
+	cout << "GENERAL" << endl;
+	cout << "Number of observation points (total)      : " << this->number_obs_point << endl;
+	if (this->number_obs_rv > 0) {
+		cout << "Number of observation points (River)      : " << this->number_obs_rv << endl;
+	}
+	Sys_Common_Output::output_hyd->output_txt(&cout);
+	if (this->number_obs_point > 0) {
+		cout << "POINTS" << endl;
+		cout << " Id. " << W(10) << "    x-coor [m]      " << W(18) << "        y-coor [m] " << W(10) << "            Name    ";
+		cout << W(10) << "      FP(true)      " << W(10) << "      Index Model      " << W(10) << "    Index Elem/Prof   " << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout, true);
+		for (int i = 0; i < this->number_obs_point; i++) {
+			this->obs_point[i].output_setted_members(&cout, i);
+			Sys_Common_Output::output_hyd->output_txt(&cout, true);
+
+		}
+	}
+	Sys_Common_Output::output_hyd->rewind_userprefix();
+
+}
 //Syncronize the observation points
 void Hyd_Observation_Point_Manager::syncron_obs_points(const double time_point){
 	this->counter_used++;
 	for(int i=0; i< this->number_obs_point; i++){
 		this->obs_point[i].synchron_obs_point(time_point);
+	}
+}
+//Syncronize the observation points for temoerature calculation
+void Hyd_Observation_Point_Manager::syncron_temp_obs_points(const double time_point) {
+	this->counter_used++;
+	for (int i = 0; i < this->number_obs_point; i++) {
+		this->obs_point[i].synchron_temp_obs_point(time_point);
 	}
 }
 //Output the data of the observation points to tecplot file
@@ -601,6 +688,23 @@ void Hyd_Observation_Point_Manager::output_obs_points2paraview_file(const string
 	}
 
 	Sys_Common_Output::output_hyd->rewind_userprefix();
+}
+//Output the data of the temperature observation points to ParaView / cvs file
+void Hyd_Observation_Point_Manager::output_temp_obs_points2paraview_file(const string filename_rv) {
+	ostringstream prefix;
+	prefix << "OBS> ";
+	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+
+	ostringstream cout;
+	cout << "Output the temperature observation points to paraview file..." << endl;
+	Sys_Common_Output::output_hyd->output_txt(&cout);
+
+	if (this->number_obs_rv > 0) {
+		this->output_temp_obs_point_rv2csvfile(filename_rv);
+	}
+
+	Sys_Common_Output::output_hyd->rewind_userprefix();
+
 }
 //Clear the observation points
 void Hyd_Observation_Point_Manager::clear_obs_points(void){
@@ -862,6 +966,41 @@ void Hyd_Observation_Point_Manager::output_obs_point_fp2csvfile(const string fil
 			output.close();
 		}
 	}
+}
+//Output the temperature observation points of river models to csv file
+void Hyd_Observation_Point_Manager::output_temp_obs_point_rv2csvfile(const string file) {
+	for (int i = 0; i < this->number_obs_point; i++) {
+		string buff_name = file;
+		if (this->obs_point[i].get_model_flag() == false) {
+			ofstream output;
+			buff_name += "_";
+			buff_name += this->obs_point[i].get_point_name();
+			buff_name += hyd_label::csv;
+
+			output.open(buff_name.c_str());
+			//check if it is open
+			if (output.is_open() == false) {
+				Error msg = this->set_error(4);
+				ostringstream info;
+				info << "File name " << buff_name << endl;
+				msg.make_second_info(info.str());
+				throw msg;
+			}
+
+			//output the file header
+			output << " Time " << label::sec << ",";
+			output << " T " << label::kelvin << "";
+			//output << " s " << label::m << ",";
+			//output << " v " << label::m_per_sec << ",";
+			//output << " Fr " << label::no_unit << ",";
+			//output << " Q " << label::qm_per_sec;
+			output << endl;
+
+			this->obs_point[i].output_temp_obs_point2csvfile(&output, this->counter_used);
+			output.close();
+		}
+	}
+
 }
 //set the error
 Error Hyd_Observation_Point_Manager::set_error(const int err_type){

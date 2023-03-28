@@ -79,6 +79,8 @@ private:
 	void parse_dikebreak_fp2co_coupling_number(_hyd_keyword_file Key, word Command);
 	///Appling of a coastmodel
 	void parse_coastmodel(_hyd_keyword_file Key, word Command);
+	///Appling of a temperature model
+	void parse_tempmodel(_hyd_keyword_file Key, word Command);
 	 ///Parse integration setting
 	void parse_integration_setting(_hyd_keyword_file Key, word Command);
 	///Parse output setting

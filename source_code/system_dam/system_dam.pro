@@ -58,6 +58,7 @@ DEPENDPATH += . \
               ../system_hydraulic/source_code/models/river \
               ../system_hydraulic/source_code/models/river/profile \
               ../system_hydraulic/source_code/models/coast\
+			  ../system_hydraulic/source_code/models/temperature\
                  ../../debug/\
                 ../../debug_hyd/
 
@@ -91,6 +92,7 @@ INCLUDEPATH += . \
                ../system_hydraulic/source_code/models/river \
                ../system_hydraulic/source_code/models/river/profile \
                ../system_hydraulic/source_code/models/coast\
+			   ../system_hydraulic/source_code/models/temperature\
                  ../../debug/ \
                 ../../debug_hyd/
 
@@ -152,6 +154,8 @@ HEADERS += source_code/Dam_Damage_System.h \
 					 source_code/gui/DamGui_Raster_Dia.h\
 					 source_code/gui/DamGui_Sc_Point_Wid.h\
 					 source_code/gui/DamGui_Sc_Subcategory_Wid.h\
+					 source_code/gui/DamGui_Ci_Point_Wid.h\
+					 source_code/gui/DamGui_Ci_Polygon_Wid.h\
 					        
 FORMS+=    source_code/gui/DamGui_Result_Wid.ui \
 					 source_code/gui/DamGui_Number_Raster_Dia.ui \
@@ -164,7 +168,9 @@ FORMS+=    source_code/gui/DamGui_Result_Wid.ui \
 					 source_code/gui/DamGui_Pys_Categories_Wid.ui \
 					 source_code/gui/DamGui_Raster_Wid.ui\
 					 source_code/gui/DamGui_Raster_Dia.ui\
-					 source_code/gui/DamGui_Sc_Point_Wid.ui
+					 source_code/gui/DamGui_Sc_Point_Wid.ui\
+					 source_code/gui/DamGui_Ci_Point_Wid.ui\
+					 source_code/gui/DamGui_Ci_Polygon_Wid.ui\
              
 SOURCES += source_code/Dam_Damage_System.cpp \
 					 source_code/general/Dam_Hyd_Result_Raster.cpp\
@@ -221,6 +227,8 @@ SOURCES += source_code/Dam_Damage_System.cpp \
 					 source_code/gui/DamGui_Raster_Wid.cpp\
 					 source_code/gui/DamGui_Raster_Dia.cpp\
 					 source_code/gui/DamGui_Sc_Point_Wid.cpp\
+					 source_code/gui/DamGui_Ci_Point_Wid.cpp\
+					 source_code/gui/DamGui_Ci_Polygon_Wid.cpp\
 					 source_code/gui/DamGui_Sc_Subcategory_Wid.cpp
 
 #win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../debug_hyd/release/ -lhyd_system

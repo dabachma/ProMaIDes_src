@@ -65,6 +65,9 @@ Main_Wid::Main_Wid(int argc, char *argv[]){
 	//connect the text-display widget
 	this->output_connect();
 
+	this->actionTemp_per_database->setVisible(false);
+	
+
 	//connect and set-up the status bar widget
 	this->statusbar_connect();
 
@@ -600,6 +603,10 @@ void Main_Wid::slot_connect_risk(void){
 	//Calculate and output the statistic of the catchment risk approach (menu risk/)
 	QObject::connect(this->action_output_statistic_catchment_risk, SIGNAL(triggered()), this, SLOT(calc_output_catchment_risk_statistic()));
 
+	//Generate the risk states for the catchment area risk approach (menu risk/calculation/)
+	//TODO_CI select all available scenarios
+	QObject::connect(this->action_CI_DAM_instat_calculation, SIGNAL(triggered()), this, SLOT(calculate_instat_damage_nobreak_sz()));
+
 	//Perform a test for the random generator (menu fpl/calculation)
 	QObject::connect(this->action_test_random_generator_1, SIGNAL(triggered()), this, SLOT(perform_test_random()));
 
@@ -855,6 +862,8 @@ void Main_Wid::statusbar_connect(void){
 }
 //Enable/disable menu and show/hide the data tabs in the dataview corresponding the project type, when a project is open
 void Main_Wid::enable_menu_project_open(const bool new_project){
+	this->actionTemp_per_database->setVisible(false);
+
 	this->system_state.set_systemid(this->project_manager.get_stored_system_state());
 	this->setEnabled(false);
 	this->menu_Database->setEnabled(true);
@@ -997,7 +1006,7 @@ void Main_Wid::enable_menu_project_open(const bool new_project){
 		this->treeWidget_data->set_ptr_data_tab_alt(this->tab_alt_data_view);
 		this->treeWidget_data->set_ptr_data_tab_cost(this->tab_cost_data_view);
 	}
-	else if(this->project_manager.get_project_type()==_sys_project_type::proj_hyd){
+	else if(this->project_manager.get_project_type()==_sys_project_type::proj_hyd || this->project_manager.get_project_type() == _sys_project_type::proj_hyd_temp){
 		this->menu_FPL_system->setEnabled(false);
 		this->menu_HYD_system->setEnabled(true);
 		this->menu_DAM_system->setEnabled(false);
@@ -1016,8 +1025,15 @@ void Main_Wid::enable_menu_project_open(const bool new_project){
 
 		//set pointer to data-tree of the tab data widgets
 		this->treeWidget_data->set_ptr_data_tab_hyd(this->tab_hyd_data_view);
+
+		if (this->project_manager.get_project_type() == _sys_project_type::proj_hyd_temp) {
+			this->actionTemp_per_database->setVisible(true);
+			//Set a hydraulic calculation per database (menu hyd/calculation/per database)
+			QObject::connect(this->actionTemp_per_database, SIGNAL(triggered()), this, SLOT(set_hydtempcalc_per_db()));
+			
+		}
 	}
-	else if(this->project_manager.get_project_type()==_sys_project_type::proj_hyd_file){
+	else if(this->project_manager.get_project_type()==_sys_project_type::proj_hyd_file ){
 		this->menu_FPL_system->setEnabled(false);
 		this->menu_HYD_system->setEnabled(true);
 		this->menu_DAM_system->setEnabled(false);
@@ -2937,7 +2953,7 @@ void Main_Wid::tables_creation_manager(void){
 				return;
 			}
 		}
-		else if(this->project_manager.get_project_type()==_sys_project_type::proj_hyd){
+		else if(this->project_manager.get_project_type()==_sys_project_type::proj_hyd || this->project_manager.get_project_type() == _sys_project_type::proj_hyd_temp){
 			if(this->hyd_tables_created==false){
 				this->create_hyd_system_database_tables();
 				return;
@@ -3054,7 +3070,7 @@ void Main_Wid::tables_check_manager(void){
 			return;
 		}
 	}
-	else if(this->project_manager.get_project_type()==_sys_project_type::proj_hyd){
+	else if(this->project_manager.get_project_type()==_sys_project_type::proj_hyd || this->project_manager.get_project_type() == _sys_project_type::proj_hyd_temp){
 		if(this->hyd_tables_created==false){
 			this->check_hyd_system_database_tables();
 			return;
@@ -3248,21 +3264,23 @@ void Main_Wid::read_existing_project(void){
 		emit send_txt2statusbar("Check for project updates...", 0);
 		//update project version
 		try{
-			this->version_update.check_update_hyd_table_obs_point(this->system_database->get_database());
-			this->version_update.check_update_hyd_table_polysegment_name(this->project_manager.get_project_file_name());
-			this->version_update.check_update_hyd_table_system_member_sync(this->system_database->get_database(), this->project_manager.get_project_file_name());
-			this->version_update.check_update_fpl_table_result_sec_type_dike(this->system_database->get_database(), this->project_manager.get_project_file_name());
-			this->version_update.check_update_fpl_table_dune_results(this->system_database->get_database());
-			this->version_update.check_update_hyd_table_elem_result_smax(this->system_database->get_database(), this->project_manager.get_project_file_name());
-			this->version_update.check_update_hyd_table_global_param(this->system_database->get_database(), this->project_manager.get_project_file_name());
-			this->version_update.check_update_hyd_table_instat_results(this->system_database->get_database());
-			this->version_update.check_update_hyd_table_instat_results_rv(this->system_database->get_database(), this->project_manager.get_project_file_name());
-			this->version_update.check_update_hyd_view_bound2elements_profile(this->system_database->get_database());
-			this->version_update.check_update_fpl_output_control(this->system_database->get_database());
-			this->version_update.check_update_dam_ci(this->system_database->get_database(), this->project_manager.get_project_file_name());
-			this->version_update.check_update_connect_results_dam_ci(this->system_database->get_database(), this->project_manager.get_project_file_name());
-			this->version_update.check_update_dam_ci_elements(this->system_database->get_database(), this->project_manager.get_project_file_name());
-
+			if (Sys_Project::get_project_type() != _sys_project_type::proj_hydrol && Sys_Project::get_project_type() != _sys_project_type::proj_hyd_temp) {
+				this->version_update.check_update_hyd_table_obs_point(this->system_database->get_database());
+				this->version_update.check_update_hyd_table_polysegment_name(this->project_manager.get_project_file_name());
+				this->version_update.check_update_hyd_table_system_member_sync(this->system_database->get_database(), this->project_manager.get_project_file_name());
+				this->version_update.check_update_fpl_table_result_sec_type_dike(this->system_database->get_database(), this->project_manager.get_project_file_name());
+				this->version_update.check_update_fpl_table_dune_results(this->system_database->get_database());
+				this->version_update.check_update_hyd_table_elem_result_smax(this->system_database->get_database(), this->project_manager.get_project_file_name());
+				this->version_update.check_update_hyd_table_global_param(this->system_database->get_database(), this->project_manager.get_project_file_name());
+				this->version_update.check_update_hyd_table_instat_results(this->system_database->get_database());
+				this->version_update.check_update_hyd_table_instat_results_rv(this->system_database->get_database(), this->project_manager.get_project_file_name());
+				this->version_update.check_update_hyd_view_bound2elements_profile(this->system_database->get_database());
+				this->version_update.check_update_fpl_output_control(this->system_database->get_database());
+				this->version_update.check_update_dam_ci(this->system_database->get_database(), this->project_manager.get_project_file_name());
+				this->version_update.check_update_connect_results_dam_ci(this->system_database->get_database(), this->project_manager.get_project_file_name());
+				this->version_update.check_update_dam_ci_elements(this->system_database->get_database(), this->project_manager.get_project_file_name());
+				this->version_update.check_update_ci_reults(this->system_database->get_database(), this->project_manager.get_project_file_name());
+			}
 			
 		}
 		catch(Error msg){
@@ -5383,7 +5401,7 @@ void Main_Wid::thread_hyd_check_tables_finished(void){
 		this->delete_multi_hydraulic_system();
 		this->hyd_tables_created=true;
 		emit send_table_check_is_finished();
-		if (this->task_flag == true && this->project_manager.get_project_type() == _sys_project_type::proj_hyd) {
+		if (this->task_flag == true && (this->project_manager.get_project_type() == _sys_project_type::proj_hyd || this->project_manager.get_project_type() == _sys_project_type::proj_hyd_temp)) {
 			emit send_task_by_file_start();
 		}
 	}
@@ -5722,6 +5740,43 @@ void Main_Wid::set_hydcalc_per_db(void){
 		this->hyd_calc->start();
 		this->check_hyd_thread_is_running();
 	}
+}
+//Set a hydraulic temperature calculation per database (menu hyd/calculation/temp per database)
+void Main_Wid::set_hydtempcalc_per_db(void) {
+	try {
+		this->allocate_multi_hydraulic_system();
+	}
+	catch (Error msg) {
+		msg.output_msg(0);
+		return;
+	}
+	this->hyd_calc->set_thread_type(_hyd_thread_type::hyd_temp_calculation);
+
+	this->hyd_calc->set_ptr2database(this->system_database->get_database());
+	this->hyd_calc->set_number_required_threads(this->project_manager.get_stored_hydraulic_state().number_threads);
+	this->hyd_calc->set_required_output2file(this->project_manager.get_stored_hydraulic_state().file_output_required);
+
+	if (this->hyd_calc->ask_boundary_scenarios_per_dialog(this->system_database->get_database(), this) == 0) {
+		this->delete_multi_hydraulic_system();
+		return;
+	}
+	else {
+		//connect the thread when is finished
+		QObject::connect(this->hyd_calc, SIGNAL(finished()), this, SLOT(thread_hyd_calc_finished()));
+		QObject::connect(this->hyd_calc, SIGNAL(emit_number_threads(QString)), this, SLOT(catch_thread_number_hy_calc(QString)));
+
+		this->action_Close_Connection->setEnabled(false);
+		this->action_stop_hyd_calc->setEnabled(true);
+
+		this->reset_exception_new_action();
+		//start calculation
+		this->hyd_calc->start();
+		this->check_hyd_thread_is_running();
+	}
+
+
+
+
 }
 //Set a hydraulic calculation per task
 void Main_Wid::set_hydcalc_per_task(QList<int> list_id) {

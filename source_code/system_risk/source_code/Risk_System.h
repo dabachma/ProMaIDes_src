@@ -181,7 +181,7 @@ public:
 	static void set_predefined_data2config_table(QSqlDatabase *ptr_database, const int river_id);
 
 	///Set the database table for detailed results of the risk calculation: it sets the table name and the name of the columns and allocate them
-	static void set_resulttable_detailed(QSqlDatabase *ptr_database);
+	static void set_resulttable_detailed(QSqlDatabase *ptr_database, const bool not_close = false);
 	///Create the database table for detailed results of the risk calculation
 	static void create_resulttable_detailed(QSqlDatabase *ptr_database);
 	///Delete all data in the database table for detailed results of the risk calculation
@@ -208,7 +208,7 @@ public:
 
 
 	///Set the database table for cumulated results of the risk calculation: it sets the table name and the name of the columns and allocate them
-	static void set_resulttable_cumulated(QSqlDatabase *ptr_database);
+	static void set_resulttable_cumulated(QSqlDatabase *ptr_database, const bool not_close = false);
 	///Create the database table for cumulated results of the risk calculation
 	static void create_resulttable_cumulated(QSqlDatabase *ptr_database);
 	///Delete all data in the database table for cumulated results of the risk calculation
@@ -225,7 +225,7 @@ public:
 	static int select_data_in_resulttable_cumulated(QSqlQueryModel *model, QSqlDatabase *ptr_database, const int glob_id);
 
 	///Set the database table for results of the risk calculation: it sets the table name and the name of the columns and allocate them
-	static void set_resulttable(QSqlDatabase *ptr_database);
+	static void set_resulttable(QSqlDatabase *ptr_database, const bool not_close = false);
 	///Create the database table for results of the risk calculation
 	static void create_resulttable(QSqlDatabase *ptr_database);
 	///Delete all data in the database table for results of the risk calculation

@@ -113,8 +113,6 @@ public:
 	///Output final statistics of the river model
 	virtual void output_final(void)=0;
 
-	///Output the maximum result members to tecplot
-	virtual void output_result_max2tecplot(void)=0;
 
 
 	///Output the solver errors per internal timestep

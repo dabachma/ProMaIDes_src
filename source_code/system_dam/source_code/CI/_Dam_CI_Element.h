@@ -24,38 +24,39 @@ class Dam_CI_Element_List;
 
 ///Enumerator for specifiying the sectors of the CI \ingroup dam
 enum _dam_ci_sector {
-	///Electicity
+	///Electricity (e.g. power plants, high voltage transmitters, low voltage transmitters)
 	electricity = 1,
-	///Information technology
+	///Information technology(e.g. radio stations, landlines, mobile network stations)
 	information_technology = 2,
-	///Water supply
+	///Water supply (e.g. drinking water sources, treatment)
 	water_supply = 3,
-	///Water treatment
+	///Water treatment (e.g. waste water treatment system)
 	water_treatment = 4,
-	//Energy
+	//Energy (e.g. district heat, gas storage systems)
 	energy =5,
 
 
-	///Emergency service
+	///Emergency service (e.g medical services, police, fire brigade)
 	emergency_service = 10,
-	///Health
+	///Health and care system (e.g. hospitals, doctors, care centers, homes for elderly people)
 	health = 11,
-	///Logistic goods
+	///Transport and logistics goods (e.g. important traffic nodes, harbors, airports, train stations)
 	logistic_goods = 12,
-	///Logistic goods
+	///Transport and logistics person (e.g. important traffic nodes, harbors, airports, train stations)
 	logistic_personal = 13,
-	///Govermental
+	///Official and governmental institutions (e.g. ministries, town halls)
 	goverment = 14,
-	///Hazardous sites
+	///Hazardous materials (e.g. fuel stations, storage sites for radioactive or toxic waste)
 	haz_material = 15,
-	///Industry
+	///Industry and production sites (e.g.factories, mines)
 	industry= 16,
-	///Cultural sites
+	///Cultural or religious sites (e.g. temples, mosques, churches etc.)
 	cultur = 17,
-	///Education
+	///Education (e.g. schools, universities, kindergartens etc.)
 	education = 18,
-	///Jail
+	///Prison
 	jail= 19,
+
 
 	undefined = 0
 };

@@ -42,6 +42,7 @@ class Hyd_Model_River: public _Hyd_Model
 
 //class for displaying the data
 friend class Sys_Data_Tree_Wid;
+friend class HydTemp_Model;
 
 public:
 	///Default constructor
@@ -101,7 +102,7 @@ public:
 	static int select_relevant_model_database(QSqlTableModel *results, const _sys_system_id id, const bool with_output = true);
 	///Select and count the number of relevant river models in a database table with a given river number
 	static int select_relevant_model_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const int rv_no);
-	///Check the number of relevant floodplain models in a database table
+	///Check the number of relevant river models in a database table
 	static int check_relevant_model_database(QSqlDatabase *ptr_database);
 
 
@@ -372,11 +373,11 @@ private:
 	///Count element types
 	void count_profile_types(void);
 
-	///Calculate the hydrological balance of the floodplain model
+	///Calculate the hydrological balance of the river model
 	void calculate_total_hydrological_balance(void);
-	///Reset the total hydraological balance values
+	///Reset the total hydrological balance values
 	void reset_total_hydrological_balance(void);
-	///Output the hydrological balance of the floodplain model
+	///Output the hydrological balance of the river model
 	void output_hydrological_balance(void);
 
 	///Get the model description

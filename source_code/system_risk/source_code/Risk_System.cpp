@@ -353,11 +353,11 @@ void Risk_System::set_predefined_data2config_table(QSqlDatabase *ptr_database , 
 
 }
 //Set the database table for detailed results of the risk calculation: it sets the table name and the name of the columns and allocate them (static)
-void Risk_System::set_resulttable_detailed(QSqlDatabase *ptr_database){
+void Risk_System::set_resulttable_detailed(QSqlDatabase *ptr_database, const bool not_close){
 	if(Risk_System::table_detailed_results==NULL){
 		//make specific input for this class
 		const string tab_id_name=risk_label::tab_risk_detailed;
-		string tab_col[30];
+		string tab_col[46];
 		tab_col[0]=label::glob_id;
 		tab_col[1]=label::areastate_id;
 		tab_col[2]=label::measure_id;
@@ -389,6 +389,23 @@ void Risk_System::set_resulttable_detailed(QSqlDatabase *ptr_database){
 		tab_col[28]=dam_label::sc_cult_build;
 		tab_col[29]=dam_label::sc_person_build;
 
+		tab_col[45] = dam_label::ci_elect_pt;
+		tab_col[30] = dam_label::ci_info_tec_pt;
+		tab_col[31] = dam_label::ci_water_sup_pt;
+		tab_col[32] = dam_label::ci_water_treat_pt;
+		tab_col[33] = dam_label::ci_energy_pt;
+		tab_col[34] = dam_label::ci_health_pt;
+		tab_col[35] = dam_label::ci_social_pt;
+		tab_col[36] = dam_label::ci_mat_pt;
+		tab_col[37] = dam_label::ci_elect_p;
+		tab_col[38] = dam_label::ci_info_tec_p;
+		tab_col[39] = dam_label::ci_water_sup_p;
+		tab_col[40] = dam_label::ci_water_treat_p;
+		tab_col[41] = dam_label::ci_energy_p;
+		tab_col[42] = dam_label::ci_health_p;
+		tab_col[43] = dam_label::ci_social_p;
+		tab_col[44] = dam_label::ci_mat_p;
+
 
 
 		
@@ -406,7 +423,9 @@ void Risk_System::set_resulttable_detailed(QSqlDatabase *ptr_database){
 			throw msg;
 		}
 		catch(Error msg){
-			Risk_System::close_resulttable_detailed();
+			if (not_close == false) {
+				Risk_System::close_resulttable_detailed();
+			}
 			throw msg;
 		}
 	}
@@ -419,7 +438,7 @@ void Risk_System::create_resulttable_detailed(QSqlDatabase *ptr_database){
 			Sys_Common_Output::output_risk->output_txt(&cout);
 			//make specific input for this class
 			const string tab_name=risk_label::tab_risk_detailed;
-			const int num_col=30;
+			const int num_col=46;
 			_Sys_data_tab_column tab_col[num_col];
 			//init
 			for(int i=0; i< num_col; i++){
@@ -574,6 +593,93 @@ void Risk_System::create_resulttable_detailed(QSqlDatabase *ptr_database){
 			tab_col[29].type=sys_label::tab_col_type_double;
 			tab_col[29].default_value="0.0";
 			tab_col[29].unsigned_flag=true;
+
+
+			tab_col[30].name = dam_label::ci_elect_pt;
+			tab_col[30].type = sys_label::tab_col_type_double;
+			tab_col[30].default_value = "0.0";
+			tab_col[30].unsigned_flag = true;
+
+			tab_col[31].name = dam_label::ci_info_tec_pt;
+			tab_col[31].type = sys_label::tab_col_type_double;
+			tab_col[31].default_value = "0.0";
+			tab_col[31].unsigned_flag = true;
+
+			tab_col[32].name = dam_label::ci_water_sup_pt;
+			tab_col[32].type = sys_label::tab_col_type_double;
+			tab_col[32].default_value = "0.0";
+			tab_col[32].unsigned_flag = true;
+
+			tab_col[33].name = dam_label::ci_water_treat_pt;
+			tab_col[33].type = sys_label::tab_col_type_double;
+			tab_col[33].default_value = "0.0";
+			tab_col[33].unsigned_flag = true;
+
+			tab_col[34].name = dam_label::ci_energy_pt;
+			tab_col[34].type = sys_label::tab_col_type_double;
+			tab_col[34].default_value = "0.0";
+			tab_col[34].unsigned_flag = true;
+
+
+
+			tab_col[35].name = dam_label::ci_health_pt;
+			tab_col[35].type = sys_label::tab_col_type_double;
+			tab_col[35].default_value = "0.0";
+			tab_col[35].unsigned_flag = true;
+
+			tab_col[36].name = dam_label::ci_social_pt;
+			tab_col[36].type = sys_label::tab_col_type_double;
+			tab_col[36].default_value = "0.0";
+			tab_col[36].unsigned_flag = true;
+
+			tab_col[37].name = dam_label::ci_mat_pt;
+			tab_col[37].type = sys_label::tab_col_type_double;
+			tab_col[37].default_value = "0.0";
+			tab_col[37].unsigned_flag = true;
+
+
+
+			tab_col[38].name = dam_label::ci_elect_p;
+			tab_col[38].type = sys_label::tab_col_type_double;
+			tab_col[38].default_value = "0.0";
+			tab_col[38].unsigned_flag = true;
+
+			tab_col[39].name = dam_label::ci_info_tec_p;
+			tab_col[39].type = sys_label::tab_col_type_double;
+			tab_col[39].default_value = "0.0";
+			tab_col[39].unsigned_flag = true;
+
+			tab_col[40].name = dam_label::ci_water_sup_p;
+			tab_col[40].type = sys_label::tab_col_type_double;
+			tab_col[40].default_value = "0.0";
+			tab_col[40].unsigned_flag = true;
+
+			tab_col[41].name = dam_label::ci_water_treat_p;
+			tab_col[41].type = sys_label::tab_col_type_double;
+			tab_col[41].default_value = "0.0";
+			tab_col[41].unsigned_flag = true;
+
+			tab_col[42].name = dam_label::ci_energy_p;
+			tab_col[42].type = sys_label::tab_col_type_double;
+			tab_col[42].default_value = "0.0";
+			tab_col[42].unsigned_flag = true;
+
+
+
+			tab_col[43].name = dam_label::ci_health_p;
+			tab_col[43].type = sys_label::tab_col_type_double;
+			tab_col[43].default_value = "0.0";
+			tab_col[43].unsigned_flag = true;
+
+			tab_col[44].name = dam_label::ci_social_p;
+			tab_col[44].type = sys_label::tab_col_type_double;
+			tab_col[44].default_value = "0.0";
+			tab_col[44].unsigned_flag = true;
+
+			tab_col[45].name = dam_label::ci_mat_p;
+			tab_col[45].type = sys_label::tab_col_type_double;
+			tab_col[45].default_value = "0.0";
+			tab_col[45].unsigned_flag = true;
 
 
 
@@ -872,11 +978,11 @@ bool Risk_System::check_detailed_risk_results_available(QSqlDatabase *ptr_databa
 	}
 }
 //Set the database table for cumulated results of the risk calculation: it sets the table name and the name of the columns and allocate them (static)
-void Risk_System::set_resulttable_cumulated(QSqlDatabase *ptr_database){
+void Risk_System::set_resulttable_cumulated(QSqlDatabase *ptr_database, const bool not_close){
 	if(Risk_System::table_cumulated_results==NULL){
 		//make specific input for this class
 		const string tab_id_name=risk_label::tab_risk_cumulated;
-		string tab_col[29];
+		string tab_col[45];
 		tab_col[0]=label::glob_id;
 		tab_col[1]=label::areastate_id;
 		tab_col[2]=label::measure_id;
@@ -907,6 +1013,23 @@ void Risk_System::set_resulttable_cumulated(QSqlDatabase *ptr_database){
 		tab_col[27]=dam_label::sc_cult_build;
 		tab_col[28]=dam_label::sc_person_build;
 
+		tab_col[29] = dam_label::ci_elect_pt;
+		tab_col[30] = dam_label::ci_info_tec_pt;
+		tab_col[31] = dam_label::ci_water_sup_pt;
+		tab_col[32] = dam_label::ci_water_treat_pt;
+		tab_col[33] = dam_label::ci_energy_pt;
+		tab_col[34] = dam_label::ci_health_pt;
+		tab_col[35] = dam_label::ci_social_pt;
+		tab_col[36] = dam_label::ci_mat_pt;
+		tab_col[37] = dam_label::ci_elect_p;
+		tab_col[38] = dam_label::ci_info_tec_p;
+		tab_col[39] = dam_label::ci_water_sup_p;
+		tab_col[40] = dam_label::ci_water_treat_p;
+		tab_col[41] = dam_label::ci_energy_p;
+		tab_col[42] = dam_label::ci_health_p;
+		tab_col[43] = dam_label::ci_social_p;
+		tab_col[44] = dam_label::ci_mat_p;
+
 		
 		//set the table
 		try{
@@ -922,7 +1045,9 @@ void Risk_System::set_resulttable_cumulated(QSqlDatabase *ptr_database){
 			throw msg;
 		}
 		catch(Error msg){
-			Risk_System::close_resulttable_cumulated();
+			if (not_close == false) {
+				Risk_System::close_resulttable_cumulated();
+			}
 			throw msg;
 		}
 	}
@@ -935,7 +1060,7 @@ void Risk_System::create_resulttable_cumulated(QSqlDatabase *ptr_database){
 			Sys_Common_Output::output_risk->output_txt(&cout);
 			//make specific input for this class
 			const string tab_name=risk_label::tab_risk_cumulated;
-			const int num_col=29;
+			const int num_col=45;
 			_Sys_data_tab_column tab_col[num_col];
 			//init
 			for(int i=0; i< num_col; i++){
@@ -1087,6 +1212,92 @@ void Risk_System::create_resulttable_cumulated(QSqlDatabase *ptr_database){
 			tab_col[28].default_value="0.0";
 			tab_col[28].unsigned_flag=true;
 
+			tab_col[29].name = dam_label::ci_elect_pt;
+			tab_col[29].type = sys_label::tab_col_type_double;
+			tab_col[29].default_value = "0.0";
+			tab_col[29].unsigned_flag = true;
+
+			tab_col[30].name = dam_label::ci_info_tec_pt;
+			tab_col[30].type = sys_label::tab_col_type_double;
+			tab_col[30].default_value = "0.0";
+			tab_col[30].unsigned_flag = true;
+
+			tab_col[31].name = dam_label::ci_water_sup_pt;
+			tab_col[31].type = sys_label::tab_col_type_double;
+			tab_col[31].default_value = "0.0";
+			tab_col[31].unsigned_flag = true;
+
+			tab_col[32].name = dam_label::ci_water_treat_pt;
+			tab_col[32].type = sys_label::tab_col_type_double;
+			tab_col[32].default_value = "0.0";
+			tab_col[32].unsigned_flag = true;
+
+			tab_col[33].name = dam_label::ci_energy_pt;
+			tab_col[33].type = sys_label::tab_col_type_double;
+			tab_col[33].default_value = "0.0";
+			tab_col[33].unsigned_flag = true;
+
+
+
+			tab_col[34].name = dam_label::ci_health_pt;
+			tab_col[34].type = sys_label::tab_col_type_double;
+			tab_col[34].default_value = "0.0";
+			tab_col[34].unsigned_flag = true;
+
+			tab_col[35].name = dam_label::ci_social_pt;
+			tab_col[35].type = sys_label::tab_col_type_double;
+			tab_col[35].default_value = "0.0";
+			tab_col[35].unsigned_flag = true;
+
+			tab_col[36].name = dam_label::ci_mat_pt;
+			tab_col[36].type = sys_label::tab_col_type_double;
+			tab_col[36].default_value = "0.0";
+			tab_col[36].unsigned_flag = true;
+
+
+
+			tab_col[37].name = dam_label::ci_elect_p;
+			tab_col[37].type = sys_label::tab_col_type_double;
+			tab_col[37].default_value = "0.0";
+			tab_col[37].unsigned_flag = true;
+
+			tab_col[38].name = dam_label::ci_info_tec_p;
+			tab_col[38].type = sys_label::tab_col_type_double;
+			tab_col[38].default_value = "0.0";
+			tab_col[38].unsigned_flag = true;
+
+			tab_col[39].name = dam_label::ci_water_sup_p;
+			tab_col[39].type = sys_label::tab_col_type_double;
+			tab_col[39].default_value = "0.0";
+			tab_col[39].unsigned_flag = true;
+
+			tab_col[40].name = dam_label::ci_water_treat_p;
+			tab_col[40].type = sys_label::tab_col_type_double;
+			tab_col[40].default_value = "0.0";
+			tab_col[40].unsigned_flag = true;
+
+			tab_col[41].name = dam_label::ci_energy_p;
+			tab_col[41].type = sys_label::tab_col_type_double;
+			tab_col[41].default_value = "0.0";
+			tab_col[41].unsigned_flag = true;
+
+
+
+			tab_col[42].name = dam_label::ci_health_p;
+			tab_col[42].type = sys_label::tab_col_type_double;
+			tab_col[42].default_value = "0.0";
+			tab_col[42].unsigned_flag = true;
+
+			tab_col[43].name = dam_label::ci_social_p;
+			tab_col[43].type = sys_label::tab_col_type_double;
+			tab_col[43].default_value = "0.0";
+			tab_col[43].unsigned_flag = true;
+
+			tab_col[44].name = dam_label::ci_mat_p;
+			tab_col[44].type = sys_label::tab_col_type_double;
+			tab_col[44].default_value = "0.0";
+			tab_col[44].unsigned_flag = true;
+
 			try{
 				Risk_System::table_cumulated_results= new Tables();
 				if(Risk_System::table_cumulated_results->create_non_existing_tables(tab_name, tab_col, num_col,ptr_database, _sys_table_type::risk)==false){
@@ -1230,11 +1441,11 @@ int Risk_System::select_data_in_resulttable_cumulated(QSqlQueryModel *model, QSq
 	return model->rowCount();
 }
 //Set the database table for results of the risk calculation: it sets the table name and the name of the columns and allocate them (static)
-void Risk_System::set_resulttable(QSqlDatabase *ptr_database){
+void Risk_System::set_resulttable(QSqlDatabase *ptr_database, const bool not_close){
 	if(Risk_System::table_results==NULL){
 		//make specific input for this class
 		const string tab_id_name=risk_label::tab_risk_result;
-		string tab_col[29];
+		string tab_col[45];
 		tab_col[0]=label::glob_id;
 		tab_col[1]=label::areastate_id;
 		tab_col[2]=label::measure_id;
@@ -1265,6 +1476,23 @@ void Risk_System::set_resulttable(QSqlDatabase *ptr_database){
 		tab_col[26]=dam_label::sc_eco_build;
 		tab_col[27]=dam_label::sc_cult_build;
 		tab_col[28]=dam_label::sc_person_build;
+
+		tab_col[29] = dam_label::ci_elect_pt;
+		tab_col[30] = dam_label::ci_info_tec_pt;
+		tab_col[31] = dam_label::ci_water_sup_pt;
+		tab_col[32] = dam_label::ci_water_treat_pt;
+		tab_col[33] = dam_label::ci_energy_pt;
+		tab_col[34] = dam_label::ci_health_pt;
+		tab_col[35] = dam_label::ci_social_pt;
+		tab_col[36] = dam_label::ci_mat_pt;
+		tab_col[37] = dam_label::ci_elect_p;
+		tab_col[38] = dam_label::ci_info_tec_p;
+		tab_col[39] = dam_label::ci_water_sup_p;
+		tab_col[40] = dam_label::ci_water_treat_p;
+		tab_col[41] = dam_label::ci_energy_p;
+		tab_col[42] = dam_label::ci_health_p;
+		tab_col[43] = dam_label::ci_social_p;
+		tab_col[44] = dam_label::ci_mat_p;
 		
 
 
@@ -1283,7 +1511,9 @@ void Risk_System::set_resulttable(QSqlDatabase *ptr_database){
 			throw msg;
 		}
 		catch(Error msg){
-			Risk_System::close_resulttable();
+			if (not_close == false) {
+				Risk_System::close_resulttable();
+			}
 			throw msg;
 		}
 	}
@@ -1296,7 +1526,7 @@ void Risk_System::create_resulttable(QSqlDatabase *ptr_database){
 			Sys_Common_Output::output_risk->output_txt(&cout);
 			//make specific input for this class
 			const string tab_name=risk_label::tab_risk_result;
-			const int num_col=29;
+			const int num_col=45;
 			_Sys_data_tab_column tab_col[num_col];
 			//init
 			for(int i=0; i< num_col; i++){
@@ -1446,6 +1676,92 @@ void Risk_System::create_resulttable(QSqlDatabase *ptr_database){
 			tab_col[28].type=sys_label::tab_col_type_double;
 			tab_col[28].default_value="0.0";
 			tab_col[28].unsigned_flag=true;
+
+			tab_col[29].name = dam_label::ci_elect_pt;
+			tab_col[29].type = sys_label::tab_col_type_double;
+			tab_col[29].default_value = "0.0";
+			tab_col[29].unsigned_flag = true;
+
+			tab_col[30].name = dam_label::ci_info_tec_pt;
+			tab_col[30].type = sys_label::tab_col_type_double;
+			tab_col[30].default_value = "0.0";
+			tab_col[30].unsigned_flag = true;
+
+			tab_col[31].name = dam_label::ci_water_sup_pt;
+			tab_col[31].type = sys_label::tab_col_type_double;
+			tab_col[31].default_value = "0.0";
+			tab_col[31].unsigned_flag = true;
+
+			tab_col[32].name = dam_label::ci_water_treat_pt;
+			tab_col[32].type = sys_label::tab_col_type_double;
+			tab_col[32].default_value = "0.0";
+			tab_col[32].unsigned_flag = true;
+
+			tab_col[33].name = dam_label::ci_energy_pt;
+			tab_col[33].type = sys_label::tab_col_type_double;
+			tab_col[33].default_value = "0.0";
+			tab_col[33].unsigned_flag = true;
+
+
+
+			tab_col[34].name = dam_label::ci_health_pt;
+			tab_col[34].type = sys_label::tab_col_type_double;
+			tab_col[34].default_value = "0.0";
+			tab_col[34].unsigned_flag = true;
+
+			tab_col[35].name = dam_label::ci_social_pt;
+			tab_col[35].type = sys_label::tab_col_type_double;
+			tab_col[35].default_value = "0.0";
+			tab_col[35].unsigned_flag = true;
+
+			tab_col[36].name = dam_label::ci_mat_pt;
+			tab_col[36].type = sys_label::tab_col_type_double;
+			tab_col[36].default_value = "0.0";
+			tab_col[36].unsigned_flag = true;
+
+
+
+			tab_col[37].name = dam_label::ci_elect_p;
+			tab_col[37].type = sys_label::tab_col_type_double;
+			tab_col[37].default_value = "0.0";
+			tab_col[37].unsigned_flag = true;
+
+			tab_col[38].name = dam_label::ci_info_tec_p;
+			tab_col[38].type = sys_label::tab_col_type_double;
+			tab_col[38].default_value = "0.0";
+			tab_col[38].unsigned_flag = true;
+
+			tab_col[39].name = dam_label::ci_water_sup_p;
+			tab_col[39].type = sys_label::tab_col_type_double;
+			tab_col[39].default_value = "0.0";
+			tab_col[39].unsigned_flag = true;
+
+			tab_col[40].name = dam_label::ci_water_treat_p;
+			tab_col[40].type = sys_label::tab_col_type_double;
+			tab_col[40].default_value = "0.0";
+			tab_col[40].unsigned_flag = true;
+
+			tab_col[41].name = dam_label::ci_energy_p;
+			tab_col[41].type = sys_label::tab_col_type_double;
+			tab_col[41].default_value = "0.0";
+			tab_col[41].unsigned_flag = true;
+
+
+
+			tab_col[42].name = dam_label::ci_health_p;
+			tab_col[42].type = sys_label::tab_col_type_double;
+			tab_col[42].default_value = "0.0";
+			tab_col[42].unsigned_flag = true;
+
+			tab_col[43].name = dam_label::ci_social_p;
+			tab_col[43].type = sys_label::tab_col_type_double;
+			tab_col[43].default_value = "0.0";
+			tab_col[43].unsigned_flag = true;
+
+			tab_col[44].name = dam_label::ci_mat_p;
+			tab_col[44].type = sys_label::tab_col_type_double;
+			tab_col[44].default_value = "0.0";
+			tab_col[44].unsigned_flag = true;
 
 
 
@@ -3919,9 +4235,27 @@ void Risk_System::set_connect_dam_prob2detailed_result_nobreak(void){
 			this->detailed_results[i].dam_results.sc_pub_build=model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::sc_pub_build)).c_str()).toDouble();
 			this->detailed_results[i].dam_results.sc_person_build=model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::sc_person_build)).c_str()).toDouble();
 
+			//ci
+			this->detailed_results[i].dam_results.ci_elect_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_elect_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_info_tec_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_water_sup_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_water_treat_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_energy_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_energy_pt)).c_str()).toDouble();
+
+			this->detailed_results[i].dam_results.ci_health_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_health_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_social_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_social_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_mat_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_mat_pt)).c_str()).toDouble();
 
 
+			this->detailed_results[i].dam_results.ci_elect_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_elect_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_info_tec_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_info_tec_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_water_sup_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_sup_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_water_treat_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_treat_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_energy_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_energy_p)).c_str()).toDouble();
 
+			this->detailed_results[i].dam_results.ci_health_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_health_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_social_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_social_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_mat_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_mat_p)).c_str()).toDouble();
 
 		}
 		double discharge=0.0;
@@ -4017,6 +4351,30 @@ void Risk_System::set_connect_dam_prob2detailed_result_break(void){
 			this->detailed_results[i].dam_results.sc_eco_build=model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::sc_eco_build)).c_str()).toDouble();
 			this->detailed_results[i].dam_results.sc_pub_build=model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::sc_pub_build)).c_str()).toDouble();
 			this->detailed_results[i].dam_results.sc_person_build=model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::sc_person_build)).c_str()).toDouble();
+
+
+			
+			//ci
+			this->detailed_results[i].dam_results.ci_elect_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_elect_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_info_tec_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_water_sup_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_water_treat_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_energy_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_energy_pt)).c_str()).toDouble();
+
+			this->detailed_results[i].dam_results.ci_health_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_health_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_social_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_social_pt)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_mat_pt = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_mat_pt)).c_str()).toDouble();
+
+
+			this->detailed_results[i].dam_results.ci_elect_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_elect_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_info_tec_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_info_tec_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_water_sup_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_sup_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_water_treat_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_treat_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_energy_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_energy_p)).c_str()).toDouble();
+
+			this->detailed_results[i].dam_results.ci_health_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_health_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_social_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_social_p)).c_str()).toDouble();
+			this->detailed_results[i].dam_results.ci_mat_p = model.record(0).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_mat_p)).c_str()).toDouble();
 
 		}
 		double discharge=0.0;
@@ -5543,7 +5901,25 @@ void Risk_System::output_detailed_risk_results2database(void){
 		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::sc_pub_build) <<" , ";
 		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::sc_eco_build) <<" , ";
 		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::sc_cult_build) <<" , ";
-		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::sc_person_build) <<" ) ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::sc_person_build) <<" , ";
+
+
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_elect_pt) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_info_tec_pt) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_sup_pt) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_treat_pt) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_energy_pt) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_health_pt) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_social_pt) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_mat_pt) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_elect_p) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_info_tec_p) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_sup_p) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_water_treat_p) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_energy_p) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_health_p) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_social_p) << " , ";
+		query_string << Risk_System::table_detailed_results->get_column_name(dam_label::ci_mat_p) << " ) ";
 
 		query_string << " VALUES ( ";
 		query_string << id_glob << " , " ;
@@ -5581,7 +5957,24 @@ void Risk_System::output_detailed_risk_results2database(void){
 		query_string << this->detailed_results[i].dam_results.sc_pub_build << " , " ;
 		query_string << this->detailed_results[i].dam_results.sc_eco_build << " , " ;
 		query_string << this->detailed_results[i].dam_results.sc_cult_build << " , " ;
-		query_string << this->detailed_results[i].dam_results.sc_person_build << " ) " ;
+		query_string << this->detailed_results[i].dam_results.sc_person_build << " , " ;
+
+		query_string << this->detailed_results[i].dam_results.ci_elect_pt << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_info_tec_pt << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_water_sup_pt << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_water_treat_pt << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_energy_pt << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_health_pt << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_social_pt << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_mat_pt << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_elect_p << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_info_tec_p << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_water_sup_p << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_water_treat_p << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_energy_p << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_health_p << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_social_p << " , ";
+		query_string << this->detailed_results[i].dam_results.ci_mat_p << " ) ";
 
 		Data_Base::database_request(&model, query_string.str(), &this->qsqldatabase);
 
@@ -5654,15 +6047,15 @@ void Risk_System::output_detailed_risk_results(void){
 		}
 		cout <<P(2)<< FORMAT_FIXED_REAL;
 		cout << " ECONOMIC" << endl;
-		cout << "  Immobile (Mid/5%/95%)       : " <<  this->detailed_results[i].dam_results.ecn_immob_dam << "  "<< this->detailed_results[i].dam_results.ecn_immob_dam_5<< "  "<< this->detailed_results[i].dam_results.ecn_immob_dam_95 << unit << endl;
-		cout << "  Mobile (Mid/5%/95%)         : " <<  this->detailed_results[i].dam_results.ecn_mob_dam << "  "<< this->detailed_results[i].dam_results.ecn_mob_dam_5<< "  "<< this->detailed_results[i].dam_results.ecn_mob_dam_95 << unit << endl;
-		cout << "  Total (Mid/5%/95%)          : " <<  this->detailed_results[i].dam_results.ecn_mob_dam + this->detailed_results[i].dam_results.ecn_immob_dam;
+		cout << "  Immobile (Mid/5%/95%)         : " <<  this->detailed_results[i].dam_results.ecn_immob_dam << "  "<< this->detailed_results[i].dam_results.ecn_immob_dam_5<< "  "<< this->detailed_results[i].dam_results.ecn_immob_dam_95 << unit << endl;
+		cout << "  Mobile (Mid/5%/95%)           : " <<  this->detailed_results[i].dam_results.ecn_mob_dam << "  "<< this->detailed_results[i].dam_results.ecn_mob_dam_5<< "  "<< this->detailed_results[i].dam_results.ecn_mob_dam_95 << unit << endl;
+		cout << "  Total (Mid/5%/95%)            : " <<  this->detailed_results[i].dam_results.ecn_mob_dam + this->detailed_results[i].dam_results.ecn_immob_dam;
 		cout << "  "<< this->detailed_results[i].dam_results.ecn_mob_dam_5+ this->detailed_results[i].dam_results.ecn_immob_dam_5<< "  "<< this->detailed_results[i].dam_results.ecn_mob_dam_95+this->detailed_results[i].dam_results.ecn_immob_dam_95<< unit << endl;
 		Sys_Common_Output::output_risk->output_txt(&cout,no_output);
 		cout << " ECOLOGIC" << endl;
-		cout << "  Biotope-type                : " <<  this->detailed_results[i].dam_results.eco_biotype << unit << endl;
-		cout << "  Soil-erosion                : " <<  this->detailed_results[i].dam_results.eco_soil_erosion << unit << endl;
-		cout << "  Total                       : " <<  this->detailed_results[i].dam_results.eco_biotype + this->detailed_results[i].dam_results.eco_soil_erosion << unit << endl;
+		cout << "  Biotope-type                  : " <<  this->detailed_results[i].dam_results.eco_biotype << unit << endl;
+		cout << "  Soil-erosion                  : " <<  this->detailed_results[i].dam_results.eco_soil_erosion << unit << endl;
+		cout << "  Total                         : " <<  this->detailed_results[i].dam_results.eco_biotype + this->detailed_results[i].dam_results.eco_soil_erosion << unit << endl;
 		Sys_Common_Output::output_risk->output_txt(&cout,no_output);
 		//decide the unit string
 		if(this->risk_type==_risk_type::scenario_risk){
@@ -5673,8 +6066,8 @@ void Risk_System::output_detailed_risk_results(void){
 		}
 
 		cout << " PEOPLE2RISK" << endl;
-		cout << "  Affected                     : " <<  this->detailed_results[i].dam_results.pop_affected << unit << endl;
-		cout << "  Endangered                   : " <<  this->detailed_results[i].dam_results.pop_endangered << unit << endl;
+		cout << "  Affected                       : " <<  this->detailed_results[i].dam_results.pop_affected << unit << endl;
+		cout << "  Endangered                     : " <<  this->detailed_results[i].dam_results.pop_endangered << unit << endl;
 		Sys_Common_Output::output_risk->output_txt(&cout,no_output);
 		//decide the unit string
 		if(this->risk_type==_risk_type::scenario_risk){
@@ -5685,10 +6078,10 @@ void Risk_System::output_detailed_risk_results(void){
 		}
 
 		cout << " PSYCHO-SOCIAL" << endl;
-		cout << "  Age 50-59 a (with pop-dens)  : " <<  this->detailed_results[i].dam_results.pys_age_50_59 <<" ("<<this->detailed_results[i].dam_results.pys_age_50_59_dens<<")"<< unit << endl;
-		cout << "  Age >80 a (with pop-dens)    : " <<  this->detailed_results[i].dam_results.pys_age_80 <<" ("<<this->detailed_results[i].dam_results.pys_age_80_dens<<")"<< unit << endl;
-		cout << "  Female gender (with pop-dens): " <<  this->detailed_results[i].dam_results.pys_female <<" ("<<this->detailed_results[i].dam_results.pys_female_dens<<")"<< unit << endl;
-		cout << "  Home owner (with pop-dens)   : " <<  this->detailed_results[i].dam_results.pys_owner <<" ("<<this->detailed_results[i].dam_results.pys_owner_dens<<")"<< unit << endl;
+		cout << "  Age 50-59 a (with pop-dens)    : " <<  this->detailed_results[i].dam_results.pys_age_50_59 <<" ("<<this->detailed_results[i].dam_results.pys_age_50_59_dens<<")"<< unit << endl;
+		cout << "  Age >80 a (with pop-dens)      : " <<  this->detailed_results[i].dam_results.pys_age_80 <<" ("<<this->detailed_results[i].dam_results.pys_age_80_dens<<")"<< unit << endl;
+		cout << "  Female gender (with pop-dens)  : " <<  this->detailed_results[i].dam_results.pys_female <<" ("<<this->detailed_results[i].dam_results.pys_female_dens<<")"<< unit << endl;
+		cout << "  Home owner (with pop-dens)     : " <<  this->detailed_results[i].dam_results.pys_owner <<" ("<<this->detailed_results[i].dam_results.pys_owner_dens<<")"<< unit << endl;
 				Sys_Common_Output::output_risk->output_txt(&cout, no_output);
 
 		//decide the unit string
@@ -5700,11 +6093,34 @@ void Risk_System::output_detailed_risk_results(void){
 		}
 
 		cout << " SIMPLE-COUNTING" << endl;
-		cout << "  Public                       : " <<  this->detailed_results[i].dam_results.sc_pub_build << unit << endl;
-		cout << "  Ecologic perilous            : " <<  this->detailed_results[i].dam_results.sc_eco_build << unit << endl;
-		cout << "  Cultural heritage            : " <<  this->detailed_results[i].dam_results.sc_cult_build << unit << endl;
-		cout << "  Highly vulnerable person      : " <<  this->detailed_results[i].dam_results.sc_person_build << unit << endl;
+		cout << "  Public                         : " <<  this->detailed_results[i].dam_results.sc_pub_build << unit << endl;
+		cout << "  Ecologic perilous              : " <<  this->detailed_results[i].dam_results.sc_eco_build << unit << endl;
+		cout << "  Cultural heritage              : " <<  this->detailed_results[i].dam_results.sc_cult_build << unit << endl;
+		cout << "  Highly vulnerable person       : " <<  this->detailed_results[i].dam_results.sc_person_build << unit << endl;
+
 	
+		Sys_Common_Output::output_risk->output_txt(&cout, no_output);
+
+		cout << " CRITICAL INFRASTRUCTURES" << endl;
+		cout << "  POPULATION TIME" << endl;
+		cout << "   Sec Electricity (1)           : " << this->detailed_results[i].dam_results.ci_elect_pt << label::person_sec_per_annus << endl;
+		cout << "   Sec Information technology (2): " << this->detailed_results[i].dam_results.ci_info_tec_pt << label::person_sec_per_annus << endl;
+		cout << "   Sec Water supply (3)          : " << this->detailed_results[i].dam_results.ci_water_sup_pt << label::person_sec_per_annus << endl;
+		cout << "   Sec Water treatment (4)       : " << this->detailed_results[i].dam_results.ci_water_treat_pt << label::person_sec_per_annus << endl;
+		cout << "   Sec Energy (5)                : " << this->detailed_results[i].dam_results.ci_energy_pt << label::person_sec_per_annus << endl;
+		cout << "   Cum-Sec Health (10+11)        : " << this->detailed_results[i].dam_results.ci_water_sup_pt << label::person_sec_per_annus << endl;
+		cout << "   Cum-Sec Social (14+17+18+19)  : " << this->detailed_results[i].dam_results.ci_water_treat_pt << label::person_sec_per_annus << endl;
+		cout << "   Cum-Sec Material (12+13+15+16): " << this->detailed_results[i].dam_results.ci_energy_pt << label::person_sec_per_annus << endl;
+		cout << "  POPULATION" << endl;
+		cout << "   Sec Electricity (1)           : " << this->detailed_results[i].dam_results.ci_elect_p << label::person_per_annus << endl;
+		cout << "   Sec Information technology (2): " << this->detailed_results[i].dam_results.ci_info_tec_p << label::person_per_annus << endl;
+		cout << "   Sec Water supply (3)          : " << this->detailed_results[i].dam_results.ci_water_sup_p << label::person_per_annus << endl;
+		cout << "   Sec Water treatment (4)       : " << this->detailed_results[i].dam_results.ci_water_treat_p << label::person_per_annus << endl;
+		cout << "   Sec Energy (5)                : " << this->detailed_results[i].dam_results.ci_energy_p << label::person_per_annus << endl;
+		cout << "   Cum-Sec Health (10+11)        : " << this->detailed_results[i].dam_results.ci_water_sup_p << label::person_per_annus << endl;
+		cout << "   Cum-Sec Social (14+17+18+19)  : " << this->detailed_results[i].dam_results.ci_water_treat_p << label::person_per_annus << endl;
+		cout << "   Cum-Sec Material (12+13+15+16): " << this->detailed_results[i].dam_results.ci_energy_p << label::person_per_annus << endl;
+
 		Sys_Common_Output::output_risk->output_txt(&cout, no_output);
 
 		//decide the unit string
@@ -5779,7 +6195,25 @@ void Risk_System::output_cumulated_risk_results2database(void){
 		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::sc_pub_build) <<" , ";
 		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::sc_eco_build) <<" , ";
 		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::sc_cult_build) <<" , ";
-		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::sc_person_build) <<" ) ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::sc_person_build) <<" , ";
+
+
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_elect_pt) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_info_tec_pt) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_water_sup_pt) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_water_treat_pt) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_energy_pt) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_health_pt) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_social_pt) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_mat_pt) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_elect_p) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_info_tec_p) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_water_sup_p) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_water_treat_p) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_energy_p) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_health_p) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_social_p) << " , ";
+		query_string << Risk_System::table_cumulated_results->get_column_name(dam_label::ci_mat_p) << " ) ";
 
 		query_string << " VALUES ( ";
 		query_string << id_glob << " , " ;
@@ -5816,7 +6250,23 @@ void Risk_System::output_cumulated_risk_results2database(void){
 		query_string << this->cumulated_results[i].dam_results.sc_pub_build << " , " ;
 		query_string << this->cumulated_results[i].dam_results.sc_eco_build << " , " ;
 		query_string << this->cumulated_results[i].dam_results.sc_cult_build << " , " ;
-		query_string << this->cumulated_results[i].dam_results.sc_person_build << " ) " ;
+		query_string << this->cumulated_results[i].dam_results.sc_person_build << " , " ;
+		query_string << this->cumulated_results[i].dam_results.ci_elect_pt << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_info_tec_pt << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_water_sup_pt << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_water_treat_pt << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_energy_pt << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_health_pt << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_social_pt << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_mat_pt << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_elect_p << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_info_tec_p << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_water_sup_p << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_water_treat_p << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_energy_p << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_health_p << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_social_p << " , ";
+		query_string << this->cumulated_results[i].dam_results.ci_mat_p << " ) ";
 
 		Data_Base::database_request(&model, query_string.str(), &this->qsqldatabase);
 
@@ -5845,42 +6295,62 @@ void Risk_System::output_cumulated_risk_results(void){
 		prefix<<"HQ_"<<this->cumulated_results[i].annuality_hyd_bound_sc<<"> ";
 		Sys_Common_Output::output_risk->set_userprefix(&prefix);
 		cout << "CUMULATED RISK RESULTS" << endl;
-		cout << " Number of detailed results  : " << this->total_results.number_applied_result << endl;
+		cout << " Number of detailed results     : " << this->total_results.number_applied_result << endl;
 		Sys_Common_Output::output_risk->output_txt(&cout);
 		cout << " PROBABILITY" << endl;
-		cout << "  Reoccurence HYD-boundary sc.: " << this->cumulated_results[i].reocc_prob_hyd_bound_sc << label::per_annus << endl;
-		cout << "  Annuality  HYD-boundary sc. : " << this->cumulated_results[i].annuality_hyd_bound_sc << label::annus<<endl;
+		cout << "  Reoccurence HYD-boundary sc.  : " << this->cumulated_results[i].reocc_prob_hyd_bound_sc << label::per_annus << endl;
+		cout << "  Annuality  HYD-boundary sc.   : " << this->cumulated_results[i].annuality_hyd_bound_sc << label::annus<<endl;
 		Sys_Common_Output::output_risk->output_txt(&cout);
 		cout <<P(2)<< FORMAT_FIXED_REAL;
 		cout << " ECONOMIC" << endl;
-		cout << "  Immobile (Mid/5%/95%)       : " <<  this->cumulated_results[i].dam_results.ecn_immob_dam << "  "<< this->cumulated_results[i].dam_results.ecn_immob_dam_5<< "  "<< this->cumulated_results[i].dam_results.ecn_immob_dam_95 << label::euro << endl;
-		cout << "  Mobile (Mid/5%/95%)         : " <<  this->cumulated_results[i].dam_results.ecn_mob_dam << "  "<< this->cumulated_results[i].dam_results.ecn_mob_dam_5<< "  "<< this->cumulated_results[i].dam_results.ecn_mob_dam_95 << label::euro << endl;
-		cout << "  Total (Mid/5%/95%)          : " <<  this->cumulated_results[i].dam_results.ecn_mob_dam + this->cumulated_results[i].dam_results.ecn_immob_dam;
+		cout << "  Immobile (Mid/5%/95%)         : " <<  this->cumulated_results[i].dam_results.ecn_immob_dam << "  "<< this->cumulated_results[i].dam_results.ecn_immob_dam_5<< "  "<< this->cumulated_results[i].dam_results.ecn_immob_dam_95 << label::euro << endl;
+		cout << "  Mobile (Mid/5%/95%)           : " <<  this->cumulated_results[i].dam_results.ecn_mob_dam << "  "<< this->cumulated_results[i].dam_results.ecn_mob_dam_5<< "  "<< this->cumulated_results[i].dam_results.ecn_mob_dam_95 << label::euro << endl;
+		cout << "  Total (Mid/5%/95%)            : " <<  this->cumulated_results[i].dam_results.ecn_mob_dam + this->cumulated_results[i].dam_results.ecn_immob_dam;
 		cout << "  "<< this->cumulated_results[i].dam_results.ecn_mob_dam_5+ this->cumulated_results[i].dam_results.ecn_immob_dam_5<< "  "<< this->cumulated_results[i].dam_results.ecn_mob_dam_95+this->cumulated_results[i].dam_results.ecn_immob_dam_95<< label::euro << endl;
 		Sys_Common_Output::output_risk->output_txt(&cout);
 		cout << " ECOLOGIC" << endl;
-		cout << "  Biotope-type                : " <<  this->cumulated_results[i].dam_results.eco_biotype << label::euro << endl;
-		cout << "  Soil-erosion                : " <<  this->cumulated_results[i].dam_results.eco_soil_erosion << label::euro << endl;
-		cout << "  Total                       : " <<  this->cumulated_results[i].dam_results.eco_biotype + this->cumulated_results[i].dam_results.eco_soil_erosion << label::euro << endl;
+		cout << "  Biotope-type                  : " <<  this->cumulated_results[i].dam_results.eco_biotype << label::euro << endl;
+		cout << "  Soil-erosion                  : " <<  this->cumulated_results[i].dam_results.eco_soil_erosion << label::euro << endl;
+		cout << "  Total                         : " <<  this->cumulated_results[i].dam_results.eco_biotype + this->cumulated_results[i].dam_results.eco_soil_erosion << label::euro << endl;
 		Sys_Common_Output::output_risk->output_txt(&cout);
 		cout << " PEOPLE2RISK" << endl;
-		cout << "  Affected                     : " <<  this->cumulated_results[i].dam_results.pop_affected << label::person << endl;
-		cout << "  Endangered                   : " <<  this->cumulated_results[i].dam_results.pop_endangered << label::person << endl;
+		cout << "  Affected                       : " <<  this->cumulated_results[i].dam_results.pop_affected << label::person << endl;
+		cout << "  Endangered                     : " <<  this->cumulated_results[i].dam_results.pop_endangered << label::person << endl;
 		Sys_Common_Output::output_risk->output_txt(&cout);
 		cout << " PSYCHO-SOCIAL" << endl;
-		cout << "  Age 50-59 a (with pop-dens)  : " <<  this->cumulated_results[i].dam_results.pys_age_50_59 <<" ("<<this->cumulated_results[i].dam_results.pys_age_50_59_dens<<")"<< label::score << endl;
-		cout << "  Age >80 a (with pop-dens)    : " <<  this->cumulated_results[i].dam_results.pys_age_80 <<" ("<<this->cumulated_results[i].dam_results.pys_age_80_dens<<")"<< label::score << endl;
-		cout << "  Female gender (with pop-dens): " <<  this->cumulated_results[i].dam_results.pys_female <<" ("<<this->cumulated_results[i].dam_results.pys_female_dens<<")"<< label::score << endl;
-		cout << "  Home owner (with pop-dens)   : " <<  this->cumulated_results[i].dam_results.pys_owner <<"( "<<this->cumulated_results[i].dam_results.pys_owner_dens<<")"<< label::score << endl;
+		cout << "  Age 50-59 a (with pop-dens)    : " <<  this->cumulated_results[i].dam_results.pys_age_50_59 <<" ("<<this->cumulated_results[i].dam_results.pys_age_50_59_dens<<")"<< label::score << endl;
+		cout << "  Age >80 a (with pop-dens)      : " <<  this->cumulated_results[i].dam_results.pys_age_80 <<" ("<<this->cumulated_results[i].dam_results.pys_age_80_dens<<")"<< label::score << endl;
+		cout << "  Female gender (with pop-dens)  : " <<  this->cumulated_results[i].dam_results.pys_female <<" ("<<this->cumulated_results[i].dam_results.pys_female_dens<<")"<< label::score << endl;
+		cout << "  Home owner (with pop-dens)     : " <<  this->cumulated_results[i].dam_results.pys_owner <<"( "<<this->cumulated_results[i].dam_results.pys_owner_dens<<")"<< label::score << endl;
 		Sys_Common_Output::output_risk->output_txt(&cout);
 		cout << " SIMPLE-COUNTING" << endl;
-		cout << "  Public                       : " <<  this->cumulated_results[i].dam_results.sc_pub_build << label::score << endl;
-		cout << "  Ecologic perilous            : " <<  this->cumulated_results[i].dam_results.sc_eco_build << label::score << endl;
-		cout << "  Cultural heritage            : " <<  this->cumulated_results[i].dam_results.sc_cult_build<< label::score << endl;
-		cout << "  Highly vulnerable person      : " <<  this->cumulated_results[i].dam_results.sc_person_build<< label::score << endl;
+		cout << "  Public                         : " <<  this->cumulated_results[i].dam_results.sc_pub_build << label::score << endl;
+		cout << "  Ecologic perilous              : " <<  this->cumulated_results[i].dam_results.sc_eco_build << label::score << endl;
+		cout << "  Cultural heritage              : " <<  this->cumulated_results[i].dam_results.sc_cult_build<< label::score << endl;
+		cout << "  Highly vulnerable person       : " <<  this->cumulated_results[i].dam_results.sc_person_build<< label::score << endl;
+		Sys_Common_Output::output_risk->output_txt(&cout);
+		cout << " CRITICAL INFRASTRUCTURES" << endl;
+		cout << "  POPULATION TIME" << endl;
+		cout << "   Sec Electricity (1)           : " << this->cumulated_results[i].dam_results.ci_elect_pt << label::person_sec_per_annus << endl;
+		cout << "   Sec Information technology (2): " << this->cumulated_results[i].dam_results.ci_info_tec_pt << label::person_sec_per_annus << endl;
+		cout << "   Sec Water supply (3)          : " << this->cumulated_results[i].dam_results.ci_water_sup_pt << label::person_sec_per_annus << endl;
+		cout << "   Sec Water treatment (4)       : " << this->cumulated_results[i].dam_results.ci_water_treat_pt << label::person_sec_per_annus << endl;
+		cout << "   Sec Energy (5)                : " << this->cumulated_results[i].dam_results.ci_energy_pt << label::person_sec_per_annus << endl;
+		cout << "   Cum-Sec Health (10+11)        : " << this->cumulated_results[i].dam_results.ci_water_sup_pt << label::person_sec_per_annus << endl;
+		cout << "   Cum-Sec Social (14+17+18+19)  : " << this->cumulated_results[i].dam_results.ci_water_treat_pt << label::person_sec_per_annus << endl;
+		cout << "   Cum-Sec Material (12+13+15+16): " << this->cumulated_results[i].dam_results.ci_energy_pt << label::person_sec_per_annus << endl;
+		cout << "  POPULATION" << endl;
+		cout << "   Sec Electricity (1)           : " << this->cumulated_results[i].dam_results.ci_elect_p << label::person_per_annus << endl;
+		cout << "   Sec Information technology (2): " << this->cumulated_results[i].dam_results.ci_info_tec_p << label::person_per_annus << endl;
+		cout << "   Sec Water supply (3)          : " << this->cumulated_results[i].dam_results.ci_water_sup_p << label::person_per_annus << endl;
+		cout << "   Sec Water treatment (4)       : " << this->cumulated_results[i].dam_results.ci_water_treat_p << label::person_per_annus << endl;
+		cout << "   Sec Energy (5)                : " << this->cumulated_results[i].dam_results.ci_energy_p << label::person_per_annus << endl;
+		cout << "   Cum-Sec Health (10+11)        : " << this->cumulated_results[i].dam_results.ci_water_sup_p << label::person_per_annus << endl;
+		cout << "   Cum-Sec Social (14+17+18+19)  : " << this->cumulated_results[i].dam_results.ci_water_treat_p << label::person_per_annus << endl;
+		cout << "   Cum-Sec Material (12+13+15+16): " << this->cumulated_results[i].dam_results.ci_energy_p << label::person_per_annus << endl;
 		Sys_Common_Output::output_risk->output_txt(&cout);
 		cout << " OUTFLOW" << endl;
-		cout << "  Maximum discharge            : " <<  this->cumulated_results[i].max_outflow << label::qm_per_sec << endl;
+		cout << "  Maximum discharge              : " <<  this->cumulated_results[i].max_outflow << label::qm_per_sec << endl;
 		Sys_Common_Output::output_risk->output_txt(&cout);
 
 		Sys_Common_Output::output_risk->rewind_userprefix();
@@ -5940,7 +6410,29 @@ void Risk_System::output_total_result2database(void){
 	query_string << Risk_System::table_results->get_column_name(dam_label::sc_pub_build) <<" , ";
 	query_string << Risk_System::table_results->get_column_name(dam_label::sc_eco_build) <<" , ";
 	query_string << Risk_System::table_results->get_column_name(dam_label::sc_cult_build) <<" , ";
-	query_string << Risk_System::table_results->get_column_name(dam_label::sc_person_build) <<" ) ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::sc_person_build) <<" , ";
+
+
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_elect_pt) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_info_tec_pt) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_water_sup_pt) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_water_treat_pt) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_energy_pt) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_health_pt) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_social_pt) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_mat_pt) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_elect_p) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_info_tec_p) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_water_sup_p) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_water_treat_p) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_energy_p) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_health_p) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_social_p) << " , ";
+	query_string << Risk_System::table_results->get_column_name(dam_label::ci_mat_p) << " ) ";
+
+
+
+
 
 	query_string << " VALUES ( ";
 	query_string << id_glob << " , " ;
@@ -5977,7 +6469,26 @@ void Risk_System::output_total_result2database(void){
 	query_string << this->total_results.dam_results.sc_pub_build << " , " ;
 	query_string << this->total_results.dam_results.sc_eco_build << " , " ;
 	query_string << this->total_results.dam_results.sc_cult_build << " , " ;
-	query_string << this->total_results.dam_results.sc_person_build << " ) " ;
+	query_string << this->total_results.dam_results.sc_person_build << " , " ;
+
+	query_string << this->total_results.dam_results.ci_elect_pt << " , ";
+	query_string << this->total_results.dam_results.ci_info_tec_pt << " , ";
+	query_string << this->total_results.dam_results.ci_water_sup_pt << " , ";
+	query_string << this->total_results.dam_results.ci_water_treat_pt << " , ";
+	query_string << this->total_results.dam_results.ci_energy_pt << " , ";
+	query_string << this->total_results.dam_results.ci_health_pt << " , ";
+	query_string << this->total_results.dam_results.ci_social_pt << " , ";
+	query_string << this->total_results.dam_results.ci_mat_pt << " , ";
+	query_string << this->total_results.dam_results.ci_elect_p << " , ";
+	query_string << this->total_results.dam_results.ci_info_tec_p << " , ";
+	query_string << this->total_results.dam_results.ci_water_sup_p << " , ";
+	query_string << this->total_results.dam_results.ci_water_treat_p << " , ";
+	query_string << this->total_results.dam_results.ci_energy_p << " , ";
+	query_string << this->total_results.dam_results.ci_health_p << " , ";
+	query_string << this->total_results.dam_results.ci_social_p << " , ";
+	query_string << this->total_results.dam_results.ci_mat_p << " ) ";
+
+
 
 
 	Data_Base::database_request(&model, query_string.str(), &this->qsqldatabase);
@@ -5999,36 +6510,56 @@ void Risk_System::output_total_results(void){
 	cout << "Output the total risk results..." << endl ;
 	Sys_Common_Output::output_risk->output_txt(&cout);
 	cout << "TOTAL RISK RESULTS" << endl;
-	cout << " Number of cumulated results  : " << this->total_results.number_applied_result << endl;
-	cout << " Number of detailed results   : " << this->number_detailed_results << endl;
+	cout << " Number of cumulated results    : " << this->total_results.number_applied_result << endl;
+	cout << " Number of detailed results     : " << this->number_detailed_results << endl;
 	Sys_Common_Output::output_risk->output_txt(&cout);
 	cout <<P(2)<< FORMAT_FIXED_REAL;
 	cout << " ECONOMIC" << endl;
-	cout << "  Immobile (Mid/5%/95%)       : " <<  this->total_results.dam_results.ecn_immob_dam << "  "<< this->total_results.dam_results.ecn_immob_dam_5<< "  "<< this->total_results.dam_results.ecn_immob_dam_95 << label::monetary_per_annus << endl;
-	cout << "  Mobile (Mid/5%/95%)         : " <<  this->total_results.dam_results.ecn_mob_dam << "  "<< this->total_results.dam_results.ecn_mob_dam_5<< "  "<< this->total_results.dam_results.ecn_mob_dam_95 << label::monetary_per_annus  << endl;
-	cout << "  Total (Mid/5%/95%)          : " <<  this->total_results.dam_results.ecn_mob_dam + this->total_results.dam_results.ecn_immob_dam;
+	cout << "  Immobile (Mid/5%/95%)         : " <<  this->total_results.dam_results.ecn_immob_dam << "  "<< this->total_results.dam_results.ecn_immob_dam_5<< "  "<< this->total_results.dam_results.ecn_immob_dam_95 << label::monetary_per_annus << endl;
+	cout << "  Mobile (Mid/5%/95%)           : " <<  this->total_results.dam_results.ecn_mob_dam << "  "<< this->total_results.dam_results.ecn_mob_dam_5<< "  "<< this->total_results.dam_results.ecn_mob_dam_95 << label::monetary_per_annus  << endl;
+	cout << "  Total (Mid/5%/95%)            : " <<  this->total_results.dam_results.ecn_mob_dam + this->total_results.dam_results.ecn_immob_dam;
 	cout << "  "<< this->total_results.dam_results.ecn_mob_dam_5+ this->total_results.dam_results.ecn_immob_dam_5<< "  "<< this->total_results.dam_results.ecn_mob_dam_95+this->total_results.dam_results.ecn_immob_dam_95<< label::monetary_per_annus  << endl;
 	Sys_Common_Output::output_risk->output_txt(&cout);
 	cout << " ECOLOGIC" << endl;
-	cout << "  Biotope-type                : " <<  this->total_results.dam_results.eco_biotype << label::monetary_per_annus  << endl;
-	cout << "  Soil-erosion                : " <<  this->total_results.dam_results.eco_soil_erosion << label::monetary_per_annus  << endl;
-	cout << "  Total                       : " <<  this->total_results.dam_results.eco_biotype + this->total_results.dam_results.eco_soil_erosion << label::monetary_per_annus  << endl;
+	cout << "  Biotope-type                  : " <<  this->total_results.dam_results.eco_biotype << label::monetary_per_annus  << endl;
+	cout << "  Soil-erosion                  : " <<  this->total_results.dam_results.eco_soil_erosion << label::monetary_per_annus  << endl;
+	cout << "  Total                         : " <<  this->total_results.dam_results.eco_biotype + this->total_results.dam_results.eco_soil_erosion << label::monetary_per_annus  << endl;
 	Sys_Common_Output::output_risk->output_txt(&cout);
 	cout << " PEOPLE2RISK" << endl;
-	cout << "  Affected                     : " <<  this->total_results.dam_results.pop_affected << label::person_per_annus  << endl;
-	cout << "  Endangered                   : " <<  this->total_results.dam_results.pop_endangered << label::person_per_annus << endl;
+	cout << "  Affected                       : " <<  this->total_results.dam_results.pop_affected << label::person_per_annus  << endl;
+	cout << "  Endangered                     : " <<  this->total_results.dam_results.pop_endangered << label::person_per_annus << endl;
 	Sys_Common_Output::output_risk->output_txt(&cout);
 	cout << " PSYCHO-SOCIAL" << endl;
-	cout << "  Age 50-59 a (with pop-dens)  : " <<  this->total_results.dam_results.pys_age_50_59 <<" ("<<this->total_results.dam_results.pys_age_50_59_dens<<")"<< label::score_per_annus << endl;
-	cout << "  Age >80 a (with pop-dens)    : " <<  this->total_results.dam_results.pys_age_80 <<" ("<<this->total_results.dam_results.pys_age_80_dens<<")"<< label::score_per_annus << endl;
-	cout << "  Female gender (with pop-dens): " <<  this->total_results.dam_results.pys_female <<" ("<<this->total_results.dam_results.pys_female_dens<<")"<< label::score_per_annus << endl;
-	cout << "  Home owner (with pop-dens)   : " <<  this->total_results.dam_results.pys_owner <<" ("<<this->total_results.dam_results.pys_owner_dens<<")"<< label::score_per_annus << endl;
+	cout << "  Age 50-59 a (with pop-dens)    : " <<  this->total_results.dam_results.pys_age_50_59 <<" ("<<this->total_results.dam_results.pys_age_50_59_dens<<")"<< label::score_per_annus << endl;
+	cout << "  Age >80 a (with pop-dens)      : " <<  this->total_results.dam_results.pys_age_80 <<" ("<<this->total_results.dam_results.pys_age_80_dens<<")"<< label::score_per_annus << endl;
+	cout << "  Female gender (with pop-dens)  : " <<  this->total_results.dam_results.pys_female <<" ("<<this->total_results.dam_results.pys_female_dens<<")"<< label::score_per_annus << endl;
+	cout << "  Home owner (with pop-dens)     : " <<  this->total_results.dam_results.pys_owner <<" ("<<this->total_results.dam_results.pys_owner_dens<<")"<< label::score_per_annus << endl;
 	Sys_Common_Output::output_risk->output_txt(&cout);
 	cout << " SIMPLE-COUNTING" << endl;
-	cout << "  Public                       : " <<  this->total_results.dam_results.sc_pub_build << label::score_per_annus << endl;
-	cout << "  Ecologic perilous            : " <<  this->total_results.dam_results.sc_eco_build << label::score_per_annus << endl;
-	cout << "  Cultural heritage            : " <<  this->total_results.dam_results.sc_cult_build<< label::score_per_annus << endl;
-	cout << "  Highly vulnerable person      : " <<  this->total_results.dam_results.sc_person_build<< label::score_per_annus << endl;
+	cout << "  Public                         : " <<  this->total_results.dam_results.sc_pub_build << label::score_per_annus << endl;
+	cout << "  Ecologic perilous              : " <<  this->total_results.dam_results.sc_eco_build << label::score_per_annus << endl;
+	cout << "  Cultural heritage              : " <<  this->total_results.dam_results.sc_cult_build<< label::score_per_annus << endl;
+	cout << "  Highly vulnerable person       : " <<  this->total_results.dam_results.sc_person_build<< label::score_per_annus << endl;
+	Sys_Common_Output::output_risk->output_txt(&cout);
+	cout << " CRITICAL INFRASTRUCTURES" << endl;
+	cout << "  POPULATION TIME" << endl;
+	cout << "   Sec Electricity (1)           : " << this->total_results.dam_results.ci_elect_pt << label::person_sec_per_annus << endl;
+	cout << "   Sec Information technology (2): " << this->total_results.dam_results.ci_info_tec_pt << label::person_sec_per_annus << endl;
+	cout << "   Sec Water supply (3)          : " << this->total_results.dam_results.ci_water_sup_pt<< label::person_sec_per_annus << endl;
+	cout << "   Sec Water treatment (4)       : " << this->total_results.dam_results.ci_water_treat_pt << label::person_sec_per_annus << endl;
+	cout << "   Sec Energy (5)                : " << this->total_results.dam_results.ci_energy_pt << label::person_sec_per_annus << endl;
+	cout << "   Cum-Sec Health (10+11)        : " << this->total_results.dam_results.ci_water_sup_pt << label::person_sec_per_annus << endl;
+	cout << "   Cum-Sec Social (14+17+18+19)  : " << this->total_results.dam_results.ci_water_treat_pt << label::person_sec_per_annus << endl;
+	cout << "   Cum-Sec Material (12+13+15+16): " << this->total_results.dam_results.ci_energy_pt << label::person_sec_per_annus << endl;
+	cout << "  POPULATION" << endl;
+	cout << "   Sec Electricity (1)           : " << this->total_results.dam_results.ci_elect_p << label::person_per_annus << endl;
+	cout << "   Sec Information technology (2): " << this->total_results.dam_results.ci_info_tec_p << label::person_per_annus << endl;
+	cout << "   Sec Water supply (3)          : " << this->total_results.dam_results.ci_water_sup_p << label::person_per_annus << endl;
+	cout << "   Sec Water treatment (4)       : " << this->total_results.dam_results.ci_water_treat_p << label::person_per_annus << endl;
+	cout << "   Sec Energy (5)                : " << this->total_results.dam_results.ci_energy_p << label::person_per_annus << endl;
+	cout << "   Cum-Sec Health (10+11)        : " << this->total_results.dam_results.ci_water_sup_p << label::person_per_annus << endl;
+	cout << "   Cum-Sec Social (14+17+18+19)  : " << this->total_results.dam_results.ci_water_treat_p << label::person_per_annus << endl;
+	cout << "   Cum-Sec Material (12+13+15+16): " << this->total_results.dam_results.ci_energy_p << label::person_per_annus << endl;
 	Sys_Common_Output::output_risk->output_txt(&cout);
 	cout << " OUTFLOW" << endl;
 	cout << "  Maximum discharge            : " <<  this->total_results.max_outflow << label::qm_per_sec_annus << endl;
@@ -6430,6 +6961,27 @@ void Risk_System::init_risk_result_struct(_risk_risk_results *init){
 		init->dam_results.sc_person_build=0.0;
 		init->dam_results.sc_pub_build=0.0;
 		init->dam_results.sc_eco_build=0.0;
+
+		init->dam_results.ci_elect_pt= 0.0;
+		init->dam_results.ci_info_tec_pt = 0.0;
+		init->dam_results.ci_water_sup_pt = 0.0;
+		init->dam_results.ci_water_treat_pt= 0.0;
+		init->dam_results.ci_energy_pt= 0.0;
+		init->dam_results.ci_health_pt = 0.0;
+		init->dam_results.ci_social_pt = 0.0;
+		init->dam_results.ci_mat_pt = 0.0;
+
+
+		init->dam_results.ci_elect_p = 0.0;
+		init->dam_results.ci_info_tec_p = 0.0;
+		init->dam_results.ci_water_sup_p = 0.0;
+		init->dam_results.ci_water_treat_p = 0.0;
+		init->dam_results.ci_energy_p = 0.0;
+		init->dam_results.ci_health_p = 0.0;
+		init->dam_results.ci_social_p = 0.0;
+		init->dam_results.ci_mat_p = 0.0;
+
+
 }
 //Set the risk result structure to the detailed risk
 void Risk_System::risk_result_struct2detailed(_risk_risk_results *result){
@@ -6476,6 +7028,27 @@ void Risk_System::risk_result_struct2detailed(_risk_risk_results *result){
 	result->dam_results.sc_eco_build=result->dam_results.sc_eco_build*prob_total;
 	result->dam_results.sc_pub_build=result->dam_results.sc_pub_build*prob_total;
 	result->dam_results.sc_person_build=result->dam_results.sc_person_build*prob_total;
+	//ci
+	result->dam_results.ci_elect_pt= result->dam_results.ci_elect_pt*prob_total;
+	result->dam_results.ci_info_tec_pt = result->dam_results.ci_info_tec_pt*prob_total;
+	result->dam_results.ci_water_sup_pt = result->dam_results.ci_water_sup_pt*prob_total;
+	result->dam_results.ci_water_treat_pt = result->dam_results.ci_water_treat_pt*prob_total;
+	result->dam_results.ci_energy_pt = result->dam_results.ci_energy_pt*prob_total;
+
+	result->dam_results.ci_health_pt = result->dam_results.ci_health_pt*prob_total;
+	result->dam_results.ci_social_pt = result->dam_results.ci_social_pt*prob_total;
+	result->dam_results.ci_mat_pt = result->dam_results.ci_mat_pt*prob_total;
+
+	result->dam_results.ci_elect_p = result->dam_results.ci_elect_p*prob_total;
+	result->dam_results.ci_info_tec_p = result->dam_results.ci_info_tec_p*prob_total;
+	result->dam_results.ci_water_sup_p = result->dam_results.ci_water_sup_p*prob_total;
+	result->dam_results.ci_water_treat_p = result->dam_results.ci_water_treat_p*prob_total;
+	result->dam_results.ci_energy_p = result->dam_results.ci_energy_p*prob_total;
+
+	result->dam_results.ci_health_p = result->dam_results.ci_health_p*prob_total;
+	result->dam_results.ci_social_p = result->dam_results.ci_social_p*prob_total;
+	result->dam_results.ci_mat_p = result->dam_results.ci_mat_p*prob_total;
+
 }
 //Add to a base risk result a given risk result for cumulation
 void Risk_System::add2risk_result_cumulation(_risk_risk_results *base, _risk_risk_results *given){
@@ -6510,6 +7083,27 @@ void Risk_System::add2risk_result_cumulation(_risk_risk_results *base, _risk_ris
 	base->dam_results.sc_eco_build=base->dam_results.sc_eco_build+given->dam_results.sc_eco_build;
 	base->dam_results.sc_person_build=base->dam_results.sc_person_build+given->dam_results.sc_person_build;
 	base->dam_results.sc_pub_build=base->dam_results.sc_pub_build+given->dam_results.sc_pub_build;
+
+	//ci
+	base->dam_results.ci_elect_pt= base->dam_results.ci_elect_pt + given->dam_results.ci_elect_pt;
+	base->dam_results.ci_info_tec_pt = base->dam_results.ci_info_tec_pt + given->dam_results.ci_info_tec_pt;
+	base->dam_results.ci_water_sup_pt = base->dam_results.ci_water_sup_pt + given->dam_results.ci_water_sup_pt;
+	base->dam_results.ci_water_treat_pt = base->dam_results.ci_water_treat_pt + given->dam_results.ci_water_treat_pt;
+	base->dam_results.ci_energy_pt = base->dam_results.ci_energy_pt + given->dam_results.ci_energy_pt;
+	base->dam_results.ci_health_pt = base->dam_results.ci_health_pt + given->dam_results.ci_health_pt;
+	base->dam_results.ci_social_pt = base->dam_results.ci_social_pt + given->dam_results.ci_social_pt;
+	base->dam_results.ci_mat_pt = base->dam_results.ci_mat_pt + given->dam_results.ci_mat_pt;
+
+	base->dam_results.ci_elect_p = base->dam_results.ci_elect_p + given->dam_results.ci_elect_p;
+	base->dam_results.ci_info_tec_p = base->dam_results.ci_info_tec_p + given->dam_results.ci_info_tec_p;
+	base->dam_results.ci_water_sup_p = base->dam_results.ci_water_sup_p + given->dam_results.ci_water_sup_p;
+	base->dam_results.ci_water_treat_p = base->dam_results.ci_water_treat_p + given->dam_results.ci_water_treat_p;
+	base->dam_results.ci_energy_p = base->dam_results.ci_energy_p + given->dam_results.ci_energy_p;
+	base->dam_results.ci_health_p = base->dam_results.ci_health_p + given->dam_results.ci_health_p;
+	base->dam_results.ci_social_p = base->dam_results.ci_social_p + given->dam_results.ci_social_p;
+	base->dam_results.ci_mat_p = base->dam_results.ci_mat_p + given->dam_results.ci_mat_p;
+
+
 }
 //Stepwise integration of the total risk result
 void Risk_System::integration2total_result(const double lower_bound, const double upper_bound, _risk_risk_results *given){
@@ -6544,8 +7138,24 @@ void Risk_System::integration2total_result(const double lower_bound, const doubl
 	this->total_results.dam_results.sc_eco_build=this->total_results.dam_results.sc_eco_build+given->dam_results.sc_eco_build*delta;
 	this->total_results.dam_results.sc_person_build=this->total_results.dam_results.sc_person_build+given->dam_results.sc_person_build*delta;
 
+	//ci
+	this->total_results.dam_results.ci_elect_pt = this->total_results.dam_results.ci_elect_pt + given->dam_results.ci_elect_pt *delta;
+	this->total_results.dam_results.ci_info_tec_pt = this->total_results.dam_results.ci_info_tec_pt + given->dam_results.ci_info_tec_pt *delta;
+	this->total_results.dam_results.ci_water_sup_pt = this->total_results.dam_results.ci_water_sup_pt + given->dam_results.ci_water_sup_pt *delta;
+	this->total_results.dam_results.ci_water_treat_pt = this->total_results.dam_results.ci_water_treat_pt + given->dam_results.ci_water_treat_pt *delta;
+	this->total_results.dam_results.ci_energy_pt = this->total_results.dam_results.ci_energy_pt + given->dam_results.ci_energy_pt *delta;
+	this->total_results.dam_results.ci_health_pt = this->total_results.dam_results.ci_health_pt + given->dam_results.ci_health_pt *delta;
+	this->total_results.dam_results.ci_social_pt = this->total_results.dam_results.ci_social_pt + given->dam_results.ci_social_pt *delta;
+	this->total_results.dam_results.ci_mat_pt = this->total_results.dam_results.ci_mat_pt + given->dam_results.ci_mat_pt *delta;
 
-
+	this->total_results.dam_results.ci_elect_p = this->total_results.dam_results.ci_elect_p + given->dam_results.ci_elect_p *delta;
+	this->total_results.dam_results.ci_info_tec_p = this->total_results.dam_results.ci_info_tec_p + given->dam_results.ci_info_tec_p *delta;
+	this->total_results.dam_results.ci_water_sup_p = this->total_results.dam_results.ci_water_sup_p + given->dam_results.ci_water_sup_p *delta;
+	this->total_results.dam_results.ci_water_treat_p = this->total_results.dam_results.ci_water_treat_p + given->dam_results.ci_water_treat_p *delta;
+	this->total_results.dam_results.ci_energy_p = this->total_results.dam_results.ci_energy_p + given->dam_results.ci_energy_p *delta;
+	this->total_results.dam_results.ci_health_p = this->total_results.dam_results.ci_health_p + given->dam_results.ci_health_p *delta;
+	this->total_results.dam_results.ci_social_p = this->total_results.dam_results.ci_social_p + given->dam_results.ci_social_p *delta;
+	this->total_results.dam_results.ci_mat_p = this->total_results.dam_results.ci_mat_p + given->dam_results.ci_mat_p *delta;
 
 }
 //Set exeptions at start of an action

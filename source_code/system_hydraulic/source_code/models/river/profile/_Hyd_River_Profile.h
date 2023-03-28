@@ -214,7 +214,9 @@ public:
 
 	///Select the data in the database table for the instationary results of the river profiles specified by the system state and the scenario-ids
 	static int select_data_in_instat_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const bool like_flag = false);
-	
+	///Select the data in the database table for the instationary results of the river profiles specified by the system state and the scenario-ids
+	static int select_data_in_instat_erg_table(QSqlQueryModel *query, QSqlDatabase *ptr_database, const _sys_system_id id, const int bound_sz, const string break_sz, const int rv_no, const bool like_flag = false);
+
 
 	///Delete all data in the database of all tables for the river profile data
 	static void delete_data_in_table(QSqlDatabase *ptr_database);

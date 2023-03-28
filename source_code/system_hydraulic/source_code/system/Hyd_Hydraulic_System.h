@@ -18,6 +18,8 @@
 #include "Hyd_Model_Floodplain.h"
 //Class of the coast model
 #include "Hyd_Coast_Model.h"
+//Class of the temperature model
+#include "HydTemp_Model.h"
 //container class the of global parameters
 #include "Hyd_Param_Global.h"
 //cointainer class for the material parameters
@@ -65,6 +67,8 @@ public:
 	Hyd_Model_Floodplain *my_fpmodels;
 	///Pointer to the coast model 
 	Hyd_Coast_Model *my_comodel;
+	///Pointer to the temp model
+	HydTemp_Model *my_temp_model; 
 	///Container of global parameters of the system
 	Hyd_Param_Global global_parameters;
 
@@ -96,6 +100,8 @@ public:
 	
 	///Read in the hydraulic system- and modelparameters from a database
 	void set_system_per_database(const bool modul_extern_startet=false);
+	///Read in the hydraulic temperature system- and modelparameters from a database
+	void set_temp_system_per_database(const bool modul_extern_startet = false);
 	///Read in the hydraulic system- and modelparameters from a database just for the floodplain models
 	void set_2Dsystem_per_database(const bool modul_extern_startet=false);
 
@@ -152,14 +158,26 @@ public:
 	///Initialize the models
 	void init_models(const bool modul_extern_startet=false);
 
+	///Initialize the temperature models
+	void init_temp_models(const bool modul_extern_startet = false);
+
 	///Output setted and calculated members
 	void output_setted_members(void);
+
+	///Output setted and calculated temperature members
+	void output_setted_temp_members(void);
 
 	///Initialize the solver for the models; all not needed data is here deleted
 	void init_solver(void);
 
+	///Initialize the solver for the temperature models; all not needed data is here deleted
+	void init_temp_solver(void);
+
 	///Make the calculation of the external loop (output time steps)
 	void make_calculation(void);
+
+	///Make the temperature calculation of the external loop (output time steps)
+	void make_temp_calculation(void);
 
 	///Set the thread number (0 first thread/1 second thread...); used for the output of the calculation class; use it just before the method run(void)
 	void set_thread_number(const int thread);
@@ -259,8 +277,14 @@ public:
 	///Initialize and connect the data of the river models
 	void connect_rivers(Hyd_Param_Material *mat_param);
 
+	///Initialize and connect the data of the temperature models
+	void connect_temperature_model(void);
+
 	///Set river inflow boundary condition to true for all river models (used in Alt-System)
 	void set_rv_inflow_flag(void);
+
+	///Set if the temperature calculation is applied
+	void set_temp_calc_apply(const bool flag);
 
 signals:
 
@@ -345,10 +369,15 @@ private:
 	///String for the folder, where the file output is stored in case of a database calculation
 	string file_output_folder;
 
+	//Flag if the temperature calculation is applied;
+	bool temp_calc;
+
 	//methods 
 
 	///Output final statistics of the system
 	void output_final_system_statistics(void);
+	///Output final statistics of the temperature system
+	void output_final_temp_system_statistics(void);
 	///Allocate the floodplain models
 	void allocate_floodplain_models(void);
 	///Read in the floodplain models of the system with Hyd_Parse_FP
@@ -380,6 +409,16 @@ private:
 	void input_coast_model(const QSqlQueryModel *query_result, QSqlDatabase *ptr_database , const bool with_output=true);
 
 
+	///Allocate the temperature model
+	void allocate_temp_model(void);
+	///Read in the temperature model of the system with Hyd_Parse_CO
+	void input_temp_model(const string global_file);
+	///Transfer the data of the river models to the database
+	void transfer_tempmodel_data2database(QSqlDatabase *ptr_database);
+	///Read in the temperature model of the system from selection of a database
+	void input_temp_model(const QSqlTableModel *query_result, QSqlDatabase *ptr_database, const bool with_output = true);
+
+
 	///Make the geometrical interceptions between the models
 	void make_geometrical_interception(void);
 	///Make the geometrical interceptions between a coast model and floodplain models
@@ -401,20 +440,28 @@ private:
 	
 	///Make the calculation for the internal loop
 	void make_calculation_internal(void);
+	///Make the temperature calculation for the internal loop
+	void make_temp_calculation_internal(void);
 	///Reset the solver-tolerances of each model
 	void reset_solver_tolerances(void);
 	///Reset all coupling discharges of the river models
 	void reset_coupling_discharge_river_models(void);
 	///Make the syncronisation of the river models for each internal step
 	void make_syncron_rivermodel(void);
+	///Make the syncronisation of the temperature models for each internal step
+	void make_syncron_tempmodel(void);
 	///Get the maximum change in a element of a river model as well as the maximum change of the explicitly velocity head
 	void get_max_changes_rivermodel(double *max_change_h, double *max_change_v, const bool timecheck, const double timestep);
 	///Calculate the hydrological balance and the maximum values of the river models for each internal step
 	void make_hyd_balance_max_rivermodel(void);
+	///Calculate the hydrological balance and the maximum values of the temperature models for each internal step
+	void make_hyd_balance_max_tempmodel(void);
 	///Reset the solver of the river models
 	void reset_solver_rv_models(void);
 	///Make the calculation of the river models for each internal step
 	void make_calculation_rivermodel(void);
+	///Make the calculation of the temperature models for each internal step
+	void make_calculation_tempmodel(void);
 
 	///Make the syncronisation of the floodplain models for each internal step
 	void make_syncron_floodplainmodel(void);
@@ -433,6 +480,14 @@ private:
 	void output_calculation_steps_rivermodel2display(const double timestep);
 	///Output the calculation steps (time, solversteps etc) of the river models to databse
 	void output_calculation_steps_rivermodel2database(const double timestep, const string time);
+
+
+	///Output the results of the calculation steps of the temperature models to file
+	void output_calculation_steps_tempmodel2file(const double timestep);
+	///Output the calculation steps (time, solversteps etc) of the temperature models to display/console
+	void output_calculation_steps_tempmodel2display(const double timestep);
+	///Output the calculation steps (time, solversteps etc) of the temperature models to databse
+	void output_calculation_steps_tempmodel2database(const double timestep, const string time);
 
 	///Output the results of the calculation steps of the floodplain models to file
 	void output_calculation_steps_floodplainmodel2file(const double timestep);

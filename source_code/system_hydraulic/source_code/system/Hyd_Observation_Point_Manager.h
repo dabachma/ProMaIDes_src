@@ -55,18 +55,26 @@ public:
 
 	///Initialize the observation points
 	void init_obs_points(const int num_rv, Hyd_Model_River *river, const int num_fp, Hyd_Model_Floodplain *floodplain, const int no_output, const int no_internal);
+	///Initialize the observation points of temperature models
+	void init_temp_obs_points(const int num_rv, HydTemp_Model *temp_model, const int no_output, const int no_internal);
 
-	///Output members
+	///Output setted members
 	void output_setted_members(void);
+	///Output members of the temperature observation points
+	void output_setted_temp_members(void);
 
 
 	///Syncronize the observation points
 	void syncron_obs_points(const double time_point);
+	///Syncronize the observation points for temoerature calculation
+	void syncron_temp_obs_points(const double time_point);
 
 	///Output the data of the observation points to tecplot file
 	void output_obs_points2tecplot_file(const string filename_rv, const string filename_fp);
 	///Output the data of the observation points to ParaView / cvs file
 	void output_obs_points2paraview_file(const string filename_rv, const string filename_fp);
+	///Output the data of the temperature observation points to ParaView / cvs file
+	void output_temp_obs_points2paraview_file(const string filename_rv);
 
 	///Clear the observation points
 	void clear_obs_points(void);
@@ -117,6 +125,9 @@ private:
 	void output_obs_point_rv2csvfile(const string file);
 	///Output the observation points of floodplain models to csvfile
 	void output_obs_point_fp2csvfile(const string file);
+
+	///Output the temperature observation points of river models to csv file
+	void output_temp_obs_point_rv2csvfile(const string file);
 
 
 	///Set error(s)

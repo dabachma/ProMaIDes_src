@@ -1019,6 +1019,442 @@ void Sys_Version_Update::check_update_dam_ci_elements(QSqlDatabase *ptr_database
 	Dam_CI_Polygon::close_polygon_table();
 
 }
+//Check and add columns to the Dam-result and risk-result table for CI-results for DAM/RISK-module (8.3.2023)
+void Sys_Version_Update::check_update_ci_reults(QSqlDatabase *ptr_database, const string project_file) {
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
+	bool error = false;
+
+
+	//check if columns exists for DAM-results
+	try {
+		Dam_Damage_System::set_erg_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//check just id_in
+	bool exists = false;
+	for (int i = 0; i < Dam_Damage_System::erg_table->get_number_col(); i++) {
+		if ((Dam_Damage_System::erg_table->get_ptr_col())[i].id == dam_label::ci_elect_pt) {
+			exists = (Dam_Damage_System::erg_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	//add
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_elect_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_elect_pt);
+		Tables buffer1;
+		buffer1.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_info_tec_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer1.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_info_tec_pt);
+		Tables buffer2;
+		buffer2.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_water_sup_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer2.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_water_sup_pt);
+		Tables buffer3;
+		buffer3.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_water_treat_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer3.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_water_treat_pt);
+		Tables buffer4;
+		buffer4.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_energy_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer4.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_energy_pt);
+		Tables buffer5;
+		buffer5.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_health_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer5.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_health_pt);
+		Tables buffer6;
+		buffer6.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_social_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer6.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_social_pt);
+		Tables buffer7;
+		buffer7.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_mat_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer7.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_mat_pt);
+
+		Tables buffer8;
+		//add new table column
+		buffer8.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_elect_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer8.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_elect_p);
+		Tables buffer9;
+		buffer9.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_info_tec_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer9.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_info_tec_p);
+		Tables buffer10;
+		buffer10.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_water_sup_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer10.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_water_sup_p);
+		Tables buffer11;
+		buffer11.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_water_treat_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer11.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_water_treat_p);
+		Tables buffer12;
+		buffer12.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_energy_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer12.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_energy_p);
+		Tables buffer13;
+		buffer13.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_health_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer13.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_health_p);
+		Tables buffer14;
+		buffer14.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_social_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer14.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_social_p);
+		Tables buffer15;
+		buffer15.add_columns(ptr_database, dam_label::tab_dam_erg, dam_label::ci_mat_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::dam);
+		buffer15.add_columns_file(project_file, dam_label::tab_dam_erg, dam_label::ci_mat_p);
+	}
+
+	Dam_Damage_System::close_erg_table();
+
+	error = false;
+	exists = false;
+
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_dam ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_dam_hyd) {
+		return;
+	}
+
+	
+
+	//update for Risk-table total
+	try {
+		Risk_System::set_resulttable(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//check just id_in
+	
+	for (int i = 0; i < Risk_System::table_results->get_number_col(); i++) {
+		if ((Risk_System::table_results->get_ptr_col())[i].id == dam_label::ci_elect_pt) {
+			exists = (Risk_System::table_results->get_ptr_col())[i].found_flag;
+		}
+	}
+	//add
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_elect_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_elect_pt);
+		Tables buffer1;
+		buffer1.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_info_tec_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer1.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_info_tec_pt);
+		Tables buffer2;
+		buffer2.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_water_sup_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer2.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_water_sup_pt);
+		Tables buffer3;
+		buffer3.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_water_treat_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer3.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_water_treat_pt);
+		Tables buffer4;
+		buffer4.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_energy_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer4.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_energy_pt);
+		Tables buffer5;
+		buffer5.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_health_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer5.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_health_pt);
+		Tables buffer6;
+		buffer6.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_social_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer6.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_social_pt);
+		Tables buffer7;
+		buffer7.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_mat_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer7.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_mat_pt);
+
+		Tables buffer8;
+		//add new table column
+		buffer8.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_elect_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer8.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_elect_p);
+		Tables buffer9;
+		buffer9.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_info_tec_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer9.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_info_tec_p);
+		Tables buffer10;
+		buffer10.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_water_sup_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer10.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_water_sup_p);
+		Tables buffer11;
+		buffer11.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_water_treat_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer11.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_water_treat_p);
+		Tables buffer12;
+		buffer12.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_energy_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer12.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_energy_p);
+		Tables buffer13;
+		buffer13.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_health_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer13.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_health_p);
+		Tables buffer14;
+		buffer14.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_social_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer14.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_social_p);
+		Tables buffer15;
+		buffer15.add_columns(ptr_database, risk_label::tab_risk_result, dam_label::ci_mat_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer15.add_columns_file(project_file, risk_label::tab_risk_result, dam_label::ci_mat_p);
+	}
+
+	Risk_System::close_resulttable();
+
+	error = false;
+	exists = false;
+
+
+	//update for Risk-table detail
+	try {
+		Risk_System::set_resulttable_detailed(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//check just id_in
+	
+	for (int i = 0; i < Risk_System::table_detailed_results->get_number_col(); i++) {
+		if ((Risk_System::table_detailed_results->get_ptr_col())[i].id == dam_label::ci_elect_pt) {
+			exists = (Risk_System::table_detailed_results->get_ptr_col())[i].found_flag;
+		}
+	}
+	//add
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_elect_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_elect_pt);
+		Tables buffer1;
+		buffer1.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_info_tec_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer1.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_info_tec_pt);
+		Tables buffer2;
+		buffer2.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_water_sup_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer2.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_water_sup_pt);
+		Tables buffer3;
+		buffer3.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_water_treat_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer3.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_water_treat_pt);
+		Tables buffer4;
+		buffer4.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_energy_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer4.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_energy_pt);
+		Tables buffer5;
+		buffer5.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_health_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer5.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_health_pt);
+		Tables buffer6;
+		buffer6.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_social_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer6.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_social_pt);
+		Tables buffer7;
+		buffer7.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_mat_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer7.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_mat_pt);
+
+		Tables buffer8;
+		//add new table column
+		buffer8.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_elect_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer8.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_elect_p);
+		Tables buffer9;
+		buffer9.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_info_tec_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer9.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_info_tec_p);
+		Tables buffer10;
+		buffer10.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_water_sup_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer10.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_water_sup_p);
+		Tables buffer11;
+		buffer11.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_water_treat_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer11.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_water_treat_p);
+		Tables buffer12;
+		buffer12.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_energy_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer12.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_energy_p);
+		Tables buffer13;
+		buffer13.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_health_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer13.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_health_p);
+		Tables buffer14;
+		buffer14.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_social_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer14.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_social_p);
+		Tables buffer15;
+		buffer15.add_columns(ptr_database, risk_label::tab_risk_detailed, dam_label::ci_mat_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer15.add_columns_file(project_file, risk_label::tab_risk_detailed, dam_label::ci_mat_p);
+	}
+
+	Risk_System::close_resulttable_detailed();
+
+	error = false;
+	exists = false;
+
+	//update for Risk-table cummulated
+	try {
+		Risk_System::set_resulttable_cumulated(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//check just id_in
+	
+	for (int i = 0; i < Risk_System::table_cumulated_results->get_number_col(); i++) {
+		if ((Risk_System::table_cumulated_results->get_ptr_col())[i].id == dam_label::ci_elect_pt) {
+			exists = (Risk_System::table_cumulated_results->get_ptr_col())[i].found_flag;
+		}
+	}
+	//add
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_elect_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_elect_pt);
+		Tables buffer1;
+		buffer1.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_info_tec_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer1.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_info_tec_pt);
+		Tables buffer2;
+		buffer2.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_water_sup_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer2.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_water_sup_pt);
+		Tables buffer3;
+		buffer3.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_water_treat_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer3.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_water_treat_pt);
+		Tables buffer4;
+		buffer4.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_energy_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer4.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_energy_pt);
+		Tables buffer5;
+		buffer5.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_health_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer5.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_health_pt);
+		Tables buffer6;
+		buffer6.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_social_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer6.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_social_pt);
+		Tables buffer7;
+		buffer7.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_mat_pt, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer7.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_mat_pt);
+
+		Tables buffer8;
+		//add new table column
+		buffer8.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_elect_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer8.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_elect_p);
+		Tables buffer9;
+		buffer9.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_info_tec_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer9.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_info_tec_p);
+		Tables buffer10;
+		buffer10.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_water_sup_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer10.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_water_sup_p);
+		Tables buffer11;
+		buffer11.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_water_treat_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer11.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_water_treat_p);
+		Tables buffer12;
+		buffer12.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_energy_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer12.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_energy_p);
+		Tables buffer13;
+		buffer13.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_health_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer13.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_health_p);
+		Tables buffer14;
+		buffer14.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_social_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer14.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_social_p);
+		Tables buffer15;
+		buffer15.add_columns(ptr_database, risk_label::tab_risk_cumulated, dam_label::ci_mat_p, sys_label::tab_col_type_double, true, "0.0", _sys_table_type::risk);
+		buffer15.add_columns_file(project_file, risk_label::tab_risk_cumulated, dam_label::ci_mat_p);
+	}
+
+	Risk_System::close_resulttable_cumulated ();
+
+	error = false;
+	exists = false;
+
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_risk) {
+		return;
+	}
+
+	//update MADM table
+	try {
+		Madm_System::set_table_sets(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//check just id_in
+
+	for (int i = 0; i < Madm_System::table_sets->get_number_col(); i++) {
+		if ((Madm_System::table_sets->get_ptr_col())[i].id == madm_label::crit_risk_ci_elect_pt) {
+			exists = (Madm_System::table_sets->get_ptr_col())[i].found_flag;
+		}
+	}
+	//add
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, madm_label::tab_set, madm_label::crit_risk_ci_elect_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer.add_columns_file(project_file, madm_label::tab_set, madm_label::crit_risk_ci_elect_pt);
+		Tables buffer1;
+		buffer1.add_columns(ptr_database, madm_label::tab_set, madm_label::crit_risk_ci_info_tec_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer1.add_columns_file(project_file, madm_label::tab_set, madm_label::crit_risk_ci_info_tec_pt);
+		Tables buffer2;
+		buffer2.add_columns(ptr_database, madm_label::tab_set, madm_label::crit_risk_ci_water_sup_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer2.add_columns_file(project_file, madm_label::tab_set, madm_label::crit_risk_ci_water_sup_pt);
+		Tables buffer3;
+		buffer3.add_columns(ptr_database, madm_label::tab_set, madm_label::crit_risk_ci_water_treat_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer3.add_columns_file(project_file, madm_label::tab_set, madm_label::crit_risk_ci_water_treat_pt);
+		Tables buffer4;
+		buffer4.add_columns(ptr_database, madm_label::tab_set, madm_label::crit_risk_ci_energy_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer4.add_columns_file(project_file, madm_label::tab_set, madm_label::crit_risk_ci_energy_pt);
+		Tables buffer5;
+		buffer5.add_columns(ptr_database, madm_label::tab_set, madm_label::crit_risk_ci_health_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer5.add_columns_file(project_file, madm_label::tab_set, madm_label::crit_risk_ci_health_pt);
+		Tables buffer6;
+		buffer6.add_columns(ptr_database, madm_label::tab_set, madm_label::crit_risk_ci_social_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer6.add_columns_file(project_file, madm_label::tab_set, madm_label::crit_risk_ci_social_pt);
+		Tables buffer7;
+		buffer7.add_columns(ptr_database, madm_label::tab_set, madm_label::crit_risk_ci_mat_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer7.add_columns_file(project_file, madm_label::tab_set, madm_label::crit_risk_ci_mat_pt);
+
+
+		Madm_System::delete_data_in_table_sets(ptr_database);
+		Madm_System::set_default_weighting_set2datbase(ptr_database);
+
+
+
+
+	}
+
+
+	Madm_System::close_table_sets();
+
+	error = false;
+	exists = false;
+
+
+	//update MADM decisionmatrix table
+	try {
+		Madm_Decision_Matrix::set_table_matrix(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//check just id_in
+
+	for (int i = 0; i < Madm_Decision_Matrix::table_matrix->get_number_col(); i++) {
+		if ((Madm_Decision_Matrix::table_matrix->get_ptr_col())[i].id == madm_label::crit_risk_ci_elect_pt) {
+			exists = (Madm_Decision_Matrix::table_matrix->get_ptr_col())[i].found_flag;
+		}
+	}
+	//add
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, madm_label::tab_matrix, madm_label::crit_risk_ci_elect_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer.add_columns_file(project_file, madm_label::tab_matrix, madm_label::crit_risk_ci_elect_pt);
+		Tables buffer1;
+		buffer1.add_columns(ptr_database, madm_label::tab_matrix, madm_label::crit_risk_ci_info_tec_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer1.add_columns_file(project_file, madm_label::tab_matrix, madm_label::crit_risk_ci_info_tec_pt);
+		Tables buffer2;
+		buffer2.add_columns(ptr_database, madm_label::tab_matrix, madm_label::crit_risk_ci_water_sup_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer2.add_columns_file(project_file, madm_label::tab_matrix, madm_label::crit_risk_ci_water_sup_pt);
+		Tables buffer3;
+		buffer3.add_columns(ptr_database, madm_label::tab_matrix, madm_label::crit_risk_ci_water_treat_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer3.add_columns_file(project_file, madm_label::tab_matrix, madm_label::crit_risk_ci_water_treat_pt);
+		Tables buffer4;
+		buffer4.add_columns(ptr_database, madm_label::tab_matrix, madm_label::crit_risk_ci_energy_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer4.add_columns_file(project_file, madm_label::tab_matrix, madm_label::crit_risk_ci_energy_pt);
+		Tables buffer5;
+		buffer5.add_columns(ptr_database, madm_label::tab_matrix, madm_label::crit_risk_ci_health_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer5.add_columns_file(project_file, madm_label::tab_matrix, madm_label::crit_risk_ci_health_pt);
+		Tables buffer6;
+		buffer6.add_columns(ptr_database, madm_label::tab_matrix, madm_label::crit_risk_ci_social_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer6.add_columns_file(project_file, madm_label::tab_matrix, madm_label::crit_risk_ci_social_pt);
+		Tables buffer7;
+		buffer7.add_columns(ptr_database, madm_label::tab_matrix, madm_label::crit_risk_ci_mat_pt, sys_label::tab_col_type_double, false, "0.0", _sys_table_type::madm);
+		buffer7.add_columns_file(project_file, madm_label::tab_matrix, madm_label::crit_risk_ci_mat_pt);
+
+
+	}
+
+
+
+	Madm_Decision_Matrix::close_table_matrix();
+
+	error = false;
+	exists = false;
+
+}
 //____________
 //private
 //Check and update the text of the hydraulic table of the hydraulic river profile result members; width_max is introduced (18.02.2021)

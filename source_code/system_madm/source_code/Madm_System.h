@@ -79,6 +79,11 @@ namespace madm_crit_min_max{
 	///Criteria variation of risk simple counting buildings with highly vulnerable person
 	const bool max_crit_risk_sc_person=true;
 
+
+	///Criteria variation of ci criteria 
+	const bool max_crit_risk_ci = true;
+
+
 	///Criteria cost economic
 	const bool max_crit_cost_ecn=false;
 
@@ -110,7 +115,7 @@ public:
 
 	//methods
 	///Set the database table for the weight sets: it sets the table name and the name of the columns and allocate them
-	static void set_table_sets(QSqlDatabase *ptr_database);
+	static void set_table_sets(QSqlDatabase *ptr_database, const bool not_close = false);
 	///Create the database table for the weight sets
 	static void create_table_sets(QSqlDatabase *ptr_database);
 	///Delete all data in the database table for the weight sets

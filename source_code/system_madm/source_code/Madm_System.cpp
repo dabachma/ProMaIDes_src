@@ -8,7 +8,7 @@ Tables *Madm_System::table_sets=NULL;
 
 
 //Default constructor
-Madm_System::Madm_System(void): number_defined_criteria(11){
+Madm_System::Madm_System(void): number_defined_criteria(19){
 	this->thread_type=_madm_thread_type::madm_thread_unknown;
 	this->number_error=0;
 	this->number_warning_begin=0;
@@ -44,11 +44,11 @@ Madm_System::~Madm_System(void){
 //_____________
 //public
 //Set the database table for the weight sets: it sets the table name and the name of the columns and allocate them (static)
-void Madm_System::set_table_sets(QSqlDatabase *ptr_database){
+void Madm_System::set_table_sets(QSqlDatabase *ptr_database,const bool not_close ){
 	if(Madm_System::table_sets==NULL){
 		//make specific input for this class
 		const string tab_id_name=madm_label::tab_set;
-		string tab_col[15];
+		string tab_col[23];
 		tab_col[0]=label::glob_id;
 		tab_col[1]=madm_label::set_id;
 		tab_col[2]=madm_label::crit_risk_ecn;
@@ -64,6 +64,16 @@ void Madm_System::set_table_sets(QSqlDatabase *ptr_database){
 		tab_col[12]=madm_label::crit_risk_sc_eco;
 		tab_col[13]=madm_label::crit_risk_sc_cult;
 		tab_col[14]=madm_label::crit_risk_sc_person;
+
+		tab_col[15] = madm_label::crit_risk_ci_elect_pt;
+		tab_col[16] = madm_label::crit_risk_ci_info_tec_pt;
+		tab_col[17] = madm_label::crit_risk_ci_water_sup_pt;
+		tab_col[18] = madm_label::crit_risk_ci_water_treat_pt;
+		tab_col[19] = madm_label::crit_risk_ci_energy_pt;
+		tab_col[20] = madm_label::crit_risk_ci_health_pt;
+		tab_col[21] = madm_label::crit_risk_ci_social_pt;
+		tab_col[22] = madm_label::crit_risk_ci_mat_pt;
+		
 
 
 		
@@ -81,7 +91,10 @@ void Madm_System::set_table_sets(QSqlDatabase *ptr_database){
 			throw msg;
 		}
 		catch(Error msg){
-			Madm_System::close_table_sets();
+
+			if (not_close == false) {
+				Madm_System::close_table_sets();
+			}
 			throw msg;
 		}
 	}
@@ -94,7 +107,7 @@ void Madm_System::create_table_sets(QSqlDatabase *ptr_database){
 		Sys_Common_Output::output_madm->output_txt(&cout);
 		//make specific input for this class
 		const string tab_name=madm_label::tab_set;
-		const int num_col=15;
+		const int num_col=23;
 		_Sys_data_tab_column tab_col[num_col];
 		//init
 		for(int i=0; i< num_col; i++){
@@ -143,16 +156,43 @@ void Madm_System::create_table_sets(QSqlDatabase *ptr_database){
 
 		tab_col[11].name=madm_label::crit_risk_sc_person;
 		tab_col[11].type=sys_label::tab_col_type_double;
+	
 
-		tab_col[12].name=madm_label::crit_risk_outflow;
-		tab_col[12].type=sys_label::tab_col_type_double;
+		tab_col[12].name = madm_label::crit_risk_ci_elect_pt;
+		tab_col[12].type = sys_label::tab_col_type_double;
 
-		tab_col[13].name=madm_label::crit_cost_ecn;
-		tab_col[13].type=sys_label::tab_col_type_double;
-		tab_col[13].unsigned_flag=true;
+		tab_col[13].name = madm_label::crit_risk_ci_info_tec_pt;
+		tab_col[13].type = sys_label::tab_col_type_double;
 
-		tab_col[14].name=label::description;
-		tab_col[14].type=sys_label::tab_col_type_string;
+		tab_col[14].name = madm_label::crit_risk_ci_water_sup_pt;
+		tab_col[14].type = sys_label::tab_col_type_double;
+
+
+		tab_col[15].name = madm_label::crit_risk_ci_water_treat_pt;
+		tab_col[15].type = sys_label::tab_col_type_double;
+
+		tab_col[16].name = madm_label::crit_risk_ci_energy_pt;
+		tab_col[16].type = sys_label::tab_col_type_double;
+
+		tab_col[17].name = madm_label::crit_risk_ci_health_pt;
+		tab_col[17].type = sys_label::tab_col_type_double;
+
+		tab_col[18].name = madm_label::crit_risk_ci_social_pt;
+		tab_col[18].type = sys_label::tab_col_type_double;
+
+		tab_col[19].name = madm_label::crit_risk_ci_mat_pt;
+		tab_col[19].type = sys_label::tab_col_type_double;
+
+
+		tab_col[20].name=madm_label::crit_risk_outflow;
+		tab_col[20].type=sys_label::tab_col_type_double;
+
+		tab_col[21].name=madm_label::crit_cost_ecn;
+		tab_col[21].type=sys_label::tab_col_type_double;
+		tab_col[21].unsigned_flag=true;
+
+		tab_col[22].name=label::description;
+		tab_col[22].type=sys_label::tab_col_type_string;
 
 		try{
 			Madm_System::table_sets= new Tables();
@@ -232,6 +272,18 @@ void Madm_System::set_default_weighting_set2datbase(QSqlDatabase *ptr_database){
 	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_sc_eco) <<" , ";
 	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_sc_cult) <<" , ";
 	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_sc_person) <<" , ";
+
+	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_elect_pt) << " , ";
+	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_info_tec_pt) << " , ";
+	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_water_sup_pt) << " , ";
+	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_water_treat_pt) << " , ";
+	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_energy_pt) << " , ";
+	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_health_pt) << " , ";
+	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_social_pt) << " , ";
+	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_mat_pt) << " , ";
+
+	
+
 	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_risk_outflow) <<" , ";
 	query_string_fix << Madm_System::table_sets->get_column_name(madm_label::crit_cost_ecn) <<" , ";
 
@@ -256,6 +308,14 @@ void Madm_System::set_default_weighting_set2datbase(QSqlDatabase *ptr_database){
 	query_string << 10.0 << " , " ;
 	query_string << 10.0 << " , " ;
 	query_string << 10.0 << " , " ;
+	query_string << 10.0 << " , ";
+	query_string << 10.0 << " , ";
+	query_string << 10.0 << " , ";
+	query_string << 10.0 << " , ";
+	query_string << 10.0 << " , ";
+	query_string << 10.0 << " , ";
+	query_string << 10.0 << " , ";
+	query_string << 10.0 << " , ";
 	query_string << "'All weights are similar'" <<" ) ";
 	total <<query_string_fix.str() <<  query_string.str();
 	Data_Base::database_request(&model, total.str(), ptr_database);
@@ -278,6 +338,16 @@ void Madm_System::set_default_weighting_set2datbase(QSqlDatabase *ptr_database){
 	query_string << 5.0 << " , " ;
 	query_string << 5.0 << " , " ;
 	query_string << 8.0 << " , " ;
+	query_string << 8.0 << " , ";
+	query_string << 8.0 << " , ";
+	query_string << 8.0 << " , ";
+	query_string << 8.0 << " , ";
+	query_string << 8.0 << " , ";
+	query_string << 5.0 << " , ";
+	query_string << 5.0 << " , ";
+	query_string << 10.0 << " , ";
+
+
 	query_string << 3.0 << " , " ;
 	query_string << 10.0 << " , " ;
 	query_string << "'Weight set with economical preferences'" <<" ) ";
@@ -302,6 +372,17 @@ void Madm_System::set_default_weighting_set2datbase(QSqlDatabase *ptr_database){
 	query_string << 10.0 << " , " ;
 	query_string << 6.0 << " , " ;
 	query_string << 8.0 << " , " ;
+
+	query_string << 8.0 << " , ";
+	query_string << 5.0 << " , ";
+	query_string << 8.0 << " , ";
+	query_string << 8.0 << " , ";
+	query_string << 5.0 << " , ";
+	query_string << 5.0 << " , ";
+	query_string << 5.0 << " , ";
+	query_string << 3.0 << " , ";
+
+
 	query_string << 3.0 << " , " ;
 	query_string << 6.0 << " , " ;
 	query_string << "'Weight set with ecological preferences'" <<" ) ";
@@ -326,6 +407,16 @@ void Madm_System::set_default_weighting_set2datbase(QSqlDatabase *ptr_database){
 	query_string << 6.0 << " , " ;
 	query_string << 10.0 << " , " ;
 	query_string << 12.0 << " , " ;
+
+	query_string << 8.0 << " , ";
+	query_string << 8.0 << " , ";
+	query_string << 8.0 << " , ";
+	query_string << 8.0 << " , ";
+	query_string << 8.0 << " , ";
+	query_string << 10.0 << " , ";
+	query_string << 10.0 << " , ";
+	query_string << 3.0 << " , ";
+
 	query_string << 3.0 << " , " ;
 	query_string << 6.0 << " , " ;
 	query_string << "'Weight set with people2risk and psycho-social preferences'" <<" ) ";
@@ -690,15 +781,56 @@ void Madm_System::init_defined_criteria(void){
 	this->defined_criteria[8].max_flag=madm_crit_min_max::max_crit_risk_sc_person;
 	this->defined_criteria[8].weight=1.0;
 
-	this->defined_criteria[9].index=5;
-	this->defined_criteria[9].name=madm_label::crit_risk_outflow;
-	this->defined_criteria[9].max_flag=madm_crit_min_max::max_crit_risk_outflow;
-	this->defined_criteria[9].weight=1.0;
+	this->defined_criteria[9].index = 9;
+	this->defined_criteria[9].name = madm_label::crit_risk_ci_elect_pt;
+	this->defined_criteria[9].max_flag = madm_crit_min_max::max_crit_risk_ci;
+	this->defined_criteria[9].weight = 1.0;
 
-	this->defined_criteria[10].index=6;
-	this->defined_criteria[10].name=madm_label::crit_cost_ecn;
-	this->defined_criteria[10].max_flag=madm_crit_min_max::max_crit_cost_ecn;
-	this->defined_criteria[10].weight=1.0;
+	this->defined_criteria[10].index = 10;
+	this->defined_criteria[10].name = madm_label::crit_risk_ci_info_tec_pt;
+	this->defined_criteria[10].max_flag = madm_crit_min_max::max_crit_risk_ci;
+	this->defined_criteria[10].weight = 1.0;
+
+	this->defined_criteria[11].index = 11;
+	this->defined_criteria[11].name = madm_label::crit_risk_ci_water_sup_pt;
+	this->defined_criteria[11].max_flag = madm_crit_min_max::max_crit_risk_ci;
+	this->defined_criteria[11].weight = 1.0;
+
+	this->defined_criteria[12].index = 12;
+	this->defined_criteria[12].name = madm_label::crit_risk_ci_water_treat_pt;
+	this->defined_criteria[12].max_flag = madm_crit_min_max::max_crit_risk_ci;
+	this->defined_criteria[12].weight = 1.0;
+
+	this->defined_criteria[13].index = 13;
+	this->defined_criteria[13].name = madm_label::crit_risk_ci_energy_pt;
+	this->defined_criteria[13].max_flag = madm_crit_min_max::max_crit_risk_ci;
+	this->defined_criteria[13].weight = 1.0;
+
+	this->defined_criteria[14].index = 14;
+	this->defined_criteria[14].name = madm_label::crit_risk_ci_health_pt;
+	this->defined_criteria[14].max_flag = madm_crit_min_max::max_crit_risk_ci;
+	this->defined_criteria[14].weight = 1.0;
+
+	this->defined_criteria[15].index = 15;
+	this->defined_criteria[15].name = madm_label::crit_risk_ci_social_pt;
+	this->defined_criteria[15].max_flag = madm_crit_min_max::max_crit_risk_ci;
+	this->defined_criteria[15].weight = 1.0;
+
+	this->defined_criteria[16].index = 16;
+	this->defined_criteria[16].name = madm_label::crit_risk_ci_mat_pt;
+	this->defined_criteria[16].max_flag = madm_crit_min_max::max_crit_risk_ci;
+	this->defined_criteria[16].weight = 1.0;
+
+
+	this->defined_criteria[17].index=17;
+	this->defined_criteria[17].name=madm_label::crit_risk_outflow;
+	this->defined_criteria[17].max_flag=madm_crit_min_max::max_crit_risk_outflow;
+	this->defined_criteria[17].weight=1.0;
+
+	this->defined_criteria[18].index=18;
+	this->defined_criteria[18].name=madm_label::crit_cost_ecn;
+	this->defined_criteria[18].max_flag=madm_crit_min_max::max_crit_cost_ecn;
+	this->defined_criteria[18].weight=1.0;
 
 
 
@@ -934,8 +1066,19 @@ void Madm_System::set_current_weight_set(const int set_id){
 	this->defined_criteria[6].weight=model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_sc_eco)).c_str()).toDouble();
 	this->defined_criteria[7].weight=model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_sc_cult)).c_str()).toDouble();
 	this->defined_criteria[8].weight=model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_sc_person)).c_str()).toDouble();
-	this->defined_criteria[9].weight=model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_outflow)).c_str()).toDouble();
-	this->defined_criteria[10].weight=model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_cost_ecn)).c_str()).toDouble();
+
+	this->defined_criteria[9].weight = model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_elect_pt)).c_str()).toDouble();
+
+	this->defined_criteria[10].weight = model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_info_tec_pt)).c_str()).toDouble();
+	this->defined_criteria[11].weight = model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_water_sup_pt)).c_str()).toDouble();
+	this->defined_criteria[12].weight = model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_water_treat_pt)).c_str()).toDouble();
+	this->defined_criteria[13].weight = model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_energy_pt)).c_str()).toDouble();
+	this->defined_criteria[14].weight = model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_health_pt)).c_str()).toDouble();
+	this->defined_criteria[15].weight = model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_social_pt)).c_str()).toDouble();
+	this->defined_criteria[16].weight = model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_mat_pt)).c_str()).toDouble();
+
+	this->defined_criteria[17].weight=model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_outflow)).c_str()).toDouble();
+	this->defined_criteria[18].weight=model.record(0).value((Madm_System::table_sets->get_column_name(madm_label::crit_cost_ecn)).c_str()).toDouble();
 }
 //Allocate the file names for calculation
 void Madm_System::allocate_file_names(void){
@@ -1402,6 +1545,16 @@ void Madm_System::transfer_weighting2database(void){
 	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_risk_sc_cult) <<" , ";
 	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_risk_sc_person) <<" , ";
 
+	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_elect_pt) << " , ";
+	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_info_tec_pt) << " , ";
+	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_water_sup_pt) << " , ";
+	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_water_treat_pt) << " , ";
+	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_energy_pt) << " , ";
+	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_health_pt) << " , ";
+	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_social_pt) << " , ";
+	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_mat_pt) << " , ";
+
+
 	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_risk_outflow) <<" , ";
 
 	query_string << Madm_System::table_sets->get_column_name(madm_label::crit_cost_ecn) ;
@@ -1422,8 +1575,19 @@ void Madm_System::transfer_weighting2database(void){
 	query_string << this->defined_criteria[6].weight << " , " ;
 	query_string << this->defined_criteria[7].weight << " , " ;
 	query_string << this->defined_criteria[8].weight << " , " ;
-	query_string << this->defined_criteria[9].weight << " , " ;
-	query_string << this->defined_criteria[10].weight << " ) " ;
+
+	query_string << this->defined_criteria[9].weight << " , ";
+	query_string << this->defined_criteria[10].weight << " , ";
+	query_string << this->defined_criteria[11].weight << " , ";
+	query_string << this->defined_criteria[12].weight << " , ";
+	query_string << this->defined_criteria[13].weight << " , ";
+	query_string << this->defined_criteria[14].weight << " , ";
+	query_string << this->defined_criteria[15].weight << " , ";
+	query_string << this->defined_criteria[16].weight << " , ";
+
+
+	query_string << this->defined_criteria[17].weight << " , " ;
+	query_string << this->defined_criteria[18].weight << " ) " ;
 
 	Data_Base::database_request(&model, query_string.str(), &this->qsqldatabase);
 	
@@ -1879,12 +2043,136 @@ void Madm_System::find_keywords_file_weighting_set(const string myline, int *mus
 		}
 	}
 
+	pos = myline.find(madm_label::weight_risk_ci_elect);
+	if (pos >= 0 && wrong_input == false) {
+		buffer = myline.substr(madm_label::weight_risk_ci_elect.length());
+		functions::clean_string(&buffer);
+		buffer1 << buffer;
+		buffer1 >> this->defined_criteria[9].weight;
+		if (buffer1.fail() == true) {
+			wrong_input = true;
+		}
+		else {
+			(*must_found)++;
+			return;
+		}
+	}
+
+	pos = myline.find(madm_label::weight_risk_ci_info_tec);
+	if (pos >= 0 && wrong_input == false) {
+		buffer = myline.substr(madm_label::weight_risk_ci_info_tec.length());
+		functions::clean_string(&buffer);
+		buffer1 << buffer;
+		buffer1 >> this->defined_criteria[10].weight;
+		if (buffer1.fail() == true) {
+			wrong_input = true;
+		}
+		else {
+			(*must_found)++;
+			return;
+		}
+	}
+
+
+	pos = myline.find(madm_label::weight_risk_wat_sup);
+	if (pos >= 0 && wrong_input == false) {
+		buffer = myline.substr(madm_label::weight_risk_wat_sup.length());
+		functions::clean_string(&buffer);
+		buffer1 << buffer;
+		buffer1 >> this->defined_criteria[11].weight;
+		if (buffer1.fail() == true) {
+			wrong_input = true;
+		}
+		else {
+			(*must_found)++;
+			return;
+		}
+	}
+
+	pos = myline.find(madm_label::weight_risk_ci_wat_treat);
+	if (pos >= 0 && wrong_input == false) {
+		buffer = myline.substr(madm_label::weight_risk_ci_wat_treat.length());
+		functions::clean_string(&buffer);
+		buffer1 << buffer;
+		buffer1 >> this->defined_criteria[12].weight;
+		if (buffer1.fail() == true) {
+			wrong_input = true;
+		}
+		else {
+			(*must_found)++;
+			return;
+		}
+	}
+
+	pos = myline.find(madm_label::weight_risk_ci_energy);
+	if (pos >= 0 && wrong_input == false) {
+		buffer = myline.substr(madm_label::weight_risk_ci_energy.length());
+		functions::clean_string(&buffer);
+		buffer1 << buffer;
+		buffer1 >> this->defined_criteria[13].weight;
+		if (buffer1.fail() == true) {
+			wrong_input = true;
+		}
+		else {
+			(*must_found)++;
+			return;
+		}
+	}
+
+	pos = myline.find(madm_label::weight_risk_ci_health);
+	if (pos >= 0 && wrong_input == false) {
+		buffer = myline.substr(madm_label::weight_risk_ci_health.length());
+		functions::clean_string(&buffer);
+		buffer1 << buffer;
+		buffer1 >> this->defined_criteria[14].weight;
+		if (buffer1.fail() == true) {
+			wrong_input = true;
+		}
+		else {
+			(*must_found)++;
+			return;
+		}
+	}
+
+	pos = myline.find(madm_label::weight_risk_ci_social);
+	if (pos >= 0 && wrong_input == false) {
+		buffer = myline.substr(madm_label::weight_risk_ci_social.length());
+		functions::clean_string(&buffer);
+		buffer1 << buffer;
+		buffer1 >> this->defined_criteria[15].weight;
+		if (buffer1.fail() == true) {
+			wrong_input = true;
+		}
+		else {
+			(*must_found)++;
+			return;
+		}
+	}
+
+	pos = myline.find(madm_label::weight_risk_ci_mat);
+	if (pos >= 0 && wrong_input == false) {
+		buffer = myline.substr(madm_label::weight_risk_ci_mat.length());
+		functions::clean_string(&buffer);
+		buffer1 << buffer;
+		buffer1 >> this->defined_criteria[16].weight;
+		if (buffer1.fail() == true) {
+			wrong_input = true;
+		}
+		else {
+			(*must_found)++;
+			return;
+		}
+	}
+
+
+
+
 	pos=myline.find(madm_label::weight_risk_outflow);
 	if(pos>=0 && wrong_input==false){
 		buffer=myline.substr(madm_label::weight_risk_outflow.length());
 		functions::clean_string(&buffer);
 		buffer1 << buffer;
-		buffer1 >> this->defined_criteria[9].weight;
+		buffer1 >> this->defined_criteria[17].weight;
 		if(buffer1.fail()==true){
 			wrong_input=true;
 		}
@@ -1900,7 +2188,7 @@ void Madm_System::find_keywords_file_weighting_set(const string myline, int *mus
 		buffer=myline.substr(madm_label::weight_cost_ecn.length());
 		functions::clean_string(&buffer);
 		buffer1 << buffer;
-		buffer1 >> this->defined_criteria[10].weight;
+		buffer1 >> this->defined_criteria[18].weight;
 		if(buffer1.fail()==true){
 			wrong_input=true;
 		}

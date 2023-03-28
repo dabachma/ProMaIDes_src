@@ -184,6 +184,10 @@ private:
 	int GlobNofRV;
 	///Flag if a coast model is appleid
 	bool coastmodel_applied;
+
+	///Flag if temperature model applied
+	bool tempmodel_applied;
+
 	///Number of diversion channels (have to be smaller than number of river models)
 	int number_div_channel;
 	///Number of structure couplings

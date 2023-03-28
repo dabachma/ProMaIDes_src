@@ -8,7 +8,7 @@ MadmGui_Weight_Sets_Wid::MadmGui_Weight_Sets_Wid(QWidget *parent): _Sys_Data_Wid
 	this->area2print=this->tableWidget;
 
 	//set number columns
-	this->tableWidget->setColumnCount(14);
+	this->tableWidget->setColumnCount(22);
 
 	QStringList my_list;
 	string buffer;
@@ -34,6 +34,37 @@ MadmGui_Weight_Sets_Wid::MadmGui_Weight_Sets_Wid(QWidget *parent): _Sys_Data_Wid
 	my_list.append(buffer.c_str());
 	buffer="Delta risk SC Buildings with highly vulnerable person";
 	my_list.append(buffer.c_str());
+
+
+	buffer = "Delta risk CI Population time Sector Electricity";
+	my_list.append(buffer.c_str());
+	buffer = "Delta risk CI Population time Sector Information technology";
+	my_list.append(buffer.c_str());
+
+	buffer = "Delta risk CI Population time Sector Water supply";
+	my_list.append(buffer.c_str());
+	buffer = "Delta risk CI Population time Sector Water treatment";
+	my_list.append(buffer.c_str());
+	buffer = "Delta risk CI Population time Sector Energy";
+	my_list.append(buffer.c_str());
+
+	buffer = "Delta risk CI Population time Cum-Sector Health";
+	my_list.append(buffer.c_str());
+
+	buffer = "Delta risk CI Population time Cum-Sector Social";
+	my_list.append(buffer.c_str());
+
+	buffer = "Delta risk CI Population time Cum-Sector Material";
+	my_list.append(buffer.c_str());
+
+
+
+
+
+
+
+
+
 
 	buffer="Delta risk OUTFLOW";
 	my_list.append(buffer.c_str());
@@ -82,6 +113,7 @@ void MadmGui_Weight_Sets_Wid::set_up_widget(QSqlDatabase *ptr_database){
 	QColor my_color5(Qt::cyan);
 	QColor my_color6(Qt::yellow);
 	QColor my_color7(Qt::lightGray);
+	QColor my_color8(Qt::darkYellow);
 
 	for(int i=0; i<this->tableWidget->rowCount(); i++){
 		for(int j=0; j<this->tableWidget->columnCount(); j++){
@@ -105,10 +137,14 @@ void MadmGui_Weight_Sets_Wid::set_up_widget(QSqlDatabase *ptr_database){
 			else if(j>=7 && j<=10){
 				this->tableWidget->item(i,j)->setBackgroundColor(my_color7);
 			}
-			else if(j==11){
+			else if (j >= 11 && j <= 18) {
+				this->tableWidget->item(i, j)->setBackgroundColor(my_color8);
+			}
+
+			else if(j==19){
 				this->tableWidget->item(i,j)->setBackgroundColor(my_color5);
 			}
-			else if(j==12){
+			else if(j==20){
 				this->tableWidget->item(i,j)->setBackgroundColor(my_color6);
 			}
 		}
@@ -142,12 +178,32 @@ void MadmGui_Weight_Sets_Wid::set_up_widget(QSqlDatabase *ptr_database){
 		buffer=model.record(i).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_sc_person)).c_str());
 		this->tableWidget->item(i,10)->setData(Qt::DisplayRole, buffer);
 
+		buffer = model.record(i).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_elect_pt)).c_str());
+		this->tableWidget->item(i, 11)->setData(Qt::DisplayRole, buffer);
+		buffer = model.record(i).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_info_tec_pt)).c_str());
+		this->tableWidget->item(i, 12)->setData(Qt::DisplayRole, buffer);
+		buffer = model.record(i).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_water_sup_pt)).c_str());
+		this->tableWidget->item(i, 13)->setData(Qt::DisplayRole, buffer);
+		buffer = model.record(i).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_water_treat_pt)).c_str());
+		this->tableWidget->item(i, 14)->setData(Qt::DisplayRole, buffer);
+		buffer = model.record(i).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_energy_pt)).c_str());
+		this->tableWidget->item(i, 15)->setData(Qt::DisplayRole, buffer);
+		buffer = model.record(i).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_health_pt)).c_str());
+		this->tableWidget->item(i, 16)->setData(Qt::DisplayRole, buffer);
+		buffer = model.record(i).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_social_pt)).c_str());
+		this->tableWidget->item(i, 17)->setData(Qt::DisplayRole, buffer);
+		buffer = model.record(i).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_ci_mat_pt)).c_str());
+		this->tableWidget->item(i, 18)->setData(Qt::DisplayRole, buffer);
+
+
+
+
 		buffer=model.record(i).value((Madm_System::table_sets->get_column_name(madm_label::crit_risk_outflow)).c_str());
-		this->tableWidget->item(i,11)->setData(Qt::DisplayRole, buffer);
+		this->tableWidget->item(i,19)->setData(Qt::DisplayRole, buffer);
 		buffer=model.record(i).value((Madm_System::table_sets->get_column_name(madm_label::crit_cost_ecn)).c_str());
-		this->tableWidget->item(i,12)->setData(Qt::DisplayRole, buffer);
+		this->tableWidget->item(i,20)->setData(Qt::DisplayRole, buffer);
 		buffer=model.record(i).value((Madm_System::table_sets->get_column_name(label::description)).c_str());
-		this->tableWidget->item(i,13)->setData(Qt::DisplayRole, buffer);
+		this->tableWidget->item(i,21)->setData(Qt::DisplayRole, buffer);
 	}
 
 	this->tableWidget->resizeColumnsToContents();

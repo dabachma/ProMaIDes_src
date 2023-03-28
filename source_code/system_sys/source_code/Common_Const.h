@@ -149,6 +149,25 @@ namespace constant{
 	///Constant for the Poleni formula
 	const double Cfacweir=pow(2.0*Cgg,0.5)*2.0/3.0;
 
+	///Density of water [kg/m³]
+	const double dens_water = 1000.0;
+	///Density of air [kg/m³]
+	const double dens_air = 1.204;
+	///C-value water [J/kg*K]
+	const double c_water = 4195.0;
+	///C-value air [J/kg*K]
+	const double c_air = 1015.0;
+	///Stefan-Boltzmann Konstante
+	const double boltzman = 5.67037e-8;
+	///Air Pressure (mbar)
+	const double pressure_air = 1013;
+	///Psychometric constant
+	const double psychometric = 0.67;
+	///Kelvin comnstant
+	const double kelvin_const = 273.15;
+
+
+
 	///Maximum number of threads
 	const int max_threads=7;
 
@@ -459,6 +478,9 @@ namespace sys_label{
 	///String for the project types: hydrol modul \see Hydrol_Project
 	const string proj_typ_hydrol("HYDROL");
 
+	///String for the project types: temperature model in the hyd modul \see Hyd_Project
+	const string proj_typ_hyd_temp("HYD_TEMP");
+
 	///Key word for starting a database table block for file input \see Tables
 	const string table_begin("!BEGIN_TABLE");
 	///Key word for ending a database table block for file input \see Tables
@@ -579,12 +601,20 @@ namespace label{
 	const string score_per_annus(" [score/a] ");
 	///String for units: person per annus
 	const string person_per_annus(" [Pe/a] ");
+	///String for units: person x time per annus
+	const string person_sec_per_annus(" [Pe*s/a] ");
 	///String for units: qm/s per annus
 	const string qm_per_sec_annus(" [m^3/(s*a)] ");
 	///String for units: 1/m*s
 	const string one_per_sec_m(" [1/(s*m)] ");
 	///String for units: variable
 	const string unit_variable(" [variable] ");
+
+	///String for units: K
+	const string kelvin(" [K] ");
+	///String for units: Watt per square meter
+	const string watt_per_square_m(" [W/m^2] ");
+
 
 	//keywords
 	///Keyword for the database table column of different object tables: areastate as identifier [-]
@@ -1729,6 +1759,17 @@ namespace hyd_label{
 	const string Area_Boundary("area");
 	///Waterlevel boundary condition: waterlevel is given as a local waterlevel related to the river base
 	const string Waterlevel_Boundary("waterlevel");
+	//boundary curves types for temperature model
+	///Boundary condition: temperature in K
+	const string Temp_Boundary("temp");
+	///Boundary condition: Percentage between 0 and 1 [-]
+	const string Perc_Boundary("perc");
+	///Boundary condition: solar radiation in W/m²
+	const string Solar_rad_Boundary("rad");
+	///Boundary condition: speed in m/s
+	const string Speed_Boundary("speed");
+
+
 
 	//material coefficient types
 	///Poleni coefficient [-]
@@ -1912,6 +1953,71 @@ namespace hyd_label{
 	///Keyword for the database table column of the general model river parameters: flag for the the gradient calculation: false:= velocity head is taken explicitly into account, flase:= it is not taken into account [-] (Hyd_Model_River)
 	const string v_explicit("V_EXPLICIT");
 
+
+	///Keyword for the database table name of the general temperature parameters of a river model (HydTemp_Model)
+	const string tab_temprv_gen("HYD_TEMP_RIVER_GENERAL");
+	///Keyword for the database table column of the general model river temperature parameters: flag if the temperature model is applied for the river (HydTemp_Model)
+	const string temp_model_applied("TEMP_APPLIED");
+	///Keyword for the database table column of the general model river temperature parameters: groundwater temperature [K] (HydTemp_Model)
+	const string gw_temp("GW_TEMP");
+	///Keyword for the database table column of the general model river temperature parameters: brunt coefficient [-] (HydTemp_Model)
+	const string brunt_coef("BRUNT_COEF");
+	///Keyword for the database table column of the general model river temperature parameters: view2sky coefficient [-] (HydTemp_Model)
+	const string view2sky("VIEW2SKY");
+	///Keyword for the database table column of the general model river temperature parameters: bed conductivity [-] (HydTemp_Model)
+	const string cond_bed("K_BED");
+	///Keyword for the database table column of the general model river temperature parameters: bed temperature [K] (HydTemp_Model)
+	const string bed_temp("BED_TEMP");
+	///Keyword for the database table column of the general model river temperature parameters: bed warming [-] (HydTemp_Model)
+	const string bed_warm_coef("BED_WARM_COEF");
+	///Keyword for the database table column of the general model river temperature parameters: diffusive solar radiation [-] (HydTemp_Model)
+	const string diff_solar_rad("DIFF_SOLAR_RAD");
+
+	///Keyword for the database table name of the temperature profile data of a temperature model (HydTemp_Profile)
+	const string tab_tempprof("HYD_TEMP_PROFILE");
+
+	///Keyword for the database table name of the boundary conditions of the temperature model (HydTemp_Profile)
+	const string tab_tempprof_bound("HYD_TEMP_PROF_BOUND");
+
+	///Keyword for the the temperature boundary condition names: air temperature [K] (HydTemp_Profile)
+	const string air_temp("AIR_TEMP");
+	///Keyword for the the temperature boundary condition names: water temperature [K] (HydTemp_Profile)
+	const string water_temp("WATER_TEMP");
+	///Keyword for the the temperature boundary condition names: solar radiation [W/m^2] (HydTemp_Profile)
+	const string solar_rad("SOLAR_RAD");
+	///Keyword for the the temperature boundary condition names: humidity [-] (HydTemp_Profile)
+	const string humidity("HUMID");
+	///Keyword for the the temperature boundary condition names: wind speed [m/s] (HydTemp_Profile)
+	const string wind("WINDSPEED");
+	///Keyword for the the temperature boundary condition names: cloudness [-] (HydTemp_Profile)
+	const string cloud("CLOUDNESS");
+	///Keyword for the the temperature boundary condition names: shadow [-] (HydTemp_Profile)
+	const string shadow("SHADOWS");
+	///Keyword for the the temperature boundary condition names: inlet temperature [K] (HydTemp_Profile)
+	const string inlet_temp("INLET_TEMP");
+
+
+	///Keyword for the database table name of the profile temperature result data of a temperature model (HydTemp_Model, HydTemp_Profile)
+	const string tab_tempprof_erg_max("HYD_TEMP_PROFILE_MAX_RESULTS");
+
+	///Keyword for the database table column of the temperature result data of a river model: local maximal temperature in the profile [K] (HydTemp_Model, HydTemp_Profile)
+	const string proferg_T_max("TEMP_MAX");
+	///Keyword for the database table column of the temperature result data of a river model: local minimal temperature in the profile [K] (HydTemp_Model, HydTemp_Profile)
+	const string proferg_T_min("TEMP_MIN");
+	///Keyword for the database table column of the temperature result data of a river model: local average temperature in the profile [K] (HydTemp_Model, HydTemp_Profile)
+	const string proferg_T_av("TEMP_AV");
+	///Keyword for the database table column of the temperature result data of a river model: time point, when the local maximal temperature in the profile occur [s] (HydTemp_Model, HydTemp_Profile)
+	const string proferg_t_T_max("TIME_TEMP_MAX");
+	///Keyword for the database table column of the temperature result data of a river model: time point, when the local maximal temperature in the profile occur [s] (HydTemp_Model, HydTemp_Profile)
+	const string proferg_t_T_min("TIME_TEMP_MIN");
+
+
+	///Keyword for the database table name of the profile temperature instationary result data of a temperature model (HydTemp_Model, HydTemp_Profile)
+	const string tab_tempprof_instat_erg_max("HYD_TEMP_PROFILE_INSTAT_RESULTS");
+	///Keyword for the database table column of the temperature result data of a river model: local water temperature in the profile [K] (HydTemp_Model, HydTemp_Profile)
+	const string proferg_T_water("TEMP_WATER");
+
+
 	///Keyword for the database table name of the general parameters of a floodplain model (Hyd_Model_Floodplain)
 	const string tab_fp_gen("HYD_FLOODPLAIN_GENERAL");
 	///Keyword for the database table column of the general model floodplain parameters: number of elements in x-direction [-] (Hyd_Model_Floodplain)
@@ -1980,6 +2086,8 @@ namespace hyd_label{
 	const string view_fpelem2bound("HYD_FLOODPLAIN_ELEM_BOUND_VIEW");
 	///Keyword for the database view name of the connection of elements to boundary conditions (Hyd_Element_Floodplain)
 	const string view_rvprofile2bound("HYD_RIVER_PROFILE_BOUND_VIEW");
+	///Keyword for the database view name of the connection of elements to boundary conditions (Hyd_Element_Floodplain)
+	const string view_rvprofile2tempbound("HYD_TEMP_PROFILE_BOUND_VIEW");
 	///Keyword for the database table column of the element result data of a floodplain model: local maximal waterlevel in an element [m] (Hyd_Element_Floodplain, _Hyd_Element_Floodplain_Type)
 	const string elemerg_h_max("WATERLEVEL");
 	///Keyword for the database table column of the element result data of a floodplain model: global maximal waterlevel in an element [m] (Hyd_Element_Floodplain, _Hyd_Element_Floodplain_Type)
@@ -2077,12 +2185,15 @@ namespace hyd_label{
 
 	/////Keyword for the database table column of the boundary data of the models: identifier for the szenario [-] (Hyd_Model_Floodplain, Hyd_Model_River, Hyd_Instatonary_Boundary)
 	//const string bounddata_sz_id("BOUNDDATA_SZ_ID");
-	///Keyword for the database table column of the boundary data of the models: flag fo a statinary boundary condition (true:= stationary, flase:=instationary) [-] (Hyd_Model_Floodplain, Hyd_Model_River)
+	///Keyword for the database table column of the boundary data of the models: flag fo a statinary boundary condition (true:= stationary, flase:=instationary) [-] (Hyd_Model_Floodplain, Hyd_Model_River, HydTemp_Profile)
 	const string bounddata_stat("STATIONARY");
-	///Keyword for the database table column of the boundary data of the models: stationary => discharge or waterlevel value; instationary => curve number [-] (Hyd_Model_Floodplain, Hyd_Model_River, Hyd_Instatonary_Boundary)
+	///Keyword for the database table column of the boundary data of the models: stationary => discharge or waterlevel value; instationary => curve number [-] (Hyd_Model_Floodplain, Hyd_Model_River, Hyd_Instatonary_Boundary, HydTemp_Profile)
 	const string bounddata_value("VALUE");
-	///Keyword for the database table column of the boundary data of the models: enumarator for the boundary type (_bound_type) [-] (Hyd_Model_Floodplain, Hyd_Model_River, Hyd_Instatonary_Boundary, Hyd_Instatonary_Boundary)
+	///Keyword for the database table column of the boundary data of the models: enumarator for the boundary type (_bound_type) [-] (Hyd_Model_Floodplain, Hyd_Model_River, Hyd_Instatonary_Boundary, Hyd_Instatonary_Boundary, HydTemp_Profile)
 	const string bounddata_type("BOUNDARY_TYPE");
+
+	///Keyword for the database table column of the boundary data of the models: enumarator for the boundary type (_bound_type) [-] (HydTemp_Profile)
+	const string bounddata_name("BOUNDARY_NAME");
 
 	///Keyword for the database table column of the river profile break data : the river bank in flow direction, for which the break data are valid (true:=left river bank; false:= right river bank) [-] (_Hyd_River_Profile)
 	const string profbreak_left("LEFT_BANK_BREAK");
@@ -2934,6 +3045,7 @@ namespace dam_label{
 	///String for the CI sector \see _Dam_CI_Element 
 	const string ci_energy("Energy");
 
+
 	///String for the CI sector \see _Dam_CI_Element 
 	const string ci_emerg("Emergency_service");
 	///String for the CI sector \see _Dam_CI_Element 
@@ -2954,6 +3066,44 @@ namespace dam_label{
 	const string ci_education("Education");
 	///String for the CI sector \see _Dam_CI_Element 
 	const string ci_jail("Jail");
+
+	///Keyword for the database table column: String for the CI sector result Population time \see Dam_Damage_System 
+	const string ci_elect_pt("Pop_t_Electricity");
+	///Keyword for the database table column: String for the CI sector result Population time\see Dam_Damage_System 
+	const string ci_info_tec_pt("Pop_t_Information_technology");
+	///Keyword for the database table column: String for the CI sector result Population time\see Dam_Damage_System 
+	const string ci_water_sup_pt("Pop_t_Water_supply");
+	///Keyword for the database table column: String for the CI sector result Population time\see Dam_Damage_System 
+	const string ci_water_treat_pt("Pop_t_Water_treatment");
+	///Keyword for the database table column: String for the CI sector result Population time \see Dam_Damage_System  
+	const string ci_energy_pt("Pop_t_Energy");
+
+	///Keyword for the database table column: String for the CI sector result Population \see Dam_Damage_System 
+	const string ci_elect_p("Pop_Electricity");
+	///Keyword for the database table column: String for the CI sector result Population \see Dam_Damage_System  
+	const string ci_info_tec_p("Pop_Information_technology");
+	///Keyword for the database table column: String for the CI sector result Population \see Dam_Damage_System  
+	const string ci_water_sup_p("Pop_Water_supply");
+	///Keyword for the database table column: String for the CI sector result Population \see Dam_Damage_System 
+	const string ci_water_treat_p("Pop_Water_treatment");
+	//Keyword for the database table column: /String for the CI sector result Population time \see Dam_Damage_System 
+	const string ci_energy_p("Pop_Energy");
+
+
+
+	///Keyword for the database table column: String for the CI sector result Population time: health summmarizes id 10 and 11 \see Dam_Damage_System  
+	const string ci_health_pt("Pop_t_Health");
+	///Keyword for the database table column: String for the CI sector result Population time: social summmarizes id 14, 17, 18 and 19\see Dam_Damage_System 
+	const string ci_social_pt("Pop_t_Social");
+	///Keyword for the database table column: String for the CI sector result Population time: materialistic summarizes id 12, 13, 15, 16\see Dam_Damage_System 
+	const string ci_mat_pt("Pop_t_Materialistic");
+
+	///Keyword for the database table column: String for the CI sector result Population: health summmarizes id 10 and 11 \see Dam_Damage_System 
+	const string ci_health_p("Pop_Health");
+	///Keyword for the database table column: String for the CI sector result Population: social summmarizes id 14, 17 and 18\see Dam_Damage_System  
+	const string ci_social_p("Pop_Social");
+	///Keyword for the database table column: String for the CI sector result Population: materialistic summarizes id 12, 13, 15, 16\see Dam_Damage_System 
+	const string ci_mat_p("Pop_Materialistic");
 
 
 	///String for the CI element failure type \see _Dam_CI_Element 
@@ -3118,26 +3268,26 @@ namespace risk_label{
 	const string risk_sc_cult_build_with_hyd("SC_CULTURAL_HERITAGE_HYD_PROB");
 	///String for the simple counting categories: buildings with highly vulnerable person  \see Dam_Sc_Point
 	const string risk_sc_person_build_with_hyd("SC_HIGH_VUL_PERS_SITES_HYD_PROB");
-	///Keyword for the database table column of the detailed risk results per dpoint: risk factor [-] (Risk_System)
+	///Keyword for the database table column of the detailed risk results per dpoint: risk factor [-] \see Risk_System
 	const string risk_sc_fac("RISK_FACTOR");
 
-	///Keyword for the database table column of the detailed predicted risk results:  total economical risk [€/a] (Risk_System)
+	///Keyword for the database table column of the detailed predicted risk results:  total economical risk [€/a] \see Risk_System
 	const string risk_total_ecn_predict("TOTAL_ECN");
-	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total economical risk [%] (Risk_System)
+	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total economical risk [%] \see Risk_System
 	const string risk_total_ecn_predict_perc("TOTAL_ECN_PERC");
-	///Keyword for the database table column of the detailed predicted risk results:  total ecological risk [€/a] (Risk_System)
+	///Keyword for the database table column of the detailed predicted risk results:  total ecological risk [€/a] \see Risk_System
 	const string risk_total_eco_predict("TOTAL_ECO");
-	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total ecological risk [%] (Risk_System)
+	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total ecological risk [%] \see Risk_System
 	const string risk_total_eco_predict_perc("TOTAL_ECO_PERC");
 
-	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total affected people risk [%] (Risk_System)
+	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total affected people risk [%] \see Risk_System
 	const string risk_pop_affected_perc("POP_AFFECTED_PERC");
-	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total endangered people risk [%] (Risk_System)
+	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total endangered people risk [%] \see Risk_System
 	const string risk_pop_endangered_perc("POP_ENDANGERED_PERC");
 
-	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total psycho-social score risk [%] (Risk_System)
+	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total psycho-social score risk [%] \see Risk_System
 	const string risk_total_score_perc("TOTAL_SCORE_PERC");
-	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total psycho-social score (with density) risk [%] (Risk_System)
+	///Keyword for the database table column of the detailed predicted risk results:  percentage concerning the total psycho-social score (with density) risk [%] \see Risk_System
 	const string risk_total_dens_score_perc("TOTAL_DENS_SCORE_PERC");
 
 }
@@ -3145,134 +3295,177 @@ namespace risk_label{
 namespace madm_label{
 
 
-	///String for defining the name of a weight set: standard (Madm_System)
+	///String for defining the name of a weight set: standard \see Madm_System
 	const string weight_standard("standard");
-	///String for defining the name of a weight set: economic standard (Madm_System)
+	///String for defining the name of a weight set: economic standard \see Madm_System
 	const string weight_ecn_standard("ecn_standard");
-	///String for defining the name of a weight set: ecologic standard (Madm_System)
+	///String for defining the name of a weight set: ecologic standard \see Madm_System
 	const string weight_eco_standard("eco_standard");
-	///String for defining the name of a weight set: population standard (Madm_System)
+	///String for defining the name of a weight set: population standard \see Madm_System
 	const string weight_pop_standard("pop_standard");
 
 
 
-	///Keyword for the file input of the madm analysis: begin of the general analysis informations [-] (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: begin of the general analysis informations [-] \see Madm_Decision_Matrix
 	const string begin_general("!$BEGIN_GENERAL");
-	///Keyword for the file input of the madm analysis: end of the general analysis informations [-] (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: end of the general analysis informations [-] \see Madm_Decision_Matrix
 	const string end_general("!$END_GENERAL");
 
-	///Keyword for the file input of the madm analysis: name of the analysis (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: name of the analysis \see Madm_Decision_Matrix
 	const string analysis_name("!name");
-	///Keyword for the file input of the madm analysis: number of applied criteria (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: number of applied criteria \see Madm_Decision_Matrix
 	const string no_crit("!no_criteria");
-	///Keyword for the file input of the madm analysis: number of applied alternatives (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: number of applied alternatives \see Madm_Decision_Matrix
 	const string no_alt("!no_alternative");
 
-	///Keyword for the file input of the madm analysis: begin of the criteria informations [-] (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: begin of the criteria informations [-] \see Madm_Decision_Matrix
 	const string begin_criteria("!$BEGIN_CRITERIA");
-	///Keyword for the file input of the madm analysis: end of the criteria informations [-] (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: end of the criteria informations [-] \see Madm_Decision_Matrix
 	const string end_criteria("!$END_CRITERIA");
 
-	///Keyword for the file input of the madm analysis: criteria names (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: criteria names \see Madm_Decision_Matrix
 	const string crit_name("!crit_name");
-	///Keyword for the file input of the madm analysis: specifies the optimum (maximal:=true, minimal:=false) (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: specifies the optimum (maximal:=true, minimal:=false) \see Madm_Decision_Matrix
 	const string crit_max_min("!max_min_opt");
-	///Keyword for the file input of the madm analysis: weight of the criteria (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: weight of the criteria \see Madm_Decision_Matrix
 	const string crit_weight("!weight");
 
-	///Keyword for the file input of the madm analysis: begin of the matrix informations [-] (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: begin of the matrix informations [-] \see Madm_Decision_Matrix
 	const string begin_matrix("!$BEGIN_MATRIX");
-	///Keyword for the file input of the madm analysis: end of the matrix informations [-] (Madm_Decision_Matrix)
+	///Keyword for the file input of the madm analysis: end of the matrix informations [-] \see Madm_Decision_Matrix
 	const string end_matrix("!$END_MATRIX");
 
 
-	///Keyword for the file input of the madm weight sets: number of weight sets in file (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: number of weight sets in file \see Madm_Decision_Matrix
 	const string no_weight_set("!$no_weight_set");
 
-	///Keyword for the file input of the madm weight sets: begin of the weight set [-] (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: begin of the weight set [-] \see Madm_Analysis
 	const string begin_weight_set("!$BEGIN_SET");
-	///Keyword for the file input of the madm weight sets: end of the weight set [-] (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: end of the weight set [-] \see Madm_Analysis
 	const string end_weight_set("!$END_SET");
 
-	///Keyword for the file input of the madm weight sets: name of the set (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: name of the set \see Madm_Analysis
 	const string weight_set_name("!name");
-	///Keyword for the file input of the madm weight sets: weight for the economical risk criteria (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: weight for the economical risk criteria \see Madm_Analysis
 	const string weight_risk_ecn("!crit_risk_ecn");
-	///Keyword for the file input of the madm weight sets: weight for the ecological risk criteria (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: weight for the ecological risk criteria \see Madm_Analysis
 	const string weight_risk_eco("!crit_risk_eco");
-	///Keyword for the file input of the madm weight sets: weight for the psycho-social risk criteria (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: weight for the psycho-social risk criteria \see Madm_Analysis
 	const string weight_risk_pys("!crit_risk_pys");
-	///Keyword for the file input of the madm weight sets: weight for the people2risk (affected people) risk criteria (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: weight for the people2risk (affected people) risk criteria \see Madm_Analysis
 	const string weight_risk_pop_aff("!crit_risk_pop_aff");
-	///Keyword for the file input of the madm weight sets: weight for the people2risk (endangered people) risk criteria (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: weight for the people2risk (endangered people) risk criteria \see Madm_Analysis
 	const string weight_risk_pop_dan("!crit_risk_pop_dan");
 
-	///Keyword for the file input of the madm weight sets: weight for the simple counting (public buildings) risk criteria (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: weight for the simple counting (public buildings) risk criteria \see Madm_Analysis
 	const string weight_risk_sc_pub("!crit_risk_sc_pub");
-	///Keyword for the file input of the madm weight sets: weight for the simple counting (ecologic perilous sites or buildings) risk criteria (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: weight for the simple counting (ecologic perilous sites or buildings) risk criteria \see Madm_Analysis
 	const string weight_risk_sc_eco("!crit_risk_sc_eco");
-	///Keyword for the file input of the madm weight sets: weight for the simple counting (cultural heritage) risk criteria (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: weight for the simple counting (cultural heritage) risk criteria \see Madm_Analysis
 	const string weight_risk_sc_cult("!crit_risk_sc_cult");
-	///Keyword for the file input of the madm weight sets: weight for the simple counting (buildings with highly vulnerable person) risk criteria (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: weight for the simple counting (buildings with highly vulnerable person) risk criteria \see Madm_Analysis
 	const string weight_risk_sc_person("!crit_risk_sc_person");
 
-	///Keyword for the file input of the madm weight sets: weight for the maximum outflow discharge risk criteria (Madm_Analysis)
+
+	///Keyword for the file input of the madm weight sets: weight for the CI (sector electricity) risk criteria \see Madm_Analysis
+	const string weight_risk_ci_elect("!crit_risk_ci_elect");
+	///Keyword for the file input of the madm weight sets: weight for the CI (sector information technology) risk criteria \see Madm_Analysis
+	const string weight_risk_ci_info_tec("!crit_risk_ci_info_tec");
+	///Keyword for the file input of the madm weight sets: weight for the CI (sector water supply) risk criteria \see Madm_Analysis
+	const string weight_risk_wat_sup("!crit_risk_ci_water_sup");
+	///Keyword for the file input of the madm weight sets: weight for the CI (sector water treatment) risk criteria \see Madm_Analysis
+	const string weight_risk_ci_wat_treat("!crit_risk_ci_water treat");
+	///Keyword for the file input of the madm weight sets: weight for the CI (sector energy) risk criteria \see Madm_Analysis
+	const string weight_risk_ci_energy("!crit_risk_ci_energy");
+
+	///Keyword for the file input of the madm weight sets: weight for the CI (sector health) risk criteria \see Madm_Analysis
+	const string weight_risk_ci_health("!crit_risk_ci_health");
+	///Keyword for the file input of the madm weight sets: weight for the CI (sector social) risk criteria \see Madm_Analysis
+	const string weight_risk_ci_social("!crit_risk_ci_social");
+	///Keyword for the file input of the madm weight sets: weight for the CI (sector material) risk criteria \see Madm_Analysis
+	const string weight_risk_ci_mat("!crit_risk_ci_mat");
+
+
+
+
+	///Keyword for the file input of the madm weight sets: weight for the maximum outflow discharge risk criteria \see Madm_Analysis
 	const string weight_risk_outflow("!crit_risk_outflow");
-	///Keyword for the file input of the madm weight sets: weight for the economical cost criteria (Madm_Analysis)
+	///Keyword for the file input of the madm weight sets: weight for the economical cost criteria \see Madm_Analysis
 	const string weight_cost_ecn("!crit_cost_ecn");
 
-
-	///Keyword of the madm calculation approach: Simple Additive Weighting (standard normalisation)  [-] (Madm_Analysis)
+	///Keyword of the madm calculation approach: Simple Additive Weighting (standard normalisation)  [-] \see Madm_Analysis
 	const string analysis_saw_standard("SAW_STANDARD");
-	///Keyword of the madm calculation approach: Simple Additive Weighting (range normalisation)  [-] (Madm_Analysis)
+	///Keyword of the madm calculation approach: Simple Additive Weighting (range normalisation)  [-] \see Madm_Analysis
 	const string analysis_saw_range("SAW_RANGE");
-	///Keyword of the madm calculation approach: Technique for Order Preference by Similarity to Ideal Solution  [-] (Madm_Analysis)
+	///Keyword of the madm calculation approach: Technique for Order Preference by Similarity to Ideal Solution  [-] \see Madm_Analysis
 	const string analysis_topsis("TOPSIS");
-	///Keyword of the madm calculation approach: ELimination Et Choix Traduisant la REalité [-] (Madm_Analysis)
+	///Keyword of the madm calculation approach: ELimination Et Choix Traduisant la REalité [-] \see Madm_Analysis
 	const string analysis_electre("ELECTRE");
-	///Keyword of the madm calculation approach: all scores are taken into account [-] (Madm_Analysis)
+	///Keyword of the madm calculation approach: all scores are taken into account [-] \see Madm_Analysis
 	const string analysis_total("TOTAL");
 
-	///Keyword of the madm normalisation scheme: standard [-] (Madm_Decision_Matrix)
+	///Keyword of the madm normalisation scheme: standard [-] \see Madm_Decision_Matrix
 	const string norm_standard("standard");
-	///Keyword of the madm normalisation scheme: range [-] (Madm_Decision_Matrix)
+	///Keyword of the madm normalisation scheme: range [-] \see Madm_Decision_Matrix
 	const string norm_range("range");
-	///Keyword of the madm normalisation scheme: vectoriel [-] (Madm_Decision_Matrix)
+	///Keyword of the madm normalisation scheme: vectoriel [-] \see Madm_Decision_Matrix
 	const string norm_vector("vector");
-	///Keyword of the madm normalisation scheme: no normalisation applied [-] (Madm_Decision_Matrix)
+	///Keyword of the madm normalisation scheme: no normalisation applied [-] \see Madm_Decision_Matrix
 	const string norm_no("no_norm");
 
 
-	///Keyword for the database table name of the set of weights (Madm_System)
+	///Keyword for the database table name of the set of weights \see Madm_System
 	const string tab_set("MADM_SET");
-	///Keyword for the database table column of the set of weights: Set id [-] (Madm_System) 
+	///Keyword for the database table column of the set of weights: Set id [-] \see Madm_System 
 	const string set_id("SET_ID");
-	///Keyword for the database table column of the set of weights: Name of set [-] (Madm_System) 
+	///Keyword for the database table column of the set of weights: Name of set [-] \see Madm_System
 	const string set_name("NAME");
 
-	///Keyword for the database table column of divers madm tables: Criteria variation of risk economic [monetary/a] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria variation of risk economic [monetary/a] \see Madm_System 
 	const string crit_risk_ecn("CRIT_RISK_ECN");
-	///Keyword for the database table column of divers madm tables: Criteria variation of risk ecologic [monetary/a] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria variation of risk ecologic [monetary/a] \see Madm_System 
 	const string crit_risk_eco("CRIT_RISK_ECO");
-	///Keyword for the database table column of divers madm tables: Criteria variation of risk psycho-social [score/a] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria variation of risk psycho-social [score/a] \see Madm_System 
 	const string crit_risk_pys("CRIT_RISK_PYS");
-	///Keyword for the database table column of divers madm tables: Criteria variation of risk people2risk (affected persons) [person/a] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria variation of risk people2risk (affected persons) [person/a] \see Madm_System
 	const string crit_risk_pop_aff("CRIT_RISK_POP_AFF");
-	///Keyword for the database table column of divers madm tables: Criteria variation of risk people2risk (endangered persons) [person/a] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria variation of risk people2risk (endangered persons) [person/a] \see Madm_System
 	const string crit_risk_pop_dan("CRIT_RISK_POP_DAN");
-	///Keyword for the database table column of divers madm tables: Criteria variation of risk outflow [(m³/s)/a] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria variation of risk outflow [(m³/s)/a] \see Madm_System 
 	const string crit_risk_outflow("CRIT_RISK_OUTFLOW");
-	///Keyword for the database table column of divers madm tables: Criteria variation of risk for simple counting public buildings [score/a] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria variation of risk for simple counting public buildings [score/a] \see Madm_System
 	const string crit_risk_sc_pub("CRIT_RISK_SC_PUB");
-	///Keyword for the database table column of divers madm tables: Criteria variation of risk for simple counting ecologic perilous sites or buildings [score/a] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria variation of risk for simple counting ecologic perilous sites or buildings [score/a] \see Madm_System 
 	const string crit_risk_sc_eco("CRIT_RISK_SC_ECO");
-	///Keyword for the database table column of divers madm tables: Criteria variation of risk for simple counting cultural heritage [score/a] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria variation of risk for simple counting cultural heritage [score/a] \see Madm_System 
 	const string crit_risk_sc_cult("CRIT_RISK_SC_CULT");
-	///Keyword for the database table column of divers madm tables: Criteria variation of risk for simple counting buildings with highly vulnerable person [score/a] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria variation of risk for simple counting buildings with highly vulnerable person [score/a] \see Madm_System 
 	const string crit_risk_sc_person("CRIT_RISK_SC_PERSON");
 
-	///Keyword for the database table column of divers madm tables: Criteria cost economic [monetary] (Madm_System) 
+	///Keyword for the database table column of divers madm tables: Criteria cost economic [monetary] \see Madm_System
 	const string crit_cost_ecn("CRIT_COST_ECN");
+
+	///Keyword for the database table column of divers madm tables: Population time Sector electricity [(person x sec)/a] \see Madm_System
+	const string crit_risk_ci_elect_pt("CRIT_PT_ELECT_CI");
+	///Keyword for the database table column of divers madm tables: Population time Sector information technology [(person x sec)/a] \see Madm_System
+	const string crit_risk_ci_info_tec_pt("CRIT_PT_INFO_TEC_CI");
+	///Keyword for the database table column of divers madm tables: Population time Sector water supply [(person x sec)/a] \see Madm_System
+	const string crit_risk_ci_water_sup_pt("CRIT_PT_WATER_SUP_CI");
+	///Keyword for the database table column of divers madm tables: Population time Sector water treatment [(person x sec)/a] \see Madm_System
+	const string crit_risk_ci_water_treat_pt("CRIT_PT_WATER_TREAT_CI");
+	///Keyword for the database table column of divers madm tables: Population time Sector energy [(person x sec)/a] \see Madm_System
+	const string crit_risk_ci_energy_pt("CRIT_PT_ENERGY_CI");
+	///Keyword for the database table column of divers madm tables: Population time Sector health [(person x sec)/a] \see Madm_System
+	const string crit_risk_ci_health_pt("CRIT_PT_HEALTH_CI");
+	///Keyword for the database table column of divers madm tables: Population time Sector social [(person x sec)/a] \see Madm_System
+	const string crit_risk_ci_social_pt("CRIT_PT_SOCIAL_CI");
+	///Keyword for the database table column of divers madm tables: Population time Sector material [(person x sec)/a] \see Madm_System
+	const string crit_risk_ci_mat_pt("CRIT_PT_MAT_CI");
+
+
+
+
+
 
 	/////Keyword for the database table name of the scores (Madm_System)
 	//const string tab_score("MADM_SCORE");

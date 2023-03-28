@@ -38,6 +38,8 @@
 #include "DamGui_Pys_Categories_Wid.h"
 #include "DamGui_Sc_Point_Wid.h"
 #include "DamGui_Sc_Subcategory_Wid.h"
+#include "DamGui_Ci_Point_Wid.h"
+#include "DamGui_Ci_Polygon_Wid.h"
 
 //system fpl
 #include "Fpl_Calculation.h"

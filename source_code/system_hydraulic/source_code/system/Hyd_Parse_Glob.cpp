@@ -253,6 +253,9 @@ void Hyd_Parse_Glob::parse_global_params(void){
 				case eCOASTMODEL:
 					this->parse_coastmodel(Key, Command);
 					break;
+				case eTEMPMODEL:
+					this->parse_tempmodel(Key, Command);
+					break;
 				case eINTEGRATION:
 					this->parse_integration_setting(Key, Command);
 					break;
@@ -496,7 +499,33 @@ void Hyd_Parse_Glob::parse_coastmodel(_hyd_keyword_file Key, word Command){
 		}
 	}
 }
- //parse integration setting
+//Appling of a temperature model
+void Hyd_Parse_Glob::parse_tempmodel(_hyd_keyword_file Key, word Command) {
+	// There is not a following keyword.
+	if (strlen(Command) <= 0) {
+		this->GetLine(Command);
+	}
+	Key = ParseNextKeyword(Command);
+	stringstream buffer;
+	buffer << Command;
+	if (Key == eFAIL) {
+		string str_buff;
+		buffer >> str_buff;
+		try {
+			this->Globals.tempmodel_applied = _Hyd_Parse_IO::transform_string2boolean(str_buff);
+		}
+		catch (Error msg) {
+			ostringstream info;
+			info << "Filename: " << this->input_file_name << endl;
+			info << "Error occurs near line: " << this->line_counter << endl;
+			info << "Settings for the temerature model" << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+	}
+
+}
+//parse integration setting
 void Hyd_Parse_Glob::parse_integration_setting(_hyd_keyword_file Key, word Command){
 	// Next keyword is SET or STANDARD
 	do{

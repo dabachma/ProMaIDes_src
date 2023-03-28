@@ -75,6 +75,9 @@ private:
 	///Generate the plot for the simple counting risk
 	void generate_sc_plots(QSqlQueryModel *model);
 
+	///Generate the plot for the ci risk
+	void generate_ci_plots(QSqlQueryModel *model);
+
 	///Generate the plot for the maximum dicharge risk
 	void generate_max_q_plot(QSqlQueryModel *model);
 

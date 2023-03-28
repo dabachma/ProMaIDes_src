@@ -2893,11 +2893,19 @@ void Alt_System::switch_system2base_state(void){
 	//hyd
 	if(current_info.category==_alt_measure_category::category_hyd){
 		if(current_info.detailed_type==alt_replace_hyd::boundary_sc){
-			cout << "Switch HYD- and DAM-results to base system state from the current HYD-boundary scenario(s)..." << endl ;
+			cout << "Switch HYD- and DAM-results to base system state from the current HYD-boundary scenario(s)...(may need some time!)" << endl ;
+			Sys_Common_Output::output_alt->output_txt(&cout);
+			cout << "Switch current HYD-results to false..." << endl;
 			Sys_Common_Output::output_alt->output_txt(&cout);
 			Hyd_Hydraulic_System::switch_applied_flags_results(&this->qsqldatabase, current_info.id, false);
+			cout << "Switch current DAM-results to false..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Dam_Damage_System::switch_applied_flag_erg_table(&this->qsqldatabase, current_info.id,  false );
+			cout << "Switch base-state HYD-results to true..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Hyd_Hydraulic_System::switch_applied_flags_results(&this->qsqldatabase, base_id, true);
+			cout << "Switch base-state DAM-results to true..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Dam_Damage_System::switch_applied_flag_erg_table(&this->qsqldatabase, base_id, true);
 
 			cout << "Switch the HYD-boundary scenario(s) to base system state..." << endl ;
@@ -2908,12 +2916,22 @@ void Alt_System::switch_system2base_state(void){
 			}
 		}
 		else if(current_info.detailed_type==alt_replace_hyd::dike_lines || current_info.detailed_type==alt_add_hyd::dike_lines){
-			cout << "Switch HYD- and DAM-results to base system state from the current HYD-boundary scenario(s)..." << endl ;
+			cout << "Switch HYD- and DAM-results to base system state from the current HYD-boundary scenario(s)...(may need some time!)" << endl ;
 			Sys_Common_Output::output_alt->output_txt(&cout);
 
+			cout << "Switch current HYD-results to false..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Hyd_Hydraulic_System::switch_applied_flags_results(&this->qsqldatabase, current_info.id, false);
+			cout << "Switch base-state HYD-results to true..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Hyd_Hydraulic_System::switch_applied_flags_results(&this->qsqldatabase, base_id, true);
+
+
+			cout << "Switch current DAM-results to false..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Dam_Damage_System::switch_applied_flag_erg_table(&this->qsqldatabase, current_info.id,  false );
+			cout << "Switch base-state DAM-results to true..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Dam_Damage_System::switch_applied_flag_erg_table(&this->qsqldatabase, base_id, true);
 
 			cout << "Switch the HYD-dikeline(s) to base system state..." << endl ;
@@ -2924,12 +2942,20 @@ void Alt_System::switch_system2base_state(void){
 			}
 		}
 		else if(current_info.detailed_type==alt_replace_hyd::river_profiles){
-			cout << "Switch HYD- and DAM-results to base system state from the current HYD-boundary scenario(s)..." << endl ;
+			cout << "Switch HYD- and DAM-results to base system state from the current HYD-boundary scenario(s)...(may need some time!)" << endl ;
 			Sys_Common_Output::output_alt->output_txt(&cout);
-
+			cout << "Switch current HYD-results to false..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Hyd_Hydraulic_System::switch_applied_flags_results(&this->qsqldatabase, current_info.id, false);
+			cout << "Switch base-state HYD-results to true..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Hyd_Hydraulic_System::switch_applied_flags_results(&this->qsqldatabase, base_id, true);
+
+			cout << "Switch current DAM-results to false..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Dam_Damage_System::switch_applied_flag_erg_table(&this->qsqldatabase, current_info.id,  false );
+			cout << "Switch base-state DAM-results to true..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Dam_Damage_System::switch_applied_flag_erg_table(&this->qsqldatabase, base_id, true);
 
 			cout << "Switch the HYD-river profile(s) to base system state..." << endl ;
@@ -2944,11 +2970,21 @@ void Alt_System::switch_system2base_state(void){
 	}
 	//dam
 	else if(current_info.category==_alt_measure_category::category_dam){
-			cout << "Switch HYD- and DAM-results to base system state from the current state..." << endl ;
+			cout << "Switch HYD- and DAM-results to base system state from the current state...(may need some time!)" << endl ;
+			Sys_Common_Output::output_alt->output_txt(&cout);
+
+			cout << "Switch current HYD-results to false (may need some time)..." << endl;
 			Sys_Common_Output::output_alt->output_txt(&cout);
 			Hyd_Hydraulic_System::switch_applied_flags_results(&this->qsqldatabase, current_info.id, false);
+
+			cout << "Switch current DAM-results to false..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Dam_Damage_System::switch_applied_flag_erg_table(&this->qsqldatabase, current_info.id,  false );
+
+			cout << "Switch base-state DAM-results to true..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Dam_Damage_System::switch_applied_flag_erg_table(&this->qsqldatabase, base_id,  true);
+
 			if(current_info.detailed_type==alt_replace_dam::dam_resettlement){
 				cout << "Switch all the DAM elements to base system state..." << endl ;
 				Sys_Common_Output::output_alt->output_txt(&cout);
@@ -3021,13 +3057,21 @@ void Alt_System::switch_system2base_state(void){
 		if(current_info.detailed_type==alt_combi_fpl::fpl_line || current_info.detailed_type==alt_add_fpl::section ||
 			current_info.detailed_type==alt_replace_fpl::section || (current_info.detailed_type==alt_replace_fpl::section_param)
 			){
-			cout << "Switch all HYD-results to base system state from the current system state..." << endl ;
+			cout << "Switch all HYD-results to base system state from the current system state...(may need some time)" << endl ;
+			Sys_Common_Output::output_alt->output_txt(&cout);
+			cout << "Switch current HYD-results to false..." << endl;
 			Sys_Common_Output::output_alt->output_txt(&cout);
 			Hyd_Hydraulic_System::switch_applied_flags_results(&this->qsqldatabase, current_info.id , false);
+			cout << "Switch base-state HYD-results to true..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Hyd_Hydraulic_System::switch_applied_flags_results(&this->qsqldatabase, base_id , true);
 			cout << "Switch all DAM-results to base system state from the current system state..." << endl ;
 			Sys_Common_Output::output_alt->output_txt(&cout);
+			cout << "Switch current DAM-results to false..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Dam_Damage_System::switch_applied_flag_erg_table(&this->qsqldatabase, current_info.id, false);
+			cout << "Switch base-state DAM-results to true..." << endl;
+			Sys_Common_Output::output_alt->output_txt(&cout);
 			Dam_Damage_System::switch_applied_flag_erg_table(&this->qsqldatabase, base_id, true);
 
 			cout << "Switch the FPL-section(s) and their results to base system state from the current system state..." << endl ;

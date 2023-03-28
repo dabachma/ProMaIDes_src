@@ -282,6 +282,7 @@ _hyd_keyword_file _Hyd_Parse_IO::ParseNextKeyword(char *CommandList){
 	else if (FIND1("!NOFFP")		)	Keyword = eNOFFP;
 	else if (FIND1("!NOFRV")		)	Keyword = eNOFRV;
 	else if (FIND1("!COASTMODEL")	)	Keyword = eCOASTMODEL;
+	else if (FIND1("!TEMPMODEL")	)	Keyword = eTEMPMODEL;
 	//setted couplings
 	else if (FIND1("!NOFDC")			)	Keyword = eNOFDC;
 	else if (FIND1("!NOFSC")			)	Keyword = eNOFSC;
@@ -301,6 +302,18 @@ _hyd_keyword_file _Hyd_Parse_IO::ParseNextKeyword(char *CommandList){
 	else if (FIND1("$PARAVIEW_2D"))	Keyword = ePARAVIEW2D;
 	else if (FIND1("$DATBASE_INSTAT"))	Keyword = eDATABASE_INSTAT;
 	else if (FIND1("$OUTPUT_FOLDER"))	Keyword = eOUTPUT_FOLDER;
+
+
+	//temperature model
+	else if (FIND1("!TEMP_DATA"))	Keyword = eTEMP_INFO;
+	else if (FIND1("$GW_TEMP"))	Keyword = eGW_TEMP;
+	else if (FIND1("$BRUNT_COEF"))	Keyword = eBRUNT;
+	else if (FIND1("$VIEW2SKY"))	Keyword = eVIEW2SKY;
+	else if (FIND1("$K_BED"))	Keyword = eHEAT_COND;
+	else if (FIND1("$BED_TEMP"))	Keyword = eBED_TEMP;
+	else if (FIND1("$BED_WARMING"))	Keyword = eBED_WARM;
+	else if (FIND1("$DIFF_SOLAR_RAD"))	Keyword = eSOLAR_RAD;
+
 
 	//preconditioner settings
 	else if (FIND1("!PRECON")		)	Keyword = ePRECON; 

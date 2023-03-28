@@ -7,7 +7,7 @@ DamGui_Result_Summary_Wid::DamGui_Result_Summary_Wid(QWidget *parent): _Sys_Resu
 
 
 	//set number columns
-	this->tableWidget->setColumnCount(26);
+	this->tableWidget->setColumnCount(34);
 
 	QStringList my_list;
 	string buffer;
@@ -71,6 +71,29 @@ DamGui_Result_Summary_Wid::DamGui_Result_Summary_Wid(QWidget *parent): _Sys_Resu
 	my_list.append(buffer.c_str());
 
 
+	buffer = "CI Population time Sector Electricity 1 [P x s]";
+	my_list.append(buffer.c_str());
+	buffer = "Population time Sector Information techology 2 [P x s]";
+	my_list.append(buffer.c_str());
+	buffer = "Population time Sector Water supply 3 [P x s]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Sector Water treatment 4 [P x s]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Sector Energy 5 [P x s]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Cum-Sector Health (10+11) [P x s]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Cum-Sector Social (14+17+18+19) [P x s]";
+	my_list.append(buffer.c_str());
+
+	buffer = "Population time Cum-Sector Material (12+13+15+16) [P x s]";
+	my_list.append(buffer.c_str());
+
+
 	this->tableWidget->setHorizontalHeaderLabels(my_list);
 
 	this->head_label->setText("Detailed damage results");
@@ -118,6 +141,7 @@ void DamGui_Result_Summary_Wid::set_up_widget(QSqlDatabase *ptr_database, const 
 	QColor my_color3(Qt::magenta);
 	QColor my_color4(Qt::darkMagenta);
 	QColor my_color5(Qt::lightGray);
+	QColor my_color6(Qt::darkYellow);
 
 
 	for(int i=0; i<this->tableWidget->rowCount(); i++){
@@ -144,6 +168,10 @@ void DamGui_Result_Summary_Wid::set_up_widget(QSqlDatabase *ptr_database, const 
 			}
 			else if(j>=22 && j<=25){
 				this->tableWidget->item(i,j)->setBackgroundColor(my_color5);
+
+			}
+			else if (j >= 26 && j <= 33) {
+				this->tableWidget->item(i, j)->setBackgroundColor(my_color6);
 
 			}
 	
@@ -265,6 +293,39 @@ void DamGui_Result_Summary_Wid::set_up_widget(QSqlDatabase *ptr_database, const 
 		buffer=dam_results.sc_person_build;
 		this->tableWidget->item(i,25)->setData(Qt::DisplayRole, buffer);
 
+		//ci
+
+		dam_results.ci_elect_pt = model.record(i).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_elect_pt)).c_str()).toDouble();
+		buffer = dam_results.ci_elect_pt;
+		this->tableWidget->item(i, 26)->setData(Qt::DisplayRole, buffer);
+
+		dam_results.ci_info_tec_pt = model.record(i).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_info_tec_pt)).c_str()).toDouble();
+		buffer = dam_results.ci_info_tec_pt;
+		this->tableWidget->item(i, 27)->setData(Qt::DisplayRole, buffer);
+
+		dam_results.ci_water_sup_pt = model.record(i).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_sup_pt)).c_str()).toDouble();
+		buffer = dam_results.ci_water_sup_pt;
+		this->tableWidget->item(i, 28)->setData(Qt::DisplayRole, buffer);
+
+		dam_results.ci_water_treat_pt = model.record(i).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_water_treat_pt)).c_str()).toDouble();
+		buffer = dam_results.ci_water_treat_pt;
+		this->tableWidget->item(i, 29)->setData(Qt::DisplayRole, buffer);
+
+		dam_results.ci_energy_pt = model.record(i).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_energy_pt)).c_str()).toDouble();
+		buffer = dam_results.ci_energy_pt;
+		this->tableWidget->item(i, 30)->setData(Qt::DisplayRole, buffer);
+
+		dam_results.ci_health_pt = model.record(i).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_health_pt)).c_str()).toDouble();
+		buffer = dam_results.ci_health_pt;
+		this->tableWidget->item(i, 31)->setData(Qt::DisplayRole, buffer);
+
+		dam_results.ci_social_pt = model.record(i).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_social_pt)).c_str()).toDouble();
+		buffer = dam_results.ci_social_pt;
+		this->tableWidget->item(i, 32)->setData(Qt::DisplayRole, buffer);
+
+		dam_results.ci_mat_pt = model.record(i).value((Dam_Damage_System::erg_table->get_column_name(dam_label::ci_mat_pt)).c_str()).toDouble();
+		buffer = dam_results.ci_mat_pt;
+		this->tableWidget->item(i, 33)->setData(Qt::DisplayRole, buffer);
 
 	}
 
