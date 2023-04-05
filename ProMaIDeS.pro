@@ -97,6 +97,7 @@ DEPENDPATH +=  source_code\
             source_code/system_hydraulic/source_code/models/river \
             source_code/system_hydraulic/source_code/models/river/profile\
            source_code/system_hydraulic/source_code/models/coast \
+		   source_code/system_hydraulic/source_code/models/temperature\
             source_code/system_hydraulic\
             source_code/system_dam\
             source_code/system_dam/source_code\
@@ -158,6 +159,7 @@ INCLUDEPATH +=  source_code\
             source_code/system_hydraulic/source_code/models/river \
             source_code/system_hydraulic/source_code/models/river/profile\
            source_code/system_hydraulic/source_code/models/coast \
+		   source_code/system_hydraulic/source_code/models/temperature\
             source_code/system_hydraulic\
             source_code/system_dam\
             source_code/system_dam/source_code\
