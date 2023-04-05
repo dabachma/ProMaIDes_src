@@ -3449,14 +3449,14 @@ void HydTemp_Profile::set_distance2up(const double distance) {
 //private
 //Calculate heat flow bed
 void HydTemp_Profile::calc_phi_bed(HydTemp_Param *params) {
-	this->phi_bed = params->con_bed_coef*(params->bed_temp - params->gw_temp);
+	this->phi_bed = params->con_bed_coef*(params->bed_temp - this->temp_current);
 }
 //Calculate heat flow conductivity
 void HydTemp_Profile::calc_phi_c(HydTemp_Param *params) {
 	double es = 0.0;
 	double ea = 0.0;
 
-	es = 6.1275*exp((17.27*(this->temp_current-constant::kelvin_const)/(237,3* (this->temp_current - constant::kelvin_const))));
+	es = 6.1275*exp(((17.27*(this->temp_current-constant::kelvin_const))/(237.3+ (this->temp_current - constant::kelvin_const))));
 	ea = es * this->humid.current_value;
 	this->phi_c = this->phi_eva*0.00061*constant::pressure_air*(this->temp_current - this->air_temp.current_value) / (es - ea);
 
@@ -3466,10 +3466,10 @@ void HydTemp_Profile::calc_phi_c(HydTemp_Param *params) {
 void HydTemp_Profile::calc_phi_eva(HydTemp_Param *params) {
 	double es = 0.0;
 	double ea = 0.0;
-	es= 6.1275*exp((17.27*(this->air_temp.current_value- constant::kelvin_const) / (237.3 * (this->air_temp.current_value - constant::kelvin_const))));
+	es= 6.1275*exp(((17.27*(this->air_temp.current_value- constant::kelvin_const)) / (237.3 + (this->air_temp.current_value - constant::kelvin_const))));
 	ea = es * this->humid.current_value;
 
-	this->phi_eva = -((constant::dens_air - constant::c_air) / constant::psychometric)*(0.0022*this->wind.current_value + 0.0021)*(es - ea);
+	this->phi_eva = -((constant::dens_air*constant::c_air) / constant::psychometric)*(0.0022*this->wind.current_value + 0.0021)*(es - ea);
 
 
 }
@@ -3477,12 +3477,24 @@ void HydTemp_Profile::calc_phi_eva(HydTemp_Param *params) {
 void HydTemp_Profile::calc_phi_lw(HydTemp_Param *params) {
 	double es = 0.0;
 	double ea = 0.0;
-	es = 6.1275*exp((17.27*(this->air_temp.current_value - constant::kelvin_const) / (237.3 * (this->air_temp.current_value - constant::kelvin_const))));
+	es = 6.1275*exp((17.27*(this->air_temp.current_value - constant::kelvin_const)) / (237.3 + (this->air_temp.current_value - constant::kelvin_const)));
 	ea = es * this->humid.current_value;
+	double phi_alw = 0.0;
+	double phi_lclw = 0.0;
+	double phi_slw = 0.0;
+	double eta_atm = 1.72*(1.0 + 0.22 + pow(this->cloud.current_value, 2))*pow((0.1*ea / this->air_temp.current_value), (1.0/7.0));
 
-	this->phi_lw = -0.96*constant::boltzman*pow((this->temp_current), 4) + pow((this->air_temp.current_value), 4)*0.96*constant::boltzman*1.72*
-		(1.0 + 0.22 + pow(this->cloud.current_value, 2))*pow(((0.1*ea) / this->air_temp.current_value), (1 / 7))
-		+ 0.96*params->view2sky_coef*(1.1*params->brunt_coef + 0.094*pow(ea, 0.5))*constant::boltzman*pow(this->air_temp.current_value, 4);
+	phi_alw = pow(this->air_temp.current_value, 4)*0.96*constant::boltzman*eta_atm;
+	phi_lclw = 0.96*params->view2sky_coef*(1.1*params->brunt_coef + 0.094*pow(ea, 0.5))*constant::boltzman*pow(this->air_temp.current_value, 4);
+	phi_slw = -0.96*constant::boltzman*pow((this->temp_current), 4);
+	this->phi_lw = phi_alw + phi_lclw + phi_slw;
+
+
+
+	//ostringstream cout;
+	//cout << " es " << es<< label::kelvin << " ea " << ea << " term1 " << -0.96*constant::boltzman*pow((this->temp_current), 4)<< " term 2 "<< pow((this->air_temp.current_value), 4)*0.96*constant::boltzman*1.72
+		//<< " term 3 " << (1.0 + 0.22 + pow(this->cloud.current_value, 2))*pow(((0.1*ea) / this->air_temp.current_value), (1 / 7))<< " term 4 " << 0.96*params->view2sky_coef*(1.1*params->brunt_coef + 0.094*pow(ea, 0.5))*constant::boltzman*pow(this->air_temp.current_value, 4)<< endl;
+	//Sys_Common_Output::output_hyd->output_txt(&cout, true);
 
 }
 //Calculate heat flow solar radiation
