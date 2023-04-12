@@ -1786,13 +1786,13 @@ void HydTemp_Model::solve_model(const double next_time_point, const string syste
 		ostringstream info;
 		info << "Time point  :" << next_time_point << endl;
 		info << "Rivernumber :" << this->Param_Temp.Param_RV->RVNumber << endl;
-		string buffer = this->Param_Temp.Param_RV->get_filename_result2file_1d(hyd_label::paraview);
+		string buffer = this->Param_Temp.get_filename_result2file_1d(hyd_label::paraview);
 		//Add time and file type
 		buffer += "_";
 		int time = (int)next_time_point;
 		buffer += std::to_string(time);
 		buffer += hyd_label::csv;
-		info << "Exception output 1d-RV results are written in " << buffer << endl;
+		info << "Exception output 1d-TEMPRV results are written in " << buffer << endl;
 		info << "Please check it for unplausible results; check the 1d-TEMPRV model " <<  endl;
 		this->output_result2csv_1d(next_time_point, -999);
 		msg.make_second_info(info.str());
