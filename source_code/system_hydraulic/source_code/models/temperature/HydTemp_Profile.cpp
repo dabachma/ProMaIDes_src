@@ -2807,7 +2807,14 @@ void HydTemp_Profile::make_syncronisation(const int index,  const double time_po
 
 		this->phi_total = this->phi_bed + this->phi_c + this->phi_eva + this->phi_lw + this->phi_solar;
 
-		this->delta_temp_flow = this->phi_total / (constant::dens_water*constant::c_water*this->waterdepth_current);
+
+		//Set a limit
+		double water_buff = this->waterdepth_current;
+		if (this->waterdepth_current < 0.01) {
+			water_buff = 0.01;
+		}
+
+		this->delta_temp_flow = this->phi_total / (constant::dens_water*constant::c_water*water_buff);
 	}
 
 
