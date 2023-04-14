@@ -5617,7 +5617,7 @@ void Main_Wid::check_hyd_system_perfile(void){
 			msg.output_msg(0);
 			return;
 		}
-
+		this->hyd_calc->set_thread_type(_hyd_thread_type::hyd_check_system);
 		if(this->hyd_calc->set_system_number_file_gui()==false){
 			this->delete_multi_hydraulic_system();
 			return;
@@ -5629,7 +5629,7 @@ void Main_Wid::check_hyd_system_perfile(void){
 		this->action_stop_hyd_check->setEnabled(true);
 
 		//set thread specific members
-		this->hyd_calc->set_thread_type(_hyd_thread_type::hyd_check_system);
+		
 		this->reset_exception_new_action();
 		//start the thread
 		this->hyd_calc->start();

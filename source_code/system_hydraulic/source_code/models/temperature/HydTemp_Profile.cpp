@@ -111,12 +111,13 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 	try{
 		do{
 			get_pointer=profile_file->pos();
-			(*line_counter)++;
+			//(*line_counter)++;
 			qbuffer=profile_file->readLine();
 			buffer=qbuffer.toStdString();
 			_Hyd_Parse_IO::erase_comment(&buffer);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&buffer);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&buffer);
+			_Hyd_Parse_IO::erase_quote(&buffer);
 			QString Qbuff;
 			Qbuff = buffer.c_str();
 			
@@ -133,6 +134,7 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 						ostringstream info;
 						info << "Wrong input sequenze " << Qbuff.toStdString() << endl;
 						info << "Error occurs near line: " << *line_counter << endl;
+						info << "Line: " << Qbuff.toStdString() << endl;
 						msg.make_second_info(info.str());
 						throw msg;
 
@@ -150,6 +152,7 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 				catch (Error msg) {
 					ostringstream info;
 					info << "Error occurs near line: " << *line_counter << endl;
+					info << "Line: " << Qbuff.toStdString() << endl;
 					msg.make_second_info(info.str());
 					throw msg;
 				}
@@ -163,6 +166,7 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 				catch (Error msg) {
 					ostringstream info;
 					info << "Error occurs near line: " << *line_counter << endl;
+					info << "Line: " << Qbuff.toStdString() << endl;
 					msg.make_second_info(info.str());
 					throw msg;
 				}
@@ -176,6 +180,7 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 				catch (Error msg) {
 					ostringstream info;
 					info << "Error occurs near line: " << *line_counter << endl;
+					info << "Line: " << Qbuff.toStdString() << endl;
 					msg.make_second_info(info.str());
 					throw msg;
 				}
@@ -189,6 +194,7 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 				catch (Error msg) {
 					ostringstream info;
 					info << "Error occurs near line: " << *line_counter << endl;
+					info << "Line: " << Qbuff.toStdString() << endl;
 					msg.make_second_info(info.str());
 					throw msg;
 				}
@@ -202,6 +208,7 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 				catch (Error msg) {
 					ostringstream info;
 					info << "Error occurs near line: " << *line_counter << endl;
+					info << "Line: " << Qbuff.toStdString() << endl;
 					msg.make_second_info(info.str());
 					throw msg;
 				}
@@ -215,6 +222,7 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 				catch (Error msg) {
 					ostringstream info;
 					info << "Error occurs near line: " << *line_counter << endl;
+					info << "Line: " << Qbuff.toStdString() << endl;
 					msg.make_second_info(info.str());
 					throw msg;
 				}
@@ -228,6 +236,7 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 				catch (Error msg) {
 					ostringstream info;
 					info << "Error occurs near line: " << *line_counter << endl;
+					info << "Line: " << Qbuff.toStdString() << endl;
 					msg.make_second_info(info.str());
 					throw msg;
 				}
@@ -241,6 +250,7 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 				catch (Error msg) {
 					ostringstream info;
 					info << "Error occurs near line: " << *line_counter << endl;
+					info << "Line: " << Qbuff.toStdString() << endl;
 					msg.make_second_info(info.str());
 					throw msg;
 				}

@@ -310,6 +310,9 @@ public:
 	///Erase all text behind a comment "#"
 	static void erase_comment(string *erase_str);
 
+	//(static) Erase all text behind a comment """
+	static void erase_quote(string *erase_str);
+
 	///Use the unix slash and insert it in str
 	static void UseLinuxSlash(char *str);
 

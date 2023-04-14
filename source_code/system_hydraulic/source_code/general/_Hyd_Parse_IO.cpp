@@ -135,6 +135,14 @@ void _Hyd_Parse_IO::erase_comment(string *erase_str){
 		erase_str->erase(pos);
 	}
 }
+//(static) Erase all text behind a comment """
+void _Hyd_Parse_IO::erase_quote(string *erase_str) {
+	//delete the comments with "
+	int pos = erase_str->find("\"", 0);
+	if (pos >= 0) {
+		erase_str->erase(pos);
+	}
+}
 //(static) Use the unix slash ans insert it in str 
 void _Hyd_Parse_IO::UseLinuxSlash(char *str){
 	for (int i=0; i< (signed)strlen(str); i++){
