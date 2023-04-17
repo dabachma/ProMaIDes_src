@@ -3475,7 +3475,12 @@ void HydTemp_Profile::calc_phi_c(HydTemp_Param *params) {
 
 	es = 6.1275*exp(((17.27*(this->temp_current-constant::kelvin_const))/(237.3+ (this->temp_current - constant::kelvin_const))));
 	ea = es * this->humid.current_value;
-	this->phi_c = this->phi_eva*0.00061*constant::pressure_air*(this->temp_current - this->air_temp.current_value) / (es - ea);
+	if (this->phi_eva < constant::zero_epsilon && this->phi_eva > -1*constant::zero_epsilon) {
+		this->phi_c = 0.0;
+	}
+	else {
+		this->phi_c = this->phi_eva*0.00061*constant::pressure_air*(this->temp_current - this->air_temp.current_value) / (es - ea);
+	}
 
 
 }
