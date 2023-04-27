@@ -139,6 +139,9 @@ enum _sys_system_modules{
 ///General mathematical constants for all moduls \ingroup sys
 namespace constant{
 
+	///flag if 2dGPU solver is used TODO: later user setting!
+	const bool gpu2d_applied = false;
+
 	//general
 	///Acceleration of gravity
 	const double Cgg=9.8066;

@@ -298,7 +298,7 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 
 		}
 		else {
-			if (water_bound_temp.applied_flag == false) {
+			if (water_bound_temp.applied_flag == false && inlet_temp.applied_flag==false) {
 				//check if all needed values are found (they are set in constructors of each connection type)
 				if (found_counter != this->must_found_number) {
 					Error msg = this->set_error(2);
@@ -310,7 +310,8 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 					throw msg;
 				}
 			}
-			else {
+			//temperture direct
+			else if(water_bound_temp.applied_flag == true) {
 				if (found_counter > 1) {
 					//Warning not used
 					Warning msg = this->set_warning(10);
@@ -330,6 +331,28 @@ void HydTemp_Profile::input_members(QFile *profile_file, const int profile_numbe
 					msg.make_second_info(info.str());
 					msg.output_msg(2);
 				}
+
+			}
+			//inlet
+			else{
+				if (found_counter > 1) {
+					//Warning not used
+					Warning msg = this->set_warning(11);
+					ostringstream info;
+					info << "Profile number            : " << this->profile_number << endl;
+					info << "Profile name              : " << this->name << endl;
+					this->reset_temp_data_struct(&this->air_temp);
+					this->reset_temp_data_struct(&this->solar_rad);
+
+					this->reset_temp_data_struct(&this->humid);
+					this->reset_temp_data_struct(&this->wind);
+
+					this->reset_temp_data_struct(&this->cloud);
+					this->reset_temp_data_struct(&this->shadow);
+					msg.make_second_info(info.str());
+					msg.output_msg(2);
+				}
+
 
 			}
 		}
@@ -2705,8 +2728,23 @@ void HydTemp_Profile::set_actuel_temp_from_solver(const double temp) {
 
 	}
 }
+//Get if the water temperature boundary is applied 
+bool HydTemp_Profile::get_water_temperature_applied(void) {
+	return this->water_bound_temp.applied_flag;
+
+}
+//Get if the inlet temperature boundary is applied 
+bool HydTemp_Profile::get_inlet_temperature_applied(void) {
+	return this->inlet_temp.applied_flag;
+
+}
+//Get if the inlet temperature boundary is applied 
+bool HydTemp_Profile::get_discharge_current(const double time) {
+	return this->bound_discharge.calculate_actuel_boundary_value(time);
+
+}
 //Make the syncronistation of the elements to a given time point
-void HydTemp_Profile::make_syncronisation(const int index,  const double time_point, HydTemp_Param *params) {
+void HydTemp_Profile::make_syncronisation(const int index,  const double time_point, HydTemp_Param *params, HydTemp_Profile *upstream, HydTemp_Profile *downstream, _Hyd_River_Profile *rv_profile) {
 
 	if (this->water_bound_temp.applied_flag == true) {
 		if (this->water_bound_temp.stat_flag == true) {
@@ -2721,6 +2759,42 @@ void HydTemp_Profile::make_syncronisation(const int index,  const double time_po
 		this->discharge_current = this->bound_discharge.calculate_actuel_boundary_value(time_point);
 		this->waterdepth_current = this->bound_water_depth.calculate_actuel_boundary_value(time_point);
 		this->flow_velocity_current = this->bound_velocity.calculate_actuel_boundary_value(time_point);
+
+	}
+	else if (this->inlet_temp.applied_flag == true) {
+		if (this->inlet_temp.stat_flag == true) {
+			//stationary
+			this->inlet_temp.current_value = this->inlet_temp.index_value;
+
+		}
+		else {
+			//instationary
+			this->inlet_temp.current_value = this->inlet_temp.ptr_curve->calculate_actuel_boundary_value(time_point);
+		}
+
+
+		this->discharge_current = this->bound_discharge.calculate_actuel_boundary_value(time_point);
+		this->waterdepth_current = this->bound_water_depth.calculate_actuel_boundary_value(time_point);
+		this->flow_velocity_current = this->bound_velocity.calculate_actuel_boundary_value(time_point);
+
+		//upstream
+		if (this->flow_velocity_current > 0.0) {
+			double inlet_q = rv_profile->get_boundary_point_value(time_point);
+			double q_river = upstream->get_discharge_current(time_point);
+			double temp_river= upstream->get_actual_temperature();
+			this->water_bound_temp.current_value = (this->inlet_temp.current_value*inlet_q + q_river * temp_river) / (inlet_q + q_river);
+
+		}
+		//downstream
+		else {
+			double inlet_q = rv_profile->get_boundary_point_value(time_point);
+			double q_river = downstream->get_discharge_current(time_point);
+			double temp_river = downstream->get_actual_temperature();
+			this->water_bound_temp.current_value = (this->inlet_temp.current_value*inlet_q + q_river * temp_river) / (inlet_q + q_river);
+
+		}
+
+
 
 	}
 	else {
@@ -2785,17 +2859,7 @@ void HydTemp_Profile::make_syncronisation(const int index,  const double time_po
 			this->shadow.current_value = this->shadow.ptr_curve->calculate_actuel_boundary_value(time_point);
 		}
 
-		if (this->inlet_temp.applied_flag == true) {
-			if (this->inlet_temp.stat_flag == true) {
-				//stationary
-				this->inlet_temp.current_value = this->inlet_temp.index_value;
 
-			}
-			else {
-				//instationary
-				this->inlet_temp.current_value = this->inlet_temp.ptr_curve->calculate_actuel_boundary_value(time_point);
-			}
-		}
 
 
 		this->discharge_current = this->bound_discharge.calculate_actuel_boundary_value(time_point);
@@ -3023,11 +3087,22 @@ void HydTemp_Profile::output_instat_results(QSqlDatabase *ptr_database, const in
 
 }
 //Check the temperature data of the profiles
-void HydTemp_Profile::check_profiles(void){
+void HydTemp_Profile::check_profiles(_Hyd_River_Profile *rv_profile){
 	//check if a init condition is set
 	if(this->init_condition<0.0){
 		Error msg=this->set_error(5);
 		throw msg;
+	}
+
+	//check if inlet temperature applied also a inflow boundary is applied
+	if (this->inlet_temp.applied_flag == true) {
+		if (rv_profile->boundary_point_is_applied()==false) {
+			Error msg = this->set_error(9);
+			throw msg;
+		
+		};
+
+
 	}
 
 	if (this->air_temp.stat_flag == true) {
@@ -4158,6 +4233,12 @@ Error HydTemp_Profile::set_error(const int err_type){
 			help = "Check the temperature data in the profile table for the inflow profile (first profile)";
 			type = 4;
 			break;
+		case 9://wrong input
+			place.append("check_profiles(void)");
+			reason = "A temperature inlet boundary is applied; but no point inflow boundary in the river profile";
+			help = "Check the Profile in the profile file (Temp and Hyd)";
+			type = 14;
+			break;
 		case 12://no matching global id set is found for the given river profile
 			place.append("transfer_hydraulic_boundary_sz2database(QSqlDatabase *ptr_database, const int rv_number)") ;
 			reason="There is no matching global id to the given river profile";
@@ -4247,6 +4328,13 @@ Warning HydTemp_Profile::set_warning(const int warn_type){
 		case 10://a water temp boundary is set
 			place.append("input_members(QFile *profile_file, const int profile_number, string my_line, int *line_counter)");
 			reason = "A water temperature boundary is set; all other boundary values will not be applied";
+			help = "Check the profile file";
+			reaction = "The other boundary values are not further taken into account";
+			type = 1;
+			break;
+		case 11://a inlet temp boundary is set
+			place.append("input_members(QFile *profile_file, const int profile_number, string my_line, int *line_counter)");
+			reason = "A inlet temperature boundary is set; all other boundary values will not be applied";
 			help = "Check the profile file";
 			reaction = "The other boundary values are not further taken into account";
 			type = 1;

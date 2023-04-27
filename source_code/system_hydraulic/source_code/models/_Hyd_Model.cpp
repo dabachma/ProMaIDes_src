@@ -244,6 +244,13 @@ void _Hyd_Model::init_solver(Hyd_Param_Global *global_params){
 	//count the requiered mem for the solver
 	this->count_solver_memory();
 }
+//Initialize the solver with the given parameters for GPU calculation
+void _Hyd_Model::init_solver_gpu(Hyd_Param_Global *global_params) {
+	//Todo Alaa
+	//global_params->
+	//pointer to the solver_pgu
+	//allcoate solver gpu
+}
 //Reset the solver-tolerances, if they are changed by the dynamic tolerance decreasment; also the warn_counter is reseted
 void _Hyd_Model::reset_solver_tolerances(void){
 	//if the tolerances are changed, then they are reseted here
@@ -442,6 +449,13 @@ void _Hyd_Model::run_solver(const double next_time_point, const string system_id
 
 		
 	this->calculate_solver_errors();
+}
+//Run the solver GPU
+void _Hyd_Model::run_solver_gpu(const double next_time_point, const string system_id) {
+
+	//Todo Alaa
+
+
 }
 //get the number of solver timesteps
 long int _Hyd_Model::get_number_solversteps(void){

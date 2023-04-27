@@ -138,6 +138,11 @@ public:
 	///Get boundary condition is applied
 	bool boundary_is_applied(void);
 
+	///Get boundary point condition is applied
+	bool boundary_point_is_applied(void);
+	///Get boundary point value
+	double get_boundary_point_value(const double time);
+
 	///Get q-value
 	double get_Q(void);
 

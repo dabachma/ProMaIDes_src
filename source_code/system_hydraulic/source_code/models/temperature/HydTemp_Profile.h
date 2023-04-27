@@ -226,10 +226,16 @@ public:
 	double get_actual_temperature(void);
 	//Set the actuel temperature from solver
 	void set_actuel_temp_from_solver(const double temp);
+	///Get if the water temperature boundary is applied 
+	bool get_water_temperature_applied(void);
+	///Get if the inlet temperature boundary is applied 
+	bool get_inlet_temperature_applied(void);
+	///Get if the inlet temperature boundary is applied 
+	bool get_discharge_current(const double time);
 
 
 	///Make the syncronistation of the elements to a given time point
-	void make_syncronisation(const int index, const double time_point, HydTemp_Param *params);
+	void make_syncronisation(const int index, const double time_point, HydTemp_Param *params, HydTemp_Profile *upstream, HydTemp_Profile *downstream, _Hyd_River_Profile *rv_profile);
 
 	///Calculate the values for a temperature balance of the corresponding river segment (upstream) for each syncronisation step
 	void calculate_temp_balance(const double time_point);
@@ -268,7 +274,7 @@ public:
 
 
 	///Check the temperature data of the profiles
-	void check_profiles(void);
+	void check_profiles(_Hyd_River_Profile *rv_profile);
 
 
 	///Reset the hydrological balance value and the maximum values

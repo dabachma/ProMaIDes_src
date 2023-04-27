@@ -86,6 +86,10 @@ public:
 
 	///Initialize the solver with the given parameters
 	virtual void init_solver(Hyd_Param_Global *global_params);
+
+	///Initialize the solver with the given parameters for GPU calculation
+	virtual void init_solver_gpu(Hyd_Param_Global *global_params);
+
 	///Reset the solver-tolerances, if they are changed by the dynamic tolerance decreasment; also the warn_counter is reseted
 	void reset_solver_tolerances(void);
 	///Reinitialize the solver
@@ -209,6 +213,9 @@ protected:
 
 	///Run the solver
 	void run_solver(const double next_time_point,  const string system_id);
+	///Run the solver GPU
+	void run_solver_gpu(const double next_time_point, const string system_id);
+
 	//get the number of solver timesteps
 	long int get_number_solversteps(void);
 

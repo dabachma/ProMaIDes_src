@@ -967,8 +967,12 @@ void Hyd_Model_Floodplain::init_solver(Hyd_Param_Global *global_params){
     this->init_opt_data_bound_coup();
     this->allocate_opt_data_reduced();
     this->init_reduced_id();
-
-    _Hyd_Model::init_solver(global_params);
+	if (constant::gpu2d_applied == false) {
+		_Hyd_Model::init_solver(global_params);
+	}
+	else {
+		_Hyd_Model::init_solver_gpu(global_params);
+	}
 }
 //Reinitialize the solver
 void Hyd_Model_Floodplain::reinit_solver(Hyd_Param_Global *global_params){
@@ -1122,11 +1126,14 @@ void Hyd_Model_Floodplain::solve_model(const double next_time_point, const strin
 		this->calc_set_max_step_size(next_time_point);
 
 		//2DGPU here if else statement (later user can set it via file and GUI)
-		
-		this->run_solver(next_time_point, system_id);
+		if (constant::gpu2d_applied == false) {
+			this->run_solver(next_time_point, system_id);
+		}
+		else {
+			//TODO Alaa
+			this->run_solver_gpu(next_time_point, system_id);
+		}
 
-		///GPU_solver()
-		//this->results_real[counter]
 
         long int counter=0;
         long int counter_wet=0;

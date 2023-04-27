@@ -4523,6 +4523,16 @@ void _Hyd_River_Profile::check_set_base_points(void){
 		this->index_basepoint_right=this->typ_of_profile->get_number_points()-1;
 	}
 }
+//Get boundary point condition is applied
+bool _Hyd_River_Profile::boundary_point_is_applied(void) {
+	return false;
+
+}
+//Get boundary point value
+double _Hyd_River_Profile::get_boundary_point_value(const double time) {
+	return 0.0;
+
+}
 //________________________________
 //private
 //Delete the bridge specific data after transferring it to the profile type

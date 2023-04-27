@@ -1007,6 +1007,33 @@ bool Hyd_River_Profile_Connection_Standard::boundary_is_applied(void){
 		return false;
 	}
 }
+//Get boundary point condition is applied
+bool Hyd_River_Profile_Connection_Standard::boundary_point_is_applied(void) {
+	return this->boundary_cond_point_flag;
+
+}
+//Get boundary point value
+double Hyd_River_Profile_Connection_Standard::get_boundary_point_value(const double time) {
+	double value = 0.0;
+
+	if (this->boundary_cond_point_flag == false) {
+		value = 0.0;
+		
+	}
+	else {
+		//stationary
+		if (this->boundary_point_stat_flag == true) {
+			value = *this->value_boundary_point_stat;
+		}
+		//instationary
+		else if (this->boundary_point_stat_flag == false) {
+			value = this->ptr_boundarycurve_point->calculate_actuel_boundary_value(time);
+		}
+	}
+
+	return value;
+
+}
 ///Get q-value
 double Hyd_River_Profile_Connection_Standard::get_Q(void) {
 	return this->q_river;

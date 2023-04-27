@@ -76,6 +76,7 @@ void HydTemp_Model::input_members(const string global_file, const int index, con
 		Sys_Common_Output::output_hyd->output_txt(&cout);
 		this->input_river_profiles_temp_data_perfile();
 		this->connect_profiles2instat_boundarycurves();
+		this->check_temp_model();
 	}
 	catch(Error msg){
 		ostringstream info;
@@ -334,6 +335,7 @@ void HydTemp_Model::input_members(const int index, const QSqlTableModel *query_r
 		this->input_profiles_perdatabase(&prof_query_result, ptr_database, output_flag);
 		this->model_is_applied = true;
 		this->connect_profiles2instat_boundarycurves();
+		this->check_temp_model();
 		
 		
 
@@ -800,6 +802,15 @@ void HydTemp_Model::check_temp_model(const bool output){
 	if (this->model_is_applied == false) {
 		return;
 	}
+	for (int i = 0; i < this->Param_Temp.Param_RV->get_number_profiles(); i++) {
+		this->profiles[i].check_profiles(this->ptr_river_model->get_ptr_river_profile(i));
+
+
+	}
+
+	//chek for inlet in first and last!!!
+
+
 }
 //Compare the equality of two temperature models in terms of number of profiles
 void HydTemp_Model::compare_models(HydTemp_Model *compare_model){
@@ -1739,7 +1750,16 @@ void HydTemp_Model::make_syncronisation(const double time_point){
 	//for the inbetween profiles
 	for(int i=0; i< this->Param_Temp.Param_RV->get_number_profiles(); i++){
 		
-			this->profiles[i].make_syncronisation(i,time_point, &this->Param_Temp);
+		if (i == 0) {
+			this->profiles[i].make_syncronisation(i, time_point, &this->Param_Temp, NULL, &this->profiles[i + 1], this->ptr_river_model->get_ptr_river_profile(i));
+		}
+		else if (i== this->Param_Temp.Param_RV->get_number_profiles()-1) {
+			this->profiles[i].make_syncronisation(i, time_point, &this->Param_Temp, &this->profiles[i - 1], NULL, this->ptr_river_model->get_ptr_river_profile(i));
+
+		}
+		else {
+			this->profiles[i].make_syncronisation(i, time_point, &this->Param_Temp, &this->profiles[i - 1], &this->profiles[i + 1], this->ptr_river_model->get_ptr_river_profile(i));
+		}
 		
 	}
 
@@ -2345,18 +2365,30 @@ int __cdecl ftemp_equation2solve(realtype time, N_Vector results, N_Vector da_dt
 		dh_da_data[0] = 0.0;
 		//inbetween
 		for (int i = 1; i < rv_data->Param_Temp.Param_RV->get_number_profiles()-1; i++) {
-			dh_da_data[i] = ((rv_data->profiles[i - 1].get_actual_temperature() - rv_data->profiles[i].get_actual_temperature()) / rv_data->profiles[i].get_distance2up())*0.5*(rv_data->profiles[i - 1].get_flow_velocity_current() + rv_data->profiles[i].get_flow_velocity_current()) -
-				((rv_data->profiles[i].get_actual_temperature() - rv_data->profiles[i + 1].get_actual_temperature()) / rv_data->profiles[i + 1].get_distance2up())*0.5*(rv_data->profiles[i].get_flow_velocity_current() + rv_data->profiles[i + 1].get_flow_velocity_current());
-			dh_da_data[i] = dh_da_data[i] + rv_data->profiles[i].get_delta_temp();
+			if (rv_data->profiles[i].get_water_temperature_applied() == false && rv_data->profiles[i].get_inlet_temperature_applied()==false) {
+				dh_da_data[i] = ((rv_data->profiles[i - 1].get_actual_temperature() - rv_data->profiles[i].get_actual_temperature()) / rv_data->profiles[i].get_distance2up())*0.5*(rv_data->profiles[i - 1].get_flow_velocity_current() + rv_data->profiles[i].get_flow_velocity_current()) -
+					((rv_data->profiles[i].get_actual_temperature() - rv_data->profiles[i + 1].get_actual_temperature()) / rv_data->profiles[i + 1].get_distance2up())*0.5*(rv_data->profiles[i].get_flow_velocity_current() + rv_data->profiles[i + 1].get_flow_velocity_current());
+				dh_da_data[i] = dh_da_data[i] + rv_data->profiles[i].get_delta_temp();
+			}
+			else {
+				dh_da_data[i] = 0.0;
+
+			}
 
 
 
 		}
 		//last profile
 		int i = rv_data->Param_Temp.Param_RV->get_number_profiles() - 1;
-		dh_da_data[i] = ((rv_data->profiles[i - 2].get_actual_temperature() - rv_data->profiles[i-1].get_actual_temperature()) / rv_data->profiles[i-1].get_distance2up())*0.5*(rv_data->profiles[i - 2].get_flow_velocity_current() + rv_data->profiles[i-1].get_flow_velocity_current()) -
-			((rv_data->profiles[i].get_actual_temperature() - rv_data->profiles[i].get_actual_temperature()) / rv_data->profiles[i ].get_distance2up())*0.5*(rv_data->profiles[i-1].get_flow_velocity_current() + rv_data->profiles[i].get_flow_velocity_current());
-		dh_da_data[i] = dh_da_data[i] + rv_data->profiles[i].get_delta_temp();
+		if (rv_data->profiles[i].get_water_temperature_applied() == false && rv_data->profiles[i].get_inlet_temperature_applied() == false) {
+			dh_da_data[i] = ((rv_data->profiles[i - 2].get_actual_temperature() - rv_data->profiles[i - 1].get_actual_temperature()) / rv_data->profiles[i - 1].get_distance2up())*0.5*(rv_data->profiles[i - 2].get_flow_velocity_current() + rv_data->profiles[i - 1].get_flow_velocity_current()) -
+				((rv_data->profiles[i].get_actual_temperature() - rv_data->profiles[i].get_actual_temperature()) / rv_data->profiles[i].get_distance2up())*0.5*(rv_data->profiles[i - 1].get_flow_velocity_current() + rv_data->profiles[i].get_flow_velocity_current());
+			dh_da_data[i] = dh_da_data[i] + rv_data->profiles[i].get_delta_temp();
+		}
+		else {
+			dh_da_data[i] = 0.0;
+
+		}
 
 		//for testing
 		//ostringstream out;
