@@ -321,6 +321,17 @@ private:
 	double old_discharge_2_error;
 
 	// methods
+
+
+
+
+	///Initialize the solver with the given parameters for GPU calculation
+	void init_solver_gpu(Hyd_Param_Global *global_params);
+
+	///Run the solver GPU
+	void run_solver_gpu(const double next_time_point, const string system_id);
+
+
 	///Generate the geometrical boundary of the raster polygon
 	void generate_geo_bound_raster_polygon(void);
 

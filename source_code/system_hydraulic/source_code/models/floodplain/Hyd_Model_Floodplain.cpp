@@ -971,7 +971,7 @@ void Hyd_Model_Floodplain::init_solver(Hyd_Param_Global *global_params){
 		_Hyd_Model::init_solver(global_params);
 	}
 	else {
-		_Hyd_Model::init_solver_gpu(global_params);
+		this->init_solver_gpu(global_params);
 	}
 }
 //Reinitialize the solver
@@ -3521,6 +3521,24 @@ void Hyd_Model_Floodplain::transfer_glob_elem_id_fp(Hyd_Model_Floodplain *to_fp)
 }
 //____________________________________
 //private
+//Initialize the solver with the given parameters for GPU calculation
+void Hyd_Model_Floodplain::init_solver_gpu(Hyd_Param_Global *global_params) {
+	//Todo Alaa
+ //global_params->
+ //pointer to the solver_pgu
+ //allcoate solver gpu
+	this->Param_FP.FPNofX;
+	this->Param_FP.width_x;
+
+
+}
+//Run the solver GPU
+void Hyd_Model_Floodplain::run_solver_gpu(const double next_time_point, const string system_id) {
+	//Todo Alaa
+	//set the fp_data: this
+
+
+}
 //Generate the geometrical boundary of the raster polygon
 void Hyd_Model_Floodplain::generate_geo_bound_raster_polygon(void){
 	//set the index of the fp_model to the raster

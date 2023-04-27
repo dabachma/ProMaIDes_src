@@ -250,6 +250,7 @@ void _Hyd_Model::init_solver_gpu(Hyd_Param_Global *global_params) {
 	//global_params->
 	//pointer to the solver_pgu
 	//allcoate solver gpu
+
 }
 //Reset the solver-tolerances, if they are changed by the dynamic tolerance decreasment; also the warn_counter is reseted
 void _Hyd_Model::reset_solver_tolerances(void){
