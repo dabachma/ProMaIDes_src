@@ -76,7 +76,8 @@ void HydTemp_Model::input_members(const string global_file, const int index, con
 		Sys_Common_Output::output_hyd->output_txt(&cout);
 		this->input_river_profiles_temp_data_perfile();
 		this->connect_profiles2instat_boundarycurves();
-		this->check_temp_model();
+		
+	
 	}
 	catch(Error msg){
 		ostringstream info;
@@ -114,6 +115,7 @@ void HydTemp_Model::input_members(const HydTemp_Param param_temp){
 		cout << "Read in temperature data of " << this->Param_Temp.Param_RV->get_number_profiles() << " profiles of the Rivermodel from file " << this->Param_Temp.temp_profile_File << " ..." << endl;
 		Sys_Common_Output::output_hyd->output_txt(&cout);
 		this->input_river_profiles_temp_data_perfile();
+		
 
 	}
 	catch(Error msg){
@@ -335,7 +337,7 @@ void HydTemp_Model::input_members(const int index, const QSqlTableModel *query_r
 		this->input_profiles_perdatabase(&prof_query_result, ptr_database, output_flag);
 		this->model_is_applied = true;
 		this->connect_profiles2instat_boundarycurves();
-		this->check_temp_model();
+		
 		
 		
 
@@ -708,8 +710,8 @@ void HydTemp_Model::init_temp_model(QSqlDatabase *ptr_database, const int number
 		ostringstream info;
 		info << "Number timesteps required: " << number_timestep << endl;
 		info << "Number timesteps found :   " << number_t_step << endl;
-		msg.make_second_info(info.str());
-		throw msg;
+msg.make_second_info(info.str());
+throw msg;
 
 	}
 
@@ -723,19 +725,19 @@ void HydTemp_Model::init_temp_model(QSqlDatabase *ptr_database, const int number
 	}
 	QList<double> time;
 	QList<double> value;
-	
+
 	for (int j = 0; j < this->Param_Temp.Param_RV->get_number_profiles(); j++) {
 		time.append(0.0);
 		value.append(query.record(j).value((_Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_h_max)).c_str()).toDouble());
 
 		for (int i = 0; i < number_t_step; i++) {
-			time.append(((i+1) * delta_t)/3600.0);
-			value.append(query.record(j+(i*this->Param_Temp.Param_RV->get_number_profiles())).value((_Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_h_max)).c_str()).toDouble());
+			time.append(((i + 1) * delta_t) / 3600.0);
+			value.append(query.record(j + (i*this->Param_Temp.Param_RV->get_number_profiles())).value((_Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_h_max)).c_str()).toDouble());
 
 		}
-		time.append(time.last()+100000);
+		time.append(time.last() + 100000);
 		value.append(value.last());
-		this->profiles[j].bound_water_depth.set_curve_dircetly(time,value,_hyd_bound_type::waterlevel_type);
+		this->profiles[j].bound_water_depth.set_curve_dircetly(time, value, _hyd_bound_type::waterlevel_type);
 		time.clear();
 		value.clear();
 
@@ -743,7 +745,7 @@ void HydTemp_Model::init_temp_model(QSqlDatabase *ptr_database, const int number
 
 	time.clear();
 	value.clear();
-	
+
 	for (int j = 0; j < this->Param_Temp.Param_RV->get_number_profiles(); j++) {
 		time.append(0.0);
 		value.append(query.record(j).value((_Hyd_River_Profile::erg_instat_table->get_column_name(hyd_label::proferg_v_max)).c_str()).toDouble());
@@ -797,19 +799,48 @@ void HydTemp_Model::init_temp_model(QSqlDatabase *ptr_database, const int number
 
 }
 //check the temperature  model
-void HydTemp_Model::check_temp_model(const bool output){
- //currently nothing to do!
+void HydTemp_Model::check_temp_model(const bool output) {
 	if (this->model_is_applied == false) {
+
 		return;
 	}
-	for (int i = 0; i < this->Param_Temp.Param_RV->get_number_profiles(); i++) {
-		this->profiles[i].check_profiles(this->ptr_river_model->get_ptr_river_profile(i));
 
+
+	//chek for inlet in first and last!!!
+	if (this->profiles[0].get_inlet_temperature_applied() == true) {
+		//Error
+		Error msg = this->set_error(9);
+		ostringstream info;
+		info << "First profile"<< endl;
+		msg.make_second_info(info.str());
+		throw msg;
+
+	}
+	if (this->profiles[this->Param_Temp.Param_RV->get_number_profiles()-1].get_inlet_temperature_applied() == true) {
+		//Error
+		Error msg = this->set_error(9);
+		ostringstream info;
+		info << "Last profile" << endl;
+		msg.make_second_info(info.str());
+		throw msg;
 
 	}
 
-	//chek for inlet in first and last!!!
 
+	for (int i = 0; i < this->Param_Temp.Param_RV->get_number_profiles(); i++) {
+		if (i == 0) {
+			this->profiles[i].check_profiles(NULL);
+
+		}
+		else if (i==this->Param_Temp.Param_RV->get_number_profiles()-1) {
+			this->profiles[i].check_profiles(NULL);
+		}
+		else {
+			this->profiles[i].check_profiles(&this->ptr_river_model->river_profiles[i-1]);
+		}
+
+
+	}
 
 }
 //Compare the equality of two temperature models in terms of number of profiles
@@ -1751,14 +1782,14 @@ void HydTemp_Model::make_syncronisation(const double time_point){
 	for(int i=0; i< this->Param_Temp.Param_RV->get_number_profiles(); i++){
 		
 		if (i == 0) {
-			this->profiles[i].make_syncronisation(i, time_point, &this->Param_Temp, NULL, &this->profiles[i + 1], this->ptr_river_model->get_ptr_river_profile(i));
+			this->profiles[i].make_syncronisation(i, time_point, &this->Param_Temp, NULL, &this->profiles[i + 1], NULL);
 		}
 		else if (i== this->Param_Temp.Param_RV->get_number_profiles()-1) {
-			this->profiles[i].make_syncronisation(i, time_point, &this->Param_Temp, &this->profiles[i - 1], NULL, this->ptr_river_model->get_ptr_river_profile(i));
+			this->profiles[i].make_syncronisation(i, time_point, &this->Param_Temp, &this->profiles[i - 1], NULL, NULL);
 
 		}
 		else {
-			this->profiles[i].make_syncronisation(i, time_point, &this->Param_Temp, &this->profiles[i - 1], &this->profiles[i + 1], this->ptr_river_model->get_ptr_river_profile(i));
+			this->profiles[i].make_syncronisation(i, time_point, &this->Param_Temp, &this->profiles[i - 1], &this->profiles[i + 1], &this->ptr_river_model->river_profiles[i-1]);
 		}
 		
 	}
@@ -2264,34 +2295,28 @@ Error HydTemp_Model::set_error(const int err_type){
 			break;
 		case 6://could not open the tecplot file
 			place.append("output_result2csv_1d(const double timepoint, const int timestep_number)");
-			reason = "Could not open the file for the paraview output of the river model";
+			reason = "Could not open the file for the paraview output of the temperature river model";
 			help = "Check the file";
 			type = 5;
 			break;
 		case 7://could not open the  file
 			place.append("output_geometrie2paraview_2d(void)");
-			reason = "Could not open the file for the paraview output of the river model";
+			reason = "Could not open the file for the paraview output of the temperature river model";
 			help = "Check the file";
 			type = 5;
 			break;
 		case 8://not all profiles are found
-			place.append("calculate_distance_of_profiles(void)");
+			place.append("input_river_profiles_temp_data_perfile(void)");
 			reason="Not all profiles are found";
 			help="Check the profile file and the setted number of profiles in the global file for this river number";
 			type=15;
 			break;
-		case 10://no slope!
-			place.append("calculate_deltaz_in2out(void)");
-			reason="There has to be a slope from inflow to outflow";
-			help="Check the minimum height of the inflow and outflow profile";
-			type=15;
+		case 9://inlet boundary at first/last profiel
+			place.append("check_temp_model(const bool output)");
+			reason = "There is an inlet temperature boundary found at the first/last profile";
+			help = "At the first/last profile no temperature inlet boundary is allowed";
+			type = 15;
 			break;
-		case 11://could not open the tecplot file
-			place.append("init_tecplot_output(void)");
-			reason="Could not open the file for the tecplot output of the river model";
-			help="Check the file";
-			type=5;
-break;
 		case 15://problem with the setting of the function to the solver
 			place.append("set_function2solver(Hyd_Param_Global *global_params)");
 			reason = "Can not set the function to solve to the solver";
@@ -2310,14 +2335,6 @@ break;
 			help = "Check the table";
 			type = 2;;
 			break;
-
-		case 23://bad alloc
-			place.append("transfer_profile_members2database(QSqlDatabase *ptr_database, HydTemp_Model *source, const _sys_system_id base)");
-			reason = "The number of profiles have to be equal";
-			help = "Check the number of profile in file";
-			type = 31;
-			break;
-
 		default:
 			place.append("set_error(const int err_type)");
 			reason = "Unknown flag!";

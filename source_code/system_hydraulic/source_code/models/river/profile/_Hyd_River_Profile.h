@@ -465,10 +465,10 @@ public:
 	virtual double get_Q(void) = 0;
 
 	///Get boundary point condition is applied
-	bool boundary_point_is_applied(void);
+	virtual bool boundary_point_is_applied(void);
 
 	///Get boundary point value
-	double get_boundary_point_value(const double time);
+	virtual double get_boundary_point_value(const double time);
 
 protected:
 	//members

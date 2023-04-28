@@ -3276,6 +3276,16 @@ void Hyd_Hydraulic_System::check_models(void){
 	catch(Error msg){
 		throw msg;
 	}
+
+	//check river temp models
+	try {
+		for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+			this->my_temp_model[i].check_temp_model();
+		}
+	}
+	catch (Error msg) {
+		throw msg;
+	}
 }
 //make the calculation the internal loop (output time steps)
 void Hyd_Hydraulic_System::make_calculation_internal(void){
