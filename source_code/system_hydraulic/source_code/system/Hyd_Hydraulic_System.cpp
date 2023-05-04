@@ -3279,8 +3279,10 @@ void Hyd_Hydraulic_System::check_models(void){
 
 	//check river temp models
 	try {
-		for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
-			this->my_temp_model[i].check_temp_model();
+		if (Sys_Project::get_project_type() == _sys_project_type::proj_hyd_temp) {
+			for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
+				this->my_temp_model[i].check_temp_model();
+			}
 		}
 	}
 	catch (Error msg) {
