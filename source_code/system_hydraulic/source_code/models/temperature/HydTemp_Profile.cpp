@@ -3140,6 +3140,31 @@ void HydTemp_Profile::check_profiles(Hyd_River_Profile_Connection_Standard *rv_p
 	}
 
 	//todo UDO further checks 
+	if (this->air_temp.stat_flag == true) {
+		//stationary
+		if(this->air_temp.current_value < 0.0) {
+			//Set waring
+
+		}
+
+	}
+	else {
+		//instationary
+		this->air_temp.ptr_curve->check_curve();
+	}
+
+	if (this->solar_rad.stat_flag == true) {
+		//stationary
+		///this->solar_rad.current_value = this->solar_rad.index_value;
+
+	}
+	else {
+		//instationary
+		//this->solar_rad.current_value = this->solar_rad.ptr_curve->calculate_actuel_boundary_value(time_point);
+	}
+
+
+
 
 }
 //Output the members
@@ -4357,15 +4382,6 @@ Warning HydTemp_Profile::set_warning(const int warn_type){
 			place.append("check_profiles(void)") ;
 			reason="The air temperature cn not below 0.0 Kelvin ";
 			reaction="It is set to 283 Kelvin";
-			type=9;
-			break;
-		case 1://the init condition is above the smallest outer z coordinate of the profile
-			place.append("check_profiles(void)") ;
-			reason="The initial condition is above the minimum outer z-coordinate of the profile;\n it could lead to instabilities by the overflow calculation (1d/2d) ";
-			//reaction="It is set to the minimum of the outer z-coordinate";
-			help= "Check the profile initial condition";
-			info << "Profile name   :" << this->name <<endl;
-			info << "Profile number :" <<this->profile_number<< endl;
 			type=9;
 			break;
 		case 2://input datas can not submitted

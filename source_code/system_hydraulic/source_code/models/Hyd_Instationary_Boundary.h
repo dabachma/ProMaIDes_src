@@ -120,6 +120,10 @@ public:
 	///Set the specific value (e.g. a length or an area); This value is multiplied with the discharge to get always the unit m³/s
 	void set_specific_value(const double specific_multiplicator);
 
+	///Check the curve values
+	void check_curve(void);
+
+
 	///Calculate the boundary condition at a given point in time; it is returned
 	double calculate_actuel_boundary_value(const double time_point);
 

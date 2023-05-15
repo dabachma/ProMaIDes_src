@@ -2314,7 +2314,7 @@ Error HydTemp_Model::set_error(const int err_type){
 		case 9://inlet boundary at first/last profiel
 			place.append("check_temp_model(const bool output)");
 			reason = "There is an inlet temperature boundary found at the first/last profile";
-			help = "At the first/last profile no temperature inlet boundary is allowed";
+			help = "At the first/last profile no temperature inlet boundary is applied; a inlet temperature boudnary is requierd!";
 			type = 15;
 			break;
 		case 15://problem with the setting of the function to the solver

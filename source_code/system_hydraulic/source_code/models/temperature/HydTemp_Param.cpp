@@ -120,7 +120,7 @@ void HydTemp_Param::check_members(void){
 	//warnings
 	//check GW-temp
 	if(this->gw_temp < 0.0){
-		Warning msg=this->set_warning(1);
+		Warning msg=this->set_warning(0);
 		stringstream info;
 		info << "Default value: 287 K"<< endl;
 		msg.make_second_info(info.str());
@@ -128,6 +128,9 @@ void HydTemp_Param::check_members(void){
 		this->gw_temp = 287.0;
 		msg.output_msg(2);
 	}
+
+
+
 
 	//TODO UDO: weitere Checks!
 
@@ -238,7 +241,7 @@ Warning HydTemp_Param::set_warning(const int warn_type){
 		case 0://absolute solver tolerance
 			place.append("check_members(void)") ;
 			reason="The groundwater temperature is below 0.0 K";
-			reaction="The default value is taken";
+			reaction="The default value of 287 k is taken";
 			help= "Check the given groundwater temperature";
 			info << "River Model number : " << this->Param_RV->get_river_number()<< endl;
             type=3;

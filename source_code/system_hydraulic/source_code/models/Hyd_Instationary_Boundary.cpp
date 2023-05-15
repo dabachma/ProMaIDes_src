@@ -719,6 +719,27 @@ void Hyd_Instationary_Boundary::set_specific_value(const double specific_multipl
 		this->specific_multiplicator=specific_multiplicator;
 	}
 }
+//Check the curve values
+void Hyd_Instationary_Boundary::check_curve(void) {
+	if (this->setted_type == _hyd_bound_type::temperature) {
+		for (int i = 0; i < this->number_of_points; i++) {
+			if (this->boundary_points[i].value < 0.0) {
+				//Set warning
+
+
+			}
+
+		}
+
+	}
+	else if (this->setted_type == _hyd_bound_type::percentage {
+
+
+
+	}
+
+
+}
 //output the curve
 void Hyd_Instationary_Boundary::output_member(void){
 	ostringstream prefix;
@@ -765,7 +786,6 @@ void Hyd_Instationary_Boundary::output_member(void){
 	}
 	Sys_Common_Output::output_hyd->rewind_userprefix();
 }
-
 //get the curve number
 int Hyd_Instationary_Boundary::get_curve_number(void){
 	return this->number;
@@ -1239,7 +1259,6 @@ Error Hyd_Instationary_Boundary::set_error(const int err_type){
 	msg.make_second_info(info.str());
 	return msg;
 }
-
 //Set warning(s)
 Warning Hyd_Instationary_Boundary::set_warning(const int warn_type){
 	string place="Hyd_Instationary_Boundary::";
