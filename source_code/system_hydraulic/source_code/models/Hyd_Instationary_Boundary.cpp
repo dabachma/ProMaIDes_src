@@ -732,7 +732,7 @@ void Hyd_Instationary_Boundary::check_curve(void) {
 		}
 
 	}
-	else if (this->setted_type == _hyd_bound_type::percentage {
+	else if (this->setted_type == _hyd_bound_type::percentage) {
 
 
 
