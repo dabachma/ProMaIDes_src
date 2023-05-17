@@ -3636,13 +3636,19 @@ void HydTemp_Profile::calc_phi_c(HydTemp_Param *params) {
 	double es = 0.0;
 	double ea = 0.0;
 
-	es = 6.1275*exp(((17.27*(this->temp_current-constant::kelvin_const))/(237.3+ (this->temp_current - constant::kelvin_const))));
+	es = 6.1275*exp(((17.27*(this->temp_current - constant::kelvin_const)) / (237.3 + (this->temp_current - constant::kelvin_const))));
 	ea = es * this->humid.current_value;
 	if (this->phi_eva < constant::zero_epsilon && this->phi_eva > -1*constant::zero_epsilon) {
 		this->phi_c = 0.0;
 	}
+	//else {
+	//	this->phi_c = this->phi_eva*0.00061*constant::pressure_air*(this->temp_current - this->air_temp.current_value) / (es - ea);
+	
+	if (this->humid.current_value >= 1.0) {
+		this->phi_c = this->phi_eva*(0.00061*constant::pressure_air*(this->temp_current - this->air_temp.current_value) / (es - (es*0.99)));
+	}
 	else {
-		this->phi_c = this->phi_eva*0.00061*constant::pressure_air*(this->temp_current - this->air_temp.current_value) / (es - ea);
+		this->phi_c = this->phi_eva*(0.00061*constant::pressure_air*(this->temp_current - this->air_temp.current_value) / (es - ea));
 	}
 
 
@@ -3651,26 +3657,37 @@ void HydTemp_Profile::calc_phi_c(HydTemp_Param *params) {
 void HydTemp_Profile::calc_phi_eva(HydTemp_Param *params) {
 	double es = 0.0;
 	double ea = 0.0;
-	es= 6.1275*exp(((17.27*(this->air_temp.current_value- constant::kelvin_const)) / (237.3 + (this->air_temp.current_value - constant::kelvin_const))));
+	double Le = 0.0;
+	double Erate = 0.0;
+	double s = 0.0;
+	double ra = 0.0;
+
+	//es= 6.1275*exp(((17.27*(this->air_temp.current_value- constant::kelvin_const)) / (237.3 + (this->air_temp.current_value - constant::kelvin_const))));
+	es = 0.61275*exp(((17.27*(this->air_temp.current_value - constant::kelvin_const)) / (237.3 + (this->air_temp.current_value - constant::kelvin_const))));
 	ea = es * this->humid.current_value;
+	Le = 1000 * (2501.4 + (this->temp_current - constant::kelvin_const));
+	s = 4100 * es / pow((237 + (this->air_temp.current_value - constant::kelvin_const)), 2);
+	ra = 245 / (0.54 * this->wind.current_value + 0.5);
+	Erate = s * (this->phi_solar + this->phi_lw) / (constant::dens_water * Le*(s + constant::psychometric)) + (constant::c_air*constant::dens_air*(es - ea)) / (constant::dens_water*Le*ra*(s + constant::psychometric));
 
-	this->phi_eva = -((constant::dens_air*constant::c_air) / constant::psychometric)*(0.0022*this->wind.current_value + 0.0021)*(es - ea);
-
-
+	//this->phi_eva = -((constant::dens_air*constant::c_air) / constant::psychometric)*(0.0022*this->wind.current_value + 0.0021)*(es - ea);
+	this->phi_eva = -constant::dens_water* Le * Erate;
 }
 //Calculate heat flow longwave radiation
 void HydTemp_Profile::calc_phi_lw(HydTemp_Param *params) {
 	double es = 0.0;
 	double ea = 0.0;
-	es = 6.1275*exp((17.27*(this->air_temp.current_value - constant::kelvin_const)) / (237.3 + (this->air_temp.current_value - constant::kelvin_const)));
+	es = 0.61275*exp((17.27*(this->air_temp.current_value - constant::kelvin_const)) / (237.3 + (this->air_temp.current_value - constant::kelvin_const)));
 	ea = es * this->humid.current_value;
 	double phi_alw = 0.0;
 	double phi_lclw = 0.0;
 	double phi_slw = 0.0;
-	double eta_atm = 1.72*(1.0 + 0.22 + pow(this->cloud.current_value, 2))*pow((0.1*ea / this->air_temp.current_value), (1.0/7.0));
+	//double eta_atm = 1.72*(1.0 + 0.22 + pow(this->cloud.current_value, 2))*pow((0.1*ea / this->air_temp.current_value), (1.0/7.0));
+	double eta_atm = (1.1*params->brunt_coef + 0.094*pow(ea, 0.5));
 
-	phi_alw = pow(this->air_temp.current_value, 4)*0.96*constant::boltzman*eta_atm;
-	phi_lclw = 0.96*params->view2sky_coef*(1.1*params->brunt_coef + 0.094*pow(ea, 0.5))*constant::boltzman*pow(this->air_temp.current_value, 4);
+	//phi_alw = pow(this->air_temp.current_value, 4)*0.96*constant::boltzman*eta_atm;
+	phi_alw = 0.96*eta_atm*params->view2sky_coef*constant::boltzman*pow(this->air_temp.current_value, 4); //equation from Westhoff et. al. 2011 (Corrigendum!)
+	phi_lclw = 0.96*(1 - params->view2sky_coef)*eta_atm*constant::boltzman*pow(this->air_temp.current_value, 4);
 	phi_slw = -0.96*constant::boltzman*pow((this->temp_current), 4);
 	this->phi_lw = phi_alw + phi_lclw + phi_slw;
 
