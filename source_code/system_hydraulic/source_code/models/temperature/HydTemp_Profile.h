@@ -2,7 +2,7 @@
 /**\class HydTemp_Profile
 	\author Daniel Bachmann et al.
 	\author produced by the AG-FRM University of applied sciences Magdeburg-Stendal
-	\version 0.0.1                                                              
+	\version 0.0.1                                                                
 	\date 2023 
 */
 #ifndef HYDTEMP_PROFILE_H
