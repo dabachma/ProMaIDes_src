@@ -29,7 +29,7 @@ HydGui_System_Member_Wid::HydGui_System_Member_Wid(DataRole role, QWidget *paren
 	// TNOF
 	ui.tnof->set_label_text("Number of output timesteps [-]");
 	ui.tnof->set_tooltip("Size of output timestep times number of output timesteps = total real time [s]");
-	ui.tnof->set_range(0, 12000);
+	ui.tnof->set_range(0, 12000000);
 	ui.tnof->set_increment(10);
 	
 	// NOFITS
