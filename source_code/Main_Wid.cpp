@@ -9449,8 +9449,9 @@ void Main_Wid::about(void){
 	text << "ProMaIDes (Protection Measures against Inundation Desicion Support). <br><br>" << endl;
     text << "This is version "<<Sys_Project::get_version_number()<<" produced at "<<Sys_Project::get_version_date() <<".<br><br>"<<endl;
     text << "Produced by the <a href ='https://tinyurl.com/agfrm77'>AG FRM</a> of the University of applied sciences Magdeburg-Stendal<br> and the <a href ='https://www.iww.rwth-aachen.de/go/id/lygz/?lidx=1'>IWW</a> of RWTH Aachen University.<br><br>"<< endl;
-    text << "Copyright by AG FRM (HS-M), IWW (RWTH) 2008-2020.<br>"<< endl;
-	text << "It is distributed under <a href='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-34/License'>a 3-clause BSD license</a>." << endl;
+    text << "Copyright by AG FRM (HS-M), IWW (RWTH) 2023.<br>"<< endl;
+	text << "It is distributed under <a href='https://promaides.myjetbrains.com/youtrack/articles/PMID-A-34/License'>a GPL-3.0-only license</a>." << endl;
+	text << "This program comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under GPL-3.0-only conditions." << endl;
 	QString buff;
 	buff = text.str().c_str();
 
