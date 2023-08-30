@@ -1,5 +1,5 @@
 //#include "HydTemp_Profile.h"
-#include "Hyd_Headers_Precompiled.h"
+#include "Hyd_Headers_Precompiled.h" //Fail??
 
 
 
@@ -2890,8 +2890,8 @@ void HydTemp_Profile::make_syncronisation(const int index,  const double time_po
 
 		//Set a limit
 		double water_buff = this->waterdepth_current;
-		if (this->waterdepth_current < 0.01) {
-			water_buff = 0.01;
+		if (this->waterdepth_current < 0.10) {
+			water_buff = 0.10;
 		}
 
 		this->delta_temp_flow = this->phi_total / (constant::dens_water*constant::c_water*water_buff);
@@ -3093,20 +3093,20 @@ void HydTemp_Profile::output_instat_results(QSqlDatabase *ptr_database, const in
 
 }
 //Check the temperature data of the profiles
-void HydTemp_Profile::check_profiles(Hyd_River_Profile_Connection_Standard *rv_profile){
+void HydTemp_Profile::check_profiles(Hyd_River_Profile_Connection_Standard *rv_profile) {
 	//check if a init condition is set
-	if(this->init_condition<0.0){
-		Error msg=this->set_error(5);
+	if (this->init_condition < 0.0) {
+		Error msg = this->set_error(5);
 		ostringstream info;
-		info << "Profile name  : "<<this->get_profile_name() << endl;
-		info << "Profile number: " << this->get_profile_number()<< endl;
+		info << "Profile name  : " << this->get_profile_name() << endl;
+		info << "Profile number: " << this->get_profile_number() << endl;
 		msg.make_second_info(info.str());
 		throw msg;
 	}
 
 	//check if inlet temperature applied also a inflow boundary is applied
 	if (this->inlet_temp.applied_flag == true) {
-		if (rv_profile==NULL) {
+		if (rv_profile == NULL) {
 			Error msg = this->set_error(10);
 			ostringstream info;
 			info << "Profile name  : " << this->get_profile_name() << endl;
@@ -3115,14 +3115,14 @@ void HydTemp_Profile::check_profiles(Hyd_River_Profile_Connection_Standard *rv_p
 			throw msg;
 		}
 
-		if (rv_profile->boundary_point_is_applied()==false) {
+		if (rv_profile->boundary_point_is_applied() == false) {
 			Error msg = this->set_error(9);
 			ostringstream info;
 			info << "Profile name  : " << this->get_profile_name() << endl;
 			info << "Profile number: " << this->get_profile_number() << endl;
 			msg.make_second_info(info.str());
 			throw msg;
-		
+
 		};
 
 
@@ -3140,23 +3140,70 @@ void HydTemp_Profile::check_profiles(Hyd_River_Profile_Connection_Standard *rv_p
 	}
 
 	//todo UDO further checks 
-	if (this->air_temp.stat_flag == true) {
+	if (this->humid.stat_flag == true) {
 		//stationary
-		if(this->air_temp.current_value < 0.0) {
+		if (this->humid.index_value < 0.0 || this->humid.index_value > 1.0) {
 			//Set waring
-
+			Warning msg = this->set_warning(6);
+			ostringstream info;
+			this->humid.index_value = 0.8;
+			info << "Profile " << this->profile_number << " Profilname " << this->name << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(2);
 		}
-
 	}
 	else {
 		//instationary
-		this->air_temp.ptr_curve->check_curve();
+		this->humid.ptr_curve->check_curve();
 	}
-
+	//check the stationary boundary for shadow factor
+	if (this->shadow.stat_flag == true) {
+		if (this->shadow.index_value < 0.0 || this->shadow.index_value > 1.0) {
+			//Set waring
+			Warning msg = this->set_warning(7);
+			ostringstream info;
+			this->shadow.index_value = 0.5;
+			info << "Profile " << this->profile_number << " Profilname " << this->name << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(2);
+		}
+	}
+	else {
+		//instationary
+		this->shadow.ptr_curve->check_curve();
+	}
+	//Check the stationary boundary for solar_radiation
 	if (this->solar_rad.stat_flag == true) {
-		//stationary
-		///this->solar_rad.current_value = this->solar_rad.index_value;
-
+		Warning msg = this->set_warning(8);
+		ostringstream info;
+		info << "Profile " << this->profile_number << " Profilname " << this->name << endl;
+		msg.make_second_info(info.str());
+		msg.output_msg(2);
+		if (this->solar_rad.index_value < 0.0) {
+			//Set waring
+			Warning msg = this->set_warning(12);
+			ostringstream info;
+			this->solar_rad.index_value = 150;
+			info << "Profile " << this->profile_number << " Profilname " << this->name << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(2);
+		}
+	}
+	else {
+		//instationary
+		//this->solar_rad.current_value = this->solar_rad.ptr_curve->calculate_actuel_boundary_value(time_point);
+	}
+	//Check the stationary boundary for wind speed/velocity
+	if (this->wind.stat_flag == true) {
+		if (this->wind.index_value < 0.0) {
+			//Set waring
+			Warning msg = this->set_warning(13);
+			ostringstream info;
+			this->wind.index_value = 2;
+			info << "Profile " << this->profile_number << " Profilname " << this->name << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(2);
+		}
 	}
 	else {
 		//instationary
@@ -3164,9 +3211,9 @@ void HydTemp_Profile::check_profiles(Hyd_River_Profile_Connection_Standard *rv_p
 	}
 
 
-
-
 }
+
+
 //Output the members
 void HydTemp_Profile::output_members(void) {
 	ostringstream prefix;
@@ -3323,24 +3370,24 @@ void HydTemp_Profile::output_result_members_per_timestep(ofstream *file, const d
 //Output the result members for each riverprofiletype at every timestep to csv file
 void HydTemp_Profile::output_result_members_per_timestep2csv(ofstream *file, const double rv_station, const double z_min) {
 	*file << W(10) << P(2) << FORMAT_FIXED_REAL << rv_station << ",";
-	*file << W(10) << P(2) << FORMAT_FIXED_REAL << z_min << ",";
+	//*file << W(10) << P(2) << FORMAT_FIXED_REAL << z_min << ",";
 	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->temp_current << ",";
-	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->air_temp.current_value << ",";
-	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->solar_rad.current_value << ",";
-	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->humid.current_value << ",";
-	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->wind.current_value << ",";
-	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->cloud.current_value << ",";
-	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->shadow.current_value << ",";
-	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->inlet_temp.current_value << ",";
+	//*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->air_temp.current_value << ",";
+	//*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->solar_rad.current_value << ",";
+	//*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->humid.current_value << ",";
+	//*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->wind.current_value << ",";
+	//*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->cloud.current_value << ",";
+	//*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->shadow.current_value << ",";
+	//*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->inlet_temp.current_value << ",";
 	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->phi_total << ",";
 	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->phi_bed << ",";
 	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->phi_c << ",";
 	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->phi_eva<< ",";
 	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->phi_lw<< ",";
 	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->phi_solar << ",";
-	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->discharge_current << ",";
-	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->flow_velocity_current << ",";
-	*file << W(10) << P(3) << FORMAT_FIXED_REAL << z_min + this->waterdepth_current << ",";
+	//*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->discharge_current << ",";
+	//*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->flow_velocity_current << ",";
+	//*file << W(10) << P(3) << FORMAT_FIXED_REAL << z_min + this->waterdepth_current << ",";
 	*file << W(10) << P(3) << FORMAT_FIXED_REAL << this->waterdepth_current<<endl;
 	
 
@@ -3644,8 +3691,8 @@ void HydTemp_Profile::calc_phi_c(HydTemp_Param *params) {
 	//else {
 	//	this->phi_c = this->phi_eva*0.00061*constant::pressure_air*(this->temp_current - this->air_temp.current_value) / (es - ea);
 	
-	if (this->humid.current_value >= 1.0) {
-		this->phi_c = this->phi_eva*(0.00061*constant::pressure_air*(this->temp_current - this->air_temp.current_value) / (es - (es*0.99)));
+	if (this->humid.current_value >= 0.90) {
+		this->phi_c = this->phi_eva*(0.00061*constant::pressure_air*(this->temp_current - this->air_temp.current_value) / (es - (es*0.90)));
 	}
 	else {
 		this->phi_c = this->phi_eva*(0.00061*constant::pressure_air*(this->temp_current - this->air_temp.current_value) / (es - ea));
@@ -4397,9 +4444,9 @@ Warning HydTemp_Profile::set_warning(const int warn_type){
 	switch (warn_type){
 		case 0://air temp to low
 			place.append("check_profiles(void)") ;
-			reason="The air temperature cn not below 0.0 Kelvin ";
+			reason="The air temperature can not be below 0.0 Kelvin ";
 			reaction="It is set to 283 Kelvin";
-			type=9;
+			type=9;//9 was here before
 			break;
 		case 2://input datas can not submitted
 			place.append("transfer_profile_members2database(QSqlDatabase *ptr_database, const int rv_number)");
@@ -4426,7 +4473,23 @@ Warning HydTemp_Profile::set_warning(const int warn_type){
 			help = "Check the database";
 			type=2;
 			break;
-
+		case 6://humidity to low or high
+			place.append("check_profiles(void)");
+			reason = "The humidity can not be below 0.0 or above 1.0. It must be a value between 0-1.";
+			reaction = "It is set to 0.8";
+			type = 9;
+			break;
+		case 7://shadow is to low or high
+			place.append("check_profiles(void)");
+			reason = "The shadow factor can not be below 0.0 or above 1.0. It must be a value between 0-1.";
+			reaction = "It is set to 0.5";
+			type = 9;
+			break;
+		case 8://solar radiation is set stationary
+			place.append("check_profiles(void)");
+			reason = "The solar radiation is set as a stationary boundary condition. This will probably cause a permanent rise of temperature.";
+			type = 9;
+			break;
 		case 9://result datas can not submitted
 			place.append("output_instat_results(QSqlDatabase *ptr_database, const int rv_no, const string polygon_string, int *glob_id, const string break_sc, const string time)");
 			reason = "Can not submit the results data of the river profile to the database";
@@ -4446,6 +4509,18 @@ Warning HydTemp_Profile::set_warning(const int warn_type){
 			help = "Check the profile file";
 			reaction = "The other boundary values are not further taken into account";
 			type = 1;
+			break;
+		case 12://solar radiation to low
+			place.append("check_profiles(void)");
+			reason = "The solar radiation can not be below 0.0. It must be a value above 0.0.";
+			reaction = "It is set to 150";
+			type = 9;
+			break;
+		case 13://wind velocity to low
+			place.append("check_profiles(void)");
+			reason = "The wind velocity can not be below 0.0. It must be a value above 0.0.";
+			reaction = "It is set to 2";
+			type = 9;
 			break;
 		default:
 			place.append("set_warning(const int warn_type)");

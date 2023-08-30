@@ -1149,21 +1149,21 @@ void HydTemp_Model::output_result2csv_1d(const double timepoint, const int times
 		else {
 			//output the file header
 			output_csv << " Riverstation " << label::m << "," << " z_min " << label::m << "," << " Water_Temp " << label::kelvin << ",";
-			output_csv << "Air_Temp" << label::kelvin << "," << "Solar_radiation" << label::watt_per_square_m << ",";
-			output_csv << "Humidity" << label::no_unit << ",";
-			output_csv << "Wind_speed" << label::m_per_sec << ",";
-			output_csv << "Cloudness" << label::no_unit << ",";
-			output_csv << "Shadow" << label::no_unit << ",";
-			output_csv << "Inlet_Temp" << label::kelvin <<"," ;
+			//output_csv << "Air_Temp" << label::kelvin << "," << "Solar_radiation" << label::watt_per_square_m << ",";
+			//output_csv << "Humidity" << label::no_unit << ",";
+			//output_csv << "Wind_speed" << label::m_per_sec << ",";
+			//output_csv << "Cloudness" << label::no_unit << ",";
+			//output_csv << "Shadow" << label::no_unit << ",";
+			//output_csv << "Inlet_Temp" << label::kelvin <<"," ;
 			output_csv << "Phi_total" << label::watt_per_square_m << ",";
 			output_csv << "Phi_bed" << label::watt_per_square_m << ",";
 			output_csv << "Phi_cond" << label::watt_per_square_m << ",";
 			output_csv << "Phi_eva" << label::watt_per_square_m << ",";
 			output_csv << "Phi_lw" << label::watt_per_square_m << ",";
 			output_csv << "Phi_solar" << label::watt_per_square_m<<",";
-			output_csv << "Q" << label::qm_per_sec << ",";
-			output_csv << "v" << label::m_per_sec << ",";
-			output_csv << "s" << label::m << ",";
+			//output_csv << "Q" << label::qm_per_sec << ",";
+			//output_csv << "v" << label::m_per_sec << ",";
+			//output_csv << "s" << label::m << ",";
 			output_csv << "h" << label::m <<endl;
 			
 
