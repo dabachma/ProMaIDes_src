@@ -82,4 +82,4 @@ jobs:
         asset_name: ProMaIDeS-Win10-x64-alpha-v${{github.run_number}}.zip
         overwrite: true
         prerelease: false
-        body: "Generated Automatically by Github Actions" 
+        body: "Generated Automatically by Github Actions"
