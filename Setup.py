@@ -40,7 +40,7 @@ QT_VER_DEFAULT = "5.12.11"
 QT_COMPILER_DEFAULT = "msvc2017_64"
 
 DEFAULT_LOOKUP_FOLDERS_QT = [f"C:/Qt/{QT_VER_DEFAULT}/{QT_COMPILER_DEFAULT}/", f"C:/Qt/Qt{QT_VER_DEFAULT}/{QT_COMPILER_DEFAULT}/"]
-DEFAULT_LOOKUP_FOLDERS_QWT = ["./source_code/Vendors/Qwt/qwt-6.1.0/", "C:/Qwt/qwt-6.1.0/"]
+DEFAULT_LOOKUP_FOLDERS_QWT = ["./source_code/Vendors/Qwt/", "./source_code/Vendors/Qwt/qwt-6.1.0/", "C:/Qwt/qwt-6.1.0/"]
 DEFAULT_LOOKUP_FOLDERS_DLL = ["./source_code/Vendors/RequiredDLLs/"]
 
 DEFAULT_FILES_TO_CHECK_QT = ["bin/qmake.exe"]
@@ -79,6 +79,11 @@ def show_progress(block_num, block_size, total_size):
 #### ---- ####
 
 def build_using_cmake():
+
+    QWT_INCLUDE_DIR     = QWT_DIR + "src"    
+    QWT_LIBRARY_RELEASE = QWT_DIR + "x64/Release/qwt.lib"
+    QWT_LIBRARY_DEBUG   = QWT_DIR + "x64/Debug/qwtd.lib"
+    
     cprint("\n")
     cprint("All Requirementes are met...🎉", GREEN)
     cprint("Running cmake", GREEN)
