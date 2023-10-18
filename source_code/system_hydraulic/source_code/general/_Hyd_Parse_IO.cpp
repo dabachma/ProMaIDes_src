@@ -79,6 +79,21 @@ bool _Hyd_Parse_IO::transform_string2boolean(string my_string_flag){
 		throw msg;
 	}
 }
+//(static) erase carriage return "\r" from end of file (using when parsing text files with Windows Encoding on a Unix System)
+void _Hyd_Parse_IO::erase_carriageReturn(string* my_string) {
+	char one_char[1];
+	int length = my_string->length();
+	cout << "length: " << length << endl;
+	for (int i = length - 1; i >= 0; i--) {
+		my_string->copy(one_char, 1, i);
+		if (one_char[0] == '\r') {
+			my_string->erase(i, 1);
+		}
+		else {
+			break;
+		}
+	}
+}
 //(static) erase whitespaces and tabs before the first sign
 void _Hyd_Parse_IO::erase_leading_whitespace_tabs(string *my_string){
 	char one_char[1];

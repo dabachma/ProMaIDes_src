@@ -12,7 +12,7 @@
 
 
 //qt-libs
-#include <QListView.h>
+#include <qlistview.h>
 
 ///Display class  \ingroup sys
 /**

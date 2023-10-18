@@ -240,10 +240,17 @@ public:
 	Error set_error(const int err_type);
 //
 //	///Main function for 1D temperature modelling; it is solved by the solver
+	#ifdef _WIN32
      friend int  __cdecl ftemp_equation2solve( realtype time, N_Vector results, N_Vector da_dt, void *river_data);
-
+	#elif defined(__unix__) || defined(__unix)
+	friend int  __attribute__((cdecl)) ftemp_equation2solve( realtype time, N_Vector results, N_Vector da_dt, void *river_data);
+	#endif
 };
 
+#ifdef _WIN32
 int __cdecl ftemp_equation2solve( realtype time, N_Vector results, N_Vector da_dt, void *river_data);
+#elif defined(__unix__) || defined(__unix)
+int __attribute__((cdecl)) ftemp_equation2solve( realtype time, N_Vector results, N_Vector da_dt, void *river_data);
 #endif
 	
+#endif

@@ -2457,13 +2457,13 @@
   <customwidget>
    <class>Sys_Plot_Frame</class>
    <extends>QWidget</extends>
-   <header location="global">sys_plot_frame.h</header>
+   <header location="global">Sys_Plot_Frame.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Sys_Base_Expand_Wid</class>
    <extends>QWidget</extends>
-   <header>sys_base_expand_wid.h</header>
+   <header>Sys_Base_Expand_Wid.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

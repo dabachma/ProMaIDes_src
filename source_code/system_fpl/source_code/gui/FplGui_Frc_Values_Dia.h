@@ -18,7 +18,7 @@
 #include <qwt_plot_curve.h>
 //#include <qwt_data.h>
 //#include <qwt_array.h>
-#include <qwt_compat.h>
+//#include <qwt_compat.h>
 #include <qwt_symbol.h>
 
 //system sys libs
@@ -90,9 +90,9 @@ private:
 	Ui::FplGui_Frc_Values_Dia ui;
 	
 	///Array of x values (water level)
-	QwtArray<double> x;
+	QVector<double> x;
 	///Array of y values (failure probability)
-	QwtArray<double> y;
+	QVector<double> y;
 	///Text that should appear in the FRC Info Box
 	QString frc_infos;
 

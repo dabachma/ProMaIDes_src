@@ -298,6 +298,9 @@ public:
 	///Transform string to boolean
 	static bool transform_string2boolean(string my_string_flag);
 
+	///Erase carriage return "\r" from end of file (using when parsing text files with Windows Encoding on a Unix System)
+	static void erase_carriageReturn(string* my_string);
+
 	///Erase leading whitespaces and tabs before the first sign
 	static void erase_leading_whitespace_tabs(string *my_string);
 

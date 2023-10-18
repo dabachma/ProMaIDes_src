@@ -12,7 +12,7 @@
 
 
 //qt-libs
-#include <QStandardItemModel.h>
+#include <qstandarditemmodel.h>
 
 ///Class for an abstract interface for our model.  \ingroup sys
 /**

@@ -18,6 +18,7 @@
 #include <QTimer>
 #include <QProcess>
 #include <QStyleFactory>
+#include <QSystemTrayIcon>
 
 //system sys
 #include "Data_Base.h"
@@ -293,6 +294,18 @@ private:
 
 	///Allocate and connect the status bar widget
 	void statusbar_connect(void);
+
+	///Allocate and connect the system tray icon
+	void systemtray_connect(void);
+
+	///Start the postgresql database from the system tray context
+	void systemtray_startdb(void);
+
+	///Stop the postgresql database from the system tray context
+	void systemtray_stopdb(void);
+
+	///Delete system tray context
+	void delete_system_tray(void);
 
 	///Enable/disable menu and show/hide the data tabs in the dataview corresponding the project type, when a project is open
 	void enable_menu_project_open(const bool new_project);
@@ -1010,6 +1023,21 @@ private:
 	int number_new_sec;
 	///Total error during task
 	int total_err_task;
+
+	///System tray icon
+	QSystemTrayIcon* trayIcon;
+
+	///System tray context menu
+	QMenu* trayContextMenu;
+
+	///System tray start database action
+	QAction* startDbAction;
+
+	///System tray stop database action
+	QAction* stopDbAction;
+
+	///System tray exit program action
+	QAction* exitAction;
 
 	///New HYD-scenrio-ids in task
 	QList<int> new_hyd_sc_list;

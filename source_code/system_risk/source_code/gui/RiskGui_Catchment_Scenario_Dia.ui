@@ -66,7 +66,7 @@
   <customwidget>
    <class>RiskGui_Catchment_Scenario_Table_Wid</class>
    <extends>QTableWidget</extends>
-   <header>riskgui_catchment_scenario_table_wid.h</header>
+   <header>RiskGui_Catchment_Scenario_Table_Wid.h</header>
   </customwidget>
  </customwidgets>
  <resources>

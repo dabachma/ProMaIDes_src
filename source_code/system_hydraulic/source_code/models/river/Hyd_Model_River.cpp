@@ -4324,8 +4324,11 @@ Error Hyd_Model_River::set_error(const int err_type){
 }
 //___________________________________________
 //static Main function for 1D diffusive wave modelling
-int __cdecl f1D_equation2solve( realtype time, N_Vector results, N_Vector da_dt, void *river_data){
-
+#ifdef _WIN32
+	int __cdecl f1D_equation2solve(realtype time, N_Vector results, N_Vector da_dt, void* river_data) {
+#elif defined(__unix__) || defined(__unix)
+	int __attribute__((cdecl)) f1D_equation2solve(realtype time, N_Vector results, N_Vector da_dt, void* river_data) {
+#endif
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 	//cast the floodplain_data
 	Hyd_Model_River *rv_data=(class Hyd_Model_River*)river_data;

@@ -493,25 +493,25 @@
   <customwidget>
    <class>Sys_Member_String_BaseWid</class>
    <extends>QWidget</extends>
-   <header>sys_member_string_basewid.h</header>
+   <header>Sys_Member_String_BaseWid.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Sys_Member_Int_BaseWid</class>
    <extends>QWidget</extends>
-   <header>sys_member_int_basewid.h</header>
+   <header>Sys_Member_Int_BaseWid.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Sys_Member_ScientificDbl_BaseWid</class>
    <extends>QWidget</extends>
-   <header>sys_member_scientificdbl_basewid.h</header>
+   <header>Sys_Member_ScientificDbl_BaseWid.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Sys_Member_Dbl_BaseWid</class>
    <extends>QWidget</extends>
-   <header location="global">sys_member_dbl_basewid.h</header>
+   <header location="global">Sys_Member_Dbl_BaseWid.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

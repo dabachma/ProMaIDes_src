@@ -347,7 +347,7 @@
   <customwidget>
    <class>Sys_One_Filechooser_Wid</class>
    <extends>QWidget</extends>
-   <header location="global">sys_one_filechooser_wid.h</header>
+   <header location="global">Sys_One_Filechooser_Wid.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

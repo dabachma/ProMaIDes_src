@@ -1,4 +1,4 @@
-﻿#include "source_code\Sys_Headers_Precompiled.h"
+﻿#include "Sys_Headers_Precompiled.h"
 
 //#include "Sys_Plot_Wid.h"
 
@@ -36,7 +36,7 @@ Sys_Plot_Wid::Sys_Plot_Wid(QWidget *parent):QwtPlot(parent){
     this->plotZoomer->setMousePattern(QwtEventPattern::MousePatternCode::MouseSelect2, Qt::LeftButton, Qt::ShiftModifier);
 
     this->picker = new Sys_Custom_Plot_Picker(this->canvas());
-    this->picker->setAxis(QwtPlot::xBottom, QwtPlot::yLeft);
+    this->picker->setAxes(QwtPlot::xBottom, QwtPlot::yLeft);
     this->picker->setRubberBand(QwtPicker::CrossRubberBand);
     this->picker->setRubberBandPen(QColor(Qt::darkCyan));
     this->picker->setTrackerMode(QwtPicker::AlwaysOn);

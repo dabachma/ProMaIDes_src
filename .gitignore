@@ -3,3 +3,7 @@
 ################################################################################
 
 /build
+/.vs
+/out
+/CMakePresets.json
+/CMakeUserPresets.json

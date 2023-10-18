@@ -64,7 +64,7 @@
   <customwidget>
    <class>Sys_Filechooser_Dia</class>
    <extends>QWidget</extends>
-   <header>sys_filechooser_dia.h</header>
+   <header>Sys_Filechooser_Dia.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

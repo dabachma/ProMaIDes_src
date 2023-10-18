@@ -2165,38 +2165,38 @@
   <customwidget>
    <class>Sys_Database_Projectbrowser_Wid</class>
    <extends>QWidget</extends>
-   <header>sys_database_projectbrowser_wid.h</header>
+   <header>Sys_Database_Projectbrowser_Wid.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Sys_Data_Tree_Wid</class>
    <extends>QTreeWidget</extends>
-   <header>sys_data_tree_wid.h</header>
+   <header>Sys_Data_Tree_Wid.h</header>
   </customwidget>
   <customwidget>
    <class>Sys_Sql_Table_Wid</class>
    <extends>QTableView</extends>
-   <header>sys_sql_table_wid.h</header>
+   <header>Sys_Sql_Table_Wid.h</header>
   </customwidget>
   <customwidget>
    <class>Sys_Output_Text_Wid</class>
    <extends>QTextEdit</extends>
-   <header>sys_output_text_wid.h</header>
+   <header>Sys_Output_Text_Wid.h</header>
   </customwidget>
   <customwidget>
    <class>Sys_Text_Browser_Wid</class>
    <extends>QTextBrowser</extends>
-   <header>sys_text_browser_wid.h</header>
+   <header>Sys_Text_Browser_Wid.h</header>
   </customwidget>
   <customwidget>
    <class>Sys_File_Tree_Wid</class>
    <extends>QTreeView</extends>
-   <header>sys_file_tree_wid.h</header>
+   <header>Sys_File_Tree_Wid.h</header>
   </customwidget>
   <customwidget>
    <class>Sys_Dock_Widget</class>
    <extends>QDockWidget</extends>
-   <header>sys_dock_widget.h</header>
+   <header>Sys_Dock_Widget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -16,7 +16,7 @@
 #include <QFile>
 #include <QDir>
 //forms
-#include "ui_sys_Output_Logfile_Dia.h"
+#include "ui_Sys_Output_Logfile_Dia.h"
 //system sys
 #include "Common_Const.h"
 

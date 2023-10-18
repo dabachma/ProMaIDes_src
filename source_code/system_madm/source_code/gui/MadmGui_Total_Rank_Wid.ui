@@ -197,7 +197,7 @@
   <customwidget>
    <class>MadmGui_Rank_Wid</class>
    <extends>QTableWidget</extends>
-   <header>madmgui_rank_wid.h</header>
+   <header>MadmGui_Rank_Wid.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

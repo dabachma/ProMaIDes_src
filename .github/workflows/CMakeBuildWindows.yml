@@ -1,0 +1,86 @@
+name: Building For Windows
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+env:
+  EXE_NAME: ProMaIDeS_vc
+  BUILD_TYPE: Release
+
+jobs:
+  BuildForWindows:
+    name: Build for Windows
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+      
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DQT_DIR=${{env.Qt5_DIR}} 
+
+      
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      
+    - name: Upload Exe File
+      uses: actions/upload-artifact@v3
+      with:
+        name: exeArtifact
+        path: "build/Release/"
+    
+    #- name: Install AutoIt
+    #  run: choco install autoit -y
+    # 
+    #- name: Run AutoIt Script
+    #  run: C:\\Progra~2\\AutoIt3\\AutoIt3.exe .github\workflows\run_and_screenshot.au3
+    #  
+    #- name: Upload screenshot as artifact
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: screenshot
+    #    path: "screenshot.png"
+      
+  ReleaseArtifact:
+    name: Release Project
+    runs-on: windows-latest
+    needs: BuildForWindows
+    steps:
+    - name: Download exe
+      uses: actions/download-artifact@v3
+      with:
+        name: exeArtifact
+        
+    - name: Output Current Files
+      run: ls -R
+
+    - name: Create Zip
+      uses: thedoctor0/zip-release@0.7.1
+      with:
+        type: 'zip'
+        filename: 'ProMaIDeS.zip'
+
+    - name: Add binaries to Release Tag
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: Continuous
+        file: ./ProMaIDes.zip
+        asset_name: ${{env.EXE_NAME}}-Win10-x64.zip
+        overwrite: true
+        prerelease: false
+        body: "Generated Automatically by Github Actions"

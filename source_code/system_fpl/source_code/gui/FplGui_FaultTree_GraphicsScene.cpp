@@ -1,4 +1,4 @@
-#include "source_code\Fpl_Headers_Precompiled.h"
+#include "Fpl_Headers_Precompiled.h"
 #include "FplGui_FaultTree_GraphicsScene.h"
 
 FplGui_FaultTree_GraphicsScene::FplGui_FaultTree_GraphicsScene(QObject *parent) : Sys_GraphicsScene(parent) {

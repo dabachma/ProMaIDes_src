@@ -1,4 +1,4 @@
-#include "source_code\Risk_Headers_Precompiled.h"
+#include "Risk_Headers_Precompiled.h"
 //#include "RiskGui_Result_Reliability_Dia.h"
 
 //Default constructor

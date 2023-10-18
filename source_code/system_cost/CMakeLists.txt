@@ -38,7 +38,7 @@ add_library(system_cost
 
 ## Creating a custom target for libraries that depend on headers from this
 qt5_wrap_ui(UI_FILES ${UI_FILES})
-add_custom_target(system_cost_generate_ui_headers DEPENDS ${UI_FILES} EXCLUDE_FROM_ALL)
+add_custom_target(system_cost_generate_ui_headers DEPENDS ${UI_FILES})
 set_target_properties(system_cost_generate_ui_headers PROPERTIES FOLDER CMakePredefinedTargets)
 
 ## Needs headers from ALT Module

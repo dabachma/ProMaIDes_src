@@ -317,7 +317,7 @@ void HydTemp_Model::input_members(const int index, const QSqlTableModel *query_r
 			found_profiles =HydTemp_Profile::select_profiles_in_database(&prof_query_result, ptr_database, this->system_id, this->Param_Temp.Param_RV->RVNumber);
 		}
 		if (found_profiles == 0) {
-			this->model_is_applied == false;
+			this->model_is_applied = false;
 			if (output_flag == true) {
 				ostringstream cout;
 				cout << "No temperature profiles are found for river " << this->Param_Temp.Param_RV->get_river_number() << " in database. Temperature model is not applied!" << endl;
@@ -2347,7 +2347,11 @@ Error HydTemp_Model::set_error(const int err_type){
 }
 //___________________________________________
 //static Main function for temperature modelling
-int __cdecl ftemp_equation2solve(realtype time, N_Vector results, N_Vector da_dt, void *river_data) {
+#ifdef _WIN32
+int __cdecl ftemp_equation2solve(realtype time, N_Vector results, N_Vector da_dt, void* river_data) {
+#elif defined(__unix__) || defined(__unix)
+int __attribute__((cdecl)) ftemp_equation2solve(realtype time, N_Vector results, N_Vector da_dt, void* river_data) {
+#endif
 	//
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 	//cast the floodplain_data

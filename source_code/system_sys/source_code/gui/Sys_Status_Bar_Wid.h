@@ -12,7 +12,7 @@
 #include "ui_Sys_Status_Bar_Wid.h"
 
 //qt
-#include "QDockWidget.h"
+#include "qdockwidget.h"
 
 //system sys
 #include "_Sys_Common_System.h"

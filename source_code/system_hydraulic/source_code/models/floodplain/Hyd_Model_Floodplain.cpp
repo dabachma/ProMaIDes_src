@@ -1398,7 +1398,8 @@ void Hyd_Model_Floodplain::output_geometrie2tecplot(void){
 	this->tecplot_output<<"#######################"<<endl;
 	this->tecplot_output <<"#Floodplain elements" << endl;
 	for(int i=0; i<this->NEQ; i++){
-		this->floodplain_elems[i].output_boundaries2tecplot(&this->Param_FP.get_geometrical_info(), &this->tecplot_output);
+		_hyd_floodplain_geo_info geo_info = this->Param_FP.get_geometrical_info();
+		this->floodplain_elems[i].output_boundaries2tecplot(&geo_info, &this->tecplot_output);
 	}
 	//output the geometry of the dikelines
 	for(int i=0; i<this->Param_FP.number_dike_polylines;i++){

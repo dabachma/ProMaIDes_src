@@ -462,10 +462,22 @@ private:
 	Error set_error(const int err_type);
 
 	///This equation is the differential equation which is to solve
-    friend int __cdecl f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
+	#ifdef _WIN32
+	friend int __cdecl f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
+	#elif defined(__unix__) || defined(__unix)
+	friend int __attribute__((cdecl)) f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
+	#endif
     //static int __cdecl f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
 	//friend static CVRhsFn f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
 };
 
+#ifdef _WIN32
 int __cdecl f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
+#elif defined(__unix__) || defined(__unix)
+int __attribute__((cdecl)) f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
+#endif
+
+
+
+
 #endif

@@ -549,7 +549,7 @@
   <customwidget>
    <class>Sys_Plot_Frame</class>
    <extends>QWidget</extends>
-   <header location="global">sys_plot_frame.h</header>
+   <header location="global">Sys_Plot_Frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

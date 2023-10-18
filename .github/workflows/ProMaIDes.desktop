@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=ProMaIDeS_vc
+Exec=ProMaIDeS_vc
+Icon=ProMaIDeS
+Type=Application
+Terminal=false
+StartupNotify=true

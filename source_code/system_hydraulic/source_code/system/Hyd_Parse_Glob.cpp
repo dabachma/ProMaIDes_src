@@ -92,6 +92,7 @@ void Hyd_Parse_Glob::check_valid_file(void){
 	//check if there are text in it, which is not a comment, empty line or a keyword
 	while (this->input_file.eof()==false){
 		getline(this->input_file, line, '\n');
+		_Hyd_Parse_IO::erase_carriageReturn(&line);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&line);
 		_Hyd_Parse_IO::erase_comment(&line);
 		
