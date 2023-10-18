@@ -1,4 +1,4 @@
-name: Building For Windows
+﻿name: Building For Windows
 
 on:
   push:
@@ -16,7 +16,7 @@ env:
 
 jobs:
   BuildForWindows:
-    name: Build for Windows
+    name: '🪟 Build for Windows'
     runs-on: windows-latest
 
     steps:
@@ -24,20 +24,19 @@ jobs:
       with:
         submodules: recursive
       
-    - name: Install Qt
+    - name: '🧰 Install Qt'
       uses: jurplel/install-qt-action@v3
       with:
         version: '5.15.2'
-
-    - name: Configure CMake
+        
+    - name: '🏗️ Configure CMake'
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DQT_DIR=${{env.Qt5_DIR}} 
-
       
-    - name: Build
+    - name: '🛠️ Build'
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
       
-    - name: Upload Exe File
+    - name: '⬆️ Upload Exe File'
       uses: actions/upload-artifact@v3
       with:
         name: exeArtifact
@@ -56,25 +55,25 @@ jobs:
     #    path: "screenshot.png"
       
   ReleaseArtifact:
-    name: Release Project
+    name: '🚀 Release Project'
     runs-on: windows-latest
     needs: BuildForWindows
     steps:
-    - name: Download exe
+    - name: '⬇️ Download exe'
       uses: actions/download-artifact@v3
       with:
         name: exeArtifact
         
-    - name: Output Current Files
+    - name: '📃 Output Current Files'
       run: ls -R
 
-    - name: Create Zip
+    - name: '🗜️ Create Zip'
       uses: thedoctor0/zip-release@0.7.1
       with:
         type: 'zip'
         filename: 'ProMaIDeS.zip'
 
-    - name: Add binaries to Release Tag
+    - name: '🏷️ Add binaries to Release Tag'
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
