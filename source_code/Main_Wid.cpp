@@ -3849,7 +3849,7 @@ void Main_Wid::check_change_risk_state(bool flag){
 
 				my_dia.set_number_check_boxes(3,icon);
 				stringstream buffer;
-				buffer << "Do yo want ot check the system before a RISK-calculation?"<< endl;
+				buffer << "Do you want to check the system before a RISK-calculation?"<< endl;
 				my_dia.set_main_text_label(buffer.str());
 				buffer.str("");
 				my_dia.set_window_title("Choose systems for checking");
