@@ -2169,7 +2169,7 @@ string Sys_Project::generate_project_txt2file(void){
 	//write header
 	txt <<"##########################################################################"<< endl;
     txt <<"#This automatically generated project file of " << Sys_Project::version <<endl;
-    txt <<"#produced by IWW, RWTH Aachen University                                 "<<endl;
+    txt <<"#produced by AG FRM, University of applied sciences Magdeburg-Stendal    "<<endl;
     txt <<"#Do not change this file manually. The project can be corrupted after!   "<<endl;
     txt <<"#Comments are marked with '#'                                            "<<endl;
 	txt <<"##########################################################################"<< endl<<endl;

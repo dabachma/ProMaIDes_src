@@ -294,6 +294,8 @@ void Sys_Version_Update::check_update_hyd_table_global_param(QSqlDatabase *ptr_d
 	catch (Error msg) {
 		error = true;
 	}
+
+	
 	//output tecplot 1d
 	bool exists = false;
 	for (int i = 0; i < Hyd_Param_Global::global_param_table->get_number_col(); i++) {
@@ -308,6 +310,7 @@ void Sys_Version_Update::check_update_hyd_table_global_param(QSqlDatabase *ptr_d
 		buffer.add_columns_file(project_file, hyd_label::tab_sys_param, hyd_label::output_tecplot_1d);
 	}
 
+	
 	//output tecplot 2d
 	exists = false;
 	for (int i = 0; i < Hyd_Param_Global::global_param_table->get_number_col(); i++) {
