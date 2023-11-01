@@ -115,23 +115,79 @@ void HydTemp_Param::output_members(void){
 }
 //check the members
 void HydTemp_Param::check_members(void){
-
-
-	//warnings
+	 //warnings
 	//check GW-temp
-	if(this->gw_temp < 0.0){
+	if(this->gw_temp < 273.0){
 		Warning msg=this->set_warning(0);
 		stringstream info;
-		info << "Default value: 287 K"<< endl;
+		info << "Default value: 283 K"<< endl;
 		msg.make_second_info(info.str());
 		//reaction
-		this->gw_temp = 287.0;
+		this->gw_temp = 283.0;
+		msg.output_msg(2);
+	}
+	//check brunt coefficent
+	if (this->brunt_coef < 0.6 || this->brunt_coef > 0.7) {
+		Warning msg = this->set_warning(1);
+		stringstream info;
+		info << "The brunt coefficent can only be between 0.6 and 0.7. Default value: 0.65. Fur further information " << endl;
+		msg.make_second_info(info.str());
+		//reaction
+		this->brunt_coef = 0.65;
 		msg.output_msg(2);
 	}
 
+	//check view to sky
+	if (this->view2sky_coef < 0.0 || this->view2sky_coef > 1.0) {
+		Warning msg = this->set_warning(2);
+		stringstream info;
+		info << "The view to sky coefficent can only be between 0 and 1. Default value: 0.5." << endl;
+		msg.make_second_info(info.str());
+		//reaction
+		this->view2sky_coef = 0.5;
+		msg.output_msg(2);
+	}
 
+	//check k_bed (con_bed_coeff)
+	if (this->con_bed_coef < 0 || this->con_bed_coef > 50) {
+		Warning msg = this->set_warning(3);
+		stringstream info;
+		info << "The con_bed_coeff should be between 0 and 52. Default value: 20." << endl;
+		msg.make_second_info(info.str());
+		msg.output_msg(2);
+	}
 
+	//check Bed-temp
+	if (this->bed_temp < 273.0) {
+		Warning msg = this->set_warning(4);
+		stringstream info;
+		info << "Default value: 283 K" << endl;
+		msg.make_second_info(info.str());
+		//reaction
+		this->bed_temp = 283.0;
+		msg.output_msg(2);
+	}
 
+	//check bed warming 
+	if (this->bed_warming_coeff < 0.0 || this->bed_warming_coeff > 1.0) {
+		Warning msg = this->set_warning(5);
+		stringstream info;
+		info << "The bed warming coefficent can only be between 0 and 1. Default value: 0.5." << endl;
+		msg.make_second_info(info.str());
+		//reaction
+		this->bed_warming_coeff = 0.5;
+		msg.output_msg(2);
+	}
+	//check diffuse solar radiation
+	if (this->diffusiv_sol_rad_coeff < 0.0 || this->diffusiv_sol_rad_coeff > 1.0) {
+		Warning msg = this->set_warning(6);
+		stringstream info;
+		info << "The diffuse solar radiaton coefficent can only be between 0 and 1. Default value: 0.5." << endl;
+		msg.make_second_info(info.str());
+		//reaction
+		this->diffusiv_sol_rad_coeff = 0.5;
+		msg.output_msg(2);
+	}
 	//TODO UDO: weitere Checks!
 
 
@@ -238,15 +294,61 @@ Warning HydTemp_Param::set_warning(const int warn_type){
 		stringstream info;
 
 	switch (warn_type){
-		case 0://absolute solver tolerance
+		case 0://groundwater temperature 
 			place.append("check_members(void)") ;
-			reason="The groundwater temperature is below 0.0 K";
-			reaction="The default value of 287 k is taken";
+			reason="The groundwater temperature is below 273 K";
+			reaction="The default value of 283 k is taken";
 			help= "Check the given groundwater temperature";
 			info << "River Model number : " << this->Param_RV->get_river_number()<< endl;
             type=3;
 			break;
-
+		case 1: //brunt coefficent
+			place.append("check_members(void)");
+			reason = "The brunt coefficent is not between 0.6 and 0.7";
+			reaction = "The default value of 0.65 is taken";
+			help = "Check the given brunt coefficent";
+			info << "River Model number : " << this->Param_RV->get_river_number() << endl;
+			type = 3;
+			break;
+		case 2: //view to sky 
+			place.append("check_members(void)");
+			reason = "The view to sky coefficent is not between 0 and 1";
+			reaction = "The default value of 0.5 is taken";
+			help = "Check the given view to sky coefficent";
+			info << "River Model number : " << this->Param_RV->get_river_number() << endl;
+			type = 3;
+			break;
+		case 3: //con bed 
+			place.append("check_members(void)");
+			reason = "The k_bed coefficent is not between 0 and 1";
+			help = "Check the given k_bed value.";
+			info << "River Model number : " << this->Param_RV->get_river_number() << endl;
+			type = 3;
+			break;
+		case 4: //bed temperature
+			place.append("check_members(void)");
+			reason = "The bed temperature is below 0.";
+			reaction = "The default value of 283 K is taken";
+			help = "Check the given bed temperature.";
+			info << "River Model number : " << this->Param_RV->get_river_number() << endl;
+			type = 3;
+			break;
+		case 5: //bed warming coefficent
+			place.append("check_members(void)");
+			reason = "The bed warming coefficent is not between 0 and 1";
+			reaction = "The default value of 0.5 is taken";
+			help = "Check the given bed warming coefficent";
+			info << "River Model number : " << this->Param_RV->get_river_number() << endl;
+			type = 3;
+			break;
+		case 6: //diffuse solar radiation
+			place.append("check_members(void)");
+			reason = "The diffusive solar radiation coefficent is not between 0 and 1";
+			reaction = "The default value of 0.5 is taken";
+			help = "Check the given diffusive solar radiation coefficent";
+			info << "River Model number : " << this->Param_RV->get_river_number() << endl;
+			type = 3;
+			break;
 		default:
 			place.append("set_warning(const int warn_type)");
 			reason ="Unknown flag!";
