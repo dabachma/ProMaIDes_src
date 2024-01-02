@@ -907,9 +907,6 @@ void Hyd_Coupling_FP2CO_Dikebreak::init_output2file_csv(void) {
 	buffer += hyd_label::paraview;
 	buffer += "/";
 
-	#ifdef hyd
-	buffer = "C:/Users/abaghdad/Desktop/testcases/output";
-	#endif
 	if (buffer != label::not_set) {
 		stringstream suffix;
 		if (this->user_defined == true) {

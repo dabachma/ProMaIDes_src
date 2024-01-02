@@ -159,58 +159,6 @@ int main(int argc , char *argv[]){
         //system_1->set_system_per_file("L:/daniel/work/promaides/test_pro/mark1/data/HYD/Hyd_mgh_25x25/mgh_25x25_Ref.ilm");
         //system_1->set_system_per_file("L:/daniel/work/promaides/test_pro/rur_test/data/HYD/Rur_Kompletto_nur_ein_Zeitschritt/HQ100NL_DGMNL_dikeline_all.ilm");
 
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/TestCase_LargeFP_Montain/HYD/Simple_L_FP_Mountain.ilm");
-
-        // FOR GPU
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/newcastle/newcastle.ilm");
-        // FOR CPU
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/newcastleWithLessBound/newcastle.ilm");
-
-        //Dike Testing
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/diketest/dike.ilm");
-
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/TestCase_LargeFP_Montain/HYD/1000x1000_L_FP_Mountain.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSource/flat_withPointSource.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSource/flat_withPointSource2M.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSource5x5/flat_withPointSource.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSourceRec/flat_withPointSourceRec.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSourceRec99/flat_withPointSourceRec99.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/1M_Perlin_30/project.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/TestCase_Aachen/ac_rain.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/TestCase_AachenCroppedInt/ac_rain.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/TestCase_Aachencropped/ac_rain.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/komplete_tests/HYD/test_case_HQ100.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/newcastleWithCoupling/newcastleCouple.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/simpleCoupling/simpleCoupling.ilm");
-
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/herrenkrug/herrenkrug.ilm");
-        system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/dikeBreak/project.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/aachen_hq/ac_rain.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/aachen_hq/ac_rain_gpu.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/herrenkrugNoCoupling/herrenkrugNoCap.ilm");
-
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/roman_2fp_1rv/roman.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/rur21/HQ21.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/rur21Raster3(no.2)NoRv/HQ21Raster3noRv.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSource_poleni/flat_with_poleni.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSourceButRaster3/flat_withPointSourceRaster3.ilm");
-
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/rur21OnlyRaster0/HQ21oneOnly.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/rur21Raster5/HQ21Raster5.ilm");
-
-        //system_1->set_system_per_file("/home/ubunntu/Documents/khan/HR1000_l_12m.ilm");
-        //system_1->set_system_per_file("/home/ubunntu/Documents/1M_Perlin_30/project.ilm");
-        //system_1->set_system_per_file("/home/ubunntu/Documents/herrenkrug/herrenkrug.ilm");
-        //system_1->set_system_per_file("/home/ubunntu/Documents/simpleCoupling/simpleCoupling.ilm");
-        //system_1->set_system_per_file("/home/ubunntu/Documents/TestCase_Aachen/ac_rain.ilm");
-        //system_1->set_system_per_file("/home/ubunntu/Documents/newcastleWithCoupling/newcastleCouple.ilm");
-
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/SpeedTesting/1D-2D-Modell mit Deichbruechen 2002/HYD/Elbe_Deichbrueche_2002.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/SpeedTesting/1D-2D-Modell mit Deichbruechen 2002/HYD/Elbe_Deichbrueche_2002_gpu.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/SpeedTesting/1D-2D-Modell ohne Deichbrueche 2002/HYD/Elbe_ohne_Deichbrueche_2002.ilm");
-        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/SpeedTesting/1D-2D-Modell ohne Deichbrueche 2002/HYD/Elbe_ohne_Deichbrueche_2002_gpu.ilm");
-
-
         system_1->init_models();
         system_1->init_solver();
         system_1->set_folder_name_file();
