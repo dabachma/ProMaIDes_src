@@ -190,6 +190,7 @@ void Hyd_Observation_Point_Manager::input_obs_point(const string file){
 		getline(ifile, myline,'\n');
 		line_counter++;
 		_Hyd_Parse_IO::erase_comment(&myline);
+		_Hyd_Parse_IO::erase_carriageReturn(&myline);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		pos=myline.rfind("!BEGIN");
@@ -206,6 +207,7 @@ void Hyd_Observation_Point_Manager::input_obs_point(const string file){
 		getline(ifile, myline,'\n');
 		line_counter++;
 		_Hyd_Parse_IO::erase_comment(&myline);
+		_Hyd_Parse_IO::erase_carriageReturn(&myline);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 	}
@@ -246,6 +248,7 @@ void Hyd_Observation_Point_Manager::input_obs_point(const string file){
 		getline(ifile, myline,'\n');
 		line_counter++;
 		_Hyd_Parse_IO::erase_comment(&myline);
+		_Hyd_Parse_IO::erase_carriageReturn(&myline);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		if(myline.empty()!=true){
@@ -302,6 +305,7 @@ void Hyd_Observation_Point_Manager::input_obs_point(const string file){
 		getline(ifile, myline,'\n');
 		line_counter++;
 		_Hyd_Parse_IO::erase_comment(&myline);
+		_Hyd_Parse_IO::erase_carriageReturn(&myline);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 	}

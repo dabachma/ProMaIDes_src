@@ -1,6 +1,7 @@
-##
-## List of files to work with (We can use glob, but better to keep it safe)
-##
+# - Set allows giving a value to a variable similar to: UI_FILES = "file1.ui file2.ui file3.ui"
+# - A list of .ui Files is made to make it easier to work with them
+# - Glob can also be used but this manual way is safer and also the recommened approach for faster in between builds
+# - The UI files need to be wrapped to generate the ui-xxxx.h files this is done using qt_wrap_ui
 set(UI_FILES
 	source_code/gui/Sys_Database_Dia.ui 
 	source_code/gui/Sys_Database_File_Dia.ui 
@@ -33,6 +34,7 @@ set(UI_FILES
 	source_code/gui/Sys_Base_Edit_Dia.ui 
 	source_code/gui/Sys_Base_Expand_Wid.ui 
 	source_code/gui/Sys_FallTree_BaseWid.ui 
+    source_code/gui/Sys_Postgres_Config_Dia.ui
 	source_code/gui/Sys_Plot_Frame.ui
 	source_code/gui/Sys_PlotSettings_Dia.ui
 	source_code/gui/Sys_CurveSettings_Wid.ui
@@ -40,6 +42,10 @@ set(UI_FILES
 	source_code/gui/Sys_Sql_Help_Condition_Wid.ui
 )
 
+# - Set allows giving a value to a variable similar to: H_FILES = "file1.h file2.h file3.h"
+# - A list of .h Files is made to make it easier to work with them
+# - All the h files in this library need to be added here MANUALLY.
+# - This variable is passed to the library when creating it so that it knows what files are parts of it
 set(H_FILES
 	source_code/_Sys_Common_System.h
 	source_code/Common_Const.h
@@ -51,6 +57,7 @@ set(H_FILES
 	source_code/Sys_Project.h
 	source_code/Sys_Project_Copier.h
 	source_code/Sys_Thread_Closing_Manager.h
+	source_code/Profiler.h
 	source_code/database/Data_Base.h
 	source_code/database/Sys_Database_Browser.h
 	source_code/database/Sys_Database_Projectbrowser_Wid.h
@@ -102,6 +109,7 @@ set(H_FILES
 	source_code/gui/Sys_Member_ScientificDbl_BaseWid.h
 	source_code/gui/Sys_Member_ScientificInt_BaseWid.h
 	source_code/gui/Sys_Member_Dbl_Prec_BaseWid.h
+    source_code/gui/Sys_Postgres_Config_Dia.h
 	source_code/gui/Sys_Plot_Wid.h
 	source_code/gui/Sys_Plot_Frame.h
 	source_code/gui/Sys_PlotSettings_Dia.h
@@ -128,6 +136,10 @@ set(H_FILES
 	source_code/gui/Sys_Custom_Plot_Picker.h	       
 )
 
+# - Set allows giving a value to a variable similar to: CPP_FILES = "file1.cpp file2.cpp file3.cpp"
+# - A list of h Files is made to make it easier to work with them
+# - All the .cpp files in this library need to be added here MANUALLY.
+# - This variable is passed to the library when creating it so that it knows what files to compile
 set(CPP_FILES
 	source_code/_Sys_Common_System.cpp
 	source_code/Sys_Common_Output.cpp
@@ -138,6 +150,7 @@ set(CPP_FILES
 	source_code/Sys_Project_Copier.cpp
 	source_code/Sys_Thread_Closing_Manager.cpp
 	source_code/Sys_Project.cpp
+	source_code/Profiler.cpp
 	source_code/database/Data_Base.cpp
 	source_code/database/Sys_Database_Browser.cpp
 	source_code/database/Sys_Database_Projectbrowser_Wid.cpp
@@ -189,6 +202,7 @@ set(CPP_FILES
 	source_code/gui/Sys_Member_ScientificDbl_BaseWid.cpp
 	source_code/gui/Sys_Member_ScientificInt_BaseWid.cpp
 	source_code/gui/Sys_Member_Dbl_Prec_BaseWid.cpp
+    source_code/gui/Sys_Postgres_Config_Dia.cpp
 	source_code/gui/Sys_Plot_Wid.cpp
 	source_code/gui/Sys_Plot_Frame.cpp
 	source_code/gui/Sys_PlotSettings_Dia.cpp
@@ -215,18 +229,29 @@ set(CPP_FILES
 	source_code/gui/Sys_Custom_Plot_Picker.cpp	       
 )
 
+# - Set allows giving a value to a variable similar to: QRC_FILES = "Resource1.qrc Resource2.qrc Resource3.qrc"
+# - This set is not used.
+# - It is left here because the following message are important:
+# - THIS NEEDS TO BE INCULDED IN THE EXECUTABLE
+# - THIS MEANS CLCode.rc NEEDS TO BE ADDED TO "add_executable(ProMaIDeS)"
+# - add_executable(ProMaIDeS) IS FOUND IN THE TOP CMakeLists.txt
+# - AFAIK you can't add resources to a shared library
 set(QRC_FILES
 	source_code/gui/resources/system_sys_resource.qrc
 	source_code/gui/resources/hydroxygen.qrc
 )
 
+# - Set allows giving a value to a variable similar to: PrecompiledHeaders = "PrecompiledHeaders.h"
+# - Set is used here for consistency of the code
+# - The precompiledHeader will be targeted by the library so that it precomiples this header file for faster build times
 set(PrecompiledHeaders
 	source_code/Sys_Headers_Precompiled.h
 )
 
-##
-## Create the Library by passing its files
-##
+# - add_library create the library
+# - The add_library is the engine here and is defined as add_library(<name> [STATIC | SHARED | MODULE] [EXCLUDE_FROM_ALL] [<source>...])
+# - system_sys is the name given to the library
+# - What follows are the source codes
 add_library(system_sys
 	${UI_FILES}
 	${H_FILES}
@@ -234,14 +259,21 @@ add_library(system_sys
 	${PrecompiledHeaders}
 )
 
-## Adding Precompiled Headers
-target_precompile_headers(system_sys PRIVATE ${PrecompiledHeaders})
+# - target_precompile_headers sets the precompiled headers of the target (library)
+# - system_hydraulic is the target
+# - The precompiled headers is set to PUBLIC so that other libraries in the solution can also use this precompiled header
+target_precompile_headers(system_sys PUBLIC ${PrecompiledHeaders})
 
-## Adding Include Directories (parent libraries will also inherit)
+# - target_include_directories sets the include directories for a specfic target
+# - It is set to PUBLIC meaning the parent targerts also inherit these directories
+# - For example: the HYD Library is a parent of solver and has access to things like: include "cvode.h"
+# - Qwt Headers are required and thus added to the include directory.
+# - ${CMAKE_CURRENT_BINARY_DIR} because it is the location of the ui_xxxx.h files that are generated by qt_wrap_ui
+# - ${QWT_INCLUDE_DIR} is defined from the main CMakeLists.txt file. And passed on to this library.
+# - ${Qt5_INCLUDE_DIRS} is not required as it is handled automatically by find_package(Qt5 REQUIRED)
 target_include_directories(system_sys
     PUBLIC
       ${CMAKE_CURRENT_BINARY_DIR}
-    	/
       source_code
       source_code/database
       source_code/exceptions
@@ -251,28 +283,27 @@ target_include_directories(system_sys
       ${QWT_INCLUDE_DIR}
 )
 
-## Adding Required Libraries (Parents will inherit)
+# - target_link_libraries links libraries to a specfic target
+# - The target_include_directories tells the program where the headers are. But not what the classes do
+# - The dlls or libs are what include the functions themselves.
+# - Qt required libraries as well as QWT are listed here
 target_link_libraries(system_sys
 	PUBLIC
-    	Qt5::Core
-    	Qt5::Sql
-    	Qt5::Svg
-    	Qt5::PrintSupport
-    	Qt5::Widgets
-    	Qt5::Gui
-    	Qt5::Xml
-    	Qt5::OpenGL
-		#Qt5::QSQLiteDriverPlugin You can't load plugin, so this shouldn't be used
-		#Qt5::QODBCDriverPlugin   You can't load plugin, so this shouldn't be used
-		#Qt5::QIBaseDriverPlugin  You can't load plugin, so this shouldn't be used
-		$<$<PLATFORM_ID:Windows>:Qt5::WinMain>
-		$<$<PLATFORM_ID:Linux>:Qt5::X11Extras>
+    	Qt::Core
+    	Qt::Sql
+    	Qt::Svg
+    	Qt::PrintSupport
+    	Qt::Widgets
+    	Qt::Gui
+    	Qt::Xml
+    	#Qt::OpenGL
+		$<$<PLATFORM_ID:Windows>:Qt::WinMain>
+		$<$<PLATFORM_ID:Linux>:Qt::X11Extras>
     	#$<$<PLATFORM_ID:Linux>:${PostgreSQL_LIBRARIES}>
 		$<$<CONFIG:Release>:${QWT_LIBRARY_RELEASE}>
 		$<$<CONFIG:Debug>:${QWT_LIBRARY_DEBUG}>
 )
 
-###
-### Yes, AUTOUIC is on, but for some reason we still need to do this
-###
-qt5_wrap_ui(UI_FILES ${UI_FILES})
+# - qt_wrap_ui (or qt5_wrap_ui) wraps ui files, in other words generating .h files from them
+# - AUTOMOC can also be used which does this automatically. This, however, is not recommened, it brings more troubles than solutions  
+qt_wrap_ui(UI_FILES ${UI_FILES})

@@ -7,13 +7,14 @@
 
 //decide here the main program
 #define all1
-//#define hydraulic
-//#define geometry
-//#define damage
-//#define test_sc_break
-//#define sizes1
-//#define solver
-
+//#define hydraulic     // If uncommented then remove WIN32 from CMakeLists.txt in line add_executable(ProMaIDeS WIN32... | Otherwise the executable will open in the background without output
+//#define geometry      // If uncommented then remove WIN32 from CMakeLists.txt in line add_executable(ProMaIDeS WIN32... | Otherwise the executable will open in the background without output
+//#define damage        // If uncommented then remove WIN32 from CMakeLists.txt in line add_executable(ProMaIDeS WIN32... | Otherwise the executable will open in the background without output
+//#define test_sc_break // If uncommented then remove WIN32 from CMakeLists.txt in line add_executable(ProMaIDeS WIN32... | Otherwise the executable will open in the background without output
+//#define sizes1        // If uncommented then remove WIN32 from CMakeLists.txt in line add_executable(ProMaIDeS WIN32... | Otherwise the executable will open in the background without output
+//#define solver        // If uncommented then remove WIN32 from CMakeLists.txt in line add_executable(ProMaIDeS WIN32... | Otherwise the executable will open in the background without output
+//#define solvergpu     // If uncommented then remove WIN32 from CMakeLists.txt in line add_executable(ProMaIDeS WIN32... | Otherwise the executable will open in the background without output
+    
 //#define my
 
 //
@@ -156,24 +157,78 @@ int main(int argc , char *argv[]){
     try{
         //system_1->set_system_per_file("L:/daniel/work/promaides/test_pro/markgreifenheide/data/HYD/Hyd_mgh_10x10/HYD/mgh_10x10_Ref.ilm");
         //system_1->set_system_per_file("L:/daniel/work/promaides/test_pro/mark1/data/HYD/Hyd_mgh_25x25/mgh_25x25_Ref.ilm");
-        system_1->set_system_per_file("L:/daniel/work/promaides/test_pro/rur_test/data/HYD/Rur_Kompletto_nur_ein_Zeitschritt/HQ100NL_DGMNL_dikeline_all.ilm");
+        //system_1->set_system_per_file("L:/daniel/work/promaides/test_pro/rur_test/data/HYD/Rur_Kompletto_nur_ein_Zeitschritt/HQ100NL_DGMNL_dikeline_all.ilm");
+
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/TestCase_LargeFP_Montain/HYD/Simple_L_FP_Mountain.ilm");
+
+        // FOR GPU
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/newcastle/newcastle.ilm");
+        // FOR CPU
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/newcastleWithLessBound/newcastle.ilm");
+
+        //Dike Testing
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/diketest/dike.ilm");
+
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/TestCase_LargeFP_Montain/HYD/1000x1000_L_FP_Mountain.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSource/flat_withPointSource.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSource/flat_withPointSource2M.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSource5x5/flat_withPointSource.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSourceRec/flat_withPointSourceRec.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSourceRec99/flat_withPointSourceRec99.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/1M_Perlin_30/project.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/TestCase_Aachen/ac_rain.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/TestCase_AachenCroppedInt/ac_rain.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/TestCase_Aachencropped/ac_rain.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/komplete_tests/HYD/test_case_HQ100.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/newcastleWithCoupling/newcastleCouple.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/simpleCoupling/simpleCoupling.ilm");
+
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/herrenkrug/herrenkrug.ilm");
+        system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/dikeBreak/project.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/aachen_hq/ac_rain.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/aachen_hq/ac_rain_gpu.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/herrenkrugNoCoupling/herrenkrugNoCap.ilm");
+
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/roman_2fp_1rv/roman.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/rur21/HQ21.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/rur21Raster3(no.2)NoRv/HQ21Raster3noRv.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSource_poleni/flat_with_poleni.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/flat_plain_with_one_pointSourceButRaster3/flat_withPointSourceRaster3.ilm");
+
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/rur21OnlyRaster0/HQ21oneOnly.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/rur21Raster5/HQ21Raster5.ilm");
+
+        //system_1->set_system_per_file("/home/ubunntu/Documents/khan/HR1000_l_12m.ilm");
+        //system_1->set_system_per_file("/home/ubunntu/Documents/1M_Perlin_30/project.ilm");
+        //system_1->set_system_per_file("/home/ubunntu/Documents/herrenkrug/herrenkrug.ilm");
+        //system_1->set_system_per_file("/home/ubunntu/Documents/simpleCoupling/simpleCoupling.ilm");
+        //system_1->set_system_per_file("/home/ubunntu/Documents/TestCase_Aachen/ac_rain.ilm");
+        //system_1->set_system_per_file("/home/ubunntu/Documents/newcastleWithCoupling/newcastleCouple.ilm");
+
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/SpeedTesting/1D-2D-Modell mit Deichbruechen 2002/HYD/Elbe_Deichbrueche_2002.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/SpeedTesting/1D-2D-Modell mit Deichbruechen 2002/HYD/Elbe_Deichbrueche_2002_gpu.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/SpeedTesting/1D-2D-Modell ohne Deichbrueche 2002/HYD/Elbe_ohne_Deichbrueche_2002.ilm");
+        //system_1->set_system_per_file("C:/Users/abaghdad/Desktop/testcases/SpeedTesting/1D-2D-Modell ohne Deichbrueche 2002/HYD/Elbe_ohne_Deichbrueche_2002_gpu.ilm");
+
 
         system_1->init_models();
-        //system_1->init_solver();
-        //system_1->output_setted_members();
-        //system_1->make_calculation();
-        //system_1->output_final_model_statistics();
+        system_1->init_solver();
+        system_1->set_folder_name_file();
+
+        system_1->output_setted_members();
+        system_1->make_calculation();
+        system_1->output_final_model_statistics();
     }
     catch(Error msg){
         msg.output_msg(2);
     }
 
     delete system_1;
-    Sys_Memory_Count::self()->output_mem();
+    //Sys_Memory_Count::self()->output_mem();
     my_output.delete_output_excep();
     my_output.delete_output_hyd();
     my_output.delete_output_system();
-    Sys_Memory_Count::self()->output_mem();
+    //Sys_Memory_Count::self()->output_mem();
 
 return 0;
 }
@@ -655,3 +710,120 @@ int main(int argc, char *argv[]){
 }
 #endif
 //end solver
+
+#ifdef solvergpu
+
+#include "common.h"
+#include "CDomainCartesian.h"
+
+
+int main(int argc, char* argv[]) {
+
+    double outputFrequency = 10.0;
+    double simulationLength = 100.0;
+
+    CModel* pManager = new CModel(NULL, false);
+
+    //Set up the Manager Settings
+    pManager->setSelectedDevice(1);							                // Set GPU device to Use. 
+    pManager->setSimulationLength(simulationLength);						// Set Simulation Length
+    pManager->setOutputFrequency(outputFrequency);							// Set Output Frequency
+    pManager->setFloatPrecision(model::floatPrecision::kDouble);			// Set Precision
+
+    //255 works
+    //257 no
+
+    //Create the domain
+    CDomainCartesian* ourCartesianDomain = pManager->getDomain();
+    ourCartesianDomain->setCellResolution(1.0, 1.0);
+    ourCartesianDomain->setCols(65537);
+    ourCartesianDomain->setRows(1);
+    ourCartesianDomain->setUseOptimizedCoupling(false);
+    ourCartesianDomain->setOptimizedCouplingSize(0);
+    ourCartesianDomain->setName("main.cpp Domain");
+
+    //Create the Scheme,
+    model::SchemeSettings schemeSettings;
+    schemeSettings.scheme_type = model::schemeTypes::kGodunovGPU;
+    schemeSettings.CourantNumber = 0.5;
+    schemeSettings.DryThreshold = 1E-10;
+    schemeSettings.Timestep = 0.1;
+    schemeSettings.ReductionWavefronts = 200;
+    schemeSettings.FrictionStatus = false;
+    schemeSettings.NonCachedWorkgroupSize[0] = 27;
+    schemeSettings.NonCachedWorkgroupSize[1] = 27;
+    schemeSettings.debuggerOn = false;
+    CScheme::createScheme(pManager, schemeSettings);
+
+
+    pManager->log->logInfo("Setting Data...");
+    unsigned long ulCellID;
+    unsigned char	ucRounding = 6;
+    for (unsigned long iRow = 0; iRow < ourCartesianDomain->getRows(); iRow++) {
+        for (unsigned long iCol = 0; iCol < ourCartesianDomain->getCols(); iCol++) {
+            ulCellID = ourCartesianDomain->getCellID(iCol, ourCartesianDomain->getRows() - iRow - 1);
+            //Elevations
+            ourCartesianDomain->setBedElevation(ulCellID, 0.0);
+            ourCartesianDomain->setFSL(ulCellID, 0.0);
+            //Manning Coefficient
+            ourCartesianDomain->setManningCoefficient(ulCellID, 0.028);
+            //Depth
+            ourCartesianDomain->setFSL(ulCellID, 0.0);
+            //MaxDepth
+            ourCartesianDomain->setMaxFSL(ulCellID, 0.0);
+            //VelocityX
+            ourCartesianDomain->setDischargeX(ulCellID, 0.0);
+            //VelocityY
+            ourCartesianDomain->setDischargeY(ulCellID, 0.0);
+            //Boundary Condition
+            ourCartesianDomain->setBoundaryCondition(ulCellID, 0.0);
+            //Poleni Conditions
+            ourCartesianDomain->setPoleniConditionX(ulCellID, false);
+            //Poleni Conditions
+            ourCartesianDomain->setPoleniConditionY(ulCellID, false);
+            //Zxmax
+            ourCartesianDomain->setZxmax(ulCellID, 0.0);
+            //cx
+            ourCartesianDomain->setcx(ulCellID, 0.0);
+            //Zymax
+            ourCartesianDomain->setZymax(ulCellID, 0.0);
+            //cy
+            ourCartesianDomain->setcy(ulCellID, 0.0);
+            //Coupling Condition
+            //ourCartesianDomain->setCouplingCondition(ulCellID, 0.0);
+
+        }
+    }
+
+    pManager->log->logInfo("The computational engine is now ready.");
+    pManager->ValidateAndPrepareModel();
+
+
+
+    /// Running
+    pManager->log->logInfo("Setting boundary conditions.");
+    ourCartesianDomain->resetBoundaryCondition();
+    for (unsigned long cellId = 0; cellId < ourCartesianDomain->getCellCount(); cellId++){
+        ourCartesianDomain->setBoundaryCondition(cellId, 0.0);
+
+    }
+    ourCartesianDomain->getScheme()->importBoundaries();
+    pManager->runNext(10);
+
+    //Result Import
+    pManager->log->logInfo("Importing results.");
+    double* opt_h_gpu = new double[ourCartesianDomain->getCellCount()];
+    double* opt_v_x_gpu = new double[ourCartesianDomain->getCellCount()];
+    double* opt_v_y_gpu = new double[ourCartesianDomain->getCellCount()];
+    pManager->getDomain()->readBuffers_h_vx_vy(opt_h_gpu, opt_v_x_gpu, opt_v_y_gpu);
+
+    delete[] opt_h_gpu;
+    delete[] opt_v_x_gpu;
+    delete[] opt_v_y_gpu;
+
+
+    pManager->log->logInfo("Deleting model...");
+    //Deletion
+    delete pManager;
+}
+#endif

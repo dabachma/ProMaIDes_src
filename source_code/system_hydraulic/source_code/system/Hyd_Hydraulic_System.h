@@ -38,6 +38,8 @@
 #include "_Sys_Common_System.h"
 #include "Sys_Project.h"
 
+//Includes for OpenCl GPU:
+#include "COpenCLSimpleManager.h"
 
 
 
@@ -71,7 +73,6 @@ public:
 	HydTemp_Model *my_temp_model; 
 	///Container of global parameters of the system
 	Hyd_Param_Global global_parameters;
-
 
 	///Container of material parameters 
 	Hyd_Param_Material material_params;
@@ -291,8 +292,8 @@ signals:
 	///Emit that an output is required
 	void output_required(int thread_no);
 
-
-
+	///Emit the number of floodplains that will run on CPU and/or GPU (emit to the Hyd_Multiple_Hydraulic_Systems)
+	void statusbar_Multi_hyd_solver_update(unsigned int cpu_count, unsigned int gpu_count);
 
 private:
 	//members
@@ -343,7 +344,9 @@ private:
 	int calc_number;
 	///Identifer string 
 	string identifier_str;
-	
+
+	//Future holder for multithreading
+	std::vector<std::future<void>> m_futures;
 
 	///Output to display is on the way
 	bool output_is_running;
@@ -371,6 +374,9 @@ private:
 
 	//Flag if the temperature calculation is applied;
 	bool temp_calc;
+
+	//Profiler Class
+	Profiler profiler;
 
 	//methods 
 
@@ -513,6 +519,8 @@ private:
 	///Wait loop for the output of the calculation to display/console (for multi threading)
 	void waitloop_output_calculation2display(void);	
 
+	///Check if OpenCl is available on the system
+	void check_opencl_available();
 
 	///Check the internal time steps
 	double check_internal_timestep(void);

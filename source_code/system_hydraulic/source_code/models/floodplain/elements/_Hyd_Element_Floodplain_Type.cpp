@@ -54,6 +54,14 @@ void _Hyd_Element_Floodplain_Type::calculate_v_out(const double , const double )
 void _Hyd_Element_Floodplain_Type::add_ds_dt(const double ){
 
 }
+//Set the flow velocity in x-direction
+void _Hyd_Element_Floodplain_Type::set_flowvelocity_vx(const double) {
+
+}
+//Set the flow velocity in y-direction
+void _Hyd_Element_Floodplain_Type::set_flowvelocity_vy(const double) {
+
+}
 //Get the global waterlevel (s_value); here the z_value (here the global geodetic height (z_value) is return, because the cell is always dry) 
 double _Hyd_Element_Floodplain_Type::get_s_value(void){
 	return *this->z_value;

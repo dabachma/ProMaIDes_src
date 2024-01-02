@@ -14,8 +14,29 @@
 #include "_Sys_Common_System.h"
 #include "Sys_Diverse_Text_Dia.h"
 
+///Data structure for economical cost data \ingroup cost
+struct _cost_ecn_cost_data {
+	///Area cost [monetary]
+	double area_cost;
+	///Bulding cost [monetary]
+	double building_cost;
+	///Ecological trade-off [%]
+	double eco_trade_off;
+	///Ecological trade-off cost [monetary]
+	double eco_trade_off_cost;
+	///Cost matching coefficient
+	double matching_coeff;
+	///Flag if planning cost are calculated
+	bool planning_cost_hoai;
+	///Planning cost [monetary]
+	double planning_cost;
+	///Total cost [monetary]
+	double total_cost;
+
+};
+
 //system cost
-#include "CostGui_Alternative_Ecn_Cost_Dia.h"
+//#include "CostGui_Alternative_Ecn_Cost_Dia.h"
 
 //system alt
 #include "Alt_System.h"

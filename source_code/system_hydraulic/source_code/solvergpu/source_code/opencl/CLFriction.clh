@@ -1,0 +1,28 @@
+/*
+ * HIGH-PERFORMANCE INTEGRATED MODELLING SYSTEM (HiPIMS)
+ * Copyright (C) 2023 Luke S. Smith, Qiuhua Liang.
+ * This code is licensed under GPLv3. See LICENCE for more information.
+ * This file has been modified by Alaa Mroue on 04.2023-12.2023.
+ * See OriginalSourceCode.zip for changes. (Based on 1e62acf6b9b480e08646b232361b68c1827d91ae from https://github.com/lukeshope/hipims-ocl )
+ */
+
+#ifdef USE_FUNCTION_STUBS
+
+// Function definitions
+__kernel  REQD_WG_SIZE_FULL_TS
+void per_Friction ( 
+	__constant	cl_double *,
+	__global	cl_double4 *,
+	__global	cl_double *,
+	__global	cl_double *,
+	__global	cl_double *  	// TEMP only for rainfall		
+);
+
+cl_double4 implicitFriction(
+	cl_double4,
+	cl_double,
+	cl_double,
+	cl_double
+);
+
+#endif

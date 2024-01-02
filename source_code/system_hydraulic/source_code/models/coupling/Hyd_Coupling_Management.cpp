@@ -1040,7 +1040,7 @@ void Hyd_Coupling_Management::init_couplings(void){
 	}
 }
 //Synchronise the couplings
-void Hyd_Coupling_Management::synchronise_couplings(const double timepoint, const double delta_t, const bool time_check, const int internal_counter){
+void Hyd_Coupling_Management::synchronise_couplings(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, Profiler* profiler){
 	//first reset the discharges
 	this->reset_coupling_discharges();
 
@@ -1052,10 +1052,11 @@ void Hyd_Coupling_Management::synchronise_couplings(const double timepoint, cons
 
 
 	//river to river
-	
+	profiler->profile("river2river", Profiler::profilerFlags::START_PROFILING);
 	for(int i=0; i< this->number_rv2rv; i++){
 		this->coupling_rv2rv[i].synchronise_models();
 	}
+	profiler->profile("river2river", Profiler::profilerFlags::END_PROFILING);
 	//river to river as diversion channel
 	for(int i=0; i< number_rv2rv_diversion; i++){
 		this->coupling_1d_diversion[i].synchronise_models();
@@ -1079,9 +1080,11 @@ void Hyd_Coupling_Management::synchronise_couplings(const double timepoint, cons
 
 
 	//river to floodplain via a hydraulic structure
+	profiler->profile("river2fp", Profiler::profilerFlags::START_PROFILING);
 	for(int i=0; i< this->number_rv2fp_structure; i++){
 		this->coupling_rv2fp_structure[i].synchronise_models(timepoint, this->delta_t, time_check);
 	}
+	profiler->profile("river2fp", Profiler::profilerFlags::END_PROFILING);
 	//river to coast
 	for(int i=0; i< this->number_rv2co; i++){
 		this->coupling_rv2co[i].synchronise_models();
@@ -1089,9 +1092,11 @@ void Hyd_Coupling_Management::synchronise_couplings(const double timepoint, cons
 	
 
 	//floodplain to floodplain
+	profiler->profile("fp2fp", Profiler::profilerFlags::START_PROFILING);
 	for(int i=0; i< this->number_fp2fp; i++){
 		this->coupling_fp2fp[i].synchronise_models(timepoint, this->delta_t, time_check, internal_counter);
 	}
+	profiler->profile("fp2fp", Profiler::profilerFlags::END_PROFILING);
 
 	//coast to floodplain via a dikebreak
 	for(int i=0; i< this->number_fp2co_dikebreak; i++){

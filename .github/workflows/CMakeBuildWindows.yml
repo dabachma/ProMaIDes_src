@@ -28,13 +28,23 @@ jobs:
       uses: jurplel/install-qt-action@v3
       with:
         version: '5.15.2'
+      
+    - name: '🧰 Install Nvidia Driver'
+      run: |
+        $url = "https://developer.download.nvidia.com/compute/cuda/12.3.1/local_installers/cuda_12.3.1_546.12_windows.exe"
+        $outputPath = "downloaded_file.exe"
+        Invoke-WebRequest -Uri $url -OutFile $outputPath
+        $argument = "-s opencl_12.3"
+        Start-Process -FilePath $outputPath -ArgumentList $argument -Wait -NoNewWindow
+        dir "C:/Program Files/NVIDIA GPU Computing Toolkit" -s
+        Add-Content $env:GITHUB_PATH "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.3"
         
     - name: '🏗️ Configure CMake'
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DQT_DIR=${{env.Qt5_DIR}} 
       
     - name: '🛠️ Build'
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j 4
       
     - name: '⬆️ Upload Exe File'
       uses: actions/upload-artifact@v3

@@ -143,6 +143,7 @@ void Hyd_Instationary_Boundary::read_value(const string file_name, const int ind
 			getline(ifile, myline,'\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 
@@ -196,6 +197,7 @@ void Hyd_Instationary_Boundary::read_value(const string file_name, const int ind
 		getline(ifile, myline,'\n');
 		line_counter++;
 		_Hyd_Parse_IO::erase_comment(&myline);
+		_Hyd_Parse_IO::erase_carriageReturn(&myline);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		pos=myline.rfind("!END");
@@ -450,7 +452,7 @@ void Hyd_Instationary_Boundary::create_point_table(QSqlDatabase *ptr_database){
 
 			tab_col[3].name=hyd_label::bounddata_value;
 			tab_col[3].type=sys_label::tab_col_type_double;
-			tab_col[3].default_value=="0.0";
+			tab_col[3].default_value="0.0";
 
 			tab_col[4].name=hyd_label::instatbound_time;
 			tab_col[4].type=sys_label::tab_col_type_double;
@@ -712,7 +714,7 @@ void Hyd_Instationary_Boundary::set_type( _hyd_bound_type bound_type){
 		throw msg;
 	}
 }
-//Set the specific value (e.g. a length or an area); This value is multiplied with the discharge to get always the unit m³/s
+//Set the specific value (e.g. a length or an area); This value is multiplied with the discharge to get always the unit mï¿½/s
 void Hyd_Instationary_Boundary::set_specific_value(const double specific_multiplicator){
 	//specific multiplikator can not be set by a discharge point boundary or a waterlevel point boundary condition
 	if(this->given_type!=_hyd_bound_type::point_type ||this->given_type!=_hyd_bound_type::waterlevel_type){

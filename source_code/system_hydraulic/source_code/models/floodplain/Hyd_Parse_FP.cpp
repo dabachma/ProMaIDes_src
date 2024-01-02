@@ -3,12 +3,20 @@
 
 //constructor
 Hyd_Parse_FP::Hyd_Parse_FP(void){
-	this->found_floodplainfile_name=false;
-	this->found_no_elem_x=false;
-	this->found_no_elem_y=false;
-	this->found_elem_width_x=false;
-	this->found_elem_width_y=false;
-	this->found_angle=false;
+	this->found_floodplainfile_name  = false;
+	this->found_no_elem_x			 = false;
+	this->found_no_elem_y			 = false;
+	this->found_elem_width_x		 = false;
+	this->found_elem_width_y		 = false;
+	this->found_angle				 = false;
+
+	this->found_scheme_type			 = false;
+	this->found_selected_device		 = false;
+	this->found_courant_number		 = false;
+	this->found_reduction_wavefronts = false;
+	this->found_friction_status		 = false;
+	this->found_workgroup_size_x     = false;
+	this->found_workgroup_size_y     = false;
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Parse_FP), _sys_system_modules::HYD_SYS);
@@ -75,6 +83,9 @@ void Hyd_Parse_FP::parse_floodplainmodel_params(const int fp_index){
 			switch (Key){
 				case eGENERAL:
 					this->parse_general(Key, Command);
+					break;
+				case eSCHEME:
+					this->parse_scheme(Key, Command);
 					break;
 				case eFLOODPLAINFILE:
 					this->parse_floodplain_filename(Key, Command);
@@ -185,6 +196,81 @@ void Hyd_Parse_FP::parse_general(_hyd_keyword_file Key, word Command){
 		}
 
 	}while (Key != eSET); // End of Time specifications are marked by </Set>
+}
+
+//Parse for scheme settings
+void Hyd_Parse_FP::parse_scheme(_hyd_keyword_file Key, word Command) {
+	// Next keyword must be SET
+	do {
+		if (Key == eFAIL) {
+			if (!this->GetLine(Command)) {
+				Error msg = this->set_error(3);
+				throw msg;
+			}
+		}
+		Key = ParseNextKeyword(Command);
+	} while (Key != eSET);
+
+	// Get general model information ...
+	do {
+		if (Key == eFAIL) {
+			if (!this->GetLine(Command)) {
+				Error msg = this->set_error(3);
+				throw msg;
+			}
+		}
+		Key = ParseNextKeyword(Command);
+		stringstream buffer;
+		buffer << Command;
+		if (Key == eSCHEME_TYPE) {
+			this->fp_params.scheme_type = this->get_flooplainmodel_params().convert_txt2schemetype(buffer.str());
+			this->found_scheme_type = true;
+		}
+		else if (Key == eSELECTED_DEVICE) {
+			buffer >> this->fp_params.selected_device;
+			this->found_selected_device = true;
+		}
+		else if (Key == eCOURANT_NUMBER) {
+			buffer >> this->fp_params.courant_number;
+			this->found_courant_number = true;
+		}
+		else if (Key == eREDUCTION_WAVEFRONTS) {
+			buffer >> this->fp_params.reduction_wavefronts;
+			this->found_reduction_wavefronts = true;
+		}
+		else if (Key == eFRICTION_STATUS) {
+			string str_buff;
+			buffer >> str_buff;
+			try {
+				this->fp_params.friction_status = _Hyd_Parse_IO::transform_string2boolean(str_buff);
+				this->found_friction_status = true;
+			}
+			catch (Error msg) {
+				ostringstream info;
+				info << "Filename: " << this->input_file_name << endl;
+				info << "Error occurs near line: " << this->line_counter << endl;
+				info << "Settings for the Friction Status of FP Model" << endl;
+				msg.make_second_info(info.str());
+				throw msg;
+			}
+		}
+		else if (Key == eWORKGROUP_SIZE_X) {
+			buffer >> this->fp_params.workgroup_size_x;
+			this->found_workgroup_size_x = true;
+		}
+		else if (Key == eWORKGROUP_SIZE_Y) {
+			buffer >> this->fp_params.workgroup_size_y;
+			this->found_workgroup_size_y = true;
+		}
+		if (buffer.fail() == true) {
+			ostringstream info;
+			info << "Wrong input sequenze " << buffer.str() << endl;
+			Error msg = this->set_error(11);
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+
+	} while (Key != eSET); // End of Time specifications are marked by </Set>
 }
 
 //Parse for the name of the floodplain file
@@ -428,6 +514,7 @@ void Hyd_Parse_FP::parse_2d_result_file(_hyd_keyword_file Key, word Command){
 		RemoveDelimiters(Command, buffer);
 		UseLinuxSlash(buffer);
 		string buff2=buffer;
+		_Hyd_Parse_IO::erase_carriageReturn(&buff2);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&buff2);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&buff2);
 		ostringstream info;

@@ -1,0 +1,289 @@
+/*
+ * HIGH-PERFORMANCE INTEGRATED MODELLING SYSTEM (HiPIMS)
+ * Copyright (C) 2023 Luke S. Smith, Qiuhua Liang.
+ * This code is licensed under GPLv3. See LICENCE for more information.
+ * This file has been modified by Alaa Mroue on 04.2023-12.2023.
+ * See OriginalSourceCode.zip for changes. (Based on 1e62acf6b9b480e08646b232361b68c1827d91ae from https://github.com/lukeshope/hipims-ocl )
+ */
+
+/*
+ *  Advance the total model time by the timestep specified
+ */
+__kernel  __attribute__((reqd_work_group_size(1, 1, 1)))
+void tst_Advance_Normal( 
+		__global cl_double *  	dTime,
+		__global cl_double *  	dTimestep,
+		__global cl_double *  	dTimestepMovAvg,
+		__global cl_double *  	dTimeHydrological,
+		__global cl_double *  	pReductionData,
+		__global cl_double4 *  	pCellData,
+		__global cl_double *  	dBedData,
+		__global cl_double *  	dTimeSync,
+		__global cl_double *  	dBatchTimesteps,
+		__global cl_uint *  		uiBatchSuccessful,
+		__global cl_uint *  		uiBatchSkipped
+	)
+{
+	__private cl_double	dLclTime			 = *dTime;
+	__private cl_double	dLclTimestep		 = fmax( 0.0, *dTimestep );
+	__private cl_double	dLclTimestepMovAvg	 = *dTimestepMovAvg;
+	__private cl_double	dLclTimeHydrological = *dTimeHydrological;
+	__private cl_double	dLclSyncTime		 = *dTimeSync;
+	__private cl_double dLclBatchTimesteps	 = *dBatchTimesteps;
+	__private cl_uint uiLclBatchSuccessful	 = *uiBatchSuccessful;
+	__private cl_uint uiLclBatchSkipped		 = *uiBatchSkipped;
+
+	// Increment total time (only ever referenced in this kernel)
+	//printf("3. Advance Time: from %f to %f by %f \n", dLclTime, dLclTime+dLclTimestep, dLclTimestep);
+	dLclTime += dLclTimestep;
+	dLclBatchTimesteps += dLclTimestep;
+
+	if (dLclTimeHydrological >= TIMESTEP_HYDROLOGICAL)
+	{
+		dLclTimeHydrological = 0.0;
+	}
+
+	if ( dLclTimestep > 0.0 )
+	{
+		uiLclBatchSuccessful++;
+	} else {
+		uiLclBatchSkipped++;
+	}
+
+	#ifdef TIMESTEP_DYNAMIC
+
+		__private cl_double dCellSpeed, dMaxSpeed;
+		__private cl_double dMinTime;
+
+		dCellSpeed = 0.0;
+		dMaxSpeed  = 0.0;
+		for( unsigned int i = 0; i < TIMESTEP_WORKERS; i++ )
+		{
+			dCellSpeed = pReductionData[i];
+			if ( dCellSpeed > dMaxSpeed ) 
+				dMaxSpeed = dCellSpeed;
+		}
+		//printf("Max speed found in the domain: %f\n", dMaxSpeed);
+
+		// Convert velocity to a time (assumes domain deltaX=deltaY here)
+		// Force progression at the start of a simulation.
+		if (DOMAIN_DELTAX < DOMAIN_DELTAY){
+			dMinTime = DOMAIN_DELTAX/dMaxSpeed;
+		}else{
+			dMinTime = DOMAIN_DELTAY/dMaxSpeed;
+		}
+		//printf(" MinTime: %f ", dMinTime );
+		//printf(" dMaxSpeed %f ", dMaxSpeed );
+	
+		//if( dMinTime < 34.687913 && dMinTime > 34.687911){
+		//	dCellSpeed = 0.0;
+		//	for( unsigned int i = 0; i < TIMESTEP_WORKERS; i++ )
+		//	{
+		//		dCellSpeed = pReductionData[i];
+		//		//printf("    At i: %f Speed: %f minTime: %f\n", i*1.0, dCellSpeed, DOMAIN_DELTAX/dCellSpeed);
+		//
+		//	}
+		//}
+
+
+		if (dLclTime < TIMESTEP_START_MINIMUM_DURATION && dMinTime < TIMESTEP_START_MINIMUM){
+			//printf("5. We are in early start so, min time is: %f\n", dMinTime );
+			dMinTime = TIMESTEP_START_MINIMUM;
+		}else{
+			//printf("5. We are in not in early start...\n");
+		}
+
+		// Multiply by the Courant number
+		dLclTimestep = COURANT_NUMBER * dMinTime;
+		//printf("6. dLclTimestep is thus: %f \n", dLclTimestep);
+
+	#endif
+	#ifdef TIMESTEP_FIXED
+
+		dLclTimestep = TIMESTEP_FIXED;
+
+	#endif
+
+	// Don't exceed the output interval
+	// but also don't stop things at the start
+	// Also don't exceed the synchronisation time
+	/*
+	if ( fmod( dLclTime, SCHEME_OUTPUTTIME ) < 1E-7 && dLclTime > 0.5 )
+	{
+		dLclTimestep = 0.0;
+	} else {
+		if ( ( dLclTime + dLclTimestep ) > ( trunc( dLclTime / SCHEME_OUTPUTTIME ) + 1 ) * SCHEME_OUTPUTTIME )
+			dLclTimestep = ( ( trunc( dLclTime / SCHEME_OUTPUTTIME ) + 1 ) * SCHEME_OUTPUTTIME ) - dLclTime;
+	}
+	*/
+
+	/*
+	// Impose a minimum timestep
+	if (dLclTimestep > 0.0 && dLclTimestep < TIMESTEP_MINIMUM)
+		dLclTimestep = TIMESTEP_MINIMUM;
+	
+	// Don't exceed the sync time
+	// A negative timestep suspends simulation but allows the value to be used
+	// back on the host.
+	if ( ( dLclTime + dLclTimestep ) >= dLclSyncTime )
+	{
+		if ( dLclSyncTime - dLclTime > VERY_SMALL )
+			dLclTimestep = dLclSyncTime - dLclTime;
+		if ( dLclSyncTime - dLclTime <= VERY_SMALL )
+			dLclTimestep = -dLclTimestep;
+	}
+	*/
+	
+
+	//if (dLclTimestep < 0)
+	//	dLclTimestep = -1.0*dLclTimestep;
+
+	if (dLclTimestep < TIMESTEP_MINIMUM)
+		dLclTimestep = TIMESTEP_MINIMUM;
+
+
+	// Control the timestep initially to ensure it's not silly, because
+	// boundary conditions may only just be kicking in (i.e. dry domain)
+	if (dLclTime < TIMESTEP_EARLY_LIMIT_DURATION && dLclTimestep > TIMESTEP_EARLY_LIMIT)
+		dLclTimestep = TIMESTEP_EARLY_LIMIT;
+	
+	dLclTimestepMovAvg = dLclTimestep*TIMESTEP_MOVING_AVG_ALPHA + dLclTimestepMovAvg*(1-TIMESTEP_MOVING_AVG_ALPHA);
+
+	// Don't exceed the target (DECREASE)
+	if ( ( dLclTime + dLclTimestep ) > dLclSyncTime  - 1e-5 ){
+		dLclTimestep = dLclSyncTime - dLclTime;
+	}
+
+	// Don't exceed the total simulation time (DECREASE)
+	if ( ( dLclTime + dLclTimestep ) > SCHEME_ENDTIME )
+		dLclTimestep = SCHEME_ENDTIME - dLclTime;
+
+	// A sensible maximum timestep (DECREASE)
+	if (dLclTimestep > TIMESTEP_MAXIMUM)
+		dLclTimestep = TIMESTEP_MAXIMUM;
+
+	// Hydrological processes run with their own timestep which is larger
+	if (dLclTimestep > 0.0)
+	{
+		dLclTimeHydrological += dLclTimestep;
+	}
+
+	//printf("7. Because of limitions, dLclTimestep is now: %f\n", dLclTimestep );
+
+	// Commit to global memory
+	*dTime				= dLclTime;
+	*dTimestep			= dLclTimestep;
+	*dTimestepMovAvg	= dLclTimestepMovAvg;
+	*dTimeHydrological	= dLclTimeHydrological;
+	*dBatchTimesteps	= dLclBatchTimesteps;
+	*uiBatchSuccessful	= uiLclBatchSuccessful;
+	*uiBatchSkipped		= uiLclBatchSkipped;
+}
+
+/*
+ *  Advance the total model time by the timestep specified
+ */
+__kernel  __attribute__((reqd_work_group_size(1, 1, 1)))
+void tst_ResetCounters ( 
+		__global cl_double *  	dBatchTimesteps,
+		__global cl_uint *  	uiBatchSuccessful,
+		__global cl_uint *  	uiBatchSkipped
+	)
+{
+	*uiBatchSuccessful = 0;
+	*uiBatchSkipped = 0;
+	*dBatchTimesteps = 0.0;
+}
+
+/*
+ *  Reduce the timestep by calculating for each workgroup
+ */
+__kernel  REQD_WG_SIZE_LINE
+void tst_Reduce( 
+		__global cl_double4 *  			pCellData,
+		__global cl_double const * restrict	dBedData,
+		__global cl_double *  			pReductionData
+	)
+{
+	__local cl_double pScratchData[ TIMESTEP_GROUPSIZE ];
+
+	// Get global ID for cell
+	cl_uint		uiLocalID		= get_local_id(0);
+	cl_uint		uiLocalSize		= get_local_size(0);
+	
+	cl_ulong	ulCellID		= get_global_id(0);
+	cl_double4	pCellState;
+	cl_double	dBedElevation;
+	cl_double	dCellSpeed, dDepth, dVelX, dVelY;
+	cl_double	dMaxSpeed		= 0.0;
+	
+	while ( ulCellID < DOMAIN_CELLCOUNT )
+	{
+		// Calculate the velocity...
+		pCellState		= pCellData[ ulCellID ];
+		dBedElevation	= dBedData[ ulCellID ];
+		
+		dDepth = pCellState.x - dBedElevation;
+		
+		if ( dDepth > QUITE_SMALL && dBedElevation > -9999.0 )
+		{
+			#ifdef GODUNOV_OR_MUSCL
+				dVelX = pCellState.z / dDepth;
+				dVelY = pCellState.w / dDepth;
+				if ( dVelX < 0.0 ) dVelX = -dVelX;
+				if ( dVelY < 0.0 ) dVelY = -dVelY;
+
+				dVelX += sqrt( GRAVITY * dDepth );
+				dVelY += sqrt( GRAVITY * dDepth );
+			#endif
+
+			#ifdef DIFFUSIVE_SCHEME
+				dVelX = sqrt( GRAVITY * dDepth );
+				dVelY = sqrt( GRAVITY * dDepth );
+			#endif
+
+			#ifdef INERTIAL_SCHEME
+				dVelX = sqrt( GRAVITY * dDepth );
+				dVelY = sqrt( GRAVITY * dDepth );
+			#endif
+
+			dCellSpeed = ( dVelX  < dVelY ) ? dVelY : dVelX;
+
+		} else {
+			dCellSpeed = 0.0;
+		}
+		
+		// Is this velocity higher, therefore a greater time constraint?
+		if ( dCellSpeed > dMaxSpeed ) 
+			dMaxSpeed = dCellSpeed;
+
+		// Move on to the next cell
+		ulCellID += get_global_size(0);
+	}
+
+
+	// Commit to local memory
+	pScratchData[ uiLocalID ] = dMaxSpeed;
+	
+	// No progression until scratch memory is fully populated
+	barrier(CLK_LOCAL_MEM_FENCE);
+
+	// 2nd stage of the reduction process
+	// Funnelling style operation from the center
+	for( int iOffset = uiLocalSize / 2;
+			 iOffset > 0;
+			 iOffset = iOffset / 2 )
+	{
+		if ( uiLocalID < iOffset )
+		{
+			cl_double	dComparison   = pScratchData[ uiLocalID + iOffset ];
+			cl_double	dMine		  = pScratchData[ uiLocalID ];
+			pScratchData[ uiLocalID ] = ( dMine < dComparison ) ? dComparison: dMine;
+		} 
+		barrier(CLK_LOCAL_MEM_FENCE);
+	}
+
+	// Only one workgroup to update the time
+	if ( uiLocalID == 0 )
+		pReductionData[ get_group_id(0) ] = pScratchData[ 0 ];
+}

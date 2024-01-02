@@ -28,6 +28,16 @@ jobs:
       uses: jurplel/install-qt-action@v3
       with:
         version: '5.15.2'
+      
+    - name: '🔧 Install Nvidia Driver'
+      run: |
+        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin -q
+        sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+        wget https://developer.download.nvidia.com/compute/cuda/12.3.1/local_installers/cuda-repo-ubuntu2004-12-3-local_12.3.1-545.23.08-1_amd64.deb -q
+        sudo dpkg -i cuda-repo-ubuntu2004-12-3-local_12.3.1-545.23.08-1_amd64.deb
+        sudo cp /var/cuda-repo-ubuntu2004-12-3-local/cuda-*-keyring.gpg /usr/share/keyrings/
+        sudo apt-get update
+        sudo apt-get -y install cuda-toolkit-12-3
 
     - name: '🏗️ Configure CMake'
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DQT_DIR=${{env.Qt5_DIR}}
@@ -35,11 +45,12 @@ jobs:
     - name: '🛠️ Build'
       # Build your program with the given configuration
       run: |
-          cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+          cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j 4
           mv build/${{env.UNIXNAME}} ./${{env.UNIXNAME}}
           rm -r build/*
           mv ${{env.UNIXNAME}} build/${{env.UNIXNAME}}
           cp ${{github.workspace}}/source_code/Vendors/StaticLibs/Linux/* build/ -r
+          cp ${{github.workspace}}/source_code/system_hydraulic/source_code/solvergpu/source_code/opencl build/ -r
 
     
     - name: '📃 Output Current Files'
@@ -72,6 +83,7 @@ jobs:
         #Not sure why that is
         #TODO: Check why exectuable only loads the sql library if it is directly next to it. Is this by design?
         cp build/sqldrivers appdir/usr/bin/ -r
+        cp build/opencl appdir/usr/bin/ -r
         
         ./linuxdeploy-x86_64.AppImage --appdir appdir --output appimage
         

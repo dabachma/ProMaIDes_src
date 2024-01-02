@@ -143,6 +143,12 @@ public:
 	///Get the output flags which output is required
 	_hyd_output_flags get_output_flags(void);
 
+	///Set OpenCL available flag (Current system has an OpenCL runtime)
+	void set_opencl_available(bool);
+
+	///Get OpenCL available flag (Current system has an OpenCL runtime)
+	bool get_opencl_available(void);
+
 	///Set the number of river-models
 	void set_number_river_models(const int number);
 	///Set the number of floodplain-models
@@ -190,6 +196,9 @@ private:
 
 	///Flag if temperature model applied
 	bool tempmodel_applied;
+
+	///Flag if OpenCL is available
+	bool opencl_available;
 
 	///Number of diversion channels (have to be smaller than number of river models)
 	int number_div_channel;

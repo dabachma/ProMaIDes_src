@@ -275,6 +275,14 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_v_out(const double sin_valu
 void Hyd_Element_Floodplain_Type_Standard::set_ds2dt_value(const double value){
 	this->ds_dt_value=value;
 }
+//Set a value to flow velocity in x-direction
+void Hyd_Element_Floodplain_Type_Standard::set_flowvelocity_vx(const double value) {
+	this->v_x = value;
+}
+//Set a value to flow velocity in y-direction
+void Hyd_Element_Floodplain_Type_Standard::set_flowvelocity_vy(const double value) {
+	this->v_y = value;
+}
 //Get the variation of the global waterlevel over time as result value ds_dt_value
 double Hyd_Element_Floodplain_Type_Standard::get_ds2dt_value(void){
 	return this->ds_dt_value;

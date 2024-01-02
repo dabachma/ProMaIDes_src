@@ -133,7 +133,7 @@
          <property name="title">
           <string>Points (FRC)</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout">
+         <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>

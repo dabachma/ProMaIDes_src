@@ -28,6 +28,7 @@ bool Hyd_River_Profile_Point::input_members(QFile *profile_file, int *point_coun
 	buffer=qbuffer.toStdString();
 	(*line_counter)++;
 	_Hyd_Parse_IO::erase_comment(&buffer);
+	_Hyd_Parse_IO::erase_carriageReturn(&buffer);
 	_Hyd_Parse_IO::erase_leading_whitespace_tabs(&buffer);
 	_Hyd_Parse_IO::erase_end_whitespace_tabs(&buffer);
 	//rewinf the ifstream by one line

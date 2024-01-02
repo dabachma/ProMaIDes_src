@@ -16,6 +16,14 @@ Hyd_Param_FP::Hyd_Param_FP(void):default_rel_tol(1.0e-8),default_abs_tol(1.0e-5)
 	this->FPLowLeftY=0.0;		
 	this->floodplain_file=label::not_set;
 
+	this->scheme_type			= model::schemeTypes::kDiffusiveCPU;
+	this->selected_device		= 1;
+	this->courant_number		= 0.5;
+	this->reduction_wavefronts	= 200;
+	this->friction_status		= false;
+	this->workgroup_size_x		= 8;
+	this->workgroup_size_y		= 8;
+
 	this->number_instat_boundary=0;
 	this->inst_boundary_file=label::not_set;
 
@@ -50,6 +58,15 @@ Hyd_Param_FP::Hyd_Param_FP(const Hyd_Param_FP& par):default_rel_tol(1.0e-8),defa
 	this->FPLowLeftX=par.FPLowLeftX;
 	this->FPLowLeftY=par.FPLowLeftY;		
 	this->floodplain_file=par.floodplain_file;
+
+
+	this->scheme_type = par.scheme_type;
+	this->selected_device = par.selected_device;
+	this->courant_number = par.courant_number;
+	this->reduction_wavefronts = par.reduction_wavefronts;
+	this->friction_status = par.friction_status;
+	this->workgroup_size_x = par.workgroup_size_x;
+	this->workgroup_size_y = par.workgroup_size_y;
 
 	this->number_instat_boundary=par.number_instat_boundary;
 	this->inst_boundary_file=par.inst_boundary_file;
@@ -210,6 +227,20 @@ _hyd_floodplain_geo_info Hyd_Param_FP::get_geometrical_info(void){
 	buffer.width_y=this->width_y;
 	return buffer;
 }
+
+///Get the geometrical information of the floodplain
+_hyd_floodplain_scheme_info Hyd_Param_FP::get_scheme_info(void) {
+	_hyd_floodplain_scheme_info buffer;
+	buffer.scheme_type			= this->scheme_type;
+	buffer.selected_device		= this->selected_device;
+	buffer.courant_number		= this->courant_number;
+	buffer.reduction_wavefronts	= this->reduction_wavefronts;
+	buffer.friction_status		= this->friction_status;
+	buffer.workgroup_size_x		= this->workgroup_size_x;
+	buffer.workgroup_size_y		= this->workgroup_size_y;
+	return buffer;
+}
+
 //Get a pointer to the absolute tolerance for the solver
 double* Hyd_Param_FP::get_absolute_solver_tolerance(void){
 	return &this->abs_tolerance;
@@ -244,7 +275,14 @@ void Hyd_Param_FP::output_members(void){
 	cout << " LowLeftx                     : " << W(7) << P(2)<< FORMAT_FIXED_REAL <<this->FPLowLeftX << label::m <<endl;
 	cout << " LowLefty                     : " << W(7) << P(2)<< FORMAT_FIXED_REAL <<this->FPLowLeftY<< label::m <<endl;
 	cout << " Floodplain file              : " << W(7) << Hyd_Param_Global::get_print_filename(37, this->floodplain_file.c_str()) << endl;
-	cout << " Noinfo value                 : " << W(7)<< P(2)<< FORMAT_FIXED_REAL<<this->noinfo_value<<endl;
+	cout << " Noinfo value                 : " << W(7) << P(2) << FORMAT_FIXED_REAL	<< this->noinfo_value<<endl;
+	cout << " Scheme Type                  : " << W(7) << P(2) << FORMAT_FIXED_REAL << this->convert_schemetype2txt(this->scheme_type) << endl;
+	cout << " Selected Device              : " << W(7) << P(2) << FORMAT_FIXED_REAL << this->selected_device << endl;
+	cout << " Courant Number               : " << W(7) << P(2) << FORMAT_FIXED_REAL << this->courant_number << endl;
+	cout << " Reduction Wavefronts         : " << W(7) << P(2) << FORMAT_FIXED_REAL << this->reduction_wavefronts << endl;
+	cout << " Friction Status              : " << W(7) << P(2) << FORMAT_FIXED_REAL << this->friction_status << endl;
+	cout << " Workgroup Size X             : " << W(7) << P(2) << FORMAT_FIXED_REAL << this->workgroup_size_x << endl;
+	cout << " Workgroup Size Y             : " << W(7) << P(2) << FORMAT_FIXED_REAL << this->workgroup_size_y << endl;
 	if(this->number_instat_boundary>0){
 		cout << "INSTAT-BOUNDARYCONDITIONS  " << endl;
 		cout << " Instationary Boundaryfile    : " << W(7) << Hyd_Param_Global::get_print_filename(37,this->inst_boundary_file.c_str())<< endl;
@@ -395,6 +433,14 @@ Hyd_Param_FP& Hyd_Param_FP::operator= (const Hyd_Param_FP& par){
 	this->FPLowLeftY=par.FPLowLeftY;		
 	this->floodplain_file=par.floodplain_file;
 
+	this->scheme_type = par.scheme_type;
+	this->selected_device = par.selected_device;
+	this->courant_number = par.courant_number;
+	this->reduction_wavefronts = par.reduction_wavefronts;
+	this->friction_status = par.friction_status;
+	this->workgroup_size_x = par.workgroup_size_x;
+	this->workgroup_size_y = par.workgroup_size_y;
+
 	this->number_instat_boundary=par.number_instat_boundary;
 	this->inst_boundary_file=par.inst_boundary_file;
 	
@@ -501,6 +547,13 @@ Warning Hyd_Param_FP::set_warning(const int warn_type){
 			info << "Floodplain Model number : " << this->FPNumber << endl;
 			type=3;	
 			break;
+		case 4://Type of scheme is unknown
+			place.append("convert_txt2schemetype(const string txt)");
+			reason = "Type of scheme is unknown";
+			reaction = "Type of scheme Diffusive wave on CPU is used";
+			help = "Check the given type of scheme, available options are: " + hyd_label::scheme_type_diffusive_cpu + ", " + hyd_label::scheme_type_diffusive_gpu + ", " + hyd_label::scheme_type_inertial_gpu + ", " + hyd_label::scheme_type_godunov_gpu + ", " + hyd_label::scheme_type_muscl_gpu + ".";
+			type = 1;
+			break;
 		default:
 			place.append("set_warning(const int warn_type)");
 			reason ="Unknown flag!";
@@ -555,4 +608,64 @@ Error Hyd_Param_FP::set_error(const int err_type){
 	msg.set_msg(place, reason, help, type, fatal);
 	msg.make_second_info(info.str());
 	return msg;
+}
+
+
+//Convert the Gramschmidt type enumerator from text to enum
+model::schemeTypes::schemeTypes Hyd_Param_FP::convert_txt2schemetype(string txt) {
+	model::schemeTypes::schemeTypes type;
+	_Hyd_Parse_IO::string2lower(&txt);
+	_Hyd_Parse_IO::erase_carriageReturn(&txt);
+	_Hyd_Parse_IO::erase_leading_whitespace_tabs(&txt);
+	_Hyd_Parse_IO::erase_end_whitespace_tabs(&txt);
+
+	if (txt == hyd_label::scheme_type_diffusive_cpu) {
+		type = model::schemeTypes::kDiffusiveCPU;
+	}
+	else if (txt == hyd_label::scheme_type_diffusive_gpu) {
+		type = model::schemeTypes::kDiffusiveGPU;
+	}
+	else if (txt == hyd_label::scheme_type_inertial_gpu) {
+		type = model::schemeTypes::kInertialGPU;
+	}
+	else if (txt == hyd_label::scheme_type_godunov_gpu) {
+		type = model::schemeTypes::kGodunovGPU;
+	}
+	else if (txt == hyd_label::scheme_type_muscl_gpu) {
+		type = model::schemeTypes::kMUSCLGPU;
+	}
+	else {
+		Warning msg = this->set_warning(4);
+		ostringstream info;
+		info << "Try to convert text: " << txt << endl;
+		msg.make_second_info(info.str());
+		msg.output_msg(2);
+		//reaction
+		type = model::schemeTypes::kDiffusiveCPU;
+	}
+	return type;
+}
+//Convert the Gramschmidt type enumerator from enum to txt 
+string Hyd_Param_FP::convert_schemetype2txt(model::schemeTypes::schemeTypes  type) {
+	string txt;
+	switch (type) {
+	case model::schemeTypes::kDiffusiveCPU:
+		txt = hyd_label::scheme_type_diffusive_cpu;
+		break;
+	case model::schemeTypes::kDiffusiveGPU:
+		txt = hyd_label::scheme_type_diffusive_gpu;
+		break;
+	case model::schemeTypes::kInertialGPU:
+		txt = hyd_label::scheme_type_inertial_gpu;
+		break;
+	case model::schemeTypes::kGodunovGPU:
+		txt = hyd_label::scheme_type_godunov_gpu;
+		break;
+	case model::schemeTypes::kMUSCLGPU:
+		txt = hyd_label::scheme_type_muscl_gpu;
+		break;
+	default:
+		txt = label::unknown_type;
+	}
+	return txt;
 }

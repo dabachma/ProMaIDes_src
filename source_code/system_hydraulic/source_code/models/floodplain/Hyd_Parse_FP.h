@@ -52,10 +52,28 @@ private:
 	bool found_elem_width_y;
 	///Foundflag for the angle to the normal x-direction
 	bool found_angle;
+
+
+	///Foundflag for the scheme type choice (diffusive, inertial...)
+	bool found_scheme_type;
+	///Foundflag for the selected simulation device
+	bool found_selected_device;
+	///Foundflag for the courant number
+	bool found_courant_number;
+	///Foundflag for the reduction kernel parallalism
+	bool found_reduction_wavefronts;
+	///Foundflag for the use friction flag
+	bool found_friction_status;
+	///Foundflag for the workgroup size of the GPU in the x-direction
+	bool found_workgroup_size_x;
+	///Foundflag for the workgroup size of the GPU in the y-direction
+	bool found_workgroup_size_y;
 	
 	//methods
 	///Parse for general settings
 	void parse_general(_hyd_keyword_file Key, word Command);
+	///Parse for scheme settings
+	void parse_scheme(_hyd_keyword_file Key, word Command);
 	///Parse for the name of the floodplain file
 	void parse_floodplain_filename(_hyd_keyword_file Key, word Command);
 	///Parse for the instationary_boundary_file name and number of curves

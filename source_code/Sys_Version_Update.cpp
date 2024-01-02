@@ -1559,6 +1559,133 @@ void Sys_Version_Update::check_update_hyd_table_river_result_width(QSqlDatabase 
 
 
 }
+//Check and update the floodplain table (hyd_floodplain_general_prm) to support GPU, by adding columns for scheme type, courant, device,...etc (19.12.2023)
+void Sys_Version_Update::check_update_hyd_table_general_param_gpu(QSqlDatabase* ptr_database, const string project_file) {
+	if (Sys_Project::get_project_type() == _sys_project_type::proj_fpl ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_hyd_file ||
+		Sys_Project::get_project_type() == _sys_project_type::proj_fpl_file) {
+		return;
+	}
+
+	bool error = false;
+	bool col_exists = false;
+
+	//check if columns exists
+	try {
+		Hyd_Model_Floodplain::set_table(ptr_database, true);
+	}
+	catch (Error msg) {
+		error = true;
+	}
+
+	//Scheme Type
+	col_exists = false;
+	for (int i = 0; i < Hyd_Model_Floodplain::general_param_table->get_number_col(); i++) {
+		if ((Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].id == hyd_label::schemetype) {
+			col_exists = (Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	
+	if (col_exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_fp_gen, hyd_label::schemetype, sys_label::tab_col_type_string, false, "", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_fp_gen, hyd_label::schemetype);
+	}
+
+	//Selected Device
+	col_exists = false;
+	for (int i = 0; i < Hyd_Model_Floodplain::general_param_table->get_number_col(); i++) {
+		if ((Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].id == hyd_label::selecteddevice) {
+			col_exists = (Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+
+	if (col_exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_fp_gen, hyd_label::selecteddevice, sys_label::tab_col_type_int, false, "1", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_fp_gen, hyd_label::selecteddevice);
+	}
+
+	//Courant Number
+	col_exists = false;
+	for (int i = 0; i < Hyd_Model_Floodplain::general_param_table->get_number_col(); i++) {
+		if ((Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].id == hyd_label::courantnumber) {
+			col_exists = (Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+
+	if (col_exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_fp_gen, hyd_label::courantnumber, sys_label::tab_col_type_double, false, "0.5", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_fp_gen, hyd_label::courantnumber);
+	}
+
+	//Reduction Wave Fronts
+	col_exists = false;
+	for (int i = 0; i < Hyd_Model_Floodplain::general_param_table->get_number_col(); i++) {
+		if ((Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].id == hyd_label::reductionwavefronts) {
+			col_exists = (Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+
+	if (col_exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_fp_gen, hyd_label::reductionwavefronts, sys_label::tab_col_type_int, false, "200", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_fp_gen, hyd_label::reductionwavefronts);
+	}
+
+	//Friction Status
+	col_exists = false;
+	for (int i = 0; i < Hyd_Model_Floodplain::general_param_table->get_number_col(); i++) {
+		if ((Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].id == hyd_label::frictionstatus) {
+			col_exists = (Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+
+	if (col_exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_fp_gen, hyd_label::frictionstatus, sys_label::tab_col_type_bool, false, "false", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_fp_gen, hyd_label::frictionstatus);
+	}
+
+	//Work group size in X
+	col_exists = false;
+	for (int i = 0; i < Hyd_Model_Floodplain::general_param_table->get_number_col(); i++) {
+		if ((Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].id == hyd_label::workgroupsizex) {
+			col_exists = (Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+
+	if (col_exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_fp_gen, hyd_label::workgroupsizex, sys_label::tab_col_type_int, false, "8", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_fp_gen, hyd_label::workgroupsizex);
+	}
+
+	//Work group size in Y
+	col_exists = false;
+	for (int i = 0; i < Hyd_Model_Floodplain::general_param_table->get_number_col(); i++) {
+		if ((Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].id == hyd_label::workgroupsizey) {
+			col_exists = (Hyd_Model_Floodplain::general_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+
+	if (col_exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_fp_gen, hyd_label::workgroupsizey, sys_label::tab_col_type_int, false, "8", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_fp_gen, hyd_label::workgroupsizey);
+	}
+
+	Hyd_Model_Floodplain::close_table();
+
+}
 //Set error(s)
 Error Sys_Version_Update::set_error(const int err_type){
 	string place="Sys_Version_Update::";

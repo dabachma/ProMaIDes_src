@@ -547,6 +547,7 @@ void Dam_Sc_System::read_sc_subcategory_per_file(const string file){
 			getline(ifile, myline,'\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			pos=myline.rfind("!BEGIN");
@@ -570,6 +571,7 @@ void Dam_Sc_System::read_sc_subcategory_per_file(const string file){
 			getline(ifile, myline,'\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		}
@@ -618,6 +620,7 @@ void Dam_Sc_System::read_sc_subcategory_per_file(const string file){
 			getline(ifile, myline,'\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			if(myline.empty()!=true){
@@ -687,6 +690,7 @@ void Dam_Sc_System::read_sc_subcategory_per_file(const string file){
 		getline(ifile, myline,'\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		}

@@ -37,6 +37,7 @@ _hyd_1d_outflow_types _Hyd_Coupling_Structure::convert_string2coupling_type(stri
 	_hyd_1d_outflow_types choosen_type;
 	//convert string to lower letters
 	_Hyd_Parse_IO::string2lower(&type);
+	_Hyd_Parse_IO::erase_carriageReturn(&type);
 	_Hyd_Parse_IO::erase_leading_whitespace_tabs(&type);
 	_Hyd_Parse_IO::erase_end_whitespace_tabs(&type);
 

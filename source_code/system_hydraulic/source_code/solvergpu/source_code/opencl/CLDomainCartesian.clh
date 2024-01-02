@@ -1,0 +1,31 @@
+/*
+ * HIGH-PERFORMANCE INTEGRATED MODELLING SYSTEM (HiPIMS)
+ * Copyright (C) 2023 Luke S. Smith, Qiuhua Liang.
+ * This code is licensed under GPLv3. See LICENCE for more information.
+ * This file has been modified by Alaa Mroue on 04.2023-12.2023.
+ * See OriginalSourceCode.zip for changes. (Based on 1e62acf6b9b480e08646b232361b68c1827d91ae from https://github.com/lukeshope/hipims-ocl )
+ */
+
+// Note: Some compile-time constants are defined automatically by
+// the model, including:
+//   DOMAIN_CELLCOUNT
+//   DOMAIN_ROWS
+//   DOMAIN_COLS
+//   DOMAIN_DELTAX
+//   DOMAIN_DELTAY
+
+// Neighbour directions
+#define DOMAIN_DIR_N	0
+#define DOMAIN_DIR_E	1
+#define DOMAIN_DIR_S	2
+#define DOMAIN_DIR_W	3
+
+#ifdef USE_FUNCTION_STUBS
+
+// Function definitions
+cl_ulong	getNeighbourID(cl_ulong, cl_uchar);
+cl_ulong	getNeighbourByIndices(cl_long, cl_long, cl_uchar);
+cl_ulong	getCellID(cl_long, cl_long);
+void		getCellIndices( cl_ulong, cl_long*, cl_long* );
+
+#endif

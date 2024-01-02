@@ -1,6 +1,0 @@
-[submodule "source_code/Vendors/RequiredDLLs"]
-	path = source_code/Vendors/StaticLibs
-	url = https://github.com/usefullibs/pro_required_libs.git
-[submodule "source_code/Vendors/Qwt"]
-	path = source_code/Vendors/Qwt
-	url = https://github.com/usefullibs/qwt-6.2.0.git

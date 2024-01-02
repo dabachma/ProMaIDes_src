@@ -282,7 +282,7 @@ void Hyd_Gis2Promraster_Converter::output_prom_raster2file(void){
 	output<<"#   $ANGLE = "<<this->geo_info.angle					<<"  #   Angle of the coordinate system "<<endl;
 	output<<"#   $LOWLEFTX = "<<this->geo_info.origin_global_x  	<<"  #   Low left X coordinate "<<endl;
 	output<<"#   $LOWLEFTY = "<<this->geo_info.origin_global_y   	<<"  #   Low left Y coordinate "<<endl;
-	output<<"#   $NOINFOVALUE =  "<< this->noinfo_value				<<"  # 	Value for a elemnt with no information "<<endl;
+	output<<"#   $NOINFOVALUE =  "<< this->noinfo_value				<<"  # 	 Value for an element with no information "<<endl;
 	output<<"#  </SET> "<<endl;
 	output<<"#****************************************************************************************************************"<<endl;
 

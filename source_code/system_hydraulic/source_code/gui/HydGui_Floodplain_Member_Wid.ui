@@ -310,6 +310,184 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="minimumSize">
+          <size>
+           <width>675</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="title">
+          <string>Scheme Settings</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="Sys_Member_Enum_BaseWid" name="scheme_type" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item>
+            <widget class="Sys_Member_Enum_BaseWid" name="selected_device" native="true">
+              <property name="minimumSize">
+                <size>
+                  <width>200</width>
+                  <height>30</height>
+                </size>
+              </property>
+              <property name="maximumSize">
+                <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                </size>
+              </property>
+              <property name="font">
+                <font>
+                  <pointsize>8</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                </font>
+              </property>
+            </widget>
+          </item>
+          <item>
+           <widget class="Sys_Member_Dbl_BaseWid" name="courant_number" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Sys_Member_Int_BaseWid" name="reduction_wavefronts" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Sys_Member_Bool_BaseWid" name="friction_status" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Sys_Member_Int_BaseWid" name="workgroup_size_x" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Sys_Member_Int_BaseWid" name="workgroup_size_y" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox_2">
          <property name="minimumSize">
           <size>
@@ -512,6 +690,18 @@
    <class>Sys_Member_Dbl_BaseWid</class>
    <extends>QWidget</extends>
    <header location="global">Sys_Member_Dbl_BaseWid.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Sys_Member_Enum_BaseWid</class>
+   <extends>QWidget</extends>
+   <header>Sys_Member_Enum_BaseWid.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Sys_Member_Bool_BaseWid</class>
+   <extends>QWidget</extends>
+   <header>Sys_Member_Bool_BaseWid.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

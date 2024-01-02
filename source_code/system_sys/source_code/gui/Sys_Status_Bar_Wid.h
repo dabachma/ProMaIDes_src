@@ -49,6 +49,8 @@ public:
 	void set_fplthread(const bool flag);
 	///Set the fpl-status text-label of the statusbar to "yes" (true) or "no" (false)
 	void set_hydthread(const bool flag, const string number="");
+	///Set the hydraulic-CPU/GPU-status text-label of the statusbar
+	void set_cpu_gpu_count(unsigned int cpu, unsigned int gpu);
 	///Set the hydraulic-status text-label of the statusbar to "sleep"
 	void set_hydthread_sleep(const bool flag);
 	///Set the dam-status text-label of the statusbar to "yes" (true) or "no" (false)

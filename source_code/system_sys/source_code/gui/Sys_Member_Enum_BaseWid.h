@@ -51,6 +51,10 @@ public:
 	int get_current_index(void);
 	///Returns editable status
 	bool is_editable(void);
+	///Changes the width of the combo box
+	void set_box_width(const double);
+	///Changes tooltip text of the combo box
+	void set_box_tooltip(const string);
 
 private:
 

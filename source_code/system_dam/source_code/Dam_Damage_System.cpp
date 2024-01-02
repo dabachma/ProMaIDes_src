@@ -19,7 +19,7 @@ Dam_Damage_System::Dam_Damage_System(void){
 	this->impact_floodplain_set=false;
 	this->specific_raster_type=_dam_raster_types::all_raster;
 
-	this->break_sz=="CA";
+	this->break_sz="CA";
 	this->number_break_sc=0;
 	this->number_break_sc2calc=0;
 	this->ptr_break_sc_data=NULL;

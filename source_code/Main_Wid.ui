@@ -930,7 +930,7 @@
         <attribute name="title">
          <string>HYDROL</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout">
+        <layout class="QGridLayout" name="gridLayout_2">
          <item row="0" column="0">
           <widget class="Sys_Output_Text_Wid" name="textEdit_hydroltxt"/>
          </item>

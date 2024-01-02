@@ -60,6 +60,7 @@ void Hyd_Floodplain_Polysegment::input_members(const int index, const string fil
 				getline(ifile, myline,'\n');
 				line_counter++;
 				_Hyd_Parse_IO::erase_comment(&myline);
+				_Hyd_Parse_IO::erase_carriageReturn(&myline);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 				_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 				pos=myline.rfind("!BEGIN");
@@ -78,6 +79,7 @@ void Hyd_Floodplain_Polysegment::input_members(const int index, const string fil
 				getline(ifile, myline,'\n');
 				line_counter++;
 				_Hyd_Parse_IO::erase_comment(&myline);
+				_Hyd_Parse_IO::erase_carriageReturn(&myline);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 				_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			}
@@ -175,6 +177,7 @@ void Hyd_Floodplain_Polysegment::input_members(const int index, const string fil
 			getline(ifile, myline,'\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			if(myline.empty()!=true){
@@ -363,6 +366,7 @@ void Hyd_Floodplain_Polysegment::input_members(const int index, const string fil
 		getline(ifile, myline,'\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		}
@@ -1474,7 +1478,7 @@ string Hyd_Floodplain_Polysegment::convert_polysegment_type2txt(_hyd_floodplain_
 			txt=hyd_label::fp_boundaryline;
 			break;
 		default:
-			txt==label::unknown_type;
+			txt=label::unknown_type;
 	}
 	return txt;
 }
@@ -1731,45 +1735,45 @@ void Hyd_Floodplain_Polysegment::create_point_table(QSqlDatabase *ptr_database){
 
 			tab_col[3].name=hyd_label::polyseg_point_x;
 			tab_col[3].type=sys_label::tab_col_type_double;
-			tab_col[3].default_value=="0.0";
+			tab_col[3].default_value="0.0";
 
 			tab_col[4].name=hyd_label::polyseg_point_y;
 			tab_col[4].type=sys_label::tab_col_type_double;
-			tab_col[4].default_value=="0.0";
+			tab_col[4].default_value="0.0";
 
 			tab_col[5].name=hyd_label::polyseg_point_h;
 			tab_col[5].type=sys_label::tab_col_type_double;
-			tab_col[5].default_value=="0.0";
+			tab_col[5].default_value="0.0";
 
 			tab_col[6].name=hyd_label::polyseg_point_base;
 			tab_col[6].type=sys_label::tab_col_type_double;
-			tab_col[6].default_value=="0.0";
+			tab_col[6].default_value="0.0";
 
 			tab_col[7].name=hyd_label::polyseg_point_overflow;
 			tab_col[7].type=sys_label::tab_col_type_bool;
-			tab_col[7].default_value=="true";
+			tab_col[7].default_value="true";
 
 			tab_col[8].name=hyd_label::polyseg_point_pol;
 			tab_col[8].type=sys_label::tab_col_type_double;
-			tab_col[8].default_value=="0.577";
+			tab_col[8].default_value="0.577";
 			tab_col[8].unsigned_flag=true;
 
 			tab_col[9].name=hyd_label::polyseg_point_break;
 			tab_col[9].type=sys_label::tab_col_type_bool;
-			tab_col[9].default_value=="false";
+			tab_col[9].default_value="false";
 
 			tab_col[10].name=hyd_label::polyseg_point_abrupt_break;
 			tab_col[10].type=sys_label::tab_col_type_bool;
-			tab_col[10].default_value=="false";
+			tab_col[10].default_value="false";
 
 			tab_col[11].name=hyd_label::polyseg_point_resistance;
 			tab_col[11].type=sys_label::tab_col_type_double;
-			tab_col[11].default_value=="10000000.0";
+			tab_col[11].default_value="10000000.0";
 			tab_col[11].unsigned_flag=true;
 
 			tab_col[12].name=hyd_label::polyseg_point_open_width;
 			tab_col[12].type=sys_label::tab_col_type_double;
-			tab_col[12].default_value=="0.0";
+			tab_col[12].default_value="0.0";
 			tab_col[12].unsigned_flag=true;
 
 			tab_col[13].name=hyd_label::polyseg_point;

@@ -16,34 +16,6 @@
 #include "ui_AltGui_Alternative_Info_Dia.h"
 #include "_Sys_Common_System.h"
 
-///Enumerator for the measure category \ingroup alt
-enum _alt_measure_category{
-	///Hydraulic measures
-	category_hyd,
-	///Measure concerning the FloodProtectionLine (FPL)
-	category_fpl,
-	///Damage measures
-	category_dam,
-
-};
-
-///Data structure to gather the general alternative information \ingroup alt
-struct _alt_general_info{
-	///Identifier of the alternative
-	_sys_system_id id;
-	///Name of the alternative
-	string name;
-	///Description
-	string description;
-	///Measure type
-	_alt_measure_category category;
-	///Repacing flag
-	bool replacing;
-	///String for the detailed measure type
-	string detailed_type;
-	///Identifier of the measurestate, on which the new alternative is based on; in general it is the base-area state
-	int measurestate_based_on;
-};
 
 //alt sys
 #include "AltGui_Alternative_Type_Dia.h"

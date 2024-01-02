@@ -1952,6 +1952,7 @@ void HydTemp_Model::input_river_profiles_temp_data_perfile(void){
 				myline=qmyline.toStdString();
 				line_counter++;
 				_Hyd_Parse_IO::erase_comment(&myline);
+				_Hyd_Parse_IO::erase_carriageReturn(&myline);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 				my_stream << myline;
 				my_stream >> key;
@@ -2087,7 +2088,7 @@ void HydTemp_Model::check_instationary_boundary_found(void){
 void HydTemp_Model::set_function2solver(void){
 	int flag=-1;
 	//set the function where the diff equation is specified
-	//The function CVodeMalloc provides required problem and solution speci¯cations, allocates internal memory, and initializes cvode.
+	//The function CVodeMalloc provides required problem and solution speciï¿½cations, allocates internal memory, and initializes cvode.
 	flag = CVodeInit(this->cvode_mem, ftemp_equation2solve, 0.0, this->results);
 
 		

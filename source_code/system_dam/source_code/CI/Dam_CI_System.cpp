@@ -982,6 +982,7 @@ void Dam_CI_System::read_points_per_file(string fname) {
 			getline(ifile, myline, '\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			pos = myline.rfind("!BEGIN");
@@ -1004,6 +1005,7 @@ void Dam_CI_System::read_points_per_file(string fname) {
 			getline(ifile, myline, '\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		} while (myline.empty() == true && ifile.eof() != true);
@@ -1065,6 +1067,7 @@ void Dam_CI_System::read_points_per_file(string fname) {
 			getline(ifile, myline, '\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			if (myline.empty() != true) {
@@ -1155,6 +1158,7 @@ void Dam_CI_System::read_points_per_file(string fname) {
 			getline(ifile, myline, '\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		} while (myline.empty() == true && ifile.eof() != true);
@@ -1962,6 +1966,7 @@ void Dam_CI_System::read_polygon_per_file(string fname) {
 			getline(ifile, myline, '\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			if (myline.empty()==false) {
@@ -2005,6 +2010,7 @@ void Dam_CI_System::read_polygon_per_file(string fname) {
 				getline(ifile, myline, '\n');
 				line_counter++;
 				_Hyd_Parse_IO::erase_comment(&myline);
+				_Hyd_Parse_IO::erase_carriageReturn(&myline);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 				_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 				pos = myline.rfind("!BEGIN");
@@ -2027,6 +2033,7 @@ void Dam_CI_System::read_polygon_per_file(string fname) {
 				getline(ifile, myline, '\n');
 				line_counter++;
 				_Hyd_Parse_IO::erase_comment(&myline);
+				_Hyd_Parse_IO::erase_carriageReturn(&myline);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 				_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			} while (myline.empty() == true && ifile.eof() != true);
@@ -2105,6 +2112,7 @@ void Dam_CI_System::read_polygon_per_file(string fname) {
 				getline(ifile, myline, '\n');
 				line_counter++;
 				_Hyd_Parse_IO::erase_comment(&myline);
+				_Hyd_Parse_IO::erase_carriageReturn(&myline);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 				_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 				if (myline.empty() != true) {
@@ -2198,6 +2206,7 @@ void Dam_CI_System::read_polygon_per_file(string fname) {
 				getline(ifile, myline, '\n');
 				line_counter++;
 				_Hyd_Parse_IO::erase_comment(&myline);
+				_Hyd_Parse_IO::erase_carriageReturn(&myline);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 				_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			} while (myline.empty() == true && ifile.eof() != true);
@@ -2506,6 +2515,7 @@ void Dam_CI_System::read_connection_per_file(string fname) {
 			getline(ifile, myline, '\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			pos = myline.rfind("!BEGIN");
@@ -2528,6 +2538,7 @@ void Dam_CI_System::read_connection_per_file(string fname) {
 			getline(ifile, myline, '\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		} while (myline.empty() == true && ifile.eof() != true);
@@ -2576,6 +2587,7 @@ void Dam_CI_System::read_connection_per_file(string fname) {
 			getline(ifile, myline, '\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			if (myline.empty() != true) {
@@ -2692,6 +2704,7 @@ void Dam_CI_System::read_connection_per_file(string fname) {
 			getline(ifile, myline, '\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		} while (myline.empty() == true && ifile.eof() != true);

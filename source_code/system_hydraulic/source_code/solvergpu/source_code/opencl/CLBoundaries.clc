@@ -1,0 +1,95 @@
+/*
+ * HIGH-PERFORMANCE INTEGRATED MODELLING SYSTEM (HiPIMS)
+ * Copyright (C) 2023 Luke S. Smith, Qiuhua Liang.
+ * This code is licensed under GPLv3. See LICENCE for more information.
+ * This file has been modified by Alaa Mroue on 04.2023-12.2023.
+ * See OriginalSourceCode.zip for changes. (Based on 1e62acf6b9b480e08646b232361b68c1827d91ae from https://github.com/lukeshope/hipims-ocl )
+ */
+
+__kernel void bdy_Promaides (
+	__global		cl_double const * restrict	pBoundaryArray,
+	__global		cl_double *					pTimeStep,
+	__global		cl_double *					pTimeHydrological,
+	__global		cl_double4 *				pCellState,
+	__global		cl_double *					pCellBed
+	)
+{
+	// Which global series are we processing, and which cell
+	// Global ID is X, Y cell, then Z for the series
+	__private cl_long		lIdxX = get_global_id(0);
+	__private cl_long		lIdxY = get_global_id(1);
+	__private cl_ulong		ulIdx;
+
+	// Don't bother if we've gone beyond the domain bounds
+	if (lIdxX > DOMAIN_COLS - 1 ||
+		lIdxY > DOMAIN_ROWS - 1 ||
+		lIdxX < 0 ||
+		lIdxY < 0 )
+		return;
+
+	ulIdx = getCellID(lIdxX, lIdxY);
+
+	__private cl_double					dRate				= pBoundaryArray[ulIdx];
+	__private cl_double					dLclTimestep		= *pTimeStep;
+	__private cl_double					dLclTimestepHydro	= *pTimeHydrological;
+	__private cl_double4				pCellData			= pCellState[ulIdx];
+	__private cl_double					dCellBedElev		= pCellBed[ulIdx];
+
+	// Hydrological processes have their own timesteps
+	if (dLclTimestep <= 0.0 || pCellData.y <= -9999.0 || pCellData.x == -9999.0){
+		return;
+	}
+
+	//if (ulIdx == 7116 ){
+	//	//printf("Postion: X: %f Y:%f \n",lIdxX*1.0 , lIdxY*1.0 );
+	//	printf("opt_z %f opt_s %f opt_s_after %f ",dCellBedElev, (pCellData.x-dCellBedElev), fmax(dCellBedElev, pCellData.x + dRate * dLclTimestep));
+	//	printf("dLclTimestep %f dRate %f ",dLclTimestep, dRate);
+	//	printf("\n");
+	//}
+
+
+	// Hydrological processes have their own timesteps
+	//if (dLclTimestepHydro < TIMESTEP_HYDROLOGICAL){
+	//	return;
+	//}
+	
+	// Apply the value...
+	pCellData.x = fmax(dCellBedElev, pCellData.x + dRate * dLclTimestep);
+
+	pCellState[ulIdx] = pCellData;
+}
+
+
+__kernel void bdy_Promaides_by_id (
+	__global		cl_ulong const * restrict	pCouplingID,
+	__global		cl_double const * restrict	pCouplingBound,
+	__global		cl_double const * restrict pTimeStep,
+	__global		cl_double4 *				pCellState,
+	__global		cl_double const * restrict pCellBed
+	)
+{
+	// Which array entry are we processing
+	__private cl_long		lId = get_global_id(0);
+
+	// Don't bother if we've gone beyond the domain bounds
+	if ( lId < 0 || lId > COUPLING_ARRAY_SIZE - 1)
+		return;
+		
+	// What Cell are we working with;
+	__private cl_ulong		ulIdx = pCouplingID[lId];
+	__private cl_double		dRate = pCouplingBound[lId];
+
+	// Get variables
+	__private cl_double					dLclTimestep		= *pTimeStep;
+	__private cl_double4				pCellData			= pCellState[ulIdx];
+	__private cl_double					dCellBedElev		= pCellBed[ulIdx];
+
+	// Check timestep
+	if (dLclTimestep <= 0.0){
+		return;
+	}
+	// Apply the value...
+	pCellData.x = fmax(dCellBedElev, pCellData.x + dRate * dLclTimestep);
+
+	pCellState[ulIdx] = pCellData;
+}

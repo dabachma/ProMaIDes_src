@@ -1,0 +1,34 @@
+/*
+ * HIGH-PERFORMANCE INTEGRATED MODELLING SYSTEM (HiPIMS)
+ * Copyright (C) 2023 Luke S. Smith.
+ * This code is licensed under GPLv3. See LICENCE for more information.
+ * This file has been modified by Alaa Mroue on 04.2023-12.2023.
+ * See OriginalSourceCode.zip for changes. (Based on 1e62acf6b9b480e08646b232361b68c1827d91ae from https://github.com/lukeshope/hipims-ocl )
+ */
+
+
+// OpenCL Header Files
+CLUniversalHeader_H		OpenCLCode			"opencl\CLUniversalHeader.clh"
+
+CLFriction_H			OpenCLCode			"opencl\CLFriction.clh"
+CLSchemeMUSCLHancock_H	OpenCLCode			"opencl\CLSchemeMUSCLHancock.clh"
+CLSchemeInertial_H		OpenCLCode			"opencl\CLSchemeInertial.clh"
+CLSchemePromaides_H		OpenCLCode			"opencl\CLSchemePromaides.clh"
+CLSchemeGodunov_H		OpenCLCode			"opencl\CLSchemeGodunov.clh"
+CLSolverHLLC_H			OpenCLCode			"opencl\CLSolverHLLC.clh"
+CLDynamicTimestep_H		OpenCLCode			"opencl\CLDynamicTimestep.clh"
+CLDomainCartesian_H		OpenCLCode			"opencl\CLDomainCartesian.clh"
+CLSlopeLimiterMINMOD_H	OpenCLCode			"opencl\CLSlopeLimiterMINMOD.clh"
+CLBoundaries_H			OpenCLCode			"opencl\CLBoundaries.clh"
+
+// OpenCL Main Files
+CLFriction_C			OpenCLCode			"opencl\CLFriction.clc"
+CLSchemeMUSCLHancock_C	OpenCLCode			"opencl\CLSchemeMUSCLHancock.clc"
+CLSchemeInertial_C		OpenCLCode			"opencl\CLSchemeInertial.clc"
+CLSchemePromaides_C		OpenCLCode			"opencl\CLSchemePromaides.clc"
+CLSchemeGodunov_C		OpenCLCode			"opencl\CLSchemeGodunov.clc"
+CLSolverHLLC_C			OpenCLCode			"opencl\CLSolverHLLC.clc"
+CLDynamicTimestep_C		OpenCLCode			"opencl\CLDynamicTimestep.clc"
+CLDomainCartesian_C		OpenCLCode			"opencl\CLDomainCartesian.clc"
+CLSlopeLimiterMINMOD_C	OpenCLCode			"opencl\CLSlopeLimiterMINMOD.clc"
+CLBoundaries_C			OpenCLCode			"opencl\CLBoundaries.clc"

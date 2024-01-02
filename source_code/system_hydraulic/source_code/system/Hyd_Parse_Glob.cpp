@@ -123,6 +123,7 @@ void Hyd_Parse_Glob::check_valid_file(void){
 	//check if the begin blocks are closed with the corresponding end blocks
 	while (this->input_file.eof()==false){
 		getline(this->input_file, line, '\n');
+		_Hyd_Parse_IO::erase_carriageReturn(&line);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&line);
 		_Hyd_Parse_IO::erase_comment(&line);
 
@@ -623,6 +624,7 @@ void Hyd_Parse_Glob::parse_output_setting(_hyd_keyword_file Key, word Command) {
 				this->Globals.output_flags.database_instat_required = _Hyd_Parse_IO::transform_string2boolean(str_buff);
 			}
 			else if (Key == eOUTPUT_FOLDER) {
+				_Hyd_Parse_IO::erase_carriageReturn(&str_buff);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&str_buff);
 				_Hyd_Parse_IO::erase_end_whitespace_tabs(&str_buff);
 				this->Globals.output_flags.output_folder = _Hyd_Parse_IO::insert_linux_slash2string(str_buff);

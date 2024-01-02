@@ -3028,6 +3028,7 @@ void Hyd_Model_River::input_river_profiles_perfile(void){
 				myline=qmyline.toStdString();
 				line_counter++;
 				_Hyd_Parse_IO::erase_comment(&myline);
+				_Hyd_Parse_IO::erase_carriageReturn(&myline);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 				my_stream << myline;
 				my_stream >> key;
@@ -3652,7 +3653,7 @@ void Hyd_Model_River::check_instationary_boundary_found(void){
 void Hyd_Model_River::set_function2solver(void){
 	int flag=-1;
 	//set the function where the diff equation is specified
-	//The function CVodeMalloc provides required problem and solution speci¯cations, allocates internal memory, and initializes cvode.
+	//The function CVodeMalloc provides required problem and solution speciï¿½cations, allocates internal memory, and initializes cvode.
 	flag = CVodeInit(this->cvode_mem, f1D_equation2solve, 0.0, this->results);
 
 		
@@ -4477,7 +4478,7 @@ Error Hyd_Model_River::set_error(const int err_type){
 		//set the actual river discharges
 		//for the profile after the inflow profile
 		if(rv_data->number_inbetween_profiles==0){//outprofile is next profile
-			//´set the h for the outflow profile
+			//ï¿½set the h for the outflow profile
 			rv_data->outflow_river_profile.set_h_outflow_flow(rv_data->inflow_river_profile.typ_of_profile->get_global_z_min(),rv_data->inflow_river_profile.get_actual_global_waterlevel());
 			//set the discharge through the outflow profile
 			rv_data->outflow_river_profile.set_actual_river_discharge(&rv_data->inflow_river_profile);
@@ -4559,7 +4560,7 @@ Error Hyd_Model_River::set_error(const int err_type){
 		}
 
 	
-		//transform discharge [m³/s] into areas per second [m²/s] by dividing through the half segment length upstream/downstream
+		//transform discharge [mï¿½/s] into areas per second [mï¿½/s] by dividing through the half segment length upstream/downstream
 		dh_da_data[0]=dh_da_data[0]/(rv_data->inflow_river_profile.get_distance2downstream()*0.5);
 		for(int i=0; i<rv_data->number_inbetween_profiles; i++){
 			dh_da_data[i+1]=dh_da_data[i+1]/((rv_data->river_profiles[i].get_distance2upstream()+rv_data->river_profiles[i].get_distance2downstream())*0.5);

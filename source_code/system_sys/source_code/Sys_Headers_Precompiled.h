@@ -77,6 +77,8 @@
 //mysql browser for the database
 #include "Sys_Database_Browser.h"
 
+//dialog for postgres configuration in system tray
+#include "Sys_Postgres_Config_Dia.h"
 //dialog for the database file
 #include "Sys_Database_File_Dia.h"
 //dialog for the database connection

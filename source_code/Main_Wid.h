@@ -304,8 +304,20 @@ private:
 	///Stop the postgresql database from the system tray context
 	void systemtray_stopdb(void);
 
+	///Opens the database config of the system tray
+	void systemtray_configdb(void);
+
 	///Delete system tray context
 	void delete_system_tray(void);
+
+	///private enum just for perform_action_on_database function
+	enum database_command_action {
+		database_start = 1,
+		database_stop = 2
+	};
+
+	//Run the Postgres control command on the database path. (Command can be to start or stop the database)
+	int perform_action_on_database(database_command_action action);
 
 	///Enable/disable menu and show/hide the data tabs in the dataview corresponding the project type, when a project is open
 	void enable_menu_project_open(const bool new_project);
@@ -664,6 +676,8 @@ private slots:
 	void thread_hyd_calc_finished(void);
 	///Catch the number of threads, which are launched from the multiple hydraulic system for calculation
 	void catch_thread_number_hy_calc(QString number);
+	///Catches the signal from the CPU/GPU working floodplain emitter from the Hyd_Hydraulic_System which is passed through the Hyd_Multiple_Hydraulic_Systems
+	void catch_main_statusbar_hyd_solver_update(unsigned int cpu, unsigned int gpu);
 
 	///Set a new output flag for the hyd modul(menu hyd/common)
 	void set_hyd_outputflag(void);
@@ -1035,6 +1049,9 @@ private:
 
 	///System tray stop database action
 	QAction* stopDbAction;
+
+	///System tray stop database action
+	QAction* configDbAction;
 
 	///System tray exit program action
 	QAction* exitAction;
