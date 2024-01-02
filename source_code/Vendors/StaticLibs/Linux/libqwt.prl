@@ -1,0 +1,5 @@
+QMAKE_PRL_BUILD_DIR = /content/qwt-6.2.0/src
+QMAKE_PRO_INPUT = src.pro
+QMAKE_PRL_TARGET = libqwt.so.6.2.0
+QMAKE_PRL_CONFIG = silent lex yacc exceptions testcase_targets import_plugins import_qpa_plugin file_copies qmake_use qt warn_on release link_prl incremental shared shared release linux unix posix gcc qt warn_on no_keywords release dll create_pc create_prl no_install_prl have_target shared dll thread uic opengl moc resources
+QMAKE_PRL_VERSION = 6.2.0
