@@ -29,7 +29,7 @@ CDomainCartesian::CDomainCartesian(void)
 	this->bUseOptimizedBoundary		= false;
 	this->ulCouplingArraySize		= 0;
 
-	this->uiRounding = 6;
+	this->uiRounding = 10;
 	this->sDataProgress.dBatchTimesteps = 0;
 	this->sDataProgress.dCurrentTime = 0.0;
 	this->sDataProgress.dCurrentTimestep = 0.0;
@@ -696,7 +696,6 @@ void CDomainCartesian::setDataProgress(dataProgress sDataProgress_input) {
 //Sets the bed elevation for a given cell
 void	CDomainCartesian::setBedElevation(unsigned long ulCellID, double dValue)
 {
-	dValue = Util::round(dValue, uiRounding);
 
 	if (this->ucFloatSize == 4) {
 		this->fBedElevations[ulCellID] = static_cast<float>(dValue);
@@ -710,7 +709,6 @@ void	CDomainCartesian::setBedElevation(unsigned long ulCellID, double dValue)
 //Sets the Manning coefficient for a given cell
 void	CDomainCartesian::setManningCoefficient(unsigned long ulCellID, double dValue)
 {
-	dValue = Util::round(dValue, uiRounding);
 
 	if (this->ucFloatSize == 4) {
 		this->fManningValues[ulCellID] = static_cast<float>(dValue);
@@ -723,7 +721,6 @@ void	CDomainCartesian::setManningCoefficient(unsigned long ulCellID, double dVal
 //Sets a state variable for a given cell
 void	CDomainCartesian::setFSL(unsigned long ulCellID, double dValue)
 {
-	dValue = Util::round(dValue, uiRounding);
 	if (this->ucFloatSize == 4) {
 		this->fCellStates[ulCellID].s[model::domainValueIndices::kValueFreeSurfaceLevel] = static_cast<float>(dValue);
 	}
@@ -735,7 +732,6 @@ void	CDomainCartesian::setFSL(unsigned long ulCellID, double dValue)
 //Sets a state variable for a given cell
 void	CDomainCartesian::setMaxFSL(unsigned long ulCellID, double dValue)
 {
-	dValue = Util::round(dValue, uiRounding);
 	if (this->ucFloatSize == 4) {
 		this->fCellStates[ulCellID].s[model::domainValueIndices::kValueMaxFreeSurfaceLevel] = static_cast<float>(dValue);
 	}
@@ -747,7 +743,6 @@ void	CDomainCartesian::setMaxFSL(unsigned long ulCellID, double dValue)
 //Sets a state variable for a given cell
 void	CDomainCartesian::setDischargeX(unsigned long ulCellID, double dValue)
 {
-	dValue = Util::round(dValue, uiRounding);
 	if (this->ucFloatSize == 4) {
 		this->fCellStates[ulCellID].s[model::domainValueIndices::kValueDischargeX] = static_cast<float>(dValue);
 	}
@@ -759,7 +754,6 @@ void	CDomainCartesian::setDischargeX(unsigned long ulCellID, double dValue)
 //Sets a state variable for a given cell
 void	CDomainCartesian::setDischargeY(unsigned long ulCellID, double dValue)
 {
-	dValue = Util::round(dValue, uiRounding);
 	if (this->ucFloatSize == 4) {
 		this->fCellStates[ulCellID].s[model::domainValueIndices::kValueDischargeY] = static_cast<float>(dValue);
 	}
@@ -780,7 +774,6 @@ void	CDomainCartesian::setBoundaryCondition(unsigned long ulCellID, double dValu
 		);
 	}
 
-	dValue = Util::round(dValue, uiRounding);
 	if (this->ucFloatSize == 4)
 	{
 		this->fBoundaryValues[ulCellID] = static_cast<float>(dValue);
@@ -793,7 +786,6 @@ void	CDomainCartesian::setBoundaryCondition(unsigned long ulCellID, double dValu
 //Sets the Boundary values for a given cell
 void	CDomainCartesian::setOptimizedCouplingCondition(unsigned long index, double dValue)
 {
-	dValue = Util::round(dValue, uiRounding);
 	if (this->ucFloatSize == 4)
 	{
 		this->fCouplingValues[index] = static_cast<float>(dValue);
@@ -806,7 +798,6 @@ void	CDomainCartesian::setOptimizedCouplingCondition(unsigned long index, double
 //Sets the Boundary values for a given cell
 void	CDomainCartesian::setZxmax(unsigned long ulCellID, double dValue)
 {
-	dValue = Util::round(dValue, uiRounding);
 	if (this->ucFloatSize == 4)
 	{
 		this->fOpt_zxmaxValues[ulCellID] = static_cast<float>(dValue);
@@ -819,7 +810,6 @@ void	CDomainCartesian::setZxmax(unsigned long ulCellID, double dValue)
 //Sets the Boundary values for a given cell
 void	CDomainCartesian::setcx(unsigned long ulCellID, double dValue)
 {
-	dValue = Util::round(dValue, uiRounding);
 	if (this->ucFloatSize == 4)
 	{
 		this->fOpt_cxValues[ulCellID] = static_cast<float>(dValue);
@@ -832,7 +822,6 @@ void	CDomainCartesian::setcx(unsigned long ulCellID, double dValue)
 //Sets the Boundary values for a given cell
 void	CDomainCartesian::setZymax(unsigned long ulCellID, double dValue)
 {
-	dValue = Util::round(dValue, uiRounding);
 	if (this->ucFloatSize == 4)
 	{
 		this->fOpt_zymaxValues[ulCellID] = static_cast<float>(dValue);
@@ -845,7 +834,6 @@ void	CDomainCartesian::setZymax(unsigned long ulCellID, double dValue)
 //Sets the Boundary values for a given cell
 void	CDomainCartesian::setcy(unsigned long ulCellID, double dValue)
 {
-	dValue = Util::round(dValue, uiRounding);
 	if (this->ucFloatSize == 4)
 	{
 		this->fOpt_cyValues[ulCellID] = static_cast<float>(dValue);
@@ -1047,7 +1035,7 @@ void	CDomainCartesian::memoryDump()
 }
 
 //Output the result members per timestep to Paraview
-void CDomainCartesian::output_to_vtk_file(std::string path, double time, std::string rasterName, int sizeX, int sizeY, double* opt_z, double* opt_zx_max, double* opt_zy_max, double* opt_h, double* opt_s, double* opt_v_x, double* opt_v_y) {
+void CDomainCartesian::output_to_vtk_file(std::string path, double time, std::string rasterName, int sizeX, int sizeY, double* opt_z, double* opt_zx_max, double* opt_zy_max, double* opt_h, double* opt_s, double* opt_v_x, double* opt_v_y, double* opt_boundary) {
 
 	//get the file name
 	double temp_double;
@@ -1160,6 +1148,15 @@ void CDomainCartesian::output_to_vtk_file(std::string path, double time, std::st
 	txt << "LOOKUP_TABLE default" << std::endl;
 	for (int i = 0; i < sizeT; i++) {
 		temp_double = opt_v_y[i];
+		Util::SwapEnd(temp_double);
+		txt.write(reinterpret_cast<char*>(&temp_double), sizeof(double));
+	}
+	txt << std::endl;
+
+	txt << "SCALARS  opt_bound double" << std::endl;
+	txt << "LOOKUP_TABLE default" << std::endl;
+	for (int i = 0; i < sizeT; i++) {
+		temp_double = opt_boundary[i];
 		Util::SwapEnd(temp_double);
 		txt.write(reinterpret_cast<char*>(&temp_double), sizeof(double));
 	}

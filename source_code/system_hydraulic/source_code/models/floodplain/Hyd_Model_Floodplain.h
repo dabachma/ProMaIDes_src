@@ -322,6 +322,8 @@ private:
 	///Total volume error due to outflow of an element, if there is no more watervolume left in the element
 	double total_volume_error_zero_outflow;
 
+	///Previous target time point of FP
+	double old_time_point;
 	///The error in the hydrological balance due to a setted outflow but no watervolume is left in the element
 	double error_zero_outflow_volume;
 	///Error discharge due to a setted outflow but no watervolume is left in the element

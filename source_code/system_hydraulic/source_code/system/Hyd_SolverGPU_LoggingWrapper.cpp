@@ -38,7 +38,11 @@ void Hyd_SolverGPU_LoggingWrapper::logWarning(const std::string& message) {
 
 void Hyd_SolverGPU_LoggingWrapper::logError(std::string error_reason, unsigned char error_type, std::string error_place, std::string error_help) {
 	bool fatal = (error_type == model::errorCodes::kLevelFatal);
+	if (fatal) {
 	Error msg;
 	msg.set_msg(error_place, error_reason, error_help, 35, fatal);
 	throw msg;
+	}else {
+		logWarning(error_reason);
+	}
 }

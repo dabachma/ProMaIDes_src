@@ -154,7 +154,6 @@ void COCLProgram::compileProgram(
 		model::log->logInfo(sBuildLog);
 		model::log->writeCharToFile(concatenatedString, "WarningBuildLog.txt");
 		delete[] concatenatedString;
-		delete[] orcCode;
 		model::log->logInfo("The source code has been written to WarningBuildLog.txt. Please check it.");
 
 		model::doError("Some messages were reported while building.",

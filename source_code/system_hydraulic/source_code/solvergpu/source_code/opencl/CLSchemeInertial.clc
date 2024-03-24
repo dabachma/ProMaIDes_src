@@ -139,6 +139,8 @@ void ine_cacheDisabled (
 	
 	// All neighbours are dry? Don't bother calculating
 	if ( ucDryCount == 5 ){
+		// TODO: Is this needed?
+		//pCellStateDst[ulIdx] = pCellData;
 		return;
 	}
 	

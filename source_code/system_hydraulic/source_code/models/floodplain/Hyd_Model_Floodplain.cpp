@@ -58,6 +58,8 @@ Hyd_Model_Floodplain::Hyd_Model_Floodplain(void){
 
 	this->old_time_point_syncron=0.0;
 
+	this->old_time_point = 0.0;
+
 	this->error_zero_outflow_volume=0.0;
 	this->q_zero_outflow_error=0.0;
 	this->old_timepoint_error=0.0;
@@ -1360,6 +1362,16 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 			pManager->getDomain()->readBuffers_opt_h(opt_h_gpu);
 			//profiler->profile("solve_gpu_readBuffers_opt_h", Profiler::profilerFlags::END_PROFILING);
 
+			//TODO: Fix Balancing for -ve boundary conditions 
+			// FIX for balance should be here! 
+			//double negative_boundary_error = 0.0;
+			//for (int i = 0; i < this->number_bound_cond; i++) {
+			//	if (this->bound_cond_dsdt[i] < 0.0) {
+			//		negative_boundary_error += this->bound_cond_dsdt[i];
+			//	}
+			//}
+			//this->error_zero_outflow_volume += negative_boundary_error * (next_time_point - old_time_point);
+
 			//profiler->profile("update_ds_dt", Profiler::profilerFlags::START_PROFILING);
 			//update ds_dt value (Used for Output and Display)
 			for (int i = 0; i < this->NEQ; i++) {
@@ -1417,6 +1429,7 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 
 		}
 		
+		this->old_time_point = next_time_point;
 	}
 	catch (Error msg) {
 		ostringstream info;

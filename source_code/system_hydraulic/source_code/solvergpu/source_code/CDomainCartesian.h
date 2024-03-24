@@ -152,7 +152,7 @@ class CDomainCartesian
 		void				memoryDump();																	// Dumps memory for debugging
 		void				output_to_vtk_file(std::string path, double time, std::string rasterName,		// Output various data into a ParaView file (useful for debugging)
 									int sizeX, int sizeY, double* opt_z, double* opt_zx_max, double* opt_zy_max,
-										double* opt_h, double* opt_s, double* opt_v_x, double* opt_v_y);
+										double* opt_h, double* opt_s, double* opt_v_x, double* opt_v_y, double* boundary);
 
 	private:
 

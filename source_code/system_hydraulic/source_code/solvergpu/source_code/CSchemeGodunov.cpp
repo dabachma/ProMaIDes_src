@@ -1325,18 +1325,21 @@ void CSchemeGodunov::outputAllFloodplainDataToVtk() {
 	double* opt_zx_max = new double[this->getDomain()->getCellCount()];
 	double* opt_zy_max = new double[this->getDomain()->getCellCount()];
 	double* opt_s_gpu = new double[this->getDomain()->getCellCount()];
+	double* opt_boundary = new double[this->getDomain()->getCellCount()];
 	for (unsigned long i = 0; i < this->getDomain()->getCellCount(); i++){
 		opt_z[i] = this->getDomain()->getBedElevation(i);
 		opt_zx_max[i] = this->getDomain()->getZxmax(i);
 		opt_zy_max[i] = this->getDomain()->getZymax(i);
 		opt_s_gpu[i]  = this->getDomain()->getBedElevation(i) + opt_h_gpu[i];
+		opt_boundary[i] = this->getDomain()->getBoundaryCondition(i);
 	}
 	
-	this->getDomain()->output_to_vtk_file(path, dCurrentTime, "rasterName", this->getDomain()->getCols(), this->getDomain()->getRows(), opt_z, opt_zx_max, opt_zy_max, opt_h_gpu, opt_s_gpu, opt_v_x_gpu, opt_v_y_gpu);
+	this->getDomain()->output_to_vtk_file(path, dCurrentTime, "rasterName", this->getDomain()->getCols(), this->getDomain()->getRows(), opt_z, opt_zx_max, opt_zy_max, opt_h_gpu, opt_s_gpu, opt_v_x_gpu, opt_v_y_gpu, opt_boundary);
 	
 	delete[] opt_h_gpu;
 	delete[] opt_v_x_gpu;
 	delete[] opt_v_y_gpu;
+	delete[] opt_boundary;
 	delete[] opt_z;
 	delete[] opt_zx_max;
 	delete[] opt_zy_max;
