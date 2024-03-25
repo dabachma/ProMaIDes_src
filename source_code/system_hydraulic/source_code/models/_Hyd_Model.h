@@ -14,6 +14,8 @@
 #include "Hyd_Param_Global.h" 
 //class of Instationary boundary conditions
 #include "Hyd_Instationary_Boundary.h"
+//Class of the wrapper required to catch messages from the GPU Solver
+#include "Hyd_SolverGPU_LoggingWrapper.h"
 
 //system_sys_ classes
 #include "_Sys_Common_System.h"
@@ -41,6 +43,16 @@
 #include "cvode_bandpre.h"
 #include "cvode_lapack.h"
 #include "cvode_band.h"
+
+//GPU Solver
+#include "common.h"
+#include "CProfiler.h"
+#include "CModel.h"
+#include "COCLDevice.h"
+#include "CDomainCartesian.h"
+#include "CScheme.h"
+
+#include "Profiler.h"
 
 //struct
 ///Summarizes the values for a hydrological balance (inflow-, outflow- and totalvolume) \ingroup hyd
@@ -128,6 +140,8 @@ public:
 	///Get the diferences of solver steps per interal time step
 	int get_diff_solver_step_internal(void);
 
+	///GPU solver model and handler class
+	CModel* pManager;
 
 
 protected:
@@ -213,8 +227,6 @@ protected:
 
 	///Run the solver
 	void run_solver(const double next_time_point,  const string system_id);
-	///Run the solver GPU
-	void run_solver_gpu(const double next_time_point, const string system_id);
 
 	//get the number of solver timesteps
 	long int get_number_solversteps(void);
@@ -241,6 +253,8 @@ protected:
 
 	///Get the model description
 	virtual string get_model_description(void)=0;
+	/// Check for GPU Used
+	bool gpu_in_use;
 
 private:
 
@@ -281,7 +295,7 @@ private:
 	virtual void set_initcond2resultvector(void)=0;
 	///Set function to solve to the solver
 	virtual void set_function2solver(void)=0;
-	
+
 	///Allocate the n_vectors of the results-data and linked realtype arrays results and estimated_error
 	void allocate_solver_vector(void);
 	///Calculate the errors of the solver per step

@@ -1,4 +1,4 @@
-#include "source_code\Hyd_Headers_Precompiled.h"
+#include "Hyd_Headers_Precompiled.h"
 //#include "_Hyd_Element_Floodplain_Type.h"
 
 //constructor
@@ -52,6 +52,14 @@ void _Hyd_Element_Floodplain_Type::calculate_v_out(const double , const double )
 //Distribute the flows (ds_dt) to the neighbouring x- and y-elements (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 //Add a value to the the variation of the global waterlevel over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 void _Hyd_Element_Floodplain_Type::add_ds_dt(const double ){
+
+}
+//Set the flow velocity in x-direction
+void _Hyd_Element_Floodplain_Type::set_flowvelocity_vx(const double) {
+
+}
+//Set the flow velocity in y-direction
+void _Hyd_Element_Floodplain_Type::set_flowvelocity_vy(const double) {
 
 }
 //Get the global waterlevel (s_value); here the z_value (here the global geodetic height (z_value) is return, because the cell is always dry) 

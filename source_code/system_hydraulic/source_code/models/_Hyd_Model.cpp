@@ -54,6 +54,8 @@ _Hyd_Model::_Hyd_Model(void) {
 	
 	this->instat_boundary_curves=NULL;
 
+	this->gpu_in_use = false;
+	this->pManager = nullptr;
 }
 //destructor
 _Hyd_Model::~_Hyd_Model(void){
@@ -241,16 +243,115 @@ void _Hyd_Model::init_solver(Hyd_Param_Global *global_params){
 		throw msg;
 	}
 
-	//count the requiered mem for the solver
+	//count the required memory for the solver
 	this->count_solver_memory();
 }
 //Initialize the solver with the given parameters for GPU calculation
-void _Hyd_Model::init_solver_gpu(Hyd_Param_Global *global_params) {
-	//Todo Alaa
-	//global_params->
-	//pointer to the solver_pgu
-	//allcoate solver gpu
+void _Hyd_Model::init_solver_gpu(Hyd_Param_Global* global_params) {
 
+	this->gpu_in_use = true;
+	Hyd_Model_Floodplain* myFloodplain = (Hyd_Model_Floodplain*) this;
+
+	//Collect Floodplain Information
+	_hyd_floodplain_scheme_info scheme_info = myFloodplain->Param_FP.get_scheme_info();
+	double outputFrequency = global_params->GlobTStep / global_params->GlobNofITS;
+	double simulationLength = global_params->GlobTNof * global_params->GlobTStep;
+
+	//Create the GPU model with our own logger attached
+	Hyd_SolverGPU_LoggingWrapper* hyd_SolverGPU_LoggingWrapper = new Hyd_SolverGPU_LoggingWrapper(); //Deleted by pManager destructor
+	pManager = new CModel(hyd_SolverGPU_LoggingWrapper, false); //Deleted by _Hyd_Model destructor
+
+	//Set up the Manager Settings
+	pManager->setSelectedDevice(scheme_info.selected_device);							// Set GPU device to Use. Important: Has to be called after setExecutor. Default is the faster one.
+	pManager->setSimulationLength(simulationLength);									// Set Simulation Length
+	pManager->setOutputFrequency(outputFrequency);										// Set Output Frequency
+	pManager->setFloatPrecision(model::floatPrecision::kDouble);						// Set Precision
+	
+	//Create the domain
+	CDomainCartesian* ourCartesianDomain = pManager->getDomain();
+	ourCartesianDomain->setCellResolution(*myFloodplain->Param_FP.get_ptr_width_x(), *myFloodplain->Param_FP.get_ptr_width_y());
+	ourCartesianDomain->setCols(myFloodplain->Param_FP.get_no_elems_x());
+	ourCartesianDomain->setRows(myFloodplain->Param_FP.get_no_elems_y());
+	ourCartesianDomain->setUseOptimizedCoupling(myFloodplain->get_number_boundary_conditions() == 0 && myFloodplain->get_number_coupling_conditions() > 0 );
+	ourCartesianDomain->setOptimizedCouplingSize(myFloodplain->get_number_coupling_conditions());
+	ourCartesianDomain->setName(myFloodplain->Param_FP.get_floodplain_name());
+	
+	//Create the Scheme,
+	model::SchemeSettings schemeSettings;
+	schemeSettings.scheme_type = scheme_info.scheme_type;
+	schemeSettings.CourantNumber = scheme_info.courant_number;
+	schemeSettings.DryThreshold = 1E-10;
+	schemeSettings.Timestep = 0.1;
+	schemeSettings.ReductionWavefronts = scheme_info.reduction_wavefronts;
+	schemeSettings.FrictionStatus = scheme_info.friction_status;
+	schemeSettings.NonCachedWorkgroupSize[0] = scheme_info.workgroup_size_x;
+	schemeSettings.NonCachedWorkgroupSize[1] = scheme_info.workgroup_size_y;
+	schemeSettings.debuggerOn = false;
+	CScheme::createScheme(pManager, schemeSettings);
+
+
+	pManager->log->logInfo("Setting Data...");
+	unsigned long ulCellID;
+	unsigned char	ucRounding = 6;
+	for (unsigned long iRow = 0; iRow < myFloodplain->Param_FP.get_no_elems_y(); iRow++) {
+		for (unsigned long iCol = 0; iCol < myFloodplain->Param_FP.get_no_elems_x(); iCol++) {
+			ulCellID = ourCartesianDomain->getCellID(iCol, ourCartesianDomain->getRows() - iRow - 1);
+			//Elevations
+			if (myFloodplain->floodplain_elems[ulCellID].get_elem_type() == _hyd_elem_type::STANDARD_ELEM || myFloodplain->floodplain_elems[ulCellID].get_elem_type() == _hyd_elem_type::DIKELINE_ELEM) {
+				//Bed Elevation
+				ourCartesianDomain->setBedElevation(ulCellID, myFloodplain->floodplain_elems[ulCellID].get_z_value());
+			}else {
+				//Bed Elevation
+				ourCartesianDomain->setBedElevation(ulCellID, -9999.0);
+			}
+			//Manning Coefficient
+			ourCartesianDomain->setManningCoefficient(ulCellID, myFloodplain->floodplain_elems[ulCellID].element_type->get_flow_data().n_value);
+			//Depth
+			ourCartesianDomain->setFSL(ulCellID, myFloodplain->floodplain_elems[ulCellID].element_type->get_flow_data().init_condition + myFloodplain->floodplain_elems[ulCellID].get_z_value());
+			//MaxDepth
+			ourCartesianDomain->setMaxFSL(ulCellID, myFloodplain->floodplain_elems[ulCellID].element_type->get_flow_data().init_condition + myFloodplain->floodplain_elems[ulCellID].get_z_value());
+			//VelocityX
+			ourCartesianDomain->setDischargeX(ulCellID, 0.0);
+			//VelocityY
+			ourCartesianDomain->setDischargeY(ulCellID, 0.0);
+			//Boundary Condition
+			if (ourCartesianDomain->getUseOptimizedCoupling() == false) {
+				ourCartesianDomain->setBoundaryCondition(ulCellID, 0.0);
+			}
+			//Poleni Conditions
+			if (!myFloodplain->floodplain_elems[ulCellID].element_type->get_flow_data().no_flow_x_flag) {
+				ourCartesianDomain->setPoleniConditionX(ulCellID, myFloodplain->floodplain_elems[ulCellID].element_type->get_flow_data().poleni_flag_x);
+			}
+			//Poleni Conditions
+			if (!myFloodplain->floodplain_elems[ulCellID].element_type->get_flow_data().no_flow_y_flag) {
+				ourCartesianDomain->setPoleniConditionY(ulCellID, myFloodplain->floodplain_elems[ulCellID].element_type->get_flow_data().poleni_flag_y);
+			}
+			//Zxmax
+			ourCartesianDomain->setZxmax(ulCellID, myFloodplain->floodplain_elems[ulCellID].get_flow_data().height_border_x_abs);
+			//cx
+			ourCartesianDomain->setcx(ulCellID, myFloodplain->floodplain_elems[ulCellID].get_flow_data().poleni_x);
+			//Zymax
+			ourCartesianDomain->setZymax(ulCellID, myFloodplain->floodplain_elems[ulCellID].get_flow_data().height_border_y_abs);
+			//cy
+			ourCartesianDomain->setcy(ulCellID, myFloodplain->floodplain_elems[ulCellID].get_flow_data().poleni_y);
+			//Coupling Condition
+			//ourCartesianDomain->setCouplingCondition(ulCellID, 0.0);
+
+		}
+	}
+	if (ourCartesianDomain->getUseOptimizedCoupling() ) {
+		//set id array
+		for (int i = 0; i < ourCartesianDomain->getOptimizedCouplingSize(); i++) {
+			ourCartesianDomain->setOptimizedCouplingCondition(i, 0.0);
+			ourCartesianDomain->setOptimizedCouplingID(i, myFloodplain->get_optimized_coupling_id(i));
+		}
+	}
+
+	pManager->log->logInfo("The computational engine is now ready.");
+
+	pManager->ValidateAndPrepareModel();
+
+	//TODO: Alaa: Calculate memory     this->count_solver_memory();
 }
 //Reset the solver-tolerances, if they are changed by the dynamic tolerance decreasment; also the warn_counter is reseted
 void _Hyd_Model::reset_solver_tolerances(void){
@@ -451,18 +552,15 @@ void _Hyd_Model::run_solver(const double next_time_point, const string system_id
 		
 	this->calculate_solver_errors();
 }
-//Run the solver GPU
-void _Hyd_Model::run_solver_gpu(const double next_time_point, const string system_id) {
-
-	//Todo Alaa
-
-
-}
 //get the number of solver timesteps
 long int _Hyd_Model::get_number_solversteps(void){
 	//calculate them
 	int flag=-1;
 	long int buff=0;
+	if (this->gpu_in_use) {
+		//TODO: Alaa Get Gpu Timesteps
+	}
+	else {
 	flag=CVodeGetNumSteps(this->cvode_mem, &buff);
 	 if(flag<0){
 		Warning msg=this->set_warning(3);
@@ -473,6 +571,7 @@ long int _Hyd_Model::get_number_solversteps(void){
 		msg.output_msg(2);
 	}
 
+	}
 	return this->number_solversteps+buff;
 }
 //output final statistics of the solver
@@ -858,6 +957,7 @@ void _Hyd_Model::calculate_solver_errors(void){
 }
 //close the solver
 void _Hyd_Model::close_solver(void){
+	//For Cvode
 	// Deallocate memory for solution vector 
 	if(this->results!=NULL){
 		N_VDestroy_Serial(this->results);
@@ -870,6 +970,9 @@ void _Hyd_Model::close_solver(void){
 		this->estimated_error=NULL;
 	}
 
+	//For GPU Solver
+	if (this->pManager != NULL)
+		delete this->pManager;
 	
 	//Free solver memory: CVodeFree(cvode mem); to free the memory allocated for cvode.
 	CVodeFree(&this->cvode_mem);

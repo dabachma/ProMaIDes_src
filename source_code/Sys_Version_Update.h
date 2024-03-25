@@ -64,6 +64,8 @@ public:
 	///Check and add columns to the Dam-result and risk-result table for CI-results for DAM/RISK-module (8.3.2023)
 	void check_update_ci_reults(QSqlDatabase *ptr_database, const string project_file);
 
+	//Check and update the floodplain table (hyd_floodplain_general_prm) to support GPU, by adding columns for scheme type, courant, device,...etc (19.12.2023)
+	void Sys_Version_Update::check_update_hyd_table_general_param_gpu(QSqlDatabase* ptr_database, const string project_file);
 
 private:
 	///Check and update the text of the hydraulic table of the hydraulic river profile result members; width_max is introduced (18.02.2021)

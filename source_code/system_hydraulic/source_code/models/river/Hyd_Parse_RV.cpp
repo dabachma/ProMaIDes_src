@@ -220,6 +220,7 @@ void Hyd_Parse_RV::parse_1d_result_file(_hyd_keyword_file Key, word Command){
 		RemoveDelimiters(Command, buffer);
 		UseLinuxSlash(buffer);
 		string buff2=buffer;
+		_Hyd_Parse_IO::erase_carriageReturn(&buff2);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&buff2);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&buff2);
 		//this->rv_params.tecplot_outfile_name_1d=buff2;
@@ -242,6 +243,7 @@ void Hyd_Parse_RV::parse_2d_result_file(_hyd_keyword_file Key, word Command){
 		RemoveDelimiters(Command, buffer);
 		UseLinuxSlash(buffer);
 		string buff2=buffer;
+		_Hyd_Parse_IO::erase_carriageReturn(&buff2);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&buff2);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&buff2);
 		//this->rv_params.tecplot_outfile_name_2d=buff2;

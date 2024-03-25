@@ -461,7 +461,7 @@
   <customwidget>
    <class>Sys_Member_Dbl_BaseWid</class>
    <extends>QWidget</extends>
-   <header>sys_member_dbl_basewid.h</header>
+   <header>Sys_Member_Dbl_BaseWid.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

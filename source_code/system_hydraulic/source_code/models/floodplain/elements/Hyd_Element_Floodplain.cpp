@@ -3767,7 +3767,7 @@ string Hyd_Element_Floodplain::convert_elem_type2txt(_hyd_elem_type type){
 			txt=hyd_label::dikeline_elem;
 			break;
 		default:
-			txt==label::unknown_type;
+			txt=label::unknown_type;
 	}
 	return txt;
 }

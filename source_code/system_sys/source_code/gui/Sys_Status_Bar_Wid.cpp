@@ -15,6 +15,8 @@ Sys_Status_Bar_Wid::Sys_Status_Bar_Wid(void){
 	this->label_status_risk->setToolTip(buff.c_str());
 	buff ="MADM-thread is not running";
 	this->label_status_madm->setToolTip(buff.c_str());
+	buff = "No floodplains are running";
+	this->label_status_cgpu->setToolTip(buff.c_str());
 
 	this->close_flag=false;
 
@@ -101,7 +103,22 @@ void Sys_Status_Bar_Wid::set_hydthread(const bool flag, const string number){
 		this->label_status_hyd->setText("no");
 		buff << "HYD-thread finished at " << Sys_Output_Division::set_time();
 		this->label_status_hyd->setToolTip(buff.str().c_str());
+
+		this->set_cpu_gpu_count(0, 0);
 	}
+}
+//set the Cpu and Gpu fps
+void Sys_Status_Bar_Wid::set_cpu_gpu_count(unsigned int cpu_count, unsigned int gpu_count) {
+
+	ostringstream buff;
+	buff << cpu_count << "C " << gpu_count << "G";
+	this->label_status_cgpu->setText(buff.str().c_str());
+	buff.str("");
+
+	buff << "The simulation is set to run " << cpu_count << " FP/s on the CPU, and " << gpu_count;
+	buff << " FP/s on the GPU (not necessarily in parallel)";
+
+	this->label_status_cgpu->setToolTip(buff.str().c_str());
 }
 //Set the hydraulic-status text-label of the statusbar to "sleep"
 void Sys_Status_Bar_Wid::set_hydthread_sleep(const bool flag){

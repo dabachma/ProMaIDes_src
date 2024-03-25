@@ -1,0 +1,71 @@
+/*
+ * HIGH-PERFORMANCE INTEGRATED MODELLING SYSTEM (HiPIMS)
+ * Copyright (C) 2023 Luke S. Smith, Qiuhua Liang.
+ * This code is licensed under GPLv3. See LICENCE for more information.
+ * This file has been modified by Alaa Mroue on 04.2023-12.2023.
+ * See OriginalSourceCode.zip for changes. (Based on 1e62acf6b9b480e08646b232361b68c1827d91ae from https://github.com/lukeshope/hipims-ocl )
+ */
+
+//#define INERTIAL_SCHEME		1			// Calculated based on sqrt(gh) instead of u + sqrt(gh)
+#define DIFFUSIVE_SCHEME 1
+
+// Structure definitions
+typedef struct sFaceStructure {
+	cl_double4	pN;
+	cl_double4	pE;
+	cl_double4	pS;
+	cl_double4	pW;
+} sFaceStructure;
+
+// Structure definitions
+typedef struct sUsePolini {
+	bool	usePoliniN;
+	bool	usePoliniE;
+	bool	usePoliniS;
+	bool	usePoliniW;
+} sUsePolini;
+
+#ifdef USE_FUNCTION_STUBS
+
+// Function definitions
+__kernel  REQD_WG_SIZE_FULL_TS
+void pro_cacheDisabled ( 
+	__constant	cl_double *,
+	__global	cl_double const * restrict,
+	__global	cl_double4 *,
+	__global	cl_double4 *,
+	__global    cl_double const * restrict,
+	__global	sUsePolini const * restrict,
+	__global	cl_double  const * restrict,
+	__global	cl_double  const * restrict,
+	__global	cl_double  const * restrict,
+	__global	cl_double  const * restrict
+);
+
+cl_double2 manning_Solver(
+	cl_double Timestep,
+	cl_double manning,
+	cl_double manning_Neig,
+	cl_double opt_s_Cell,
+	cl_double opt_s_Neig,
+	cl_double opt_z_Cell,
+	cl_double opt_z_Neig,
+	cl_double DeltaXY,
+	bool debug
+	);
+
+cl_double2 poleni_Solver(
+	cl_double Timestep,
+	cl_double manning,
+	cl_double manning_Neig,
+	cl_double opt_s_Cell,
+	cl_double opt_s_Neig,
+	cl_double opt_z_Cell,
+	cl_double opt_z_Neig,
+	cl_double opt_zxymax,
+	cl_double opt_cxy,
+	cl_double DeltaXY,
+	bool debug
+	);
+
+#endif

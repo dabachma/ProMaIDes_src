@@ -1,4 +1,4 @@
-#include "source_code\Dam_Headers_Precompiled.h"
+#include "Dam_Headers_Precompiled.h"
 //#include "Dam_CI_Polygon.h"
 
 //init static members
@@ -2046,11 +2046,11 @@ void Dam_CI_Polygon::create_point_table(QSqlDatabase *ptr_database) {
 
 		tab_col[3].name = hyd_label::polygon_point_x;
 		tab_col[3].type = sys_label::tab_col_type_double;
-		tab_col[3].default_value == "0.0";
+		tab_col[3].default_value = "0.0";
 
 		tab_col[4].name = hyd_label::polygon_point_y;
 		tab_col[4].type = sys_label::tab_col_type_double;
-		tab_col[4].default_value == "0.0";
+		tab_col[4].default_value = "0.0";
 
 
 

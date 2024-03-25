@@ -1,4 +1,4 @@
-#include "source_code\Hyd_Headers_Precompiled.h"
+#include "Hyd_Headers_Precompiled.h"
 //#include "Hyd_Floodplainraster_Segment.h"
 
 //constructor
@@ -126,7 +126,7 @@ string Hyd_Floodplainraster_Segment::convert_segment_type2txt(_hyd_floodplain_ra
 			txt=hyd_label::rast_seg_border;
 			break;
 		default:
-			txt==label::unknown_type;
+			txt=label::unknown_type;
 	}
 	return txt;
 }

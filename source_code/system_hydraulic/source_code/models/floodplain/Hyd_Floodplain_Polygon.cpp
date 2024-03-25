@@ -1,4 +1,4 @@
-#include "source_code\Hyd_Headers_Precompiled.h"
+#include "Hyd_Headers_Precompiled.h"
 //#include "Hyd_Floodplain_Polygon.h"
 
 //init static members
@@ -49,6 +49,7 @@ void Hyd_Floodplain_Polygon::input_members(const int index, const string filenam
 				getline(ifile, myline,'\n');
 				line_counter++;
 				_Hyd_Parse_IO::erase_comment(&myline);
+				_Hyd_Parse_IO::erase_carriageReturn(&myline);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 				_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 				pos=myline.rfind("!BEGIN");
@@ -67,6 +68,7 @@ void Hyd_Floodplain_Polygon::input_members(const int index, const string filenam
 				getline(ifile, myline,'\n');
 				line_counter++;
 				_Hyd_Parse_IO::erase_comment(&myline);
+				_Hyd_Parse_IO::erase_carriageReturn(&myline);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 				_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			}
@@ -139,6 +141,7 @@ void Hyd_Floodplain_Polygon::input_members(const int index, const string filenam
 			getline(ifile, myline,'\n');
 			line_counter++;
 			_Hyd_Parse_IO::erase_comment(&myline);
+			_Hyd_Parse_IO::erase_carriageReturn(&myline);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 			if(myline.empty()!=true){
@@ -193,6 +196,7 @@ void Hyd_Floodplain_Polygon::input_members(const int index, const string filenam
 		getline(ifile, myline,'\n');
 		line_counter++;
 		_Hyd_Parse_IO::erase_comment(&myline);
+		_Hyd_Parse_IO::erase_carriageReturn(&myline);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		pos=myline.rfind("!END");
@@ -658,11 +662,11 @@ void Hyd_Floodplain_Polygon::create_point_table(QSqlDatabase *ptr_database){
 
 			tab_col[3].name=hyd_label::polygon_point_x;
 			tab_col[3].type=sys_label::tab_col_type_double;
-			tab_col[3].default_value=="0.0";
+			tab_col[3].default_value="0.0";
 
 			tab_col[4].name=hyd_label::polygon_point_y;
 			tab_col[4].type=sys_label::tab_col_type_double;
-			tab_col[4].default_value=="0.0";
+			tab_col[4].default_value="0.0";
 			
 
 

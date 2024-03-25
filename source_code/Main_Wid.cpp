@@ -6,7 +6,7 @@
 Main_Wid::Main_Wid(int argc, char *argv[]){
 	//important to use this custom defined enumerator with the signal and slot-mechanism
 	qRegisterMetaType<_sys_close_types>("_sys_close_types");
-	
+
 	//task variables
 	this->task_file_name = label::not_set;
 	this->task_flag = false;
@@ -66,7 +66,9 @@ Main_Wid::Main_Wid(int argc, char *argv[]){
 	this->output_connect();
 
 	this->actionTemp_per_database->setVisible(false);
-	
+
+	//connect and set-up the system tray icon
+	this->systemtray_connect();
 
 	//connect and set-up the status bar widget
 	this->statusbar_connect();
@@ -201,6 +203,9 @@ Main_Wid::~Main_Wid(void){
 	Dam_Damage_System::close_dam_database_tables();
 	Fpl_Calculation::close_fpl_database_tables();
 	Risk_System::close_risk_database_tables();
+
+	//close and delete the system tray context
+	this->delete_system_tray();
 
 	//close and delete the output classes (text display window)
 	this->delete_output_classes();
@@ -833,11 +838,132 @@ void Main_Wid::delete_output_classes(void){
 	Sys_Common_Output::delete_output_hydrol();
 	//..introduce further modules
 }
+//Delete the system tray context
+void Main_Wid::delete_system_tray(void) {
+	if (startDbAction != NULL)		{ delete startDbAction;		startDbAction = NULL; }
+	if (stopDbAction != NULL)		{ delete stopDbAction;		stopDbAction = NULL; }
+	if (configDbAction != NULL)		{ delete configDbAction;	configDbAction = NULL; }
+	if (exitAction != NULL)			{ delete exitAction;		exitAction = NULL; }
+	if (trayContextMenu != NULL)	{ delete trayContextMenu;	trayContextMenu = NULL; }
+	if (trayIcon != NULL)			{ delete trayIcon;			trayIcon = NULL; }
+}
+
+//Allocate and connect the system tray icon
+void Main_Wid::systemtray_connect(void) {
+
+	trayIcon = new QSystemTrayIcon(this);
+	trayIcon->setIcon(QIcon(":prom_icon"));  // Set the icon for the tray
+	trayIcon->setToolTip("ProMaIDeS");  // Set a tooltip for the icon
+
+	// Create a context menu for the tray icon
+	trayContextMenu = new QMenu(this);
+	startDbAction = new QAction("Start Database", this);
+	stopDbAction = new QAction("Stop Database", this);
+	configDbAction = new QAction("Config Database", this);
+	startDbAction->setCheckable(true);
+	stopDbAction->setCheckable(true);
+	exitAction = new QAction("Exit", this);
+
+	// Connect actions to slots or functions
+	connect(startDbAction, &QAction::triggered, this, &Main_Wid::systemtray_startdb);
+	connect(stopDbAction, &QAction::triggered, this, &Main_Wid::systemtray_stopdb);
+	connect(configDbAction, &QAction::triggered, this, &Main_Wid::systemtray_configdb);
+	connect(exitAction, &QAction::triggered, this, &Main_Wid::terminate_threads_close_app);
+
+	trayContextMenu->addAction(startDbAction);
+	trayContextMenu->addAction(stopDbAction);
+	trayContextMenu->addSeparator();
+	trayContextMenu->addAction(configDbAction);
+	trayContextMenu->addSeparator();
+	trayContextMenu->addAction(exitAction);
+
+	// Set the context menu for the tray icon
+	trayIcon->setContextMenu(trayContextMenu);
+	// Show the System Tray icon
+	trayIcon->show();
+}
+
+//Start the postgresql database from the system tray context
+void Main_Wid::systemtray_startdb(void) {
+
+	int status = this->perform_action_on_database(database_command_action::database_start);
+
+	if (status == 0) {
+		startDbAction->setChecked(true);
+		stopDbAction->setChecked(false);
+		std::cout << "PostgreSQL started successfully." << std::endl;
+	}
+	else {
+		std::cerr << "Failed to start PostgreSQL." << std::endl;
+	}
+}
+
+//Stop the postgresql database from the system tray context
+void Main_Wid::systemtray_stopdb(void) {
+
+	int status = this->perform_action_on_database(database_command_action::database_stop);
+
+	if (status == 0) {
+		startDbAction->setChecked(false);
+		stopDbAction->setChecked(true);
+		std::cout << "PostgreSQL stopped successfully." << std::endl;
+	}
+	else {
+		std::cerr << "Failed to stop PostgreSQL." << std::endl;
+	}
+
+}
+
+//Run the Postgres control command on the database path. (Command can be to start or stop the database)
+int Main_Wid::perform_action_on_database(database_command_action action) {
+
+	std::string action_start_or_stop = "";
+	switch (action)
+	{
+	case database_command_action::database_start:
+		action_start_or_stop = "start";
+		break;
+	case database_command_action::database_stop:
+		action_start_or_stop = "stop";
+		break;
+	default:
+		action_start_or_stop = "start";
+		break;
+	}
+
+	QSettings settings("AG_FRM", "MyProMaIDes");
+	std::string controller_path = "";
+	std::string database_path = "";
+
+	if (settings.contains("systray_controller_path")) {
+		controller_path = settings.value("systray_controller_path", "").toString().toStdString();
+	}	if (settings.contains("systray_controller_path")) {
+		database_path = settings.value("systray_database_path", "").toString().toStdString();
+	}
+
+	//const char* command = "C:/Progra~1/PostgreSQL/16/bin/pg_ctl.exe start -D C:/Progra~1/PostgreSQL/16/data";
+	std::string postgres_start_command = "\"\"" + controller_path + "\"" + " " + action_start_or_stop + " -D " + "\"" + database_path + "\"\"";
+	int status = system(postgres_start_command.c_str());
+
+	return status;
+}
+
+//Stop the postgresql database from the system tray context
+void Main_Wid::systemtray_configdb(void) {
+	Sys_Postgres_Config_Dia postgres_config_dialog(this);
+
+	//execute the dia
+	if (postgres_config_dialog.exec() != 0) {//if ok set the parameter	
+		std::cout << postgres_config_dialog.postgres_path().toStdString();
+	}
+}
+
 //Allocate and connect the status bar widget
 void Main_Wid::statusbar_connect(void){
 	this->status_wid=new Sys_Status_Bar_Wid();
 	//this->status_wid->setParent(this->statusBar());
 	//set it to the status bar
+	this->status_wid->setFixedSize(810, 80); //Not sure why this is required here
 	this->statusBar()->addPermanentWidget(this->status_wid,0);
 	this->statusBar()->showMessage("Ready", 0);
 	//connect the slots: error counter
@@ -3280,6 +3406,7 @@ void Main_Wid::read_existing_project(void){
 				this->version_update.check_update_connect_results_dam_ci(this->system_database->get_database(), this->project_manager.get_project_file_name());
 				this->version_update.check_update_dam_ci_elements(this->system_database->get_database(), this->project_manager.get_project_file_name());
 				this->version_update.check_update_ci_reults(this->system_database->get_database(), this->project_manager.get_project_file_name());
+				this->version_update.check_update_hyd_table_general_param_gpu(this->system_database->get_database(), this->project_manager.get_project_file_name());
 			}
 			
 		}
@@ -5212,6 +5339,7 @@ void Main_Wid::set_hydcalc_per_file(void){
 	//connect the thread when is finished
 	QObject::connect(this->hyd_calc,SIGNAL(finished()),this,SLOT(thread_hyd_calc_finished()));
 	QObject::connect(this->hyd_calc,SIGNAL(emit_number_threads(QString )),this,SLOT(catch_thread_number_hy_calc(QString )));
+	QObject::connect(this->hyd_calc, SIGNAL(statusbar_main_hyd_solver_update(unsigned int, unsigned int)), this, SLOT(catch_main_statusbar_hyd_solver_update(unsigned int, unsigned int)));
 	this->action_stop_hyd_calc->setEnabled(true);
 
 	this->reset_exception_new_action();
@@ -5244,6 +5372,7 @@ void Main_Wid::set_hydcalc_per_file_task(QStringList list_id) {
 	//connect the thread when is finished
 	QObject::connect(this->hyd_calc, SIGNAL(finished()), this, SLOT(thread_hyd_calc_finished()));
 	QObject::connect(this->hyd_calc, SIGNAL(emit_number_threads(QString)), this, SLOT(catch_thread_number_hy_calc(QString)));
+	QObject::connect(this->hyd_calc, SIGNAL(statusbar_main_hyd_solver_update(unsigned int, unsigned int)), this, SLOT(catch_main_statusbar_hyd_solver_update(unsigned int, unsigned int)));
 	this->action_stop_hyd_calc->setEnabled(true);
 
 	this->reset_exception_new_action();
@@ -5303,6 +5432,10 @@ void Main_Wid::thread_hyd_calc_finished(void){
 		}
 
 	}
+}
+//Catch the number of CPU/GPU Floodplain to be working, which is emitted from each Hyd_Hydraulic_System (passed through the Hyd_Multiple_Hydraulic_Systems )
+void Main_Wid::catch_main_statusbar_hyd_solver_update(unsigned int cpu_count, unsigned int gpu_count) {
+	this->status_wid->set_cpu_gpu_count(cpu_count, gpu_count);
 }
 //Catch the number of threads, which are launched from the multiple hydraulic system for calculation
 void Main_Wid::catch_thread_number_hy_calc(QString number){
@@ -5731,6 +5864,7 @@ void Main_Wid::set_hydcalc_per_db(void){
 		//connect the thread when is finished
 		QObject::connect(this->hyd_calc,SIGNAL(finished()),this,SLOT(thread_hyd_calc_finished()));
 		QObject::connect(this->hyd_calc,SIGNAL(emit_number_threads(QString )),this,SLOT(catch_thread_number_hy_calc(QString )));
+		QObject::connect(this->hyd_calc, SIGNAL(statusbar_main_hyd_solver_update(unsigned int, unsigned int)), this, SLOT(catch_main_statusbar_hyd_solver_update(unsigned int, unsigned int)));
 
 		this->action_Close_Connection->setEnabled(false);
 		this->action_stop_hyd_calc->setEnabled(true);
@@ -5802,6 +5936,7 @@ void Main_Wid::set_hydcalc_per_task(QList<int> list_id) {
 		//connect the thread when is finished
 		QObject::connect(this->hyd_calc, SIGNAL(finished()), this, SLOT(thread_hyd_calc_finished()));
 		QObject::connect(this->hyd_calc, SIGNAL(emit_number_threads(QString)), this, SLOT(catch_thread_number_hy_calc(QString)));
+		QObject::connect(this->hyd_calc, SIGNAL(statusbar_main_hyd_solver_update(unsigned int, unsigned int)), this, SLOT(catch_main_statusbar_hyd_solver_update(unsigned int, unsigned int)));
 
 		this->action_Close_Connection->setEnabled(false);
 		this->action_stop_hyd_calc->setEnabled(true);

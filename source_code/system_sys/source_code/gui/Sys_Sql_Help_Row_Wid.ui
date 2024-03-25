@@ -280,7 +280,7 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>Sys_Letter_Button</class>
    <extends>QPushButton</extends>
-   <header location="global">sys_letter_button.h</header>
+   <header location="global">Sys_Letter_Button.h</header>
   </customwidget>
  </customwidgets>
  <resources>

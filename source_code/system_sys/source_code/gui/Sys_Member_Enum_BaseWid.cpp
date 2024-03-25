@@ -51,6 +51,7 @@ void Sys_Member_Enum_BaseWid::set_items(const string* items, const int len) {
 //Set the QCombobox value by index
 void Sys_Member_Enum_BaseWid::set_current_value(const int index) {
 	this->comboBox->setCurrentIndex(index);
+	this->comboBox->setToolTip(this->comboBox->currentText());
 	this->last_index = index;
 }
 
@@ -74,6 +75,17 @@ void Sys_Member_Enum_BaseWid::set_editable(const bool edit) {
 	else {
 		QObject::connect(this->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(on_comboBox_currentIndexChanged(int)));
 	}
+}
+
+//Changes the width of the combo box	
+void Sys_Member_Enum_BaseWid::set_box_width(const double width) {
+	this->comboBox->setMinimumWidth(width);
+}
+
+//Changes the width of the combo box	
+void Sys_Member_Enum_BaseWid::set_box_tooltip(const string tooltip) {
+	QString qText = tooltip.c_str();
+	this->comboBox->setToolTip(qText);
 }
 
 //Returns editable status	

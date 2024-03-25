@@ -131,9 +131,9 @@ public:
 	Hyd_River_Profile_Point * get_last_point(void);
 
 	///Get the global x-coordinate of a profile point
-	double _Hyd_River_Profile_Type::get_global_x(const int index);
+	double get_global_x(const int index);
 	///Get the global y-coordinate of a profile point
-	double _Hyd_River_Profile_Type::get_global_y(const int index);
+	double get_global_y(const int index);
 
 	///Get the minimal z-coordinate (global_z_min) 
 	double get_global_z_min(void);

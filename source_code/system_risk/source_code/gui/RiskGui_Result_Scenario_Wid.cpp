@@ -1,4 +1,4 @@
-#include "source_code\Risk_Headers_Precompiled.h"
+#include "Risk_Headers_Precompiled.h"
 //#include "RiskGui_Result_Scenario_Wid.h"
 
 //Default constructor

@@ -73,3 +73,8 @@ void Sys_Member_Int_BaseWid::set_editable(bool edit) {
 bool Sys_Member_Int_BaseWid::is_editable(void) {
 	return this->spinBox->isReadOnly();
 }
+
+//Changes the width of the combo box	
+void Sys_Member_Int_BaseWid::set_box_width(const double width) {
+	this->spinBox->setMinimumWidth(width);
+}

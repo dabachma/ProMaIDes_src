@@ -369,6 +369,9 @@ string Error::error_type_translation(void){
 		case 34:
 			cout << "CI-system error" << endl;
 			break;
+		case 35:
+			cout << "GPU Solver error" << endl;
+			break;
 		default:
 			cout << "Unknown Error " << endl;
 

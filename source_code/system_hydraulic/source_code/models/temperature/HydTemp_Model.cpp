@@ -317,7 +317,7 @@ void HydTemp_Model::input_members(const int index, const QSqlTableModel *query_r
 			found_profiles =HydTemp_Profile::select_profiles_in_database(&prof_query_result, ptr_database, this->system_id, this->Param_Temp.Param_RV->RVNumber);
 		}
 		if (found_profiles == 0) {
-			this->model_is_applied == false;
+			this->model_is_applied = false;
 			if (output_flag == true) {
 				ostringstream cout;
 				cout << "No temperature profiles are found for river " << this->Param_Temp.Param_RV->get_river_number() << " in database. Temperature model is not applied!" << endl;
@@ -1952,6 +1952,7 @@ void HydTemp_Model::input_river_profiles_temp_data_perfile(void){
 				myline=qmyline.toStdString();
 				line_counter++;
 				_Hyd_Parse_IO::erase_comment(&myline);
+				_Hyd_Parse_IO::erase_carriageReturn(&myline);
 				_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 				my_stream << myline;
 				my_stream >> key;
@@ -2087,7 +2088,7 @@ void HydTemp_Model::check_instationary_boundary_found(void){
 void HydTemp_Model::set_function2solver(void){
 	int flag=-1;
 	//set the function where the diff equation is specified
-	//The function CVodeMalloc provides required problem and solution speci¯cations, allocates internal memory, and initializes cvode.
+	//The function CVodeMalloc provides required problem and solution speciï¿½cations, allocates internal memory, and initializes cvode.
 	flag = CVodeInit(this->cvode_mem, ftemp_equation2solve, 0.0, this->results);
 
 		
@@ -2347,7 +2348,11 @@ Error HydTemp_Model::set_error(const int err_type){
 }
 //___________________________________________
 //static Main function for temperature modelling
-int __cdecl ftemp_equation2solve(realtype time, N_Vector results, N_Vector da_dt, void *river_data) {
+#ifdef _WIN32
+int __cdecl ftemp_equation2solve(realtype time, N_Vector results, N_Vector da_dt, void* river_data) {
+#elif defined(__unix__) || defined(__unix)
+int __attribute__((cdecl)) ftemp_equation2solve(realtype time, N_Vector results, N_Vector da_dt, void* river_data) {
+#endif
 	//
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 	//cast the floodplain_data

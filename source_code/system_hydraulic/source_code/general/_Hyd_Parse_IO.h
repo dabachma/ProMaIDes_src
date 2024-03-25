@@ -177,6 +177,22 @@ enum _hyd_keyword_file{
 	eNOINFOVALUE,
 	///Marker for the path and name of the file with the floodplain elements data
 	eFLOODPLAINFILE,
+	///Marker for the scheme settings of the floodplain (main keyword)
+	eSCHEME,
+	///Marker for the scheme to use when solving
+	eSCHEME_TYPE,
+	///Marker for the device selected to run the simulation on
+	eSELECTED_DEVICE,
+	///Marker for the CFL condition courant number
+	eCOURANT_NUMBER,
+	///Marker for the number of wavefront
+	eREDUCTION_WAVEFRONTS,
+	///Marker for the friction effect
+	eFRICTION_STATUS,
+	///Marker for the workgroup size in the X-direction when working with a gpu scheme
+	eWORKGROUP_SIZE_X, 
+	///Marker for the workgroup size in the Y-direction when working with a gpu scheme
+	eWORKGROUP_SIZE_Y,
 	///Marker for the limits for the 1d/2d calculation (main keyword)
 	eLIMITS,
     ///Marker for the temperature model (main keyword)
@@ -297,6 +313,9 @@ public:
 
 	///Transform string to boolean
 	static bool transform_string2boolean(string my_string_flag);
+
+	///Erase carriage return "\r" from end of file (using when parsing text files with Windows Encoding on a Unix System)
+	static void erase_carriageReturn(string* my_string);
 
 	///Erase leading whitespaces and tabs before the first sign
 	static void erase_leading_whitespace_tabs(string *my_string);

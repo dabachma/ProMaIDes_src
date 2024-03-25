@@ -54,6 +54,8 @@ public:
 	bool is_editable(void);
 	///Sets the Suffix of the QSpinBox
 	void set_suffix(string);
+	///Changes the width of the combo box
+	void set_box_width(const double);
 
 private:
 

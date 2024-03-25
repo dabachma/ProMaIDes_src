@@ -165,6 +165,7 @@ void _Hyd_River_Profile::input_members(QFile *profile_file, const int profile_nu
 			qbuffer=profile_file->readLine();
 			buffer=qbuffer.toStdString();
 			_Hyd_Parse_IO::erase_comment(&buffer);
+			_Hyd_Parse_IO::erase_carriageReturn(&buffer);
 			_Hyd_Parse_IO::erase_leading_whitespace_tabs(&buffer);
 			_Hyd_Parse_IO::erase_end_whitespace_tabs(&buffer);
 
@@ -3355,11 +3356,11 @@ void _Hyd_River_Profile::reset_coupling_discharge(void){
 	this->q_dikebreak_coupling_left=0.0;
 	this->q_dikebreak_coupling_right=0.0;
 }
-//Add a discharge value to the coupling discharge over the left bank [m³/(s)] in flow direction (coupling RV2FP)
+//Add a discharge value to the coupling discharge over the left bank [mï¿½/(s)] in flow direction (coupling RV2FP)
 void _Hyd_River_Profile::add_coupling_discharge_left_bank(const double value){
 	this->q_left_bank=this->q_left_bank+value;
 }
-//Add a discharge value to the coupling discharge over the right bank [m³/(s)] in flow direction (coupling RV2FP)
+//Add a discharge value to the coupling discharge over the right bank [mï¿½/(s)] in flow direction (coupling RV2FP)
 void _Hyd_River_Profile::add_coupling_discharge_right_bank(const double value){
 	this->q_right_bank=this->q_right_bank+value;
 }
@@ -4406,6 +4407,7 @@ void _Hyd_River_Profile::get_keyvalues_file(stringstream *stream, string buffer)
 		throw msg;
 	}
 	buffer=buffer.erase(pos,buffer.length()-1);
+	_Hyd_Parse_IO::erase_carriageReturn(&buffer);
 	_Hyd_Parse_IO::erase_leading_whitespace_tabs(&buffer);
 	_Hyd_Parse_IO::erase_end_whitespace_tabs(&buffer);
 	*stream << buffer.substr(0,pos);

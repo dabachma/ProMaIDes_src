@@ -153,11 +153,16 @@ signals:
 
 	///Emit the number of calculation, which are already performed, as text
 	void emit_number_performed_calculation(QString done);
-
+	
+	///Emit the number of floodplains that will run on CPU and/or GPU (emit to the Main_Wid)
+	void statusbar_main_hyd_solver_update(unsigned int cpu_count, unsigned int gpu_count);
 
 public slots:
 	///Manage the output of the hydraulic classes
 	void recieve_output_required(int thread);
+
+	///Catches the signal from the CPU/GPU working floodplain emitter from the Hyd_Hydraulic_System then send again to the Main_Wid
+	void catch_multi_statusbar_hyd_solver_update(unsigned int cpu_count, unsigned int gpu_count);
 
 private:
 

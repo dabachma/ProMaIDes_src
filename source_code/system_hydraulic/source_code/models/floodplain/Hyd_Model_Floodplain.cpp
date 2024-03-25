@@ -58,6 +58,8 @@ Hyd_Model_Floodplain::Hyd_Model_Floodplain(void){
 
 	this->old_time_point_syncron=0.0;
 
+	this->old_time_point = 0.0;
+
 	this->error_zero_outflow_volume=0.0;
 	this->q_zero_outflow_error=0.0;
 	this->old_timepoint_error=0.0;
@@ -151,6 +153,7 @@ void Hyd_Model_Floodplain::set_members_directly(const string name, const int ind
 }
 //Transfer the floodplain model data to a database; the general settings as well as the element data
 void Hyd_Model_Floodplain::transfer_input_members2database(QSqlDatabase *ptr_database){
+	Hyd_Param_FP buffer;
 	//set prefix for output
 	ostringstream prefix;
 	prefix << "FP_" << this->Param_FP.FPNumber <<"> ";
@@ -195,6 +198,14 @@ void Hyd_Model_Floodplain::transfer_input_members2database(QSqlDatabase *ptr_dat
 	model.setData(model.index(0,model.record().indexOf((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::noinfovalue)).c_str())),this->Param_FP.noinfo_value);
 	model.setData(model.index(0,model.record().indexOf((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::wet)).c_str())),this->Param_FP.FPWet);
 	model.setData(model.index(0,model.record().indexOf((Hyd_Model_Floodplain::general_param_table->get_column_name(label::applied_flag)).c_str())),true);
+
+	model.setData(model.index(0, model.record().indexOf((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::schemetype)).c_str())), buffer.convert_schemetype2txt(this->Param_FP.scheme_type).c_str());
+	model.setData(model.index(0, model.record().indexOf((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::selecteddevice)).c_str())), this->Param_FP.selected_device);
+	model.setData(model.index(0, model.record().indexOf((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::courantnumber)).c_str())), this->Param_FP.courant_number);
+	model.setData(model.index(0, model.record().indexOf((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::reductionwavefronts)).c_str())), this->Param_FP.reduction_wavefronts);
+	model.setData(model.index(0, model.record().indexOf((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::frictionstatus)).c_str())), this->Param_FP.friction_status);
+	model.setData(model.index(0, model.record().indexOf((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::workgroupsizex)).c_str())), this->Param_FP.workgroup_size_x);
+	model.setData(model.index(0, model.record().indexOf((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::workgroupsizey)).c_str())), this->Param_FP.workgroup_size_y);
 	//submit it to the datbase
 	Data_Base::database_submit(&model);
 	if(model.lastError().isValid()){
@@ -301,6 +312,16 @@ void Hyd_Model_Floodplain::input_members(const int index, const QSqlTableModel *
 	this->Param_FP.FPWet=query_result->record(index).value((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::wet)).c_str()).toDouble();
 	this->Param_FP.calculate_area();
 
+	//solver settings
+	Hyd_Param_FP buffer;
+	this->Param_FP.scheme_type			= buffer.convert_txt2schemetype(query_result->record(index).value((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::schemetype)).c_str()).toString().toStdString());
+	this->Param_FP.selected_device		= query_result->record(index).value((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::selecteddevice)).c_str()).toInt();
+	this->Param_FP.courant_number		= query_result->record(index).value((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::courantnumber)).c_str()).toDouble();
+	this->Param_FP.reduction_wavefronts = query_result->record(index).value((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::reductionwavefronts)).c_str()).toInt();
+	this->Param_FP.friction_status		= query_result->record(index).value((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::frictionstatus)).c_str()).toBool();
+	this->Param_FP.workgroup_size_x		= query_result->record(index).value((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::workgroupsizex)).c_str()).toInt();
+	this->Param_FP.workgroup_size_y		= query_result->record(index).value((Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::workgroupsizey)).c_str()).toInt();
+
 	//read in the elements
 	try{
 		//check the general fp-members
@@ -355,7 +376,7 @@ void Hyd_Model_Floodplain::create_table(QSqlDatabase *ptr_database){
 			Sys_Common_Output::output_hyd->output_txt(&cout);
 			//make specific input for this class
 			const string tab_name=hyd_label::tab_fp_gen;
-			const int num_col=16;
+			const int num_col=23;
 			_Sys_data_tab_column tab_col[num_col];
 			//init
 			for(int i=0; i< num_col; i++){
@@ -425,6 +446,38 @@ void Hyd_Model_Floodplain::create_table(QSqlDatabase *ptr_database){
 			tab_col[15].name=label::description;
 			tab_col[15].type=sys_label::tab_col_type_string;
 
+			tab_col[16].name = hyd_label::schemetype;
+			tab_col[16].type = sys_label::tab_col_type_string;
+
+			tab_col[17].name = hyd_label::selecteddevice;
+			tab_col[17].type = sys_label::tab_col_type_int;
+			tab_col[17].unsigned_flag = true;
+			tab_col[17].default_value = "1";
+			
+			tab_col[18].name = hyd_label::courantnumber;
+			tab_col[18].type = sys_label::tab_col_type_double;
+			tab_col[18].unsigned_flag = true;
+			tab_col[18].default_value = "0.5";
+			
+			tab_col[19].name = hyd_label::reductionwavefronts;
+			tab_col[19].type = sys_label::tab_col_type_int;
+			tab_col[19].unsigned_flag = true;
+			tab_col[19].default_value = "200";
+			
+			tab_col[20].name = hyd_label::frictionstatus;
+			tab_col[20].type = sys_label::tab_col_type_bool;
+			tab_col[20].default_value = "false";
+			
+			tab_col[21].name = hyd_label::workgroupsizex;
+			tab_col[21].type = sys_label::tab_col_type_int;
+			tab_col[21].unsigned_flag = true;
+			tab_col[21].default_value = "8";
+			
+			tab_col[22].name = hyd_label::workgroupsizey;
+			tab_col[22].type = sys_label::tab_col_type_int;
+			tab_col[22].unsigned_flag = true;
+			tab_col[22].default_value = "8";
+
 			try{
 				Hyd_Model_Floodplain::general_param_table= new Tables();
 				if(Hyd_Model_Floodplain::general_param_table->create_non_existing_tables(tab_name, tab_col, num_col,ptr_database, _sys_table_type::hyd)==false){
@@ -449,11 +502,11 @@ void Hyd_Model_Floodplain::create_table(QSqlDatabase *ptr_database){
 	}
 }
 //Set the database table for the general parameters of the floodplain model: it sets the table name and the name of the columns and allocate them (static)
-void Hyd_Model_Floodplain::set_table(QSqlDatabase *ptr_database){
+void Hyd_Model_Floodplain::set_table(QSqlDatabase *ptr_database, const bool not_close){
 	if(Hyd_Model_Floodplain::general_param_table==NULL){
 		//make specific input for this class
 		const string tab_id_name=hyd_label::tab_fp_gen;
-		string tab_id_col[16];
+		string tab_id_col[23];
 		tab_id_col[0]=hyd_label::genmod_id;
 		tab_id_col[1]=hyd_label::atol;
 		tab_id_col[2]=hyd_label::rtol;
@@ -470,6 +523,13 @@ void Hyd_Model_Floodplain::set_table(QSqlDatabase *ptr_database){
 		tab_id_col[13]=hyd_label::wet;
 		tab_id_col[14]=label::description;
 		tab_id_col[15]=label::applied_flag;
+		tab_id_col[16] = hyd_label::schemetype;
+		tab_id_col[17] = hyd_label::selecteddevice;
+		tab_id_col[18] = hyd_label::courantnumber;
+		tab_id_col[19] = hyd_label::reductionwavefronts;
+		tab_id_col[20] = hyd_label::frictionstatus;
+		tab_id_col[21] = hyd_label::workgroupsizex;
+		tab_id_col[22] = hyd_label::workgroupsizey;
 
 		try{
 			Hyd_Model_Floodplain::general_param_table= new Tables(tab_id_name, tab_id_col, sizeof(tab_id_col)/sizeof(tab_id_col[0]));
@@ -484,7 +544,9 @@ void Hyd_Model_Floodplain::set_table(QSqlDatabase *ptr_database){
 			throw msg;
 		}
 		catch(Error msg){
-			Hyd_Model_Floodplain::close_table();
+			if (not_close == false) {
+				Hyd_Model_Floodplain::close_table();
+			}
 			throw msg;
 		}
 	}
@@ -967,11 +1029,24 @@ void Hyd_Model_Floodplain::init_solver(Hyd_Param_Global *global_params){
     this->init_opt_data_bound_coup();
     this->allocate_opt_data_reduced();
     this->init_reduced_id();
-	if (constant::gpu2d_applied == false) {
+
+	if (this->Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU) {
+
+		if (!global_params->get_opencl_available()) {
+			ostringstream info;
+			Warning msg = this->set_warning(6);
+			info << "The CPU Scheme will run instead. This may be slower." << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(2);
+
+			//Run Cpu scheme
+			_Hyd_Model::init_solver(global_params);
+		}
+		else {
+			_Hyd_Model::init_solver_gpu(global_params);
+		}
+	}else {
 		_Hyd_Model::init_solver(global_params);
-	}
-	else {
-		this->init_solver_gpu(global_params);
 	}
 }
 //Reinitialize the solver
@@ -1121,26 +1196,30 @@ void Hyd_Model_Floodplain::reset_solver(void){
 //solve_model
 void Hyd_Model_Floodplain::solve_model(const double next_time_point, const string system_id){
 	try{
-       
+		//profiler->profile("upd_opt", Profiler::profilerFlags::START_PROFILING);
 		this->update_opt_data_by_elems();
+		//profiler->profile("upd_opt", Profiler::profilerFlags::END_PROFILING);
+		//profiler->profile("calc_maxS", Profiler::profilerFlags::START_PROFILING);
 		this->calc_set_max_step_size(next_time_point);
+		//profiler->profile("calc_maxS", Profiler::profilerFlags::END_PROFILING);
 
-		//2DGPU here if else statement (later user can set it via file and GUI)
-		if (constant::gpu2d_applied == false) {
-			this->run_solver(next_time_point, system_id);
-		}
-		else {
-			//TODO Alaa
-			this->run_solver_gpu(next_time_point, system_id);
-		}
+		//cout << "simulating until: " << next_time_point << endl;
+		//profiler->profile("RunSolver", Profiler::profilerFlags::START_PROFILING);
+		this->run_solver(next_time_point, system_id);
+		//profiler->profile("RunSolver", Profiler::profilerFlags::END_PROFILING);
 
 
+		//profiler->profile("setSolverV", Profiler::profilerFlags::START_PROFILING);
+		double volume = 0.0;
         long int counter=0;
         long int counter_wet=0;
 		for(int i=0; i< this->NEQ; i++){
             if(this->floodplain_elems[i].get_elem_type()==_hyd_elem_type::STANDARD_ELEM ||
                 this->floodplain_elems[i].get_elem_type()==_hyd_elem_type::DIKELINE_ELEM){
                     this->floodplain_elems[i].element_type->set_solver_result_value(this->results_real[counter]);
+					
+					//volume += this->floodplain_elems[i].element_type->get_h_value() * this->floodplain_elems[i].element_type->get_relevant_area();
+                    
                     //TEST: change the abs tolerance according to number of wet elements
                     //if(this->floodplain_elems[i].element_type->get_h_value()>0.0){
                       //  counter_wet++;
@@ -1149,8 +1228,13 @@ void Hyd_Model_Floodplain::solve_model(const double next_time_point, const strin
             }
 
 		}
+		//profiler->profile("setSolverV", Profiler::profilerFlags::END_PROFILING);
+		//cout << "Volume after solver: " << volume << endl;
+
+		//profiler->profile("upt_opt_a", Profiler::profilerFlags::START_PROFILING);
         //Update the optimalized data
 		this->update_elems_by_opt_data();
+		//profiler->profile("upt_opt_a", Profiler::profilerFlags::END_PROFILING);
         //TEST: change the abs tolerance according to number of wet elements
         double new_abs_tol=0.0;
         new_abs_tol=(double(counter_wet)/double(counter))*this->setted_abs_tol;
@@ -1168,6 +1252,194 @@ void Hyd_Model_Floodplain::solve_model(const double next_time_point, const strin
 		throw msg;
 	}
 }
+
+//Fetches the number of boundary condition of the floodplain; the number of cells who will have a boundary values after each iteration
+int Hyd_Model_Floodplain::get_number_boundary_conditions() {
+	return this->number_bound_cond;
+}
+
+//Fetches the number of coupling condition of the floodplain; the number of cells who will have a coupling values after each iteration
+int Hyd_Model_Floodplain::get_number_coupling_conditions() {
+	return this->number_coup_cond;
+}
+
+//Fetches the optimized coupling ids
+unsigned long Hyd_Model_Floodplain::get_optimized_coupling_id(unsigned long index) {
+	return this->coup_cond_id[index];
+}
+
+//solve_model
+void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const string system_id) {
+	try {
+		unsigned long ulCellID;
+		CDomainCartesian* myCarDomain = pManager->getDomain();
+		CScheme* myScheme = pManager->getDomain()->getScheme();
+		
+		//profiler->profile("SetBoundaryConditionsArray", Profiler::profilerFlags::START_PROFILING);
+		// Zero out the boundary conditions array
+		if (myCarDomain->getUseOptimizedCoupling() == false) {
+			myCarDomain->resetBoundaryCondition();
+
+			// Set the boundary conditions to the array
+			for (int i = 0; i < this->number_bound_cond; i++) {
+				this->bound_cond_dsdt[i] = this->floodplain_elems[this->bound_cond_id[i]].element_type->get_bound_discharge() / this->Param_FP.area;
+				myCarDomain->setBoundaryCondition(this->bound_cond_id[i], this->floodplain_elems[this->bound_cond_id[i]].element_type->get_bound_discharge() / this->Param_FP.area);
+			}
+
+			// Set the coupling conditions to the array
+			double currentBound = 0.0;
+			double coupValue = 0;
+			for (int i = 0; i < this->number_coup_cond; i++) {
+				currentBound = myCarDomain->getBoundaryCondition(this->coup_cond_id[i]);
+				coupValue = this->floodplain_elems[this->coup_cond_id[i]].element_type->get_coupling_discharge() / this->Param_FP.area;
+				this->coup_cond_dsdt[i] = coupValue;
+				myCarDomain->setBoundaryCondition(this->coup_cond_id[i], currentBound + coupValue);
+
+			}
+		}
+		else {
+			// Set the coupling conditions to the array
+			double coupValue = 0;
+			for (int i = 0; i < this->number_coup_cond; i++) {
+				coupValue = this->floodplain_elems[this->coup_cond_id[i]].element_type->get_coupling_discharge() / this->Param_FP.area;
+				this->coup_cond_dsdt[i] = coupValue;
+				myCarDomain->setOptimizedCouplingCondition(i, coupValue);
+			}
+		}
+		//profiler->profile("SetBoundaryConditionsArray", Profiler::profilerFlags::END_PROFILING);
+
+		// Request to import Boundary condition and new coupled water heights
+		myScheme->importBoundaries();
+
+		//profiler->profile("run_solver_gpu", Profiler::profilerFlags::START_PROFILING);
+		// Run the simulations until the target time, the results on the simulation are saved in readBuffers_opt_h
+		//cout << "Next_time_point: " << next_time_point << endl;
+		this->run_solver_gpu(next_time_point, system_id);
+		if (myScheme->isSimulationSlow()) {
+			Hyd_Param_FP hyd_Param_FP;
+			DomainCell fastest1, fastest2, fastest3;
+			myScheme->findFastestCells(&fastest1, &fastest2, &fastest3);
+
+			Error msg = this->set_error(26);
+			ostringstream info;
+			info << "Hydraulic system                    : " << system_id << endl;
+			info << this->get_model_description();
+
+			info << "Scheme Type: " << hyd_Param_FP.convert_schemetype2txt(myScheme->getSchemeType()) << endl;
+			info << "Courant Number: " << myScheme->getCourantNumber() << endl;
+			info << "Target Time: " << myScheme->getTargetTime() << endl;
+			info << "Current Time: " << myScheme->getCurrentTime() << endl;
+			info << "Current Timestep: " << myScheme->getCurrentTimestep() << endl;
+			info << "Current Timestep Moving Average: " << myScheme->getCurrentTimestepMovAvg() << endl;
+
+			info << "Fastest Cells in Domain Reported: " << endl;
+			info << "    1. CellId: " << fastest1.ulCellId << " Depth: " << fastest1.dDepth << " Elevation: " << fastest1.dElevation << " VelocityX: " << fastest1.dV_x << " VelocityY: "
+				<< fastest1.dV_y << " GroundVelocity: " << fastest1.dCalculatedVelocity << " TimeStepLimit: " << fastest1.dExpectedTimeStep << endl;
+			info << "    2. CellId: " << fastest2.ulCellId << " Depth: " << fastest2.dDepth << " Elevation: " << fastest2.dElevation << " VelocityX: " << fastest2.dV_x << " VelocityY: "
+				<< fastest2.dV_y << " GroundVelocity: " << fastest2.dCalculatedVelocity << " TimeStepLimit: " << fastest2.dExpectedTimeStep << endl;
+			info << "    3. CellId: " << fastest3.ulCellId << " Depth: " << fastest3.dDepth << " Elevation: " << fastest3.dElevation << " VelocityX: " << fastest3.dV_x << " VelocityY: "
+				<< fastest3.dV_y << " GroundVelocity: " << fastest3.dCalculatedVelocity << " TimeStepLimit: " << fastest3.dExpectedTimeStep << endl;
+			info << "Floodplain Snapshot has been exported to " << "fp_" + myCarDomain->getName() + "_" + std::to_string(myScheme->getCurrentTime()) + ".vtk" << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+		if (myScheme->isSolverThreadStopped()) {
+			Hyd_Param_FP hyd_Param_FP;
+			Error msg = this->set_error(27);
+			throw msg;
+		}
+
+		//profiler->profile("run_solver_gpu", Profiler::profilerFlags::END_PROFILING);
+
+
+		// OLD CODE ............................................... Better for inertial Scheme
+		
+		if (myScheme->getSchemeType() == model::schemeTypes::kInertialGPU || myScheme->getSchemeType() == model::schemeTypes::kDiffusiveGPU) {
+
+			// Read water depth values and set them to element
+			//profiler->profile("solve_gpu_readBuffers_opt_h", Profiler::profilerFlags::START_PROFILING);
+			double* opt_h_gpu = new double[this->NEQ];
+			pManager->getDomain()->readBuffers_opt_h(opt_h_gpu);
+			//profiler->profile("solve_gpu_readBuffers_opt_h", Profiler::profilerFlags::END_PROFILING);
+
+			//TODO: Fix Balancing for -ve boundary conditions 
+			// FIX for balance should be here! 
+			//double negative_boundary_error = 0.0;
+			//for (int i = 0; i < this->number_bound_cond; i++) {
+			//	if (this->bound_cond_dsdt[i] < 0.0) {
+			//		negative_boundary_error += this->bound_cond_dsdt[i];
+			//	}
+			//}
+			//this->error_zero_outflow_volume += negative_boundary_error * (next_time_point - old_time_point);
+
+			//profiler->profile("update_ds_dt", Profiler::profilerFlags::START_PROFILING);
+			//update ds_dt value (Used for Output and Display)
+			for (int i = 0; i < this->NEQ; i++) {
+					this->floodplain_elems[i].element_type->set_ds2dt_value(opt_h_gpu[i] - this->floodplain_elems[i].element_type->get_h_value());
+			}
+			//profiler->profile("update_ds_dt", Profiler::profilerFlags::END_PROFILING);
+
+			//profiler->profile("update_h_value", Profiler::profilerFlags::START_PROFILING);
+			//Update h_value and s_value used for everything
+			for (int i = 0; i < this->NEQ; i++) {
+					this->floodplain_elems[i].element_type->set_solver_result_value(opt_h_gpu[i]);
+			}
+			//profiler->profile("update_h_value", Profiler::profilerFlags::END_PROFILING);
+
+			//profiler->profile("calculate_ds_dt", Profiler::profilerFlags::START_PROFILING);
+			//uses values from set_solver_result_value to calculate velocity
+			for (int i = 0; i < this->NEQ; i++) {
+				this->floodplain_elems[i].element_type->calculate_ds_dt();
+			}
+			//profiler->profile("calculate_ds_dt", Profiler::profilerFlags::END_PROFILING);
+			
+			delete[] opt_h_gpu;
+
+		}else {
+		
+			//Send double* for the solvergpu library to fill them with the correct data
+			double* opt_h_gpu = new double[this->NEQ];
+			double* opt_v_x_gpu = new double[this->NEQ];
+			double* opt_v_y_gpu = new double[this->NEQ];
+			pManager->getDomain()->readBuffers_h_vx_vy(opt_h_gpu, opt_v_x_gpu, opt_v_y_gpu);
+
+			//update ds_dt value (Used for Output and Display)
+			for (int i = 0; i < this->NEQ; i++) {
+				if (this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::STANDARD_ELEM || this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::DIKELINE_ELEM) {
+					this->floodplain_elems[i].element_type->set_ds2dt_value(opt_h_gpu[i] - this->floodplain_elems[i].element_type->get_h_value());
+				}
+			}
+
+			//Update h_value and s_value used for everything
+			for (int i = 0; i < this->NEQ; i++) {
+				if (this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::STANDARD_ELEM || this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::DIKELINE_ELEM) {
+					this->floodplain_elems[i].element_type->set_solver_result_value(opt_h_gpu[i]);
+				}
+			}
+
+			//uses values from set_solver_result_value to calculate velocity
+			for (int i = 0; i < this->NEQ; i++) {
+				this->floodplain_elems[i].element_type->set_flowvelocity_vx(opt_v_x_gpu[i]);
+				this->floodplain_elems[i].element_type->set_flowvelocity_vy(opt_v_y_gpu[i]);
+			}
+
+			delete[] opt_h_gpu;
+			delete[] opt_v_x_gpu;
+			delete[] opt_v_y_gpu;
+
+		}
+		
+		this->old_time_point = next_time_point;
+	}
+	catch (Error msg) {
+		ostringstream info;
+		info << "Time point       :" << next_time_point << endl;
+		info << "Floodplainnumber :" << this->Param_FP.FPNumber << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+}
+
 //output the members
 void Hyd_Model_Floodplain::output_members(void){
 	//set prefix for output
@@ -1398,7 +1670,8 @@ void Hyd_Model_Floodplain::output_geometrie2tecplot(void){
 	this->tecplot_output<<"#######################"<<endl;
 	this->tecplot_output <<"#Floodplain elements" << endl;
 	for(int i=0; i<this->NEQ; i++){
-		this->floodplain_elems[i].output_boundaries2tecplot(&this->Param_FP.get_geometrical_info(), &this->tecplot_output);
+		_hyd_floodplain_geo_info geo_info = this->Param_FP.get_geometrical_info();
+		this->floodplain_elems[i].output_boundaries2tecplot(&geo_info, &this->tecplot_output);
 	}
 	//output the geometry of the dikelines
 	for(int i=0; i<this->Param_FP.number_dike_polylines;i++){
@@ -2181,7 +2454,14 @@ void Hyd_Model_Floodplain::output_final(void){
 	ostringstream prefix;
 	prefix << "FP_"<< this->Param_FP.FPNumber<<"> ";
 	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
-	this->output_solver_statistics();
+
+	if (this->gpu_in_use) {
+	
+	}
+	else {
+		this->output_solver_statistics();
+	}
+
 	//hydrological balance
 	this->calculate_total_hydrological_balance();
 	this->output_hydrological_balance();
@@ -3520,24 +3800,10 @@ void Hyd_Model_Floodplain::transfer_glob_elem_id_fp(Hyd_Model_Floodplain *to_fp)
 
 }
 //____________________________________
-//private
-//Initialize the solver with the given parameters for GPU calculation
-void Hyd_Model_Floodplain::init_solver_gpu(Hyd_Param_Global *global_params) {
-	//Todo Alaa
- //global_params->
- //pointer to the solver_pgu
- //allcoate solver gpu
-	this->Param_FP.FPNofX;
-	this->Param_FP.width_x;
 
-
-}
 //Run the solver GPU
 void Hyd_Model_Floodplain::run_solver_gpu(const double next_time_point, const string system_id) {
-	//Todo Alaa
-	//set the fp_data: this
-
-
+	pManager->runNext(next_time_point);
 }
 //Generate the geometrical boundary of the raster polygon
 void Hyd_Model_Floodplain::generate_geo_bound_raster_polygon(void){
@@ -3832,7 +4098,7 @@ void Hyd_Model_Floodplain::init_opt_data(void){
 					this->flow_elem[i][j]=true;
                     this->id_reduced[counter]=this->NEQ_real;
                 //change here
-                   this->NEQ_real++;
+					this->NEQ_real++;
 			}
 			else{
 				this->flow_elem[i][j]=false;
@@ -3936,21 +4202,22 @@ void Hyd_Model_Floodplain::update_opt_data_by_elems(void){
     }
 	//coupling condition
 	for(int i=0; i< this->number_coup_cond; i++){
+		//cout << this->coup_cond_id[i] << ": " << this->floodplain_elems[this->coup_cond_id[i]].element_type->get_coupling_discharge() / this->Param_FP.area << endl;
 		this->coup_cond_dsdt[i]=this->floodplain_elems[this->coup_cond_id[i]].element_type->get_coupling_discharge()/this->Param_FP.area;
 	}
 }
 //Update the elements by the optimized data per syncronization step
 void Hyd_Model_Floodplain::update_elems_by_opt_data(void){
 	int counter=0;
+	double volume = 0.0;
+
 	for(int i=0; i<this->Param_FP.FPNofY; i++){
 		for(int j=0; j<this->Param_FP.FPNofX; j++){
-			//this->floodplain_elems[counter].element_type->set_solver_result_value((this->opt_h[i][j]));
 			this->floodplain_elems[counter].element_type->set_ds2dt_value((this->opt_dsdt[i][j]));
 			counter++;
 		}
 	}
-
-	//TODO TIME???
+	//TODO: Bach? TIME???
 	for(int i=0; i< this->NEQ; i++){
 		this->floodplain_elems[i].element_type->calculate_ds_dt();
 	}
@@ -4059,6 +4326,7 @@ void Hyd_Model_Floodplain::read_elems(void){
 		getline(ifile, myline,'\n');
 		line_counter++;
 		_Hyd_Parse_IO::erase_comment(&myline);
+		_Hyd_Parse_IO::erase_carriageReturn(&myline);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		pos=myline.rfind("!BEGIN");
@@ -4080,6 +4348,7 @@ void Hyd_Model_Floodplain::read_elems(void){
 		getline(ifile, myline,'\n');
 		line_counter++;
 		_Hyd_Parse_IO::erase_comment(&myline);
+		_Hyd_Parse_IO::erase_carriageReturn(&myline);
 		_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 		_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 		if(myline.empty()==true){
@@ -4133,6 +4402,7 @@ void Hyd_Model_Floodplain::read_elems(void){
 	getline(ifile, myline,'\n');
 	line_counter++;
 	_Hyd_Parse_IO::erase_comment(&myline);
+	_Hyd_Parse_IO::erase_carriageReturn(&myline);
 	_Hyd_Parse_IO::erase_leading_whitespace_tabs(&myline);
 	_Hyd_Parse_IO::erase_end_whitespace_tabs(&myline);
 	pos=0;
@@ -4725,14 +4995,15 @@ Hyd_Element_Floodplain* Hyd_Model_Floodplain::set_neighbouring_elements(const in
 	}
 	return ptr_buff;
 }
+
 //set function to solve to the solver
 void Hyd_Model_Floodplain::set_function2solver(void){
 	int flag=-1;
 
 	//set the function where the diff equation is specified
-	//The function CVodeMalloc provides required problem and solution speci¯cations, allocates internal memory, and initializes cvode.
+	//The function CVodeMalloc provides required problem and solution speciï¿½cations, allocates internal memory, and initializes cvode.
 	//flag = CVodeMalloc(this->cvode_mem, f2D_equation2solve, 0.0, this->results, CV_SS, this->Param_FP.get_relative_solver_tolerance(),this->Param_FP.get_absolute_solver_tolerance());
-    flag = CVodeInit(this->cvode_mem, f2D_equation2solve, 0.0, this->results);
+	flag = CVodeInit(this->cvode_mem, f2D_equation2solve, 0.0, this->results);
 
 	this->setted_rel_tol=this->Param_FP.get_relative_solver_tolerance();
 	this->setted_abs_tol=*(this->Param_FP.get_absolute_solver_tolerance());
@@ -4747,8 +5018,8 @@ void Hyd_Model_Floodplain::set_function2solver(void){
 		msg.make_second_info(info.str());
 		throw msg;
 	}
-	//The function CVodeSetFdata speci¯es the user data block f data, for use by the user right-hand side function f, and attaches it to the main cvode memory block
-    //flag = CVodeSetFdata(this->cvode_mem, this);
+	//The function CVodeSetFdata speciï¿½es the user data block f data, for use by the user right-hand side function f, and attaches it to the main cvode memory block
+	//flag = CVodeSetFdata(this->cvode_mem, this);
 	flag = CVodeSetUserData(this->cvode_mem, this);
 
 	if(flag<0){
@@ -4760,9 +5031,9 @@ void Hyd_Model_Floodplain::set_function2solver(void){
 		throw msg;
 	}
 
-    flag=CVodeSStolerances(this->cvode_mem, this->Param_FP.get_relative_solver_tolerance(),*this->Param_FP.get_absolute_solver_tolerance());
-    //flag=CVodeSStolerances(this->cvode_mem, this->Param_FP.get_relative_solver_tolerance(),1.0e-5);
-    if(flag<0){
+	flag=CVodeSStolerances(this->cvode_mem, this->Param_FP.get_relative_solver_tolerance(),*this->Param_FP.get_absolute_solver_tolerance());
+	//flag=CVodeSStolerances(this->cvode_mem, this->Param_FP.get_relative_solver_tolerance(),1.0e-5);
+	if(flag<0){
 		Error msg=this->set_error(11);
 		ostringstream info;
 		info <<"Solver function: CVodeSStolerances(this->cvode_mem, this->Param_FP.get_relative_solver_tolerance(),*this->Param_FP.get_absolute_solver_tolerance())"<< endl;
@@ -4771,6 +5042,7 @@ void Hyd_Model_Floodplain::set_function2solver(void){
 		throw msg;
 	}
 }
+
 //output final statistics of the solver
 void Hyd_Model_Floodplain::output_solver_statistics(void){
 	ostringstream cout;
@@ -5040,6 +5312,13 @@ Warning Hyd_Model_Floodplain::set_warning(const int warn_type){
 			help = "Check the database";
 			type = 2;
 			break;
+		case 6://OpenCL was not found
+			place.append("init_solver(Hyd_Param_Global *global_params)");
+			reason = "GPU Scheme requested. Your current system doesn't include an OpenCL Runtime";
+			help = "Please search for and install an OpenCL runtime for your device to allow GPU calculations";
+			reaction = "The CPU scheme will be used";
+			type = 11;
+			break;
 
 		default:
 			place.append("set_warning(const int warn_type)");
@@ -5221,8 +5500,19 @@ Error Hyd_Model_Floodplain::set_error(const int err_type){
 			help = "Check the file";
 			type = 5;
 			break;
+		case 26://Gpu Solver became too Slow
+			place.append("solve_model_gpu(const double next_time_point, const string system_id)");
+			reason = "The solver scheme timestep got too low. This is due to very high velocities/high depth values. The simulation exited to prevent simulation from running indefinitely";
+			help = "The floodplain at simulation time has been export in a vtk file. Check the simulation results for unrealistic values.";
+			type = 35;
+			break;
+		case 27://Gpu Solver thread returned an error
+			place.append("solve_model_gpu(const double next_time_point, const string system_id)");
+			reason = "The solver thread reported an error. Simulation will be terminated.";
+			help = "Please read message above.";
+			type = 35;
+			break;
 
-	
 		default:
 			place.append("set_error(const int err_type)");
 			reason ="Unknown flag!";
@@ -5298,47 +5588,47 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 				//in x-direction
 				if(fp_data->noflow_x[i][j]==false){
 					if(fp_data->opt_pol_x[i][j]==false){
-						//manning x
-						if(fp_data->opt_h[i][j]>constant::flow_epsilon || fp_data->opt_h[i][j+1]>constant::flow_epsilon){
-							//calculate the mid of the flow depth
-							flow_depth=fp_data->opt_s[i][j]-fp_data->opt_zxmax[i][j];
-							if(flow_depth <0.0){
-								flow_depth=0.0;
-							}
-							flow_depth_neigh=fp_data->opt_s[i][j+1]-fp_data->opt_zxmax[i][j];
-							if(flow_depth_neigh<0.0){
-								flow_depth_neigh=0.0;
-							}
-                            //flow_depth=0.5*(flow_depth+flow_depth_neigh);
-                            flow_depth=max(flow_depth,flow_depth_neigh);
+							//manning x
+							if(fp_data->opt_h[i][j]>constant::flow_epsilon || fp_data->opt_h[i][j+1]>constant::flow_epsilon){
+								//calculate the mid of the flow depth
+								flow_depth=fp_data->opt_s[i][j]-fp_data->opt_zxmax[i][j];
+								if(flow_depth <0.0){
+									flow_depth=0.0;
+								}
+								flow_depth_neigh=fp_data->opt_s[i][j+1]-fp_data->opt_zxmax[i][j];
+								if(flow_depth_neigh<0.0){
+									flow_depth_neigh=0.0;
+								}
+							    //flow_depth=0.5*(flow_depth+flow_depth_neigh);
+							    flow_depth=max(flow_depth,flow_depth_neigh);
 
-							if(flow_depth>constant::flow_epsilon){
-                                //diffusive wave
-                                delta_h=fp_data->opt_s[i][j+1]-fp_data->opt_s[i][j];
-                                abs_delta_h=abs(delta_h);
-                                //kinematic wave
-                                //delta_h=fp_data->opt_zxmax[i][j+1]-fp_data->opt_zxmax[i][j];
-                                //abs_delta_h=abs(delta_h);
+								if(flow_depth>constant::flow_epsilon){
+							        //diffusive wave
+							        delta_h=fp_data->opt_s[i][j+1]-fp_data->opt_s[i][j];
+							        abs_delta_h=abs(delta_h);
+							        //kinematic wave
+							        //delta_h=fp_data->opt_zxmax[i][j+1]-fp_data->opt_zxmax[i][j];
+							        //abs_delta_h=abs(delta_h);
 
-								if(abs_delta_h>constant::flow_epsilon){
-									ds_dt_buff=fp_data->opt_cx[i][j]*pow(flow_depth, (5.0/3.0));
-									//replace the manning strickler function by a tangens- function by a given boundary; this functions is the best fit to the square-root
-									//functions between 0.001 m and 0.02 m; the boundary is set, where the functions (arctan/square root) are identically)
+									if(abs_delta_h>constant::flow_epsilon){
+										ds_dt_buff=fp_data->opt_cx[i][j]*pow(flow_depth, (5.0/3.0));
+										//replace the manning strickler function by a tangens- function by a given boundary; this functions is the best fit to the square-root
+										//functions between 0.001 m and 0.02 m; the boundary is set, where the functions (arctan/square root) are identically)
 
-									if(abs_delta_h<=0.005078){
-										ds_dt_buff=ds_dt_buff*0.10449968880528*atan(159.877741951379*delta_h); //0.0152
-									}
-									else{
-										ds_dt_buff=ds_dt_buff*(delta_h/pow(abs_delta_h,0.5));
-									}
+										if(abs_delta_h<=0.005078){
+											ds_dt_buff=ds_dt_buff*0.10449968880528*atan(159.877741951379*delta_h); //0.0152
+										}
+										else{
+											ds_dt_buff=ds_dt_buff*(delta_h/pow(abs_delta_h,0.5));
+										}
 
 									//set the result
-									ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
-									ds_dt_data[counter+1]=ds_dt_data[counter+1]-ds_dt_buff;
+										ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
+										ds_dt_data[counter+1]=ds_dt_data[counter+1]-ds_dt_buff;
+									}
 								}
 							}
 						}
-					}
 					//poleni x
 					else{
 						flow_depth=fp_data->opt_s[i][j]-fp_data->opt_zxmax[i][j];
@@ -5403,44 +5693,44 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 				//in y-direction
 				if(fp_data->noflow_y[i][j]==false){
 					if(fp_data->opt_pol_y[i][j]==false){
-						//manning y
+							//manning y
 						if(fp_data->opt_h[i][j]>constant::flow_epsilon || fp_data->opt_h[i+1][j]>constant::flow_epsilon){
-							//calculate the mid of the flow depth
+								//calculate the mid of the flow depth
 							flow_depth=fp_data->opt_s[i][j]-fp_data->opt_zymax[i][j];
 							if(flow_depth <0.0){
 								flow_depth=0.0;
-							}
+								}
 							flow_depth_neigh=fp_data->opt_s[i+1][j]-fp_data->opt_zymax[i][j];
 							if(flow_depth_neigh<0.0){
 								flow_depth_neigh=0.0;
-							}
-                            //flow_depth=(flow_depth+flow_depth_neigh)*0.5;
+								}
+								//flow_depth=(flow_depth+flow_depth_neigh)*0.5;
                             flow_depth=max(flow_depth,flow_depth_neigh);
 
 							if(flow_depth>constant::flow_epsilon){
-                                //diffusive wave
+									//diffusive wave
                                 delta_h=fp_data->opt_s[i+1][j]-fp_data->opt_s[i][j];
                                 abs_delta_h=abs(delta_h);
-                                //kinematic wave
-                               //delta_h=fp_data->opt_zymax[i+1][j]-fp_data->opt_zymax[i][j];
-                               //abs_delta_h=abs(delta_h);
+									//kinematic wave
+								   //delta_h=fp_data->opt_zymax[i+1][j]-fp_data->opt_zymax[i][j];
+								   //abs_delta_h=abs(delta_h);
 
 								if(abs_delta_h>constant::flow_epsilon){
 									ds_dt_buff=fp_data->opt_cy[i][j]*pow(flow_depth, (5.0/3.0));
-									//replace the manning strickler function by a tangens- function by a given boundary; this functions is the best fit to the square-root
-									//functions between 0.001 m and 0.02 m; the boundary is set, where the functions (arctan/square root) are identically)
+										//replace the manning strickler function by a tangens- function by a given boundary; this functions is the best fit to the square-root
+										//functions between 0.001 m and 0.02 m; the boundary is set, where the functions (arctan/square root) are identically)
 
 									if(abs_delta_h<=0.005078){
 										ds_dt_buff=ds_dt_buff*0.10449968880528*atan(159.877741951379*delta_h); //0.0152
-									}
+										}
 									else{
 										ds_dt_buff=ds_dt_buff*(delta_h/pow(abs_delta_h,0.5));
-									}
+										}
 
-									//set the result
+										//set the result
 									ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
-                                    //ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]=ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]-ds_dt_buff;
-                                     ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
+										//ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]=ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]-ds_dt_buff;
+									ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
 								}
 							}
 						}

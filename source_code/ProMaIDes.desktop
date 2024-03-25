@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=ProMaIDeS_vc
+Exec=ProMaIDeS_vc
+Icon=promaides
+Type=Application
+Terminal=false
+Categories=Utility;
+StartupNotify=true
+StartupWMClass=ProMaIDeS_vc

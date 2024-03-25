@@ -31,6 +31,11 @@
 #include "Geo_Simple_Polygon.h"
 
 
+//GPU Includes
+#include "common.h"
+#include "CDomainCartesian.h"
+#include "COCLDevice.h"
+#include "Profiler.h"
 
 ///Model class for a hydraulic floodplain model where the diffusive wave approach is applicated \ingroup hyd
 /**
@@ -79,7 +84,7 @@ public:
 	///Create the database table for the general parameters of the floodplain model
 	static void create_table(QSqlDatabase *ptr_database);
 	///Set the database table for the general parameters of the floodplain model: it sets the table name and the name of the columns and allocate them
-	static void set_table(QSqlDatabase *ptr_database);
+	static void set_table(QSqlDatabase *ptr_database, const bool not_close = false);
 	///Delete all data in the database table for the floodplain model parameters as well as the floodplain elements data
 	static void delete_data_in_table(QSqlDatabase *ptr_database);
 	///Close and delete the database table for the general parameters of the floodplain model
@@ -145,6 +150,8 @@ public:
 	void reset_solver(void);
 	///Solve the model
 	void solve_model(const double next_time_point, const string system_id);
+	///Solve the model using gpu
+	void solve_model_gpu(const double next_time_point, const string system_id);
 
 	///Output the given members
 	void output_members(void);
@@ -202,6 +209,15 @@ public:
 	///Compare the equality of two hydraulic systems in terms of model numbers; further the models are compared
 	void transfer_glob_elem_id_fp(Hyd_Model_Floodplain *to_fp);
 
+	///Fetches the number of coupling condition of the floodplain; the number of cells who will have a coupling values after each iteration
+	int get_number_coupling_conditions(void);
+
+	///Fetches the number of boundary condition of the floodplain; the number of cells who will have a boundary values after each iteration
+	int get_number_boundary_conditions(void);
+
+	///Fetches the optimized coupling ids
+	unsigned long get_optimized_coupling_id(unsigned long);
+
 private:
 	//members
 
@@ -235,7 +251,6 @@ private:
 
     ///Index in y-direction reduced to the equation to solve
     int *id_y;
-
 
 	///Number of applied boundary condition
 	int number_bound_cond;
@@ -307,6 +322,8 @@ private:
 	///Total volume error due to outflow of an element, if there is no more watervolume left in the element
 	double total_volume_error_zero_outflow;
 
+	///Previous target time point of FP
+	double old_time_point;
 	///The error in the hydrological balance due to a setted outflow but no watervolume is left in the element
 	double error_zero_outflow_volume;
 	///Error discharge due to a setted outflow but no watervolume is left in the element
@@ -325,8 +342,7 @@ private:
 
 
 
-	///Initialize the solver with the given parameters for GPU calculation
-	void init_solver_gpu(Hyd_Param_Global *global_params);
+
 
 	///Run the solver GPU
 	void run_solver_gpu(const double next_time_point, const string system_id);
@@ -462,10 +478,22 @@ private:
 	Error set_error(const int err_type);
 
 	///This equation is the differential equation which is to solve
+	#ifdef _WIN32
     friend int __cdecl f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
+	#elif defined(__unix__) || defined(__unix)
+	friend int __attribute__((cdecl)) f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
+	#endif
     //static int __cdecl f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
 	//friend static CVRhsFn f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
 };
 
+#ifdef _WIN32
 int __cdecl f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
+#elif defined(__unix__) || defined(__unix)
+int __attribute__((cdecl)) f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *floodplain_data);
+#endif
+
+
+
+
 #endif

@@ -70,7 +70,7 @@
   <customwidget>
    <class>HydGui_Bound_Scenario_Table_Wid</class>
    <extends>QTableWidget</extends>
-   <header>hydgui_bound_scenario_table_wid.h</header>
+   <header>HydGui_Bound_Scenario_Table_Wid.h</header>
   </customwidget>
  </customwidgets>
  <resources>

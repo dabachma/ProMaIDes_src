@@ -123,3 +123,8 @@ void Sys_Member_Dbl_BaseWid::set_dataRole(DataRole role) {
 			QObject::connect(this, SIGNAL(showPrecDia(int)), this, SLOT(execPrecDia(int)));
 	}
 }
+
+//Changes the width of the combo box	
+void Sys_Member_Dbl_BaseWid::set_box_width(const double width) {
+	this->spinBox->setMinimumWidth(width);
+}

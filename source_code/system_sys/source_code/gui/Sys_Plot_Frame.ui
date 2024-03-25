@@ -267,7 +267,7 @@
   <customwidget>
    <class>Sys_Plot_Wid</class>
    <extends>QWidget</extends>
-   <header>sys_plot_wid.h</header>
+   <header>Sys_Plot_Wid.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

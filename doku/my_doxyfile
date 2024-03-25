@@ -664,7 +664,8 @@ INPUT                  = ./source_code/system_hydraulic/source_code/. \
                          .\source_code\system_risk/source_code/ \
                          .\source_code\system_madm/source_code/ \
                          .\source_code\system_cost/source_code/ \
-                         .\source_code\system_alt/source_code/
+                         .\source_code\system_alt/source_code/  \
+                         .\source_code\system_hydraulic/source_code/solvergpu/source_code/. 
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is

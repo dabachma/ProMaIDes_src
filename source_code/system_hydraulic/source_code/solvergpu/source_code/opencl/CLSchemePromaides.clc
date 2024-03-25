@@ -1,0 +1,488 @@
+/*
+ * HIGH-PERFORMANCE INTEGRATED MODELLING SYSTEM (HiPIMS)
+ * Copyright (C) 2023 Luke S. Smith, Qiuhua Liang.
+ * This code is licensed under GPLv3. See LICENCE for more information.
+ * This file has been modified by Alaa Mroue on 04.2023-12.2023.
+ * See OriginalSourceCode.zip for changes. (Based on 1e62acf6b9b480e08646b232361b68c1827d91ae from https://github.com/lukeshope/hipims-ocl )
+ */
+
+#define useP2
+#define useP3
+
+ #define Cfacweir 2.95245
+ #define flow_epsilon 1.0e-9
+
+/*
+ *  Calculate everything without using LDS caching
+ */
+__kernel REQD_WG_SIZE_FULL_TS
+void pro_cacheDisabled ( 
+			__constant	cl_double *  				dTimestep,					// Timestep
+			__global	cl_double  const * restrict	dBedElevation,				// Bed elevation
+			__global	cl_double4 *  				pCellStateSrc,				// Current cell state data
+			__global	cl_double4 *  				pCellStateDst,				// Current cell state data
+			__global	cl_double  const * restrict	dManning,					// Manning values
+			__global	sUsePolini const * restrict	pUsePoleni,					// Switch to use Poleni
+			__global	cl_double  const * restrict	pOpt_zxmax,					// 	
+			__global	cl_double  const * restrict	pOpt_cx,					// 	
+			__global	cl_double  const * restrict	pOpt_zymax,					// 	
+			__global	cl_double  const * restrict	pOpt_cy						// 
+		)
+{
+
+	// Identify the cell we're reconstructing (no overlap)
+	__private cl_long					lIdxX			= get_global_id(0);
+	__private cl_long					lIdxY			= get_global_id(1);
+	__private cl_ulong					ulIdx, ulIdxNeig;
+	__private cl_uchar					ucDirection;
+	
+	ulIdx = getCellID(lIdxX, lIdxY);
+
+	// Don't bother if we've gone beyond the domain bounds
+	if ( lIdxX > DOMAIN_COLS - 1 || 
+		 lIdxY > DOMAIN_ROWS - 1 || 
+		 lIdxX < 0 || 
+		 lIdxY < 0 ) 
+		return;
+
+	__private cl_double		dLclTimestep	= *dTimestep;
+	__private cl_double		dManningCoef, dDeltaFSL, pNeigManN, pNeigManE, pNeigManS,pNeigManW;
+	__private cl_double		dCellBedElev,dNeigBedElevN,dNeigBedElevE,dNeigBedElevS,dNeigBedElevW;
+	__private cl_double4	pCellData,pNeigDataN,pNeigDataE,pNeigDataS,pNeigDataW;
+
+	//Poleni
+	__private sUsePolini	pUsePoleniFlags;		
+	__private bool			usePoleniN,usePoleniE,usePoleniS,usePoleniW;
+	__private cl_double		dOpt_zxmax,dOpt_zymax,dOpt_znxmax,dOpt_znymax;
+	__private cl_double		dOpt_cx, dOpt_cy, dOpt_cnx,dOpt_cny;
+
+	__private cl_double2	dDischarges[4];							
+	__private cl_uchar		ucDryCount		= 0;
+	
+
+	// Also don't bother if we've gone beyond the total simulation time
+	if ( dLclTimestep <= 0.0 ){
+		pCellStateDst[ ulIdx ] = pCellStateSrc[ ulIdx ];
+		return;
+	}
+
+	// Load cell data
+	dCellBedElev		= dBedElevation[ ulIdx ];
+	pCellData			= pCellStateSrc[ ulIdx ];
+	dManningCoef		= dManning[ ulIdx ];
+	dOpt_zxmax			= pOpt_zxmax[ ulIdx ];
+	dOpt_cx				= pOpt_cx	[ ulIdx ];
+	dOpt_zymax			= pOpt_zymax[ ulIdx ];
+	dOpt_cy				= pOpt_cy	[ ulIdx ];
+
+	// Cell disabled?
+	if ( pCellData.y <= -9999.0 || pCellData.x <= -9999.0 )
+	{
+		pCellStateDst[ ulIdx ] = pCellData;
+		return;
+	}
+	
+	
+	pUsePoleniFlags		= pUsePoleni[ ulIdx ];
+	usePoleniN			= pUsePoleniFlags.usePoliniN;
+	usePoleniE			= pUsePoleniFlags.usePoliniE;
+	usePoleniS			= pUsePoleniFlags.usePoliniS;
+	usePoleniW			= pUsePoleniFlags.usePoliniW;
+
+
+	ucDirection = DOMAIN_DIR_W;
+	ulIdxNeig = getNeighbourByIndices(lIdxX, lIdxY, ucDirection);
+	dNeigBedElevW	= dBedElevation [ ulIdxNeig ];
+	pNeigDataW		= pCellStateSrc	[ ulIdxNeig ];
+	pNeigManW		= dManning [ ulIdxNeig ];
+	dOpt_znxmax		= pOpt_zxmax[ ulIdxNeig ];
+	dOpt_cnx		= pOpt_cx[ ulIdxNeig ];
+
+	ucDirection = DOMAIN_DIR_S;
+	ulIdxNeig = getNeighbourByIndices(lIdxX, lIdxY, ucDirection);
+	dNeigBedElevS	= dBedElevation [ ulIdxNeig ];
+	pNeigDataS		= pCellStateSrc	[ ulIdxNeig ];
+	pNeigManS		= dManning [ ulIdxNeig ];
+	dOpt_znymax		= pOpt_zymax[ ulIdxNeig ];
+	dOpt_cny		= pOpt_cy[ ulIdxNeig ];
+
+	ucDirection = DOMAIN_DIR_N;
+	ulIdxNeig = getNeighbourByIndices(lIdxX, lIdxY, ucDirection);
+	dNeigBedElevN	= dBedElevation [ ulIdxNeig ];
+	pNeigDataN		= pCellStateSrc	[ ulIdxNeig ];
+	pNeigManN		= dManning [ ulIdxNeig ];
+
+	ucDirection = DOMAIN_DIR_E;
+	ulIdxNeig = getNeighbourByIndices(lIdxX, lIdxY, ucDirection);
+	dNeigBedElevE	= dBedElevation [ ulIdxNeig ];
+	pNeigDataE		= pCellStateSrc	[ ulIdxNeig ];
+	pNeigManE		= dManning [ ulIdxNeig ];
+
+	if ( pCellData.x  - dCellBedElev  < VERY_SMALL ) ucDryCount++;
+	if ( pNeigDataN.x - dNeigBedElevN < VERY_SMALL ) ucDryCount++;
+	if ( pNeigDataE.x - dNeigBedElevE < VERY_SMALL ) ucDryCount++;
+	if ( pNeigDataS.x - dNeigBedElevS < VERY_SMALL ) ucDryCount++;
+	if ( pNeigDataW.x - dNeigBedElevW < VERY_SMALL ) ucDryCount++;
+
+	// All neighbours are dry? Don't bother calculating
+	if ( ucDryCount >= 5 ){
+		pCellStateDst[ ulIdx ] = pCellData;
+		return;
+	}
+
+	bool debug = false;
+	//if(ulIdx==66689){
+	//	debug = true;
+	//}
+
+	if (!usePoleniN){
+		dDischarges[ DOMAIN_DIR_N ] = manning_Solver(
+			dLclTimestep,
+			dManningCoef,
+			pNeigManN,
+			pCellData.x,
+			pNeigDataN.x,
+			dCellBedElev,
+			dNeigBedElevN,
+			DOMAIN_DELTAY,
+			debug
+		);
+				}else{
+					dDischarges[ DOMAIN_DIR_N ] = poleni_Solver(
+						dLclTimestep,
+						dManningCoef,
+						pNeigManN,
+						pCellData.x,
+						pNeigDataN.x,
+						dCellBedElev,
+						dNeigBedElevN,
+						dOpt_zymax,
+						dOpt_cy,
+						DOMAIN_DELTAY,
+						debug
+					);
+				}
+	if (!usePoleniE){
+		dDischarges[ DOMAIN_DIR_E ] = manning_Solver(
+			dLclTimestep,
+			dManningCoef,
+			pNeigManE,
+			pCellData.x,
+			pNeigDataE.x,
+			dCellBedElev,
+			dNeigBedElevE,
+			DOMAIN_DELTAX,
+			debug
+		);
+				}else{
+					dDischarges[ DOMAIN_DIR_E ] = poleni_Solver(
+						dLclTimestep,
+						dManningCoef,
+						pNeigManE,
+						pCellData.x,
+						pNeigDataE.x,
+						dCellBedElev,
+						dNeigBedElevE,
+						dOpt_zxmax,
+						dOpt_cx,
+						DOMAIN_DELTAX,
+						debug
+					);
+				}
+	if (!usePoleniS){
+		dDischarges[ DOMAIN_DIR_S ] = manning_Solver(
+			dLclTimestep,
+			dManningCoef,
+			pNeigManS,
+			pCellData.x,
+			pNeigDataS.x,
+			dCellBedElev,
+			dNeigBedElevS,
+			DOMAIN_DELTAY,
+			debug
+		);
+				}else{
+					dDischarges[ DOMAIN_DIR_S ] = poleni_Solver(
+						dLclTimestep,
+						dManningCoef,
+						pNeigManS,
+						pCellData.x,
+						pNeigDataS.x,
+						dCellBedElev,
+						dNeigBedElevS,
+						dOpt_znymax,
+						dOpt_cny,
+						DOMAIN_DELTAY,
+						debug
+					);
+				}
+	if (!usePoleniW){
+		dDischarges[ DOMAIN_DIR_W ] = manning_Solver(
+			dLclTimestep,
+			dManningCoef,
+			pNeigManW,
+			pCellData.x,
+			pNeigDataW.x,
+			dCellBedElev,
+			dNeigBedElevW,
+			DOMAIN_DELTAX,
+			debug
+			);
+				}else{
+					dDischarges[ DOMAIN_DIR_W ] = poleni_Solver(
+						dLclTimestep,
+						dManningCoef,
+						pNeigManW,
+						pCellData.x,
+						pNeigDataW.x,
+						dCellBedElev,
+						dNeigBedElevW,
+						dOpt_znxmax,
+						dOpt_cnx,
+						DOMAIN_DELTAX,
+						debug
+						);
+					}
+	
+	if( lIdxX == DOMAIN_COLS - 1 || dNeigBedElevE == -9999.0  ){
+		dDischarges[DOMAIN_DIR_E].x = 0.0;
+		dDischarges[DOMAIN_DIR_E].y = 0.0;
+	} 
+	if( lIdxY == DOMAIN_ROWS - 1 || dNeigBedElevN == -9999.0  ) {
+		dDischarges[DOMAIN_DIR_N].x = 0.0;
+		dDischarges[DOMAIN_DIR_N].y = 0.0;
+	}
+	if( lIdxX == 0               || dNeigBedElevW == -9999.0  ) {
+		dDischarges[DOMAIN_DIR_W].x = 0.0;
+		dDischarges[DOMAIN_DIR_W].y = 0.0;
+	}
+	if( lIdxY == 0               || dNeigBedElevS == -9999.0  ) {
+		dDischarges[DOMAIN_DIR_S].x = 0.0;
+		dDischarges[DOMAIN_DIR_S].y = 0.0;
+	}
+
+	dDeltaFSL	= (dDischarges[DOMAIN_DIR_E].x + dDischarges[DOMAIN_DIR_W].x + dDischarges[DOMAIN_DIR_N].x + dDischarges[DOMAIN_DIR_S].x)/(DOMAIN_DELTAX*DOMAIN_DELTAY);
+	
+
+	pCellData.z		= dDischarges[DOMAIN_DIR_E].y;
+	pCellData.w		= dDischarges[DOMAIN_DIR_N].y;
+
+	// Update the flow state
+	pCellData.x		= pCellData.x + dLclTimestep * dDeltaFSL;
+
+	// New max FSL?
+	if ( pCellData.x > pCellData.y )
+		pCellData.y = pCellData.x;
+
+	/*
+	if (ulIdx == 303 ){
+		//printf("Postion: X: %f Y:%f \n",lIdxX*1.0 , lIdxY*1.0 );
+		printf("ulIdx %f ",ulIdx*1.0 );
+		printf("opt_z %f opt_h %f opt_s %f ",dCellBedElev, (pCellData.x-dCellBedElev), pCellData.x);
+		//printf("opt_h %f", (pCellData.x-dCellBedElev));
+		//printf("pN %f pE %f pS %f pW %f ",usePoleniN ? 1.0 : 0.0, usePoleniE ? 1.0 : 0.0, usePoleniS ? 1.0 : 0.0, usePoleniW ? 1.0 : 0.0);
+		//printf("dOpt_zxmax %f dOpt_cx %f dOpt_zymax %f dOpt_cy %f ",dOpt_zxmax, dOpt_cx, dOpt_zymax, dOpt_cy);
+		//printf("N %f E %f S %f W %f ", pNeigDataN.x-dNeigBedElevN,pNeigDataE.x-dNeigBedElevE,pNeigDataS.x-dNeigBedElevS,pNeigDataW.x-dNeigBedElevW);
+		//printf("dN %f dE %f dS %f dW %f ", dDischarges[ DOMAIN_DIR_N ].x,dDischarges[ DOMAIN_DIR_E ].x,dDischarges[ DOMAIN_DIR_S ].x,dDischarges[ DOMAIN_DIR_W ].x);
+		printf("v_x %f v_y %f", pCellData.z, pCellData.w);
+
+		printf("\n");
+	}
+	
+	*/
+	/*
+	if (ulIdx == 303 ){
+		printf("%f ",pCellStateSrc[0].x);
+		printf("%f ",pCellStateSrc[1].x);
+		printf("%f ",pCellStateSrc[2].x);
+		printf("%f ",pCellStateSrc[100].x);
+		printf("%f ",pCellStateSrc[101].x);
+		printf("%f ",pCellStateSrc[102].x);
+		printf("%f ",pCellStateSrc[200].x);
+		printf("%f ",pCellStateSrc[201].x);
+		printf("%f ",pCellStateSrc[202].x);
+
+		printf("\n");
+	}
+	*/
+	// Crazy low depths?
+	//if ( pCellData.x - dCellBedElev < VERY_SMALL )
+	//	pCellData.x = dCellBedElev;
+	
+	// Commit to global memory
+	pCellStateDst[ ulIdx ] = pCellData;
+}
+
+
+cl_double2 manning_Solver(
+	cl_double timestep,		// Current Time-step
+	cl_double manning,     	// Manning of Main Cell
+	cl_double manning_Neig,	// Manning of Neighbor cell
+	cl_double opt_s_Cell,	// Water surface level of Main Cell
+	cl_double opt_s_Neig,	// Water surface level of Neighbor cell
+	cl_double opt_z_Cell, 	// Bed Elevation of main Cell
+	cl_double opt_z_Neig,	// Bed Elevation of Neighbor Cell
+	cl_double DeltaXY,
+	bool debug				// Debug Flag
+	)
+	{
+		cl_double2 output;
+		cl_double dDischarge	= 0.0;
+		cl_double velocity	= 0.0;
+		
+		if (opt_s_Neig-opt_z_Neig > flow_epsilon || opt_s_Cell-opt_z_Cell > flow_epsilon){
+
+			cl_double flow_depth	= fmax( opt_s_Cell, opt_s_Neig ) - fmax( opt_z_Neig, opt_z_Cell );
+
+			if (flow_depth > flow_epsilon){
+
+				cl_double delta_h		= opt_s_Neig - opt_s_Cell;
+				cl_double abs_delta_h	= fabs(delta_h);
+
+				if(abs_delta_h > flow_epsilon){
+					// P1 (Diffusive Scheme)
+					if(abs_delta_h<=0.005078){
+						dDischarge = 1.0/(0.5*(manning+manning_Neig)) * pow(flow_depth,5.0/3.0) / pow(DeltaXY ,0.5) * 0.10449968880528 * atan(159.877741951379*delta_h) ;
+					
+					}
+					else{
+						dDischarge = 1.0/(0.5*(manning+manning_Neig)) * pow(flow_depth,5.0/3.0) * delta_h / pow(DeltaXY * abs_delta_h,0.5); // m2 (this is ds/dt * Delta XY)
+					}
+
+
+					//if ( dDischarge > 0.0 && ( ( fabs( dDischarge ) / flow_depth ) / sqrt( GRAVITY * flow_depth ) ) > 4.0 )
+					//dDischarge = flow_depth * sqrt( GRAVITY * flow_depth ) * 4.0;
+					//if ( dDischarge < 0.0 && ( ( fabs( dDischarge ) / flow_depth ) / sqrt( GRAVITY * flow_depth ) ) > 4.0 )
+					//dDischarge = 0.0 - flow_depth * sqrt( GRAVITY * flow_depth ) * 4.0;
+
+					// Bates(2010):
+						cl_double Q = dDischarge;
+	
+					dDischarge = fmin(fabs(Q), DOMAIN_DELTAX* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep) / (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY));
+	
+							if (Q<0.0){
+							dDischarge = dDischarge * (-1.0);
+					}
+					
+					
+					
+					/*
+					// P2 (New Castle Limiter)
+					#ifdef useP2	
+						#define FROUDE_LIMIT			0.8
+						#define mainVelocity fabs(dDischarge)/flow_depth
+						#define waveVelocity sqrt(GRAVITY*flow_depth)
+
+						if ( dDischarge > 0.0 && 
+											( mainVelocity / waveVelocity ) > FROUDE_LIMIT ){
+							dDischarge = flow_depth * sqrt( GRAVITY * flow_depth ) * FROUDE_LIMIT;
+					
+						}else if ( dDischarge < 0.0 &&
+											( mainVelocity / waveVelocity ) > FROUDE_LIMIT ){		
+							dDischarge = 0.0 - flow_depth * sqrt( GRAVITY * flow_depth ) * FROUDE_LIMIT;
+						}
+					#endif
+				
+					#ifdef useP3	
+						// P3 (Lis-Flood Limiter)
+						#define DOMAIN_AREA DOMAIN_DELTAX*DOMAIN_DELTAY*1.0
+
+						cl_double water_depth = opt_s_Cell - opt_z_Cell;
+						cl_double Nwater_depth = opt_s_Neig - opt_z_Neig;
+
+						if (dDischarge > 0.0 && dDischarge > DOMAIN_AREA * abs_delta_h / 4.0 / timestep){
+							dDischarge = DOMAIN_AREA * abs_delta_h / 5.0 / timestep;
+						}
+						else if(dDischarge < 0.0 && -1.0 * dDischarge > DOMAIN_AREA * abs_delta_h / 4.0 / timestep){
+							dDischarge = 0 - DOMAIN_AREA * abs_delta_h / 5.0 / timestep;
+						}
+					#endif
+					*/
+					
+					
+
+					//    v = ds/dt * Delta XY / flow depth
+					// so v = Discharge / flow depth
+					velocity = dDischarge / flow_depth; // m = m2 / m  
+				}
+			}
+		}
+		
+		output.x = dDischarge * (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY); // m3 = m2 * m (Q = ds/dt * DeltaX * DeltaY so Q = ds/dt * DeltaXY * !DeltaXY) 
+		output.y = velocity;				   // m
+
+		return output;
+
+	}
+
+cl_double2 poleni_Solver(
+	cl_double timestep,		// Current Time-step
+	cl_double manning,     	// Manning of Main Cell
+	cl_double manning_Neig,	// Manning of Neighbor cell
+	cl_double opt_s_Cell,	// Water surface level of Main Cell
+	cl_double opt_s_Neig,	// Water surface level of Neighbor cell
+	cl_double opt_z_Cell, 	// Bed Elevation of main Cell
+	cl_double opt_z_Neig,	// Bed Elevation of Neighbor Cell
+
+	cl_double opt_zxymax,
+	cl_double opt_cxy,
+	cl_double DeltaXY,
+
+	bool debug				// Debug Flag
+	)
+	{
+
+		cl_double2 output;
+		cl_double dDischarge = 0.0;
+		cl_double dsdt = 0.0;
+		cl_double dVelocity = 0.0;
+
+		cl_double flow_depth	= opt_s_Cell - opt_zxymax;
+		cl_double flow_depth_neigh	=  opt_s_Neig - opt_zxymax;
+
+		cl_double reduction_term;
+		
+		//noFlow
+		if((flow_depth<=0.0 && flow_depth_neigh<=0.0) || (fabs(flow_depth-flow_depth_neigh)<=0.0)){
+			// Do Nothing
+		}else{
+			//flow out of this element without submerged weirflow reduction into the neihgbouring element
+			if( flow_depth > 0.0 && flow_depth_neigh <= 0.0){				
+				dsdt = -1.0 * Cfacweir * opt_cxy * pow(flow_depth, (3.0/2.0)) ;
+				dVelocity = -1.0 * dsdt * DeltaXY / flow_depth;
+		
+			//flow out of the neighbouring element without submerged weirflow reduction into this element
+			}else if(flow_depth <= 0.0 && flow_depth_neigh > 0.0){					
+				dsdt = Cfacweir * opt_cxy * pow(flow_depth_neigh,(3.0/2.0));
+				dVelocity = -1.0 * dsdt * DeltaXY / flow_depth_neigh;
+
+			//submerged weirflow with reduction
+			}else if(flow_depth > 0.0 && flow_depth_neigh > 0.0){	
+				if(flow_depth > flow_depth_neigh){							//flow into the neihgbouring element	
+					reduction_term = (1.0-flow_depth_neigh/flow_depth);		//reduction of the discharge (submerged weirflow)
+					if(reduction_term <= 0.000463529){						//replace the ^(1/3) by a fitted arctan-function; at the boundary they have the same values
+						dsdt = -1.0 * Cfacweir * opt_cxy * pow(flow_depth,(3.0/2.0)) * 0.057965266895 * atan(8984.365582471040 * reduction_term);
+					}else{
+						dsdt = -1.0 * Cfacweir * opt_cxy * pow(flow_depth,(3.0/2.0)) * pow(reduction_term,(1.0/3.0));
+					}
+					dVelocity=-1.0*dsdt*DeltaXY/flow_depth;
+				}
+				else{	
+					//flow into this element
+					reduction_term = (1.0 - flow_depth/flow_depth_neigh);	//reduction of the discharge (submerged weirflow)
+					if(reduction_term <= 0.000463529){						//replace the ^(1/3) by a fitted arctan-function; at the boundary they have the same values
+						dsdt = Cfacweir * opt_cxy * pow(flow_depth_neigh,(3.0/2.0)) * 0.057965266895 * atan(8984.365582471040 * reduction_term);
+					}else{
+						dsdt = Cfacweir * opt_cxy * pow(flow_depth_neigh,(3.0/2.0)) * pow(reduction_term,(1.0/3.0));
+					}
+					dVelocity=-1.0*dsdt*DeltaXY/flow_depth_neigh;
+				}
+			}
+		}
+
+		dDischarge	= dsdt * DOMAIN_DELTAY * DOMAIN_DELTAX;
+
+		output.x = dDischarge;
+		output.y = dVelocity;
+		return output;
+	}

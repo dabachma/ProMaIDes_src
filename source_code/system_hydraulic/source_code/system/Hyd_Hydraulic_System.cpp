@@ -63,6 +63,7 @@ Hyd_Hydraulic_System::Hyd_Hydraulic_System(void){
 
 
 	this->coupling_managment.set_ptr2outputflags(&this->global_parameters.output_flags);
+	this->check_opencl_available();
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Hydraulic_System)-sizeof(Hyd_Param_Global)-sizeof(Hyd_Param_Material)-sizeof(Hyd_Coupling_Management), _sys_system_modules::HYD_SYS);
@@ -1529,9 +1530,7 @@ void Hyd_Hydraulic_System::init_solver(void){
 			//init the solver
 			cout<<"Initialize the solver for floodplain model ..."<< endl;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
-			//2DGPU
 			this->my_fpmodels[j].init_solver(&this->global_parameters);
-
 			Sys_Common_Output::output_hyd->rewind_userprefix();
 			prefix.str("");
 		}
@@ -1575,6 +1574,10 @@ void Hyd_Hydraulic_System::init_temp_solver(void) {
 }
 //make the calculation
 void Hyd_Hydraulic_System::make_calculation(void){
+	//set Profiler
+	Profiler profiler = new Profiler(true);
+	this->profiler = profiler;
+
 	//set the first output time
 	this->output_time=this->global_parameters.GlobTStep+this->global_parameters.get_startime();
 	this->next_internal_time=this->global_parameters.get_startime();
@@ -1626,7 +1629,7 @@ void Hyd_Hydraulic_System::make_calculation(void){
 		this->set_final_warning_number();
 		throw msg;
 	}
-
+	this->profiler.logValues();
 	this->set_final_warning_number();
 	//reset the counter
 	this->timestep_counter=0;
@@ -1830,6 +1833,9 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 			Sys_Common_Output::output_hyd->output_txt(&cout);
 			for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
 				this->my_fpmodels[j].output_final();
+				if (this->my_fpmodels[j].pManager != nullptr) {
+					this->my_fpmodels[j].pManager->profiler->logValues();
+				}
 			}
 			if (this->file_output_required == true && all_output == true) {
 				cout << "Output maximum results of the Floodplainmodel(s) to file..." << endl;
@@ -3292,7 +3298,7 @@ void Hyd_Hydraulic_System::check_models(void){
 //make the calculation the internal loop (output time steps)
 void Hyd_Hydraulic_System::make_calculation_internal(void){
 	//starttime for this internal time step
-	
+
 	this->internal_time=this->output_time-this->global_parameters.GlobTStep;
 
 	//ostringstream out;
@@ -3320,14 +3326,20 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 		//out << this->get_identifier_prefix() << " syncron" << endl;
 		//Sys_Common_Output::output_hyd->output_txt(&out);
 
+		this->profiler.profile("make_syncron_rivermodel", Profiler::profilerFlags::START_PROFILING);
 		this->make_syncron_rivermodel();
+		this->profiler.profile("make_syncron_rivermodel", Profiler::profilerFlags::END_PROFILING);
 		//2DGPU
+		this->profiler.profile("make_syncron_floodplainmodel", Profiler::profilerFlags::START_PROFILING);
 		this->make_syncron_floodplainmodel();
+		this->profiler.profile("make_syncron_floodplainmodel", Profiler::profilerFlags::END_PROFILING);
 		if(this->global_parameters.coastmodel_applied==true){
 			this->my_comodel->make_syncronisation((this->internal_time+this->internal_timestep_current*0.5)-this->global_parameters.get_startime());
 		}
 		//syncronisation between the models via couplings; set exchange terms between the models
-		this->coupling_managment.synchronise_couplings((this->internal_time+this->internal_timestep_current*0.5)-this->global_parameters.get_startime(),this->internal_timestep_current, false, this->total_internal_timestep);
+		this->profiler.profile("synchronise_couplings", Profiler::profilerFlags::START_PROFILING);
+		this->coupling_managment.synchronise_couplings((this->internal_time+this->internal_timestep_current*0.5)-this->global_parameters.get_startime(),this->internal_timestep_current, false, this->total_internal_timestep, &profiler);
+		this->profiler.profile("synchronise_couplings", Profiler::profilerFlags::END_PROFILING);
 
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
@@ -3343,7 +3355,9 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 		//Sys_Common_Output::output_hyd->output_txt(&out);
 
 		//calculation river models
+		this->profiler.profile("make_calculation_rivermodel", Profiler::profilerFlags::START_PROFILING);
 		this->make_calculation_rivermodel();
+		this->profiler.profile("make_calculation_rivermodel", Profiler::profilerFlags::END_PROFILING);
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
 		//out << this->get_identifier_prefix() << " FP" << endl;
@@ -3351,16 +3365,22 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 
 		//calculation floodplain models
 		//2DGPU
+		this->profiler.profile("make_calculation_floodplainmodel", Profiler::profilerFlags::START_PROFILING);
 		this->make_calculation_floodplainmodel();
+		this->profiler.profile("make_calculation_floodplainmodel", Profiler::profilerFlags::END_PROFILING);
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
-	
+
 
 		//max values and hydrological balance of the models
+		this->profiler.profile("make_hyd_balance_max_rivermodel", Profiler::profilerFlags::START_PROFILING);
 		this->make_hyd_balance_max_rivermodel();
+		this->profiler.profile("make_hyd_balance_max_rivermodel", Profiler::profilerFlags::END_PROFILING);
+		this->profiler.profile("make_hyd_balance_max_floodplainmodel", Profiler::profilerFlags::START_PROFILING);
 		this->make_hyd_balance_max_floodplainmodel();
+		this->profiler.profile("make_hyd_balance_max_floodplainmodel", Profiler::profilerFlags::END_PROFILING);
 
 		//syncronisation of observation points
 		this->obs_point_managment.syncron_obs_points(this->next_internal_time - this->global_parameters.get_startime());
@@ -3402,10 +3422,14 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 	//Sys_Common_Output::output_hyd->output_txt(&out);
 
 	//output the results of the river models to file
+	this->profiler.profile("output_calculation_steps_rivermodel2file", Profiler::profilerFlags::START_PROFILING);
 	this->output_calculation_steps_rivermodel2file(this->internal_time);
+	this->profiler.profile("output_calculation_steps_rivermodel2file", Profiler::profilerFlags::END_PROFILING);
 	
 	//output the results of the floodplain models to file
+	this->profiler.profile("output_calculation_steps_floodplainmodel2file", Profiler::profilerFlags::START_PROFILING);
 	this->output_calculation_steps_floodplainmodel2file(this->internal_time);
+	this->profiler.profile("output_calculation_steps_floodplainmodel2file", Profiler::profilerFlags::END_PROFILING);
 	
 
 	//output the break results per step to file
@@ -3649,14 +3673,93 @@ void Hyd_Hydraulic_System::reset_solver_fp_models(void){
 		this->my_fpmodels[i].reset_solver();
 	}
 }
+
+//
+static void solve_model_gpu_of_fp(Hyd_Model_Floodplain** fps, int numOfFp, const double next_time_point, const string system_id) {
+	// We shouldn't need a mutex here as they are independent
+	for (int i = 0; i < numOfFp; i++){
+		fps[i]->solve_model_gpu(next_time_point, system_id);
+	}
+}
+
 //make the calculation of the floodplain models
 void Hyd_Hydraulic_System::make_calculation_floodplainmodel(void){
 	//solve it
 	//2DGPU
+	unsigned int numCpuFp = 0;
+	unsigned int numGpuFp = 0;
+
+	for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		if (my_fpmodels[i].Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU && this->global_parameters.get_opencl_available()) {
+			numGpuFp++;
+		}else {
+			numCpuFp++;
+		}
+	}
+	emit statusbar_Multi_hyd_solver_update(numCpuFp, numGpuFp);
+
 	for(int i=0; i< this->global_parameters.GlobNofFP;i++){
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
-		this->my_fpmodels[i].solve_model(this->next_internal_time-this->global_parameters.get_startime(), this->get_identifier_prefix(false));
+		if(my_fpmodels[i].Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU && this->global_parameters.get_opencl_available()){
+			this->my_fpmodels[i].solve_model_gpu(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false));
+		}else{
+			this->my_fpmodels[i].solve_model(this->next_internal_time-this->global_parameters.get_startime(), this->get_identifier_prefix(false));
+		}
 	}
+
+		/*
+	
+	int onGPU2 = 0;
+	for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
+		if (this->my_fpmodels[i].pManager->getSelectedDevice() == 2) {
+			onGPU2++;
+		}
+	}
+
+	if (onGPU2 > 0) {
+		Hyd_Model_Floodplain** fpsGpu1 = new Hyd_Model_Floodplain * [this->global_parameters.GlobNofFP - onGPU2];
+		Hyd_Model_Floodplain** fpsGpu2 = new Hyd_Model_Floodplain * [onGPU2];
+	
+		int c1 = 0;
+		int c2 = 0;
+		for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
+			if (this->my_fpmodels[i].pManager->getSelectedDevice() == 1) {
+				fpsGpu1[c1] = &this->my_fpmodels[i];
+				c1++;
+			}
+			else {
+				fpsGpu2[c2] = &this->my_fpmodels[i];
+				c2++;
+			}
+		}
+		m_futures.push_back(std::async(std::launch::async, solve_model_gpu_of_fp, fpsGpu1, c1, this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false)));
+		m_futures.push_back(std::async(std::launch::async, solve_model_gpu_of_fp, fpsGpu2, c2, this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false)));
+
+		// Wait for all tasks to finish before continuing
+		for (auto& future : m_futures) {
+			future.wait();
+		}
+
+	}
+	else {
+
+		for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
+
+			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+			//if (constant::gpu2d_applied == false) {
+			if (1) {
+				//cout << "using gpu" << endl;
+				this->my_fpmodels[i].solve_model_gpu(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false));
+			}
+			else {
+				this->my_fpmodels[i].solve_model(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false));
+			}
+		}
+	}
+	
+	*/
+
 }
 //Output the results of the calculation steps of the river models to file
 void Hyd_Hydraulic_System::output_calculation_steps_rivermodel2file(const double timestep){
@@ -3910,6 +4013,26 @@ void Hyd_Hydraulic_System::waitloop_output_calculation2display(void){
 	}
 	this->output_is_running=true;
 }
+//Check if OpenCl is available on the system
+void Hyd_Hydraulic_System::check_opencl_available() {
+
+	COpenCLSimpleManager simpleManager;
+
+	// If Library not Found
+	if (simpleManager.getOpenCLRuntimeAvailable() == false) {
+		ostringstream info;
+		Warning msg = this->set_warning(2);
+		info << "OpenCL Runtime was not found" << endl;
+		msg.make_second_info(info.str());
+		msg.output_msg(2);
+	}
+
+	// If Library not Found
+	if (simpleManager.getOpenCLDevicesAvailable() == true) {
+		this->global_parameters.set_opencl_available(true);
+	}
+
+}
 //Check the internal time steps
 double Hyd_Hydraulic_System::check_internal_timestep(void){
 	double new_timestep=this->internal_timestep_current;
@@ -3930,7 +4053,7 @@ double Hyd_Hydraulic_System::check_internal_timestep(void){
 		this->my_comodel->make_syncronisation((this->internal_time+new_timestep*0.5)-this->global_parameters.get_startime());
 	}
 	//syncronisation between the models via couplings
-	this->coupling_managment.synchronise_couplings((this->internal_time+new_timestep*0.5)-this->global_parameters.get_startime(),new_timestep, true, this->total_internal_timestep);
+	this->coupling_managment.synchronise_couplings((this->internal_time+new_timestep*0.5)-this->global_parameters.get_startime(),new_timestep, true, this->total_internal_timestep, &this->profiler);
 
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
@@ -4054,6 +4177,13 @@ Warning Hyd_Hydraulic_System::set_warning(const int warn_type){
 			reaction = "The applied for the temperature model is set to false";
 			help = "Check the model parameter setting in file";
 			type = 1;
+			break;
+		case 2://approximate worksape requirement > 1gb
+			place.append("check_opencl_available(void)");
+			reason = "An OpenCl Runtime in not installed on this System";
+			reaction = "GPU schemes will run on the CPU";
+			help = "Install an OpenCL runtime based on your GPU Vendor.";
+			type = 11;
 			break;
 		default:
 			place.append("set_warning(const int warn_type)");

@@ -1,0 +1,125 @@
+﻿name: Building For Linux
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+env:
+  UNIXNAME: ProMaIDeS_vc
+  BUILD_TYPE: Release
+
+jobs:
+  BuildForLinux:
+    name: '🐧 Build for Linux'
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+      
+    - name: '🧰 Install Qt'
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+      
+    - name: '🔧 Install Nvidia Driver'
+      run: |
+        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin -q
+        sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+        wget https://developer.download.nvidia.com/compute/cuda/12.3.1/local_installers/cuda-repo-ubuntu2004-12-3-local_12.3.1-545.23.08-1_amd64.deb -q
+        sudo dpkg -i cuda-repo-ubuntu2004-12-3-local_12.3.1-545.23.08-1_amd64.deb
+        sudo cp /var/cuda-repo-ubuntu2004-12-3-local/cuda-*-keyring.gpg /usr/share/keyrings/
+        sudo apt-get update
+        sudo apt-get -y install cuda-toolkit-12-3
+
+    - name: '🏗️ Configure CMake'
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DQT_DIR=${{env.Qt5_DIR}}
+    
+    - name: '🛠️ Build'
+      # Build your program with the given configuration
+      run: |
+          cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j 4
+          mv build/${{env.UNIXNAME}} ./${{env.UNIXNAME}}
+          rm -r build/*
+          mv ${{env.UNIXNAME}} build/${{env.UNIXNAME}}
+          cp ${{github.workspace}}/source_code/Vendors/StaticLibs/Linux/* build/ -r
+          cp ${{github.workspace}}/source_code/system_hydraulic/source_code/solvergpu/source_code/opencl build/ -r
+
+    
+    - name: '📃 Output Current Files'
+      run: ls -R
+
+    - name: '🧩 Install dependencies'
+      run: |
+          sudo apt-get update
+          # sudo apt-get install libgl1-mesa-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libzstd-dev
+          sudo apt install desktop-file-utils libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-composite0 libxcb-cursor0 libxcb-damage0 libxcb-dpms0 libxcb-dri2-0 libxcb-dri3-0 libxcb-ewmh2 libxcb-glx0 libxcb-present0 libxcb-randr0 libxcb-record0 libxcb-render0 libxcb-res0 libxcb-screensaver0 libxcb-shape0 libxcb-shm0 libxcb-sync1 libxcb-util1 libxkbcommon-x11-0 fuse libfuse2 libgl1-mesa-dev libcups2 libodbc2
+    - name: '🧩 Install linuxdeploy'
+      run: |
+          wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
+
+    - name: '📦 Create AppImage'
+      run: |
+        mkdir appdir
+
+        export QMAKE=${{env.Qt5_DIR}}/bin/qmake
+        #export EXTRA_QT_PLUGINS=gui:imageformats:platforms:svg
+        export LD_LIBRARY_PATH=${{ github.workspace }}/build/
+        export OUTPUT=${{env.UNIXNAME}}-Linux-x86_64.AppImage
+
+        ./linuxdeploy-x86_64.AppImage --appdir appdir -e build/${{env.UNIXNAME}} -d source_code/ProMaIDes.desktop -i source_code/promaides.png --plugin qt
+        
+        #Based on ltrace the sqlDriver needs to be next to the the executable even in the AppImage
+        #Not sure why that is
+        #TODO: Check why exectuable only loads the sql library if it is directly next to it. Is this by design?
+        cp build/sqldrivers appdir/usr/bin/ -r
+        cp build/opencl appdir/usr/bin/ -r
+        
+        ./linuxdeploy-x86_64.AppImage --appdir appdir --output appimage
+        
+        
+    - name: '📃 Output Current Files'
+      run: ls -R
+
+    - name: '⬆️ Upload AppImage File'
+      uses: actions/upload-artifact@v3
+      with:
+        name: AppImageArtifact
+        path: "${{env.UNIXNAME}}-Linux-x86_64.AppImage"
+
+  ReleaseArtifact:
+    name: '🚀 Release Project'
+    runs-on: ubuntu-latest
+    needs: BuildForLinux
+    steps:
+    - name: '⬇️ Download AppImage'
+      uses: actions/download-artifact@v3
+      with:
+        name: AppImageArtifact
+        
+    - name: '📃 Output Current Files'
+      run: ls -R
+      
+    - name: '🏷️ Add binaries to Release Tag'
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: Continuous
+        file:  ./${{env.UNIXNAME}}-Linux-x86_64.AppImage
+        asset_name: ${{env.UNIXNAME}}-Linux-x86_64.AppImage
+        #asset_name: ${{env.UNIXNAME}}-Linux-x86_64-v${{github.run_number}}.AppImage
+        overwrite: true
+        prerelease: false
+        body: "Generated Automatically by Github Actions"
+
+    

@@ -279,25 +279,25 @@
   <customwidget>
    <class>Sys_Member_Int_BaseWid</class>
    <extends>QWidget</extends>
-   <header>sys_member_int_basewid.h</header>
+   <header>Sys_Member_Int_BaseWid.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Sys_Member_Enum_BaseWid</class>
    <extends>QWidget</extends>
-   <header>sys_member_enum_basewid.h</header>
+   <header>Sys_Member_Enum_BaseWid.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Sys_Member_Dbl_BaseWid</class>
    <extends>QWidget</extends>
-   <header>sys_member_dbl_basewid.h</header>
+   <header>Sys_Member_Dbl_BaseWid.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Sys_Member_Bool_BaseWid</class>
    <extends>QWidget</extends>
-   <header>sys_member_bool_basewid.h</header>
+   <header>Sys_Member_Bool_BaseWid.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

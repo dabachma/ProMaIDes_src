@@ -30,6 +30,23 @@ struct _hyd_floodplain_geo_info{
 	double origin_global_y;
 };
 
+///Structure where the geometrical information of the floodplain are stored \ingroup hyd
+struct _hyd_floodplain_scheme_info {
+	///Selected scheme for the floodplain simulation
+	model::schemeTypes::schemeTypes scheme_type;
+	///Device selected to calculate the simulation on
+	int selected_device;
+	///Courant number used when calculating a maximum timestep to use
+	double courant_number;
+	///Number used to calculate the parallelism of the reduction kernel
+	int reduction_wavefronts;
+	///Flag for using friction in the selected scheme
+	bool friction_status;
+	///Workgroup size of the GPU in the x-direction
+	int workgroup_size_x;
+	///Workgroup size of the GPU in the y-direction
+	int workgroup_size_y;
+};
 ///Container class, where the members of the floodplain model is stored (Hyd_Model_Floodplain) \ingroup hyd
 /**
 	This is a data container for the floodplain model members. Besides data storing it handles:
@@ -70,6 +87,8 @@ public:
 	///Get number of elements in y-direction
 	int get_no_elems_y(void);
 	///Get the geometrical information of the floodplain
+	_hyd_floodplain_scheme_info get_scheme_info(void);
+	///Get the geometrical information of the floodplain
 	_hyd_floodplain_geo_info get_geometrical_info(void);
 	///Get a pointer to the absolute tolerance for the solver
 	double* get_absolute_solver_tolerance(void);
@@ -104,6 +123,11 @@ public:
 	///Copy operator
 	Hyd_Param_FP& operator= (const Hyd_Param_FP& par);
 
+	///Convert the scheme type enumerator from text to enum
+	model::schemeTypes::schemeTypes convert_txt2schemetype(string txt);
+	///Convert the scheme type enumerator from enum to txt 
+	string convert_schemetype2txt(model::schemeTypes::schemeTypes type);
+
 private:
 	///Name of the Floodplain model
 	string FPName;	
@@ -137,6 +161,21 @@ private:
 
 	///Value which marks a element, where no information is available
 	double noinfo_value;	
+
+	///Selected scheme for the floodplain simulation
+	model::schemeTypes::schemeTypes scheme_type;
+	///Device selected to calculate the simulation on
+	int selected_device;
+	///Courant number used when calculating a maximum timestep to use
+	double courant_number;
+	///Number used to calculate the parallelism of the reduction kernel
+	int reduction_wavefronts;
+	///Flag for using friction in the selected scheme
+	bool friction_status;
+	///Workgroup size of the GPU in the x-direction
+	int workgroup_size_x;
+	///Workgroup size of the GPU in the y-direction
+	int workgroup_size_y;
 
 	///Number of Polygons which enclose noflow elements
 	int number_noflow_polys;

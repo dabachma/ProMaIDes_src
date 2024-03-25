@@ -619,6 +619,10 @@ void Hyd_Multiple_Hydraulic_Systems::set_required_threads(void){
 		}
 	}
 }
+//Catch the number of CPU and GPU working, which is emitted from each Hyd_Hydraulic_System
+void Hyd_Multiple_Hydraulic_Systems::catch_multi_statusbar_hyd_solver_update(unsigned int cpu_count, unsigned int gpu_count) {
+	emit statusbar_main_hyd_solver_update(cpu_count, gpu_count);
+}
 //Allocate the required hydraulic threads
 void Hyd_Multiple_Hydraulic_Systems::allocate_hyd_threads(void){
 	this->delete_hyd_threads();
@@ -626,6 +630,7 @@ void Hyd_Multiple_Hydraulic_Systems::allocate_hyd_threads(void){
 		this->threads=new Hyd_Hydraulic_System[this->required_threads];
 		ostringstream buffer;
 		buffer << this->required_threads;
+		QObject::connect(this->threads, SIGNAL(statusbar_Multi_hyd_solver_update(unsigned int, unsigned int)), this, SLOT(catch_multi_statusbar_hyd_solver_update(unsigned int, unsigned int)));
 		emit emit_number_threads(buffer.str().c_str());
 		emit emit_threads_allocated();
 	}

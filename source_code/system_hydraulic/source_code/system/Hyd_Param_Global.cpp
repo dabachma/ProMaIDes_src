@@ -54,6 +54,8 @@ Hyd_Param_Global::Hyd_Param_Global(void):default_max_steps(40000), default_init_
 	this->output_flags.database_instat_required = true;
 	this->output_flags.output_folder = label::not_set;
 
+	//System settings
+	this->opencl_available = false;
 	
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Param_Global), _sys_system_modules::HYD_SYS);
@@ -229,7 +231,7 @@ void Hyd_Param_Global::create_table(QSqlDatabase *ptr_database){
 			tab_col[6].name=hyd_label::maxstepsize;
 			tab_col[6].type=sys_label::tab_col_type_double;
 			tab_col[6].unsigned_flag=true;
-			tab_col[6].default_value=="100.0";
+			tab_col[6].default_value="100.0";
 
 			tab_col[7].name=hyd_label::inistepsize;
 			tab_col[7].type=sys_label::tab_col_type_double;
@@ -773,6 +775,14 @@ bool Hyd_Param_Global::get_coast_model_applied(void){
 _hyd_output_flags Hyd_Param_Global::get_output_flags(void) {
 	return this->output_flags;
 }
+//Set the output flags which output is required
+void Hyd_Param_Global::set_opencl_available(bool boolean_flag) {
+	this->opencl_available = boolean_flag;
+}
+//Get the output flags which output is required
+bool Hyd_Param_Global::get_opencl_available(void) {
+	return this->opencl_available;
+}
 //Set the number of river-models
 void Hyd_Param_Global::set_number_river_models(const int number){
 	this->GlobNofRV=number;
@@ -902,6 +912,7 @@ void Hyd_Param_Global::calculate_total_numbers(void){
 _hyd_prec_type Hyd_Param_Global::convert_txt2precontype(string txt){
 	_hyd_prec_type type;
 	_Hyd_Parse_IO::string2lower(&txt);
+	_Hyd_Parse_IO::erase_carriageReturn(&txt);
 	_Hyd_Parse_IO::erase_leading_whitespace_tabs(&txt);
 	_Hyd_Parse_IO::erase_end_whitespace_tabs(&txt);
 
@@ -933,7 +944,7 @@ string Hyd_Param_Global::convert_precontype2txt(_hyd_prec_type type){
 			txt=hyd_label::precon_right_type;
 			break;
 		default:
-			txt==label::unknown_type;
+			txt=label::unknown_type;
 	}
 	return txt;
 }
@@ -941,6 +952,7 @@ string Hyd_Param_Global::convert_precontype2txt(_hyd_prec_type type){
 _hyd_gs_scheme_type Hyd_Param_Global::convert_txt2gramschmidttype(string txt){
 	_hyd_gs_scheme_type type;
 	_Hyd_Parse_IO::string2lower(&txt);
+	_Hyd_Parse_IO::erase_carriageReturn(&txt);
 	_Hyd_Parse_IO::erase_leading_whitespace_tabs(&txt);
 	_Hyd_Parse_IO::erase_end_whitespace_tabs(&txt);
 

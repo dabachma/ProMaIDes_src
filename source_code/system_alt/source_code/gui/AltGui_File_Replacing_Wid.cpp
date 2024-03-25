@@ -1,4 +1,4 @@
-#include "source_code\Alt_Headers_Precompiled.h"
+#include "Alt_Headers_Precompiled.h"
 //#include "AltGui_File_Replacing_Wid.h"
 
 //Default constructor

@@ -415,7 +415,7 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>Sys_Database_Project_Tree_Wid</class>
    <extends>QTreeView</extends>
-   <header>sys_database_project_tree_wid.h</header>
+   <header>Sys_Database_Project_Tree_Wid.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

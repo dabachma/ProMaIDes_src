@@ -2041,7 +2041,31 @@ namespace hyd_label{
 	const string noinfovalue("NOINFO_VALUE");
 	///Keyword for the database table column of the general model floodplain parameters: value for a elemnet with no informations; boundary-value if a element/profile is wet or dry [m] (Hyd_Model_Floodplain)
 	const string wet("WET_HEIGHT");
-
+	///Keyword for the database table column of the general model floodplain parameter: Scheme to use when when solving the floodplain
+	const string schemetype("SCHEME_TYPE");
+	///Keyword for the hydraulic scheme using diffusive wave equations, calculated implicitly on the CPU
+	const string scheme_type_diffusive_cpu("diffusive_cpu");
+	///Keyword for the hydraulic scheme using diffusive wave equations, calculated explicitly on the GPU
+	const string scheme_type_diffusive_gpu("diffusive_gpu");
+	///Keyword for the hydraulic scheme using inertial scheme, calculated explicitly on the GPU
+	const string scheme_type_inertial_gpu("inertial_gpu");
+	///Keyword for the hydraulic scheme using Godunov scheme implemented with HLLLC, calculated explicitly on the GPU
+	const string scheme_type_godunov_gpu("godunov_gpu");
+	///Keyword for the hydraulic scheme using MUSCL scheme (2nd order scheme), calculated explicitly on the GPU
+	const string scheme_type_muscl_gpu("muscl_gpu");
+	///Keyword for the database table column of the general model floodplain parameter: Selected OpenCL device to run the simulation on
+	const string selecteddevice("SELECTED_DEVICE");
+	///Keyword for the database table column of the general model floodplain parameter: Courant number for CFL condition
+	const string courantnumber("COURANT_NUMBER");
+	///Keyword for the database table column of the general model floodplain parameter: Number of wavefronts used in the timestep reduction kernel. Each wavefront represents a subset of the input data processed concurrently. Higher values enable finer-grained parallelism, potentially improving performance. However, excessive wavefronts may introduce synchronization overhead
+	const string reductionwavefronts("REDUCTION_WAVEFRONTS");
+	///Keyword for the database table column of the general model floodplain parameter: Enables friction effect in the scheme used
+	const string frictionstatus("FRICTION_STATUS");
+	///Keyword for the database table column of the general model floodplain parameter: The workgroup size (in X) to use when working with a gpu based scheme
+	const string workgroupsizex("WORKGROUP_SIZE_X");
+	///Keyword for the database table column of the general model floodplain parameter: The workgroup size (in Y) to use when working with a gpu based scheme
+	const string workgroupsizey("WORKGROUP_SIZE_Y");
+	
 	///Keyword for the database table column of the general model (river/floodplain) parameters: absolute solver tolerance [-] (Hyd_Model_Floodplain, Hyd_Model_River)
 	const string atol("ABSOULTE_TOLERANCE");
 	///Keyword for the database table column of the general model (river/floodplain) parameters: relative solver tolerance [-] (Hyd_Model_Floodplain, Hyd_Model_River)

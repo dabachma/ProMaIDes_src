@@ -51,6 +51,9 @@ public slots:
 	void show_as_dialog(void);
 
 private:
+	///Maping of scheme types, making a table of index, text, and database label
+	std::vector<std::pair<int, std::pair<std::string, std::string>>> scheme_types_mapping;
+
 	///QT-form member
 	Ui::HydGui_Floodplain_Member ui;
 
@@ -59,6 +62,7 @@ private:
 	void transfer_members2database(HydGui_Floodplain_Member_Wid *dialog);
 	///Set the error(s)
 	Error set_error(const int err_type);
+
 };
 
 #endif // HYDGUI_FLOODPLAIN_MEMBER_WID_H

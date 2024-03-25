@@ -1,4 +1,4 @@
-#include "source_code\Alt_Headers_Precompiled.h"
+#include "Alt_Headers_Precompiled.h"
 //#include "AltGui_Alternative_Info_Dia.h"
 
 

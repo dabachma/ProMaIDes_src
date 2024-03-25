@@ -51,3 +51,8 @@ void Sys_Member_String_BaseWid::set_editable(const bool edit) {
 bool Sys_Member_String_BaseWid::is_editable(void) {
 	return this->lineEdit->isReadOnly();
 }
+
+//Changes the width of the combo box	
+void Sys_Member_String_BaseWid::set_box_width(const double width) {
+	this->lineEdit->setMinimumWidth(width);
+}

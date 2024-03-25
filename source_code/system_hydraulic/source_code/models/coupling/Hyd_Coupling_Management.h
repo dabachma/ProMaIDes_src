@@ -23,6 +23,7 @@
 
 //system_sys_ classes
 #include "_Sys_Common_System.h"
+#include "Profiler.h"
 
 class Hyd_Hydraulic_System;
 
@@ -222,7 +223,7 @@ public:
 	void init_couplings(void);
 
 	///Synchronise the couplings 
-	void synchronise_couplings(const double timepoint, const double delta_t, const bool time_check, const int internal_counter);
+	void synchronise_couplings(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, Profiler* profiler);
 
 	///Output the couplings (e.g. dikebreak development) per calculation step
 	void output_coupling_calculation_steps2file(const double timepoint);
