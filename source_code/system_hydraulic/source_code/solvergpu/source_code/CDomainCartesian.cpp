@@ -1035,7 +1035,7 @@ void	CDomainCartesian::memoryDump()
 }
 
 //Output the result members per timestep to Paraview
-void CDomainCartesian::output_to_vtk_file(std::string path, double time, std::string rasterName, int sizeX, int sizeY, double* opt_z, double* opt_zx_max, double* opt_zy_max, double* opt_h, double* opt_s, double* opt_v_x, double* opt_v_y, double* opt_boundary) {
+void CDomainCartesian::output_to_vtk_file(std::string path, double time, std::string rasterName, int sizeX, int sizeY, double* opt_z, double* opt_zx_max, double* opt_zy_max, double* opt_h, double* opt_s, double* opt_v_x, double* opt_v_y) {
 
 	//get the file name
 	double temp_double;
@@ -1148,15 +1148,6 @@ void CDomainCartesian::output_to_vtk_file(std::string path, double time, std::st
 	txt << "LOOKUP_TABLE default" << std::endl;
 	for (int i = 0; i < sizeT; i++) {
 		temp_double = opt_v_y[i];
-		Util::SwapEnd(temp_double);
-		txt.write(reinterpret_cast<char*>(&temp_double), sizeof(double));
-	}
-	txt << std::endl;
-
-	txt << "SCALARS  opt_bound double" << std::endl;
-	txt << "LOOKUP_TABLE default" << std::endl;
-	for (int i = 0; i < sizeT; i++) {
-		temp_double = opt_boundary[i];
 		Util::SwapEnd(temp_double);
 		txt.write(reinterpret_cast<char*>(&temp_double), sizeof(double));
 	}
