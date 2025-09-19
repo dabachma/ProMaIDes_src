@@ -38,10 +38,13 @@ void Fpl_Seepage_Calculator_Dike::set_ptr_cubature(Geo_Polysegment *cubature){
 	this->ptr_cubature=cubature;
 }
 //Calculate new waterlevels of the seepage line
-void Fpl_Seepage_Calculator_Dike::calculate_waterlevel_seepage_line(const double water_level, Fpl_Seepage_Line_Point_List *ascending, Fpl_Seepage_Line_Point_List *descending, const bool for_output){
+void Fpl_Seepage_Calculator_Dike::calculate_waterlevel_seepage_line(const double water_level, Fpl_Seepage_Line_Point_List *ascending, Fpl_Seepage_Line_Point_List *descending, const bool for_output, const double duration, const double rise, const double av_perm){
 
 	if(this->seepage_calc_max==_fpl_max_waterlevel_seepage::one_third_waterlevel){
+		
 		this->calculate_seepage_line_land_one_third(water_level, ascending, for_output);
+		
+
 		this->calculate_seepage_line_land_one_third(water_level, descending, for_output);
 		if(this->seepage_calc_min==_fpl_min_waterlevel_seepage::one_third_mid_waterlevel){
 			this->calculate_seepage_line_mid_water_one_third(water_level, descending, for_output);	
@@ -49,6 +52,20 @@ void Fpl_Seepage_Calculator_Dike::calculate_waterlevel_seepage_line(const double
 		else{
 			this->calculate_seepage_line_mid_water_base(water_level, descending, for_output);	
 		}
+
+	}
+	else if(this->seepage_calc_max == _fpl_max_waterlevel_seepage::time_dependent)
+	{
+		this->calculate_seepage_line_time_variant(water_level, ascending, for_output, duration, rise, av_perm);
+
+		this->calculate_seepage_line_land_one_third(water_level, descending, for_output);
+		if (this->seepage_calc_min == _fpl_min_waterlevel_seepage::one_third_mid_waterlevel) {
+			this->calculate_seepage_line_mid_water_one_third(water_level, descending, for_output);
+		}
+		else {
+			this->calculate_seepage_line_mid_water_base(water_level, descending, for_output);
+		}
+
 	}
 	else if(this->seepage_calc_max==_fpl_max_waterlevel_seepage::kozeny){
 		try{
@@ -161,6 +178,9 @@ _fpl_max_waterlevel_seepage Fpl_Seepage_Calculator_Dike::convert_txt2seepagetype
 	else if(buffer==fpl_label::seepage_max_kozeny){
 		type=_fpl_max_waterlevel_seepage::kozeny;
 	}
+	else if (buffer == fpl_label::seepage_max_time_dependent) {
+		type = _fpl_max_waterlevel_seepage::time_dependent;
+	}
 	else{
 		Error msg;
 		msg.set_msg("Fpl_Seepage_Calculator_Dike::convert_txt2seepagetype_max_waterlevel(const string txt)", "Can not convert this seepage maximum waterlevel type", "Check the given type", 1, false);
@@ -170,6 +190,7 @@ _fpl_max_waterlevel_seepage Fpl_Seepage_Calculator_Dike::convert_txt2seepagetype
 		info << " "<<fpl_label::seepage_max_base_land  << endl;
 		info << " "<<fpl_label::seepage_max_one_third  << endl;
 		info << " "<<fpl_label::seepage_max_kozeny  << endl;
+		info << " " << fpl_label::seepage_max_time_dependent << endl;
 		msg.make_second_info(info.str());
 		throw msg;
 	}
@@ -187,6 +208,9 @@ string Fpl_Seepage_Calculator_Dike::convert_seepagetype_max_waterlevel2txt(const
 			break;
 		case _fpl_max_waterlevel_seepage::kozeny:
 			buffer=fpl_label::seepage_max_kozeny;
+			break;
+		case _fpl_max_waterlevel_seepage::time_dependent:
+			buffer = fpl_label::seepage_max_time_dependent;
 			break;
 		default:
 			buffer=label::unknown_type;
@@ -268,6 +292,12 @@ void Fpl_Seepage_Calculator_Dike::set_predefined_data2control_table(QSqlDatabase
 	total.str("");
 	query_string.str("");
 	(*id_glob)++;
+}
+//Get the type of the seepage max calcuation
+_fpl_max_waterlevel_seepage Fpl_Seepage_Calculator_Dike::get_type_seepage_max_calc(void) {
+
+	return this->seepage_calc_max;
+
 }
 //_________
 //private
@@ -651,6 +681,13 @@ void Fpl_Seepage_Calculator_Dike::calculate_seepage_line_land_one_third(double h
 			point_list->get_list_point(i)->set_inside_dike_body_flag(true);
 		}
 	}
+
+	
+
+
+
+
+
 }
 //Calculate the seepage line: to the landside after the Kozeny
 void Fpl_Seepage_Calculator_Dike::calculate_seepage_line_land_kozeny(double h_rel, Fpl_Seepage_Line_Point_List *point_list, const bool for_output){
@@ -767,95 +804,637 @@ void Fpl_Seepage_Calculator_Dike::calculate_seepage_line_land_kozeny(double h_re
 				}
 			}*/
 		}
-		while(interception==true);
+		while (interception == true);
 
-		if(for_output==true){
-			point_list->add_new_point(this->ptr_landside_cub->get_segment(counter)->point2.get_xcoordinate()-h_drei/abs(this->ptr_landside_cub->get_segment(counter)->get_gradient()),0.0,true, this->ptr_cubature);
-		
+		if (for_output == true) {
+			point_list->add_new_point(this->ptr_landside_cub->get_segment(counter)->point2.get_xcoordinate() - h_drei / abs(this->ptr_landside_cub->get_segment(counter)->get_gradient()), 0.0, true, this->ptr_cubature);
+
 		}
 
-		double x_buff=0.0;
-		double y_buff=0.0;
+		double x_buff = 0.0;
+		double y_buff = 0.0;
 		Geo_Point buffer_point;
-		buffer_point.set_point_coordinate(buff_point_water.interception_point.get_xcoordinate()+h_rel*this->ptr_waterside_cub->get_segment(index_segment_water)->get_gradient(),0.0);
+		buffer_point.set_point_coordinate(buff_point_water.interception_point.get_xcoordinate() + h_rel * this->ptr_waterside_cub->get_segment(index_segment_water)->get_gradient(), 0.0);
 		buffer.set_points(&buff_point_water.interception_point, &buffer_point);
-		
-		buffer.calc_interception_square_root(&sq_interception,c1,c2,c3, land_point->get_ycoordinate());
 
-		if(sq_interception.get_number_points()==0){
-			Error msg=this->set_error(0);
+		buffer.calc_interception_square_root(&sq_interception, c1, c2, c3, land_point->get_ycoordinate());
+
+		if (sq_interception.get_number_points() == 0) {
+			Error msg = this->set_error(0);
 			throw msg;
 		}
-		else{
+		else {
 			buffer.set_points(&buff_point_water.interception_point, sq_interception.get_ptr_point_max_y());
-			if(for_output==true){
-				point_list->add_new_point(sq_interception.get_ptr_point_max_y()->get_xcoordinate(),sq_interception.get_ptr_point_max_y()->get_ycoordinate(),true, this->ptr_cubature);
-		
+			if (for_output == true) {
+				point_list->add_new_point(sq_interception.get_ptr_point_max_y()->get_xcoordinate(), sq_interception.get_ptr_point_max_y()->get_ycoordinate(), true, this->ptr_cubature);
+
 			}
 		}
-		
+
 		/*for(int i=0; i< point_list->get_number_points(); i++){
-			cout << point_list->get_list_point(i)->get_x_coordinate() << " "<<endl; 
+			cout << point_list->get_list_point(i)->get_x_coordinate() << " "<<endl;
 		}*/
 
-		for(int i=0; i< point_list->get_number_points(); i++){
-			x_buff=point_list->get_list_point(i)->get_x_coordinate();
+		for (int i = 0; i < point_list->get_number_points(); i++) {
+			x_buff = point_list->get_list_point(i)->get_x_coordinate();
 			//left of the waterside base
-			if(x_buff<buff_point_water.interception_point.get_xcoordinate()){
+			if (x_buff < buff_point_water.interception_point.get_xcoordinate()) {
 				point_list->get_list_point(i)->set_waterlevel(h_rel);
 				point_list->get_list_point(i)->set_inside_dike_body_flag(true);
 			}
 			//right of the landside base
-			else if(x_buff>this->ptr_landside_cub->get_segment(index_segment_land)->point2.get_xcoordinate()){
-				
+			else if (x_buff > this->ptr_landside_cub->get_segment(index_segment_land)->point2.get_xcoordinate()) {
+
 				point_list->get_list_point(i)->set_waterlevel(this->ptr_landside_cub->get_segment(index_segment_land)->point2.get_ycoordinate());
 				point_list->get_list_point(i)->set_inside_dike_body_flag(true);
 			}
 			//use a straight line
-			else if(x_buff<=buffer.point2.get_xcoordinate()){
-				y_buff=buffer.get_gradient()*x_buff+buffer.get_y_interception();
+			else if (x_buff <= buffer.point2.get_xcoordinate()) {
+				y_buff = buffer.get_gradient() * x_buff + buffer.get_y_interception();
 				point_list->get_list_point(i)->set_waterlevel(y_buff);
 				point_list->get_list_point(i)->set_inside_dike_body_flag(true);
 			}
 			//inbetween
-			else{
-				double h_buff=0.0;
-				y_buff=c2;
-				x_buff=x_buff-c3;
-				y_buff=y_buff*(x_buff);
-				if(c1>=y_buff){
-					y_buff=pow(c1-y_buff,0.5);
-					if(y_buff>=h_drei-constant::meter_epsilon){
-						h_buff=y_buff+land_point->get_ycoordinate();
+			else {
+				double h_buff = 0.0;
+				y_buff = c2;
+				x_buff = x_buff - c3;
+				y_buff = y_buff * (x_buff);
+				if (c1 >= y_buff) {
+					y_buff = pow(c1 - y_buff, 0.5);
+					if (y_buff >= h_drei - constant::meter_epsilon) {
+						h_buff = y_buff + land_point->get_ycoordinate();
 					}
-					else{
-						if(i==0){
-							Error msg=this->set_error(2);
+					else {
+						if (i == 0) {
+							Error msg = this->set_error(2);
 							throw msg;
 						}
-						h_buff=point_list->get_list_point(i-1)->get_waterlevel();
+						h_buff = point_list->get_list_point(i - 1)->get_waterlevel();
 					}
 				}
-				else{
-					if(i==0){
-						Error msg=this->set_error(2);
+				else {
+					if (i == 0) {
+						Error msg = this->set_error(2);
 						throw msg;
 					}
-					h_buff=point_list->get_list_point(i-1)->get_waterlevel();
+					h_buff = point_list->get_list_point(i - 1)->get_waterlevel();
 
 				}
-				if(h_buff<=point_list->get_list_point(i)->get_y_coordinate_cubature()){
+				if (h_buff <= point_list->get_list_point(i)->get_y_coordinate_cubature()) {
 					point_list->get_list_point(i)->set_waterlevel(h_buff);
 				}
-				else{
+				else {
 					point_list->get_list_point(i)->set_waterlevel(point_list->get_list_point(i)->get_y_coordinate_cubature());
-				}	
+				}
 				point_list->get_list_point(i)->set_inside_dike_body_flag(true);
 
 			}
 
 		}
 	}
+}
+//Calculate seepage line by time dependent parameters
+void Fpl_Seepage_Calculator_Dike::calculate_seepage_line_time_variant(double h_rel, Fpl_Seepage_Line_Point_List* point_list, const bool for_output, const double duration, const double rise, const double av_perm) {
+
+	if (h_rel > this->ptr_waterside_cub->get_ptr_last_point()->get_ycoordinate()) {
+		h_rel = this->ptr_waterside_cub->get_ptr_last_point()->get_ycoordinate();
+	}
+
+	if (h_rel < 0.0) {
+		h_rel = 0.0;
+	}
+
+	//waterlevel is below landside dike base=> horizontal line
+	if (h_rel < this->ptr_landside_cub->get_ptr_last_point()->get_ycoordinate()) {
+		this->calculate_seepage_line_horizontal(h_rel, point_list, for_output);
+	}
+	//waterlevel is above landside dike base
+	else {
+		//find the interception point with waterside
+		Geo_Segment buffer;
+		buffer.set_coordinates(0.0, h_rel, this->ptr_landside_cub->get_ptr_last_point()->get_xcoordinate(), h_rel);
+		_geo_interception_point buff_point_water;
+		buff_point_water.interception_point.set_point_name(label::interception_point);
+		for (int i = 0; i < this->ptr_waterside_cub->get_number_segments(); i++) {
+			buffer.calc_interception(this->ptr_waterside_cub->get_segment(i), &buff_point_water);
+			if (buff_point_water.interception_flag == true) {
+				break;
+			}
+		}
+		if (for_output == true) {
+			point_list->add_new_point(buff_point_water.interception_point.get_xcoordinate(), buff_point_water.interception_point.get_ycoordinate(), true, this->ptr_cubature);
+		}
+
+		//find the interception point with landside: first horizontal line at 1/3 of the waterlevel
+		buffer.set_coordinates(buff_point_water.interception_point.get_xcoordinate(), buff_point_water.interception_point.get_ycoordinate() * 1.0 / 3.0 + this->ptr_landside_cub->get_ptr_last_point()->get_ycoordinate() * 2.0 / 3.0,
+			this->ptr_landside_cub->get_ptr_last_point()->get_xcoordinate(), buff_point_water.interception_point.get_ycoordinate() * 1.0 / 3.0 + this->ptr_landside_cub->get_ptr_last_point()->get_ycoordinate() * 2.0 / 3.0);
+		_geo_interception_point buff_point_land;
+		buff_point_land.interception_point.set_point_name(label::interception_point);
+		for (int i = 0; i < this->ptr_landside_cub->get_number_segments(); i++) {
+			buffer.calc_interception(this->ptr_landside_cub->get_segment(i), &buff_point_land);
+			if (buff_point_land.interception_flag == true) {
+				break;
+			}
+		}
+
+		//find the interception point with landside: second line waterlevel to 1/3 of the waterlevel
+		buffer.set_coordinates(buff_point_water.interception_point.get_xcoordinate(), buff_point_water.interception_point.get_ycoordinate(), buff_point_land.interception_point.get_xcoordinate(), buff_point_land.interception_point.get_ycoordinate());
+		for (int i = 0; i < this->ptr_landside_cub->get_number_segments(); i++) {
+			buffer.calc_interception(this->ptr_landside_cub->get_segment(i), &buff_point_land);
+			if (buff_point_land.interception_flag == true) {
+				break;
+			}
+		}
+
+		//calculate angle to horinzontal
+		double buff_angle = 180.0*atan((buff_point_water.interception_point.get_ycoordinate() - buff_point_land.interception_point.get_ycoordinate()) / (buff_point_land.interception_point.get_xcoordinate() - buff_point_water.interception_point.get_xcoordinate()))/ constant::Cpi;
+
+		//calculate kappa
+		double kapa = this->claculate_kappa(h_rel, this->ptr_landside_cub->get_ptr_last_point()->get_xcoordinate()-buff_point_water.interception_point.get_xcoordinate(),duration, rise, av_perm);
+
+		Geo_Straight_Line buffer_line;
+		buff_angle = buff_angle + kapa;
+		double buff_new_y = 0.0;
+
+		buff_new_y = tan(constant::Cpi*(buff_angle)/180.0)* (buff_point_land.interception_point.get_xcoordinate() - buff_point_water.interception_point.get_xcoordinate());
+		buff_new_y = buff_point_water.interception_point.get_ycoordinate() - buff_new_y;
+		
+		//check for interception with land side cub
+		buffer_line.set_coordinates(buff_point_water.interception_point.get_xcoordinate(), buff_point_water.interception_point.get_ycoordinate(), buff_point_land.interception_point.get_xcoordinate(), buff_new_y);
+		for (int i = 0; i < this->ptr_landside_cub->get_number_segments(); i++) {
+			
+			//buffer_line.calc_interception(this->ptr_landside_cub->get_segment(i), &buff_point_land);
+			this->ptr_landside_cub->get_segment(i)->calc_interception(&buffer_line, &buff_point_land);
+			if (buff_point_land.interception_flag == true) {
+				break;
+			}
+		}
+		bool inter_ground = false;
+		if (buff_point_land.interception_flag == false) {
+			//check interception with line base land to base water
+			inter_ground = true;
+			buffer.set_coordinates(this->ptr_waterside_cub->get_segment(0)->point1.get_xcoordinate(), this->ptr_waterside_cub->get_segment(0)->point1.get_ycoordinate(), this->ptr_landside_cub->get_ptr_last_point()->get_xcoordinate(), this->ptr_landside_cub->get_ptr_last_point()->get_ycoordinate());
+			buffer.calc_interception(&buffer_line, &buff_point_land);
+			if (buff_point_land.interception_flag == false) {
+				//Error
+
+				//no interception found!
+			}
+
+		}
+
+
+
+
+		if (for_output == true) {
+			point_list->add_new_point(buff_point_land.interception_point.get_xcoordinate(), buff_point_land.interception_point.get_ycoordinate(), true, this->ptr_cubature);
+
+		}
+
+		double deltay = buff_point_water.interception_point.get_ycoordinate() - buff_point_land.interception_point.get_ycoordinate();
+		double deltax = buff_point_land.interception_point.get_xcoordinate() - buff_point_water.interception_point.get_xcoordinate();
+
+		double h_buff = 0.0;
+		for (int i = 0; i < point_list->get_number_points(); i++) {
+			//left of the waterside base
+			if (point_list->get_list_point(i)->get_x_coordinate() < buff_point_water.interception_point.get_xcoordinate()) {
+				h_buff = h_rel;
+				point_list->get_list_point(i)->set_waterlevel(h_buff);
+			}
+			//right of the landside base
+			else if (point_list->get_list_point(i)->get_x_coordinate() > buff_point_land.interception_point.get_xcoordinate() && inter_ground==false) {
+				h_buff = buff_point_land.interception_point.get_ycoordinate();
+				point_list->get_list_point(i)->set_waterlevel(h_buff);
+				if (h_buff <= point_list->get_list_point(i)->get_y_coordinate_cubature()) {
+					point_list->get_list_point(i)->set_waterlevel(h_buff);
+				}
+				else {
+					point_list->get_list_point(i)->set_waterlevel(point_list->get_list_point(i)->get_y_coordinate_cubature());
+				}
+
+			}
+			//into the ground
+			else if (point_list->get_list_point(i)->get_x_coordinate() > buff_point_land.interception_point.get_xcoordinate() && inter_ground == true) {
+				h_buff = buff_point_land.interception_point.get_ycoordinate();
+				point_list->get_list_point(i)->set_waterlevel(h_buff);
+				if (h_buff <= point_list->get_list_point(i)->get_y_coordinate_cubature()) {
+					point_list->get_list_point(i)->set_waterlevel(h_buff);
+				}
+				else {
+					point_list->get_list_point(i)->set_waterlevel(point_list->get_list_point(i)->get_y_coordinate_cubature());
+				}
+
+
+			}
+			//inbetween
+			else {
+				h_buff = h_rel - (point_list->get_list_point(i)->get_x_coordinate() - buff_point_water.interception_point.get_xcoordinate()) *
+					deltay / deltax;
+				if (h_buff <= point_list->get_list_point(i)->get_y_coordinate_cubature()) {
+					point_list->get_list_point(i)->set_waterlevel(h_buff);
+				}
+				else {
+					point_list->get_list_point(i)->set_waterlevel(point_list->get_list_point(i)->get_y_coordinate_cubature());
+				}
+			}
+			point_list->get_list_point(i)->set_inside_dike_body_flag(true);
+		}
+	}
+
+}
+//Calculate the kappa-value for the time dependent seepage line
+double Fpl_Seepage_Calculator_Dike::claculate_kappa(const double h_rel, const double l, const double time_peak, const double time_rise, const double average_perm) {
+
+
+
+	//test table values interpolation
+	//double b;
+	//double z;
+	//this->calculate_table_values(10, 7e-9, &b, &z);
+	//this->calculate_table_values(12, 7e-9, &b, &z);
+	//this->calculate_table_values(15, 7e-9, &b, &z);
+	//this->calculate_table_values(21, 7e-9, &b, &z);
+	//this->calculate_table_values(25, 7e-9, &b, &z);
+
+	//this->calculate_table_values(10, 2.475e-7, &b, &z);
+	//this->calculate_table_values(12, 2.475e-7, &b, &z);
+	//this->calculate_table_values(15, 2.475e-7, &b, &z);
+	//this->calculate_table_values(21, 2.475e-7, &b, &z);
+	//this->calculate_table_values(25, 2.475e-7, &b, &z);
+
+	//this->calculate_table_values(10, 1.002e-5, &b, &z);
+	//this->calculate_table_values(12, 1.002e-5, &b, &z);
+	//this->calculate_table_values(15, 1.002e-5, &b, &z);
+	//this->calculate_table_values(21, 1.002e-5, &b, &z);
+	//this->calculate_table_values(25, 1.002e-5, &b, &z);
+
+	//this->calculate_table_values(10, 1.4115e-4, &b, &z);
+	//this->calculate_table_values(12, 1.4115e-4, &b, &z);
+	//this->calculate_table_values(15, 1.4115e-4, &b, &z);
+	//this->calculate_table_values(21, 1.4115e-4, &b, &z);
+	//this->calculate_table_values(25, 1.4115e-4, &b, &z);
+
+	//this->calculate_table_values(10, 5.4115e-4, &b, &z);
+	//this->calculate_table_values(12, 5.4115e-4, &b, &z);
+	//this->calculate_table_values(15, 5.4115e-4, &b, &z);
+	//this->calculate_table_values(21, 5.4115e-4, &b, &z);
+	//this->calculate_table_values(25, 5.4115e-4, &b, &z);
+
+
+
+
+	//angle in degree
+	double kappa = 0.0;
+	//realtion water height to dike height [-]
+	double buff_sw =h_rel/ this->ptr_waterside_cub->get_ptr_last_point()->get_ycoordinate();
+	if (buff_sw > 1.0) {
+		buff_sw = 1.0;
+	}
+	if (buff_sw < 0.0) {
+		buff_sw = 0.0;
+	}
+
+	//geometry value [m]
+	double buff_l = l;
+
+
+	//table values [-]
+	double buff_b = 0.0;
+	double buff_z = 0.0;
+	this->calculate_table_values(buff_l, average_perm, &buff_b, &buff_z);
+
+	//Calculate kappa after formula after Oettl, M. (2025) time in seconds
+	double s1 = abs(log(average_perm));
+	double s2 = exp(buff_sw-buff_b * ((time_peak+time_rise*0.2)/86400));
+
+
+	double s3 = pow(abs(log(pow(buff_l, buff_z) * buff_sw)), 0.63);
+
+	kappa = s1*s2*s3;
+
+	return kappa;
+
+}
+//Calculate table values for time dependent seepage line calculation
+void Fpl_Seepage_Calculator_Dike::calculate_table_values(const double l, double average_perm, double *b_value, double *z_value) {
+	double l_inter1 = 11.0;
+	double l_inter2 = 13.0;
+	double l_inter3 = 20.0;
+	double l_inter4 = 22.0;
+
+	//no interpolation between perm
+	if (average_perm < 5.10e-8) {
+		//no interpolation between l
+		if (l <= l_inter1) {
+			*b_value = 0.054;
+			*z_value = 1.036;
+
+		}
+		//interpolation between l
+		else if (l> l_inter1 && l<=l_inter2) {
+			*b_value = this->interpolate_values_table(l_inter1, 0.054, l_inter2, 0.044, l);
+			*z_value = this->interpolate_values_table(l_inter1, 1.036, l_inter2, 1.109, l);
+
+		}
+		//no interpolation between l
+		else if (l > l_inter2 && l <= l_inter3) {
+
+			*b_value = 0.044;
+			*z_value = 1.109;
+
+
+		}
+		//interpolation between l
+		else if (l > l_inter3 && l <= l_inter4) {
+			*b_value = this->interpolate_values_table(l_inter3, 0.044, l_inter4, 0.027, l);
+			*z_value = this->interpolate_values_table(l_inter3, 1.109, l_inter4, 1.128, l);
+		
+		
+		}
+		//no interpolation between l
+		else {
+
+			*b_value = 0.027;
+			*z_value = 1.128;
+
+
+		}
+
+	}
+	//interpolation betwenn perm values
+	else if (average_perm >= 5.10e-8 && average_perm < 4.44e-7) {
+		double perm1 = log10(5.10e-8);
+		double perm2 = log10(4.44e-7);
+		average_perm = log10(average_perm);
+
+		//no interpolation between l
+		if (l <= l_inter1) {
+			*b_value = this->interpolate_values_table(perm2, 0.194, perm1, 0.054, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.644, perm1, 1.036, average_perm);
+
+		}
+		//interpolation between l
+		else if (l > l_inter1 && l <= l_inter2) {
+			double buff_b1 = this->interpolate_values_table(perm2, 0.194, perm1, 0.054, average_perm);
+			double buff_z1 = this->interpolate_values_table(perm2, 0.644, perm1, 1.036, average_perm);
+
+			double buff_b2 = this->interpolate_values_table(perm2, 0.064, perm1, 0.044, average_perm);
+			double buff_z2 = this->interpolate_values_table(perm2, 0.710, perm1, 1.109, average_perm);
+
+			*b_value = this->interpolate_values_table(l_inter1, buff_b1, l_inter2, buff_b2, l);
+			*z_value = this->interpolate_values_table(l_inter1, buff_z1, l_inter2, buff_z2, l);
+
+		}
+		//no interpolation between l
+		else if (l > l_inter2 && l <= l_inter3) {
+
+			*b_value = this->interpolate_values_table(perm2, 0.064, perm1, 0.044, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.710, perm1, 1.109, average_perm);
+
+
+		}
+		//interpolation between l
+		else if (l > l_inter3 && l <= l_inter4) {
+			double buff_b1 = this->interpolate_values_table(perm2, 0.064, perm1, 0.044, average_perm);
+			double buff_z1 = this->interpolate_values_table(perm2, 0.710, perm1, 1.109, average_perm);
+
+			double buff_b2 = this->interpolate_values_table(perm2, 0.055, perm1, 0.027, average_perm);
+			double buff_z2 = this->interpolate_values_table(perm2, 0.934, perm1, 1.128, average_perm);
+
+			*b_value = this->interpolate_values_table(l_inter3, buff_b1, l_inter4, buff_b2, l);
+			*z_value = this->interpolate_values_table(l_inter3, buff_z1, l_inter4, buff_z2, l);
+
+
+		}
+		//no interpolation between l
+		else {
+
+			*b_value = this->interpolate_values_table(perm2, 0.055, perm1, 0.027, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.934, perm1, 1.128, average_perm);
+
+
+		}
+
+	}
+	//interpolation betwenn perm values
+	else if (average_perm >= 4.44e-7 && average_perm < 3.74e-6) {
+		double perm1 = log10(4.44e-7);
+		double perm2 = log10(3.74e-6);
+		average_perm = log10(average_perm);
+
+		//no interpolation between l
+		if (l <= l_inter1) {
+			*b_value = this->interpolate_values_table(perm2, 0.778, perm1, 0.194, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.403, perm1, 0.644, average_perm);
+
+		}
+		//interpolation between l
+		else if (l > l_inter1 && l <= l_inter2) {
+			double buff_b1 = this->interpolate_values_table(perm2, 0.778, perm1, 0.194, average_perm);
+			double buff_z1 = this->interpolate_values_table(perm2, 0.403, perm1, 0.644, average_perm);
+
+			double buff_b2 = this->interpolate_values_table(perm2, 0.122, perm1, 0.064, average_perm);
+			double buff_z2 = this->interpolate_values_table(perm2, 0.671, perm1, 0.710, average_perm);
+
+			*b_value = this->interpolate_values_table(l_inter1, buff_b1, l_inter2, buff_b2, l);
+			*z_value = this->interpolate_values_table(l_inter1, buff_z1, l_inter2, buff_z2, l);
+
+		}
+		//no interpolation between l
+		else if (l > l_inter2 && l <= l_inter3) {
+
+			*b_value = this->interpolate_values_table(perm2, 0.122, perm1, 0.064, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.671, perm1, 0.710, average_perm);
+
+
+		}
+		//interpolation between l
+		else if (l > l_inter3 && l <= l_inter4) {
+			double buff_b1 = this->interpolate_values_table(perm2, 0.122, perm1, 0.064, average_perm);
+			double buff_z1 = this->interpolate_values_table(perm2, 0.671, perm1, 0.710, average_perm);
+
+			double buff_b2 = this->interpolate_values_table(perm2, 0.079, perm1, 0.055, average_perm);
+			double buff_z2 = this->interpolate_values_table(perm2, 0.855, perm1, 0.934, average_perm);
+
+			*b_value = this->interpolate_values_table(l_inter3, buff_b1, l_inter4, buff_b2, l);
+			*z_value = this->interpolate_values_table(l_inter3, buff_z1, l_inter4, buff_z2, l);
+
+
+		}
+		//no interpolation between l
+		else {
+
+			*b_value = this->interpolate_values_table(perm2, 0.079, perm1, 0.055, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.855, perm1, 0.934, average_perm);
+
+
+		}
+
+	}
+	//interpolation betwenn perm values
+	else if (average_perm >= 3.74e-6 && average_perm < 1.63e-5) {
+
+		double perm1 = log10(3.74e-6);
+		double perm2 = log10(1.63e-5);
+		average_perm = log10(average_perm);
+
+		//no interpolation between l
+		if (l <= l_inter1) {
+			*b_value = this->interpolate_values_table(perm2, 1.071, perm1, 0.778, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.112, perm1, 0.403, average_perm);
+
+		}
+		//interpolation between l
+		else if (l > l_inter1 && l <= l_inter2) {
+			double buff_b1 = this->interpolate_values_table(perm2, 1.071, perm1, 0.778, average_perm);
+			double buff_z1 = this->interpolate_values_table(perm2, 0.112, perm1, 0.403, average_perm);
+
+			double buff_b2 = this->interpolate_values_table(perm2, 0.411, perm1, 0.122, average_perm);
+			double buff_z2 = this->interpolate_values_table(perm2, 0.387, perm1, 0.671, average_perm);
+
+			*b_value = this->interpolate_values_table(l_inter1, buff_b1, l_inter2, buff_b2, l);
+			*z_value = this->interpolate_values_table(l_inter1, buff_z1, l_inter2, buff_z2, l);
+
+		}
+		//no interpolation between l
+		else if (l > l_inter2 && l <= l_inter3) {
+
+			*b_value = this->interpolate_values_table(perm2, 0.411, perm1, 0.122, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.387, perm1, 0.671, average_perm);
+
+
+		}
+		//interpolation between l
+		else if (l > l_inter3 && l <= l_inter4) {
+			double buff_b1 = this->interpolate_values_table(perm2, 0.411, perm1, 0.122, average_perm);
+			double buff_z1 = this->interpolate_values_table(perm2, 0.387, perm1, 0.671, average_perm);
+
+			double buff_b2 = this->interpolate_values_table(perm2, 0.081, perm1, 0.079, average_perm);
+			double buff_z2 = this->interpolate_values_table(perm2, 0.775, perm1, 0.855, average_perm);
+
+			*b_value = this->interpolate_values_table(l_inter3, buff_b1, l_inter4, buff_b2, l);
+			*z_value = this->interpolate_values_table(l_inter3, buff_z1, l_inter4, buff_z2, l);
+
+
+		}
+		//no interpolation between l
+		else {
+
+			*b_value = this->interpolate_values_table(perm2, 0.081, perm1, 0.079, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.775, perm1, 0.855, average_perm);
+
+
+		}
+
+	}
+	//interpolation betwenn perm values
+	else if (average_perm >= 1.63e-5 && average_perm < 2.66e-4) {
+
+		double perm1 = log10(1.63e-5);
+		double perm2 = log10(2.66e-4);
+		average_perm = log10(average_perm);
+
+		//no interpolation between l
+		if (l <= l_inter1) {
+			*b_value = this->interpolate_values_table(perm2, 1.933, perm1, 1.071, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.079, perm1, 0.112, average_perm);
+
+		}
+		//interpolation between l
+		else if (l > l_inter1 && l <= l_inter2) {
+			double buff_b1 = this->interpolate_values_table(perm2, 1.933, perm1, 1.071, average_perm);
+			double buff_z1 = this->interpolate_values_table(perm2, 0.079, perm1, 0.112, average_perm);
+
+			double buff_b2 = this->interpolate_values_table(perm2, 1.924, perm1, 0.411, average_perm);
+			double buff_z2 = this->interpolate_values_table(perm2, 0.373, perm1, 0.387, average_perm);
+
+			*b_value = this->interpolate_values_table(l_inter1, buff_b1, l_inter2, buff_b2, l);
+			*z_value = this->interpolate_values_table(l_inter1, buff_z1, l_inter2, buff_z2, l);
+
+		}
+		//no interpolation between l
+		else if (l > l_inter2 && l <= l_inter3) {
+
+			*b_value = this->interpolate_values_table(perm2, 1.924, perm1, 0.411, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.373, perm1, 0.387, average_perm);
+
+
+		}
+		//interpolation between l
+		else if (l > l_inter3 && l <= l_inter4) {
+			double buff_b1 = this->interpolate_values_table(perm2, 1.924, perm1, 0.411, average_perm);
+			double buff_z1 = this->interpolate_values_table(perm2, 0.373, perm1, 0.387, average_perm);
+
+			double buff_b2 = this->interpolate_values_table(perm2, 1.815, perm1, 0.081, average_perm);
+			double buff_z2 = this->interpolate_values_table(perm2, 0.656, perm1, 0.775, average_perm);
+
+			*b_value = this->interpolate_values_table(l_inter3, buff_b1, l_inter4, buff_b2, l);
+			*z_value = this->interpolate_values_table(l_inter3, buff_z1, l_inter4, buff_z2, l);
+
+
+		}
+		//no interpolation between l
+		else {
+
+			*b_value = this->interpolate_values_table(perm2, 1.815, perm1, 0.081, average_perm);
+			*z_value = this->interpolate_values_table(perm2, 0.656, perm1, 0.775, average_perm);
+
+		}
+
+	}
+	//no interpolation betwenn perm values
+	else {
+
+		//no interpolation between l
+		if (l <= l_inter1) {
+			*b_value = 1.933;
+			*z_value = 0.079;
+
+		}
+		//interpolation between l
+		else if (l > l_inter1 && l <= l_inter2) {
+			*b_value = this->interpolate_values_table(l_inter1, 1.933, l_inter2, 1.924, l);
+			*z_value = this->interpolate_values_table(l_inter1, 0.079, l_inter2, 0.373, l);
+
+		}
+		//no interpolation between l
+		else if (l > l_inter2 && l <= l_inter3) {
+
+			*b_value = 1.924;
+			*z_value = 0.373;
+
+
+		}
+		//interpolation between l
+		else if (l > l_inter3 && l <= l_inter4) {
+			*b_value = this->interpolate_values_table(l_inter3, 1.924, l_inter4, 1.815, l);
+			*z_value = this->interpolate_values_table(l_inter3, 0.373, l_inter4, 0.656, l);
+
+
+		}
+		//no interpolation between l
+		else {
+
+			*b_value = 1.815;
+			*z_value = 0.656;
+
+
+		}
+
+
+	}
+
+
+	
+
+
+}
+///Interpolate values for table calculation
+double Fpl_Seepage_Calculator_Dike::interpolate_values_table(const double x1, const double y1, const double x2, const double y2, const double xs) {
+
+
+	return y1 + ((y2 - y1) / (x2 - x1)) * (xs - x1);
 }
 //Set warning(s)
 Warning Fpl_Seepage_Calculator_Dike::set_warning(const int warn_type){

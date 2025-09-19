@@ -39,6 +39,9 @@ Fpl_Sec_Type_Dike::Fpl_Sec_Type_Dike(void){
 
 	this->waterlevel.set_unit(label::m);
 	this->water_density.set_unit(label::kg_per_qm);
+	this->peak_duration.set_unit(label::sec);
+	this->peak_rise.set_unit(label::sec);
+	this->average_perm.set_unit(label::m_per_sec);
 
 	this->current_waterlevel=0.0;
 
@@ -99,6 +102,8 @@ void Fpl_Sec_Type_Dike::set_input(const int section_id,  const bool frc_sim, QSq
 	catch(Error msg){
 	}
 	Sys_Common_Output::output_fpl->reset_prefix_was_outputed();
+	this->seepage_calculator.set_input(ptr_database,frc_sim,false);
+
 	//set the input for the varaibles which belongs to the section_type class
 	this->set_variables(frc_sim, ptr_database, section_id);
 	Sys_Common_Output::output_fpl->reset_prefix_was_outputed();
@@ -110,7 +115,7 @@ void Fpl_Sec_Type_Dike::set_input(const int section_id,  const bool frc_sim, QSq
 	Sys_Common_Output::output_fpl->reset_prefix_was_outputed();
 }
 //Read in the fpl-section type from file
-void Fpl_Sec_Type_Dike::read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim){
+void Fpl_Sec_Type_Dike::read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim, QSqlDatabase* ptr_database){
 	ostringstream cout;
 	cout << "Input the general data of the dike section..."<<endl;
 	Sys_Common_Output::output_fpl->output_txt(&cout);
@@ -140,6 +145,29 @@ void Fpl_Sec_Type_Dike::read_section_type_per_file(QFile *ifile, int *line_count
 		this->water_density.check_given_boundaries(2000.0, 700.0);
 		ifile->seek(pos_file);
 		*line_counter=store_line;
+
+		this->seepage_calculator.set_input(ptr_database, frc_sim, false);
+
+
+		if (this->seepage_calculator.get_type_seepage_max_calc() == _fpl_max_waterlevel_seepage::time_dependent) {
+			this->peak_duration.set_input(ifile, line_counter, fpl_label::peak_duration, false, fpl_label::end_sec_general);
+			this->peak_duration.check_given_boundaries(9999999999999999, 0);
+			ifile->seek(pos_file);
+			*line_counter = store_line;
+
+			this->peak_rise.set_input(ifile, line_counter, fpl_label::peak_rise, false, fpl_label::end_sec_general);
+			this->peak_rise.check_given_boundaries(9999999999999999, 0);
+			ifile->seek(pos_file);
+			*line_counter = store_line;
+
+			this->average_perm.set_input(ifile, line_counter, fpl_label::average_perm, false, fpl_label::end_sec_general);
+			this->average_perm.check_given_boundaries(1, 0);
+			ifile->seek(pos_file);
+			*line_counter = store_line;
+		}
+
+
+
 	}
 	catch(Error msg){
 		throw msg;
@@ -976,6 +1004,11 @@ void Fpl_Sec_Type_Dike::transfer_sectiontype2database(const int section_id, QSql
 	Sys_Common_Output::output_fpl->output_txt(&cout);
 	this->waterlevel.transfer_rand2database(ptr_database, this->system_id, section_id, fpl_label::mech_all, fpl_label::sec_dike);
 	this->water_density.transfer_rand2database(ptr_database, this->system_id, section_id, fpl_label::mech_all, fpl_label::sec_dike);
+	if (this->seepage_calculator.get_type_seepage_max_calc() == _fpl_max_waterlevel_seepage::time_dependent) {
+		this->peak_duration.transfer_rand2database(ptr_database, this->system_id, section_id, fpl_label::mech_all, fpl_label::sec_dike);
+		this->peak_rise.transfer_rand2database(ptr_database, this->system_id, section_id, fpl_label::mech_all, fpl_label::sec_dike);
+		this->average_perm.transfer_rand2database(ptr_database, this->system_id, section_id, fpl_label::mech_all, fpl_label::sec_dike);
+	}
 
 	cout << "Transfer general geometry to database..."<<endl;
 	Sys_Common_Output::output_fpl->output_txt(&cout);
@@ -1087,6 +1120,16 @@ int Fpl_Sec_Type_Dike::make_faulttree(const bool random_calculation){
 	this->low_waterlevel_flag=false;
 	//calculate the waterdensity
 	this->water_density.calculate_variables(random_calculation);
+	double buff_duration = 0.0;
+	double buff_rise = 0.0;
+	double buff_av_perm = 0.0;
+
+	if (this->seepage_calculator.get_type_seepage_max_calc() == _fpl_max_waterlevel_seepage::time_dependent) {
+		buff_duration=this->peak_duration.calculate_variables(random_calculation).end_result;
+		buff_rise=this->peak_rise.calculate_variables(random_calculation).end_result;
+		buff_av_perm=this->average_perm.calculate_variables(random_calculation).end_result;
+
+	}
 
 	//calc the material zone variables
 	for(int i=0; i< this->number_material_variable_zones; i++){
@@ -1119,7 +1162,7 @@ int Fpl_Sec_Type_Dike::make_faulttree(const bool random_calculation){
 	//waterlevel after wind setup
 	this->current_waterlevel=this->current_waterlevel+buff_krylowII.wave_setup;
 
-	this->seepage_calculator.calculate_waterlevel_seepage_line(this->current_waterlevel, &this->seepage_body_ascending, &this->seepage_body_descending, false);
+	this->seepage_calculator.calculate_waterlevel_seepage_line(this->current_waterlevel, &this->seepage_body_ascending, &this->seepage_body_descending, false, buff_duration, buff_rise, buff_av_perm);
 
 	bool total_is_set=false;
 	//hydraulic
@@ -1341,6 +1384,11 @@ int Fpl_Sec_Type_Dike::make_faulttree(const bool random_calculation){
 void Fpl_Sec_Type_Dike::check_statistic(void){
 	this->waterlevel.check_statistic();
 	this->water_density.check_statistic();
+	if (this->seepage_calculator.get_type_seepage_max_calc() == _fpl_max_waterlevel_seepage::time_dependent) {
+		this->peak_duration.check_statistic();
+		this->peak_rise.check_statistic();
+		this->average_perm.check_statistic();
+	}
 
 	//material variable zone
 	for(int i=0; i< this->number_material_variable_zones; i++){
@@ -1443,6 +1491,11 @@ void Fpl_Sec_Type_Dike::output_statistic(void){
 	//dike section type members
 	this->waterlevel.output_statistic();
 	this->water_density.output_statistic();
+	if (this->seepage_calculator.get_type_seepage_max_calc() == _fpl_max_waterlevel_seepage::time_dependent) {
+		this->peak_duration.output_statistic();
+		this->peak_rise.output_statistic();
+		this->average_perm.output_statistic();
+	}
 
 	//The material variable zones
 	for(int i=0; i< this->number_material_variable_zones; i++){
@@ -1542,6 +1595,12 @@ void Fpl_Sec_Type_Dike::output_statistic(void){
 void Fpl_Sec_Type_Dike::reset_statistics(void){
 	this->waterlevel.reset_statistics();
 	this->water_density.reset_statistics();
+	if (this->seepage_calculator.get_type_seepage_max_calc() == _fpl_max_waterlevel_seepage::time_dependent) {
+		this->peak_duration.reset_statistics();
+		this->peak_rise.reset_statistics();
+		this->average_perm.reset_statistics();
+	}
+
 	//material variable zone
 	for(int i=0; i< this->number_material_variable_zones; i++){
 		this->material_variable_zones[i].reset_statistic();
@@ -1695,6 +1754,12 @@ void Fpl_Sec_Type_Dike::output_member(void){
 	//section type members
 	this->waterlevel.output_member();
 	this->water_density.output_member();
+	if (this->seepage_calculator.get_type_seepage_max_calc() == _fpl_max_waterlevel_seepage::time_dependent) {
+		this->peak_duration.output_member();
+		this->peak_rise.output_member();
+		this->average_perm.output_member();
+	}
+
 	//The material variable zones
 	if(this->number_material_variable_zones>0){
 		cout <<"Output "<<this->number_material_variable_zones<< " number of dike material variable zone(s)..."<<endl;
@@ -4131,6 +4196,17 @@ void Fpl_Sec_Type_Dike::set_variables(const bool frc_sim, QSqlDatabase *ptr_data
 		this->water_density.set_input(this->system_id, section_id, fpl_label::water_density,false, ptr_database, fpl_label::mech_all,fpl_label::sec_dike,0);
 		this->water_density.set_distribution_types(ptr_database);
 
+		if (this->seepage_calculator.get_type_seepage_max_calc() == _fpl_max_waterlevel_seepage::time_dependent) {
+			this->peak_duration.set_input(this->system_id, section_id, fpl_label::peak_duration, false, ptr_database, fpl_label::mech_all, fpl_label::sec_dike, 0);
+			this->peak_duration.set_distribution_types(ptr_database);
+
+			this->peak_rise.set_input(this->system_id, section_id, fpl_label::peak_rise, false, ptr_database, fpl_label::mech_all, fpl_label::sec_dike, 0);
+			this->peak_rise.set_distribution_types(ptr_database);
+
+			this->average_perm.set_input(this->system_id, section_id, fpl_label::average_perm, false, ptr_database, fpl_label::mech_all, fpl_label::sec_dike, 0);
+			this->average_perm.set_distribution_types(ptr_database);
+		}
+
 		//wind wave generation
 		try{
 			if(this->wave_wind_event!=NULL){
@@ -5430,7 +5506,7 @@ void Fpl_Sec_Type_Dike::output_seepage2tecplot(const string seepage_file){
 	}
 	while(x_buff<=this->base_land.get_xcoordinate()+1.0);
 
-	this->seepage_calculator.calculate_waterlevel_seepage_line(this->current_waterlevel, &buff_ascending, &buff_descending, true);
+	this->seepage_calculator.calculate_waterlevel_seepage_line(this->current_waterlevel, &buff_ascending, &buff_descending, true, this->peak_duration.get_result().end_result, this->peak_rise.get_result().end_result, this->average_perm.get_result().end_result);
 
 	//open the file
 	ofstream tecplot_output;
@@ -5491,7 +5567,7 @@ void Fpl_Sec_Type_Dike::output_seepage2paraview(const string seepage_file) {
 		x_buff = x_buff + 0.05;
 	} while (x_buff <= this->base_land.get_xcoordinate() + 1.0);
 
-	this->seepage_calculator.calculate_waterlevel_seepage_line(this->current_waterlevel, &buff_ascending, &buff_descending, true);
+	this->seepage_calculator.calculate_waterlevel_seepage_line(this->current_waterlevel, &buff_ascending, &buff_descending, true, this->peak_duration.get_result().end_result, this->peak_rise.get_result().end_result, this->average_perm.get_result().end_result);
 
 
 
@@ -5553,7 +5629,7 @@ void Fpl_Sec_Type_Dike::output_seepage2excel(const string seepage_file) {
 		x_buff = x_buff + 0.05;
 	} while (x_buff <= this->base_land.get_xcoordinate() + 1.0);
 
-	this->seepage_calculator.calculate_waterlevel_seepage_line(this->current_waterlevel, &buff_ascending, &buff_descending, true);
+	this->seepage_calculator.calculate_waterlevel_seepage_line(this->current_waterlevel, &buff_ascending, &buff_descending, true, this->peak_duration.get_result().end_result, this->peak_rise.get_result().end_result, this->average_perm.get_result().end_result);
 
 
 

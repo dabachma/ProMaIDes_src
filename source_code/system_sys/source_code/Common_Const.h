@@ -975,6 +975,8 @@ namespace fpl_label{
 	const string seepage_max_one_third("one_third_land");
 	///String for the seepage calculation type by maximum waterlevel: calculation via the Kozeny formula
 	const string seepage_max_kozeny("kozeny");
+	///String for the seepage calculation type by maximum waterlevel: calculation via a time dependent formula after M. Oettl (2025)
+	const string seepage_max_time_dependent("time_dependent");
 
 	//type of the seepage calculation for the minimum waterlevel
 	///String for the seepage calculation type by minimum waterlevel: endpoint is the base point water
@@ -992,6 +994,12 @@ namespace fpl_label{
 	const string height("structure_height");
 	///String for random-variable name for an identification of the variable: water density 
 	const string water_density("water_density");
+	///String for random-variable name for an identification of the variable: peak duration of flood wave 
+	const string peak_duration("peak_duration");
+	///String for random-variable name for an identification of the variable: rising time of peak of flood wave 
+	const string peak_rise("peak_rise");
+	///String for random-variable name for an identification of the variable: average permeability of the dike boy 
+	const string average_perm("average_perm");
 
 	///String for random-variable default name for an identification of the variable: standard values 
 	const string standard("standard");

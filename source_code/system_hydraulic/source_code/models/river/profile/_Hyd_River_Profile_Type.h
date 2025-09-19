@@ -169,6 +169,10 @@ public:
 	virtual double get_c_mid_channel(void)=0;
 	///Get the convenyance factor
 	virtual double get_c_value(void)=0;
+	///Get the convenyance factor for the left bank
+	virtual double get_c_left_bank(void)=0;
+	///Get the convenyance factor for the right bank
+	virtual double get_c_right_bank(void)=0;
 
 	///Output the members of profile type
 	virtual void output_members(ostringstream *cout);
@@ -210,7 +214,7 @@ public:
 	void set_actuel_flowvelocity(const double discharge);
 
 	///Calculate the actual discharge through this profile by a given upstream and downstream profile
-	virtual double calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream)=0;
+	virtual double calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream, double *q_main, double* q_left, double* q_right, const double distance_left, const double distance_right)=0;
 
 	///Calculate the velocity energy head per syncronisation step
 	void calculate_velocity_energy_head(const double time_point, _Hyd_River_Profile *downstream);
@@ -319,6 +323,11 @@ protected:
 	double delta_t_v_energy;
 	///The calculated gradient between the profiles
 	double gradient;
+	///The calculated gradient between the profiles for the left bank
+	double gradient_left;
+	///The calculated gradient between the profiles for the right bank
+	double gradient_right;
+
 	///Actual global waterlevel for this profile per solver step
 	double s_value;
 	///The maximum global waterlevel for this profile during calculation and the corresponding point in time

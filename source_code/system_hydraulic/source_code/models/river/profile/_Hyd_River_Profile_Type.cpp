@@ -30,6 +30,8 @@ _Hyd_River_Profile_Type::_Hyd_River_Profile_Type(void): increment_max_height(2.0
 	this->v_energy_old_old=0.0;
 	this->delta_t_v_energy=0.0;
 	this->gradient=0.001;
+	this->gradient_left = 0.0;
+	this->gradient_right = 0.0;
 	this->s_value=0.0;
 	this->s_value_max.maximum=0.0;
 	this->s_value_max.time_point=0.0;

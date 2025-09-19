@@ -52,6 +52,7 @@ public:
 	///Set the y-coordinate of the cubature
 	void set_y_coordinate_cubature(Geo_Polysegment *cubature);
 
+
 	///Copy operator
 	Fpl_Seepage_Line_Point& operator=(const Fpl_Seepage_Line_Point& object);
 

@@ -25,7 +25,7 @@ void Fpl_Sec_Type_Gate::set_input(const int section_id,  const bool frc_sim, QSq
 
 }
 //Read in the fpl-section type from file
-void Fpl_Sec_Type_Gate::read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim){
+void Fpl_Sec_Type_Gate::read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim, QSqlDatabase* ptr_database){
 
 }
 //Read the mechanisms of the fault-tree per file

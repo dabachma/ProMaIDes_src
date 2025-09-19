@@ -58,7 +58,7 @@ public:
 	///Set the input of the dune section (geometrie, variables, faulttree) per database
 	void set_input(const int section_id,  const bool frc_sim, QSqlDatabase *ptr_database);
 	///Read in the fpl-section type from file
-	void read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim);
+	void read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim, QSqlDatabase* ptr_database);
 	///Read the mechanisms of the fault-tree per file
 	void read_mechanism_faulttree_perfile(QFile *ifile, int *line_counter);
 	///Check which mechanisms of the fault-tree are required per file
@@ -227,6 +227,13 @@ private:
 
 	///Random variable of the water density
 	Fpl_Random_Variables water_density;
+
+	///Random variable of the flood peak duration for a time dependent seepage calculation [s]
+	Fpl_Random_Variables peak_duration;
+	///Random variable of the flood peak rising time for a time dependent seepage calculation [s]
+	Fpl_Random_Variables peak_rise;
+	//////Random variable of the the average permeabilty of the dike body for a time dependent seepage calculation [m/s]
+	Fpl_Random_Variables average_perm;
 
 	///The current waterlevel for calculation
 	double current_waterlevel;

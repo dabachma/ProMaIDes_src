@@ -75,7 +75,7 @@ void Fpl_Seepage_Line_Point_List::output_members(Geo_Polysegment *cubature){
 		buffer.add_new_point(this->points[i].get_x_coordinate(), this->points[i].get_waterlevel(), this->points[i].get_inside_dike_body_flag(), cubature);
 	}
 	//sort them
-	this->sort_list(&buffer);
+	//this->sort_list(&buffer);
 
 	//output them	
 	ostringstream cout;

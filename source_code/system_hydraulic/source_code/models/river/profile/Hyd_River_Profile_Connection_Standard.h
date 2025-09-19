@@ -80,6 +80,7 @@ public:
 	///Get the actual discharge through this profile
 	virtual double get_actual_river_discharge(void);
 
+
 	///Reset all coupling discharges; use it before syncronization
 	void reset_coupling_discharge(void);
 
@@ -153,6 +154,9 @@ protected:
 	//member
 	///Actual discharge through this profile for this timestep [qm³/s]
 	double q_river;
+
+
+
 	///Actual lateral discharge for the corresponding upstream river segment [m³/s]
 	double q_lateral;
 	///Actual point discharge for the corresponding upstream river segment [m³/s]

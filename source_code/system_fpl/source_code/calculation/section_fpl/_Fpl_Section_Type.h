@@ -114,7 +114,7 @@ public:
 	//methods
 
 	///Read in the fpl-section type from file
-	virtual void read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim)=0;
+	virtual void read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim, QSqlDatabase* ptr_database)=0;
 	///Read the mechanisms of the fault-tree per file
 	virtual void read_mechanism_faulttree_perfile(QFile *ifile, int *line_counter);
 	///Check which mechanisms of the fault-tree are required per file

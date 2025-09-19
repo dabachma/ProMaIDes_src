@@ -125,6 +125,14 @@ void Hyd_River_Profile_Type_Standard::output_tables(void){
 double Hyd_River_Profile_Type_Standard::get_c_mid_channel(void){
 	return this->c_mid_value;
 }
+//Get the convenyance factor for the left bank
+double Hyd_River_Profile_Type_Standard::get_c_left_bank(void) {
+	return this->c_left_value ;
+}
+//Get the convenyance factor for the right bank
+double Hyd_River_Profile_Type_Standard::get_c_right_bank(void) {
+	return this->c_right_value;
+}
 //Get the convenyance factor total
 double Hyd_River_Profile_Type_Standard::get_c_value(void){
 	return this->c_mid_value+this->c_left_value+this->c_right_value;
@@ -245,17 +253,23 @@ void Hyd_River_Profile_Type_Standard::set_actuel_profilevalues_by_waterlevel(con
 	}
 }
 //Calculate the actual discharge through this profile by a given upstream and downstream profile
-double Hyd_River_Profile_Type_Standard::calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream){
+double Hyd_River_Profile_Type_Standard::calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream, double* q_main, double* q_left, double* q_right, const double distance_left, const double distance_right){
 	double discharge=0.0;
 	double v_area=0.0;
 	double fr_h=0.0;
-
+	*q_main = 0.0;
+	*q_left = 0.0;
+	*q_right = 0.0;
 
 	//calculate the gradient
-	this->calculate_gradient(distance_upstream, upstream_profile, downstream_profile);
+	this->calculate_gradient(distance_upstream, upstream_profile, downstream_profile,distance_left, distance_right);
 	//same waterlevels => noflow
 	if(abs(this->gradient)<constant::flow_epsilon){
 		discharge=0.0;
+		*q_main = discharge;
+		*q_left = 0.0;
+		*q_right = 0.0;
+
 		v_area=0.0;
 		fr_h=0.0;
 	}
@@ -264,12 +278,20 @@ double Hyd_River_Profile_Type_Standard::calculate_actual_discharge(_Hyd_River_Pr
 		//no discharge if there is no upstream water level 
 		if(upstream_profile->typ_of_profile->get_actual_local_waterlevel_h()<constant::dry_hyd_epsilon){
 			discharge=0.0;
+			*q_main = discharge;
+			*q_left = 0.0;
+			*q_right = 0.0;
+
 			v_area=0.0;
 			fr_h=0.0;
 		}
 		//steep gradient flow=> (c-value of upstream profile profiles)
 		else if(this->s_value <= upstream_profile->typ_of_profile->get_global_z_min()){
 				discharge=(upstream_profile->typ_of_profile->get_c_value())*this->gradient;
+				*q_main = (upstream_profile->typ_of_profile->get_c_mid_channel()) * this->gradient ;
+				*q_left = (upstream_profile->typ_of_profile->get_c_left_bank()) * this->gradient;
+				*q_right = (upstream_profile->typ_of_profile->get_c_right_bank()) *  this->gradient;
+
 				v_area=upstream_profile->typ_of_profile->get_area2calc();
 				fr_h=upstream_profile->typ_of_profile->get_actual_local_waterlevel_h();
 		}
@@ -278,12 +300,20 @@ double Hyd_River_Profile_Type_Standard::calculate_actual_discharge(_Hyd_River_Pr
 			double delta_h=this->s_value-(upstream_profile->typ_of_profile->get_global_z_min());
 			double mid_fac=(0.4-delta_h)/0.8;
 			discharge=((0.5+mid_fac)*upstream_profile->typ_of_profile->get_c_value()+(0.5-mid_fac)*this->get_c_value())*gradient;
+			*q_main = ((0.5 - mid_fac) * this->get_c_mid_channel() + (0.5 + mid_fac) * upstream_profile->typ_of_profile->get_c_mid_channel()) *  this->gradient;
+			*q_left = ((0.5 - mid_fac) * this->get_c_left_bank() + (0.5 + mid_fac) * upstream_profile->typ_of_profile->get_c_left_bank()) * this->gradient;
+			*q_right = ((0.5 - mid_fac) * this->get_c_right_bank() + (0.5 + mid_fac) * upstream_profile->typ_of_profile->get_c_right_bank())  * this->gradient;
+
 			v_area=(0.5+mid_fac)*upstream_profile->typ_of_profile->get_area2calc()+(0.5-mid_fac)*this->area2calc;
 			fr_h=(0.5+mid_fac)*upstream_profile->typ_of_profile->get_actual_local_waterlevel_h()+(0.5-mid_fac)*this->h_value;
 		}
 		//starting discharge for a hole before
 		else if(upstream_profile->get_actual_global_waterlevel()>(this->global_z_min+constant::dry_hyd_epsilon)&& this->h_value<=constant::dry_hyd_epsilon){
 			discharge=(this->get_starting_value()+upstream_profile->typ_of_profile->get_c_value())*0.5*this->gradient;
+			*q_main = discharge;
+			*q_left = 0.0;
+			*q_right = 0.0;
+
 			v_area=0.0;
 			fr_h=upstream_profile->typ_of_profile->get_actual_local_waterlevel_h();
 
@@ -291,6 +321,11 @@ double Hyd_River_Profile_Type_Standard::calculate_actual_discharge(_Hyd_River_Pr
 		//normal flow (mid of c-value of both profiles)
 		else{
 			discharge=(this->get_c_value()+upstream_profile->typ_of_profile->get_c_value())*0.5*this->gradient;
+			*q_main = (this->get_c_mid_channel() + upstream_profile->typ_of_profile->get_c_mid_channel()) * 0.5 * this->gradient;
+			*q_left = (this->get_c_left_bank() + upstream_profile->typ_of_profile->get_c_left_bank()) * 0.5 * this->gradient;
+			*q_right = (this->get_c_right_bank() + upstream_profile->typ_of_profile->get_c_right_bank()) * 0.5 * this->gradient;
+
+			
 			v_area=(0.5)*upstream_profile->typ_of_profile->get_area2calc()+(0.5)*this->area2calc;
 			fr_h=(0.5)*upstream_profile->typ_of_profile->get_actual_local_waterlevel_h()+(0.5)*this->h_value;
 		}
@@ -300,12 +335,20 @@ double Hyd_River_Profile_Type_Standard::calculate_actual_discharge(_Hyd_River_Pr
 		//no discharge if there is no water level here
 		if(this->h_value<constant::dry_hyd_epsilon){
 			discharge=0.0;
+			*q_main = discharge;
+			*q_left = 0.0;
+			*q_right = 0.0;
+
 			v_area=0.0;
 			fr_h=0.0;
 		}
 		//steep gradient flow=> (c-value of upstream profile profiles)
 		else if(upstream_profile->typ_of_profile->get_actual_global_waterlevel() <= this->global_z_min){
 				discharge=(this->get_c_value())*this->gradient;
+				*q_main = (upstream_profile->typ_of_profile->get_c_mid_channel()) * this->gradient;
+				*q_left = (upstream_profile->typ_of_profile->get_c_left_bank()) * this->gradient;
+				*q_right = (upstream_profile->typ_of_profile->get_c_right_bank()) * this->gradient;
+
 				v_area=this->area2calc;
 				fr_h=this->h_value;
 		}
@@ -314,6 +357,10 @@ double Hyd_River_Profile_Type_Standard::calculate_actual_discharge(_Hyd_River_Pr
 			double delta_h=this->s_value-(upstream_profile->typ_of_profile->get_global_z_min());
 			double mid_fac=(0.4-delta_h)/0.8;
 			discharge=((0.5+mid_fac)*this->get_c_value()+(0.5-mid_fac)*upstream_profile->typ_of_profile->get_c_value())*gradient;
+			*q_main = ((0.5 + mid_fac) * this->get_c_mid_channel() + (0.5 - mid_fac) * upstream_profile->typ_of_profile->get_c_mid_channel())  * this->gradient;
+			*q_left = ((0.5 + mid_fac) * this->get_c_left_bank() + (0.5 - mid_fac) * upstream_profile->typ_of_profile->get_c_left_bank())  * this->gradient;
+			*q_right = ((0.5 + mid_fac) * this->get_c_right_bank() + (0.5 - mid_fac) * upstream_profile->typ_of_profile->get_c_right_bank())  * this->gradient;
+
 			v_area=(0.5-mid_fac)*upstream_profile->typ_of_profile->get_area2calc()+(0.5+mid_fac)*this->area2calc;
 			fr_h=(0.5-mid_fac)*upstream_profile->typ_of_profile->get_actual_local_waterlevel_h()+(0.5+mid_fac)*this->h_value;
 
@@ -321,10 +368,17 @@ double Hyd_River_Profile_Type_Standard::calculate_actual_discharge(_Hyd_River_Pr
 		//normal flow
 		else{
 			discharge=(this->get_c_value()+upstream_profile->typ_of_profile->get_c_value())*0.5*this->gradient;
+			*q_main = (this->get_c_mid_channel() + upstream_profile->typ_of_profile->get_c_mid_channel()) * 0.5 * this->gradient;
+			*q_left = (this->get_c_left_bank() + upstream_profile->typ_of_profile->get_c_left_bank()) * 0.5 * this->gradient;
+			*q_right = (this->get_c_right_bank() + upstream_profile->typ_of_profile->get_c_right_bank()) * 0.5 * this->gradient;
+
 			v_area=(0.5)*upstream_profile->typ_of_profile->get_area2calc()+(0.5)*this->area2calc;
 			fr_h=(0.5)*upstream_profile->typ_of_profile->get_actual_local_waterlevel_h()+(0.5)*this->h_value;
 		}
 	}
+	//testing!!!
+	//discharge = *q_main + *q_left + *q_right;
+	//discharge = *q_main;
 
 
 	//calculate the velocity
@@ -409,7 +463,7 @@ void Hyd_River_Profile_Type_Standard::set_actual_conveyance_by_table(const doubl
 //______________________
 //private
 //Calculate the gradient
-void Hyd_River_Profile_Type_Standard::calculate_gradient(const double distance, _Hyd_River_Profile *upstream, _Hyd_River_Profile *downstream_profile){
+void Hyd_River_Profile_Type_Standard::calculate_gradient(const double distance, _Hyd_River_Profile *upstream, _Hyd_River_Profile *downstream_profile, const double distance_left, const double distance_right){
 	
 	//calculate the gradient
 	if(this->user_setting.explict_v_is_used==true && (upstream->get_profile_type()==_hyd_profile_types::RIVER_TYPE || upstream->get_profile_type()==_hyd_profile_types::BRIDGE_TYPE) && downstream_profile!=NULL){
@@ -421,19 +475,30 @@ void Hyd_River_Profile_Type_Standard::calculate_gradient(const double distance, 
 
 	//same waterlevels => no gradient
 	if(abs(this->gradient)<=constant::flow_epsilon/1000.0){
-		gradient=0.0;
+		this->gradient=0.0;
+		this->gradient_left = 0.0;
+		this->gradient_right = 0.0;
 	}
 	//almost same waterlevels: replace the gradient by arctan-function
 	/*else if(abs(this->gradient)<=0.005078){
 		this->gradient=0.10449968880528*atan(159.877741951379*(this->gradient))/pow(distance,0.5);
 	}*/
 	else if(abs(this->gradient)<=0.000246925){
+		this->gradient_left = 0.02304416717797 * atan(3287.68191373281 * (this->gradient)) / pow(distance_left, 0.5);;
+		this->gradient_right = 0.02304416717797 * atan(3287.68191373281 * (this->gradient)) / pow(distance_right, 0.5);;
 		this->gradient=0.02304416717797*atan(3287.68191373281*(this->gradient))/pow(distance,0.5);
+		
 	}
 	//take the square root function
 	else{
+		this->gradient_left = this->gradient / (pow(distance_left, 0.5) * pow(abs(this->gradient), 0.5));;
+		this->gradient_right = this->gradient / (pow(distance_right, 0.5) * pow(abs(this->gradient), 0.5));;
 		this->gradient=this->gradient/(pow(distance,0.5)*pow(abs(this->gradient),0.5));
+		
 	}
+
+
+
 }
 //check if there is a right bank and a left bank in the profile
 void Hyd_River_Profile_Type_Standard::count_area_points(void){

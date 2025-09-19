@@ -84,6 +84,7 @@ void Fpl_Seepage_Line_Point::set_y_coordinate_cubature(Geo_Polysegment *cubature
 
 
 }
+
 //copy operator
 Fpl_Seepage_Line_Point& Fpl_Seepage_Line_Point::operator=(const Fpl_Seepage_Line_Point& object){
 	this->x_coordinate=object.x_coordinate;

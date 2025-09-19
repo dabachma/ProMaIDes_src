@@ -273,6 +273,13 @@ public:
 	double get_distance2upstream(void);
 	///Set the distance to the upstream profile (distance2upstream)
 	virtual void set_distance2upstream(const double riverstation_upstream);
+	///Calculate distance of the banks
+	void calculate_distance_banks(const double dist_left_bank, const double dist_mid, const double dist_right_bank);
+	///Get the distance of left bank
+	double get_distance_left_bank(void);
+	///Get the distance of right bank
+	double get_distance_right_bank(void);
+
 	///Get the distance to the downstream profile (distance2downstream)
 	double get_distance2downstream(void);
 	///Set the distance to the downstream profile (distance2downstream)
@@ -470,6 +477,13 @@ public:
 	///Get boundary point value
 	virtual double get_boundary_point_value(const double time);
 
+	///Get the actual discharge through this profile (main channel)
+	virtual double get_actual_river_discharge_main(void);
+	///Get the actual discharge through this profile (left bank)
+	virtual double get_actual_river_discharge_left_bank(void);
+	///Get the actual discharge through this profile (right bank)
+	virtual double get_actual_river_discharge_right_bank(void);
+
 protected:
 	//members
 
@@ -505,6 +519,18 @@ protected:
 	double init_condition;
 	///Distance to the upstream profile
 	double distance2upstream;
+	///Distance to upstream profile left bank (calculated)
+	double distance2upstream_left;
+	///Distance to upstream profile right bank (calculated)
+	double distance2upstream_right;
+
+	///Actual discharge through this profile for this timestep [qm³/s] for main channel
+	double q_river_main;
+	///Actual discharge through this profile for this timestep [qm³/s] for left bank
+	double q_river_left;
+	///Actual discharge through this profile for this timestep [qm³/s] for right bank
+	double q_river_right;
+
 	///Distance to the downstrem profile
 	double distance2downstream;
 	///River width

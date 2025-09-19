@@ -37,7 +37,7 @@ public:
 	///Output the tables
 	void output_tables(void);
 	///Calculate the actual discharge through this profile by a given upstream and downstream profile
-	double calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream);
+	double calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream, double* q_main, double* q_left, double* q_right);
 	
 	///Set the actuel flow specific values with a given area from tables; not needed for a weir type; values are set by calculating the discharge directly
 	void set_actuel_profilevalues_by_table(const double area);

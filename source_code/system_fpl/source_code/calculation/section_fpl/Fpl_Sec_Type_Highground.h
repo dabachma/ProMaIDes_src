@@ -41,7 +41,7 @@ public:
 	void transfer_sectiontype2database(const int section_id, QSqlDatabase *ptr_database);
 	
 	///Read in the fpl-section type from file
-	void read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim);
+	void read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim, QSqlDatabase* ptr_database);
 
 	///Calculate the fault tree with random distributed variables (true) or with deterministic variables (false)
 	int make_faulttree(const bool random_calculation=false);

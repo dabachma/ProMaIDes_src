@@ -48,6 +48,13 @@ public:
 	///Get the bridge data as a geometrie for a plot
 	int get_bridge_data2plot(double **x, double **z);
 
+
+	///Get the convenyance factor for the mid channel
+	double get_c_mid_channel(void);
+	///Get the convenyance factor for the left bank
+	double get_c_left_bank(void);
+	///Get the convenyance factor for the right bank
+	double get_c_right_bank(void);
 	///Get the convenyance factor total; it is limited by the bridge height
 	double get_c_value(void);
 
@@ -58,7 +65,7 @@ public:
 	void calc_alloc_tables(const double delta_x, Hyd_Param_Material *material_table);
 
 	///Calculate the actual discharge through this profile by a given upstream and downstream profile
-	double calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream);
+	double calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream, double* q_main, double* q_left, double* q_right, const double distance_left, const double distance_right);
 
 	///Reset the maximum values and the result
 	void reset_result_max_values(void);

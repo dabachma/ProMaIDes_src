@@ -49,6 +49,10 @@ public:
 
 	///Get the convenyance factor for the mid channel
 	double get_c_mid_channel(void);
+	///Get the convenyance factor for the left bank
+	double get_c_left_bank(void);
+	///Get the convenyance factor for the right bank
+	double get_c_right_bank(void);
 	///Get the convenyance factor total
 	virtual double get_c_value(void);
 
@@ -64,7 +68,7 @@ public:
 	virtual void set_actuel_profilevalues_by_waterlevel(const double global_waterlevel);
 
 	///Calculate the actual discharge through this profile by a given upstream and downstream profile
-	virtual double calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream);
+	virtual double calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream, double* q_main, double* q_left, double* q_right, const double distance_left, const double distance_right);
 
 	///Get a starting value in cause of: a hole before, this profile is dry, the waterlevel before is greater than this global z_min value
 	double get_starting_value(void);
@@ -117,7 +121,7 @@ protected:
 private:
 	//method
 	///Calculate the gradient
-	virtual void calculate_gradient(const double distance, _Hyd_River_Profile *upstream, _Hyd_River_Profile *downstream_profile);
+	virtual void calculate_gradient(const double distance, _Hyd_River_Profile* upstream, _Hyd_River_Profile* downstream_profile, const double distance_left, const double distance_right);
 	///Check if there is a right bank and a left bank in the profile
 	void count_area_points(void);
 

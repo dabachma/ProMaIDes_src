@@ -557,7 +557,7 @@ void Hyd_River_Profile_Connection_Outflow::calculate_hydrological_balance(const 
 //Set the actual river discharge through this profile (q_outflow) by the given upstream 
 void Hyd_River_Profile_Connection_Outflow::set_actual_river_discharge(_Hyd_River_Profile *upstream_profile){
 	if(upstream_profile->get_profile_type()==_hyd_profile_types::RIVER_TYPE || upstream_profile->get_profile_type()==_hyd_profile_types::BRIDGE_TYPE){
-		this->q_outflow=this->typ_of_profile->calculate_actual_discharge(upstream_profile, NULL, this->distance2upstream);
+		this->q_outflow = this->typ_of_profile->calculate_actual_discharge(upstream_profile, NULL, this->distance2upstream, &this->q_river_main, &this->q_river_left, &this->q_river_right, this->distance2upstream_left, this->distance2upstream_right);
 	}
 }
 //Get the actual discharge through this profile (q_outflow)

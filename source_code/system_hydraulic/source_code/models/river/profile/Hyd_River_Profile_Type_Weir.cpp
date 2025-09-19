@@ -97,7 +97,7 @@ void Hyd_River_Profile_Type_Weir::output_tables(void){
 	}
 }
 //Calculate the actual discharge through this profile by a given upstream and downstream profile
-double Hyd_River_Profile_Type_Weir::calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream){
+double Hyd_River_Profile_Type_Weir::calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream, double* q_main, double* q_left, double* q_right){
 	double discharge=0.0;
 	double buff_discharge=0.0;
 
@@ -245,7 +245,10 @@ double Hyd_River_Profile_Type_Weir::calculate_actual_discharge(_Hyd_River_Profil
 	this->c_left_value=this->c_left_table.get_interpolated_values(this->s_value);
 	this->c_right_value=this->c_right_table.get_interpolated_values(this->s_value);
 
-	buff_discharge=(this->c_left_value+this->c_right_value)*gradient;	
+	buff_discharge=(this->c_left_value+this->c_right_value)*gradient;
+	*q_main = discharge;
+	*q_left= (this->c_left_value ) * gradient;
+	*q_right= (this->c_right_value) * gradient;
 	discharge=discharge+buff_discharge;
 
 

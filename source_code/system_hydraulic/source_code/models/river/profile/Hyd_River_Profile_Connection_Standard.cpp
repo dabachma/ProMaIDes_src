@@ -24,6 +24,11 @@ Hyd_River_Profile_Connection_Standard::Hyd_River_Profile_Connection_Standard(voi
 
 	//discharges per timestep
 	this->q_river=0.0;
+	this->q_river_left = 0.0;
+	this->q_river_right = 0.0;
+	this->q_river_main = 0.0;
+
+
 	this->q_lateral=0.0;
 	this->q_point=0.0;
 
@@ -498,7 +503,10 @@ void Hyd_River_Profile_Connection_Standard::output_setted_members(void){
 	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
 
 	ostringstream cout;
-	cout << "Distance to the upstream profile " << P(2) << FORMAT_FIXED_REAL << this->distance2upstream << label::m << endl;
+	cout << "Distance to the upstream profile           : " << P(2) << FORMAT_FIXED_REAL << this->distance2upstream << label::m << endl;
+	cout << "Distance to the upstream profile left bank : " << P(2) << FORMAT_FIXED_REAL << this->distance2upstream_left << label::m << endl;
+	cout << "Distance to the upstream profile right bank: " << P(2) << FORMAT_FIXED_REAL << this->distance2upstream_right << label::m << endl;
+
 	Sys_Common_Output::output_hyd->output_txt(&cout,true);
 	if(this->boundary_cond_point_flag==true && this->boundary_point_stat_flag==false){
 		cout << "Pointwise boundary curve is found: " << functions::convert_boolean2string(this->instatbound_point_found_flag)<<" No. " << *this->number_boundary_point_curve<<endl; ;
@@ -668,7 +676,8 @@ void Hyd_River_Profile_Connection_Standard::set_actual_river_discharge(_Hyd_Rive
 
 
 	if(upstream_profile->get_profile_type()==_hyd_profile_types::RIVER_TYPE || upstream_profile->get_profile_type()==_hyd_profile_types::BRIDGE_TYPE){
-		this->q_river=this->typ_of_profile->calculate_actual_discharge(upstream_profile, downstream_profile, this->distance2upstream);
+		this->q_river = this->typ_of_profile->calculate_actual_discharge(upstream_profile, downstream_profile, this->distance2upstream, &this->q_river_main, &this->q_river_left, &this->q_river_right, this->distance2upstream_left, this->distance2upstream_right);
+		
 	}
 	else if(upstream_profile->get_profile_type()==_hyd_profile_types::WEIR_TYPE){
 		//cumulate the discharge from the segment between weir profile and this profile; here the solved area is not relevant
@@ -682,6 +691,7 @@ void Hyd_River_Profile_Connection_Standard::set_actual_river_discharge(_Hyd_Rive
 double Hyd_River_Profile_Connection_Standard::get_actual_river_discharge(void){
 	return this->q_river;
 }
+
 //Reset all coupling discharges; use it before syncronization
 void Hyd_River_Profile_Connection_Standard::reset_coupling_discharge(void){
 	_Hyd_River_Profile::reset_coupling_discharge();
@@ -953,6 +963,10 @@ void Hyd_River_Profile_Connection_Standard::reset_hydrobalance_maxvalues(void){
 	_Hyd_River_Profile::reset_hydrobalance_maxvalues();
 	//discharges per timestep
 	this->q_river=0.0;
+	this->q_river_left = 0.0;
+	this->q_river_right = 0.0;
+	this->q_river_main = 0.0;
+
 	this->q_lateral=0.0;
 	this->q_point=0.0;
 

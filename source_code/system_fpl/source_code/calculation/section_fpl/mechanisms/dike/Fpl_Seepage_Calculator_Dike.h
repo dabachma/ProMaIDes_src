@@ -21,6 +21,8 @@ enum _fpl_max_waterlevel_seepage{
 	one_third_waterlevel,
 	///Seepage calculation after Kozeny
 	kozeny,
+	///time dependent
+	time_dependent,
 	///Unknown seepage
 	unknown_max_seepage,
 };
@@ -73,7 +75,7 @@ public:
 	void set_ptr_cubature(Geo_Polysegment *cubature);
 
 	///Calculate new waterlevels of the seepage line
-	void calculate_waterlevel_seepage_line(const double water_level, Fpl_Seepage_Line_Point_List *ascending, Fpl_Seepage_Line_Point_List *descending, const bool for_output);
+	void calculate_waterlevel_seepage_line(const double water_level, Fpl_Seepage_Line_Point_List *ascending, Fpl_Seepage_Line_Point_List *descending, const bool for_output, const double duration, const double rise, const double av_perm);
 
 	///Input the control parameters per database table
 	void set_input(QSqlDatabase *ptr_database, const bool frc_sim, const bool output);
@@ -93,6 +95,9 @@ public:
 
 	///Write the default value of the control parameters into the database table (static)
 	static void set_predefined_data2control_table(QSqlDatabase *ptr_database, QSqlQuery *model, int *id_glob, ostringstream *fix_string);
+
+	///Get the type of the seepage max calcuation
+	_fpl_max_waterlevel_seepage get_type_seepage_max_calc(void);
 
 
 
@@ -131,6 +136,17 @@ private:
 	void calculate_seepage_line_land_one_third(double h_rel, Fpl_Seepage_Line_Point_List *point_list, const bool for_output);
 	///Calculate the seepage line: to the landside after the Kozeny
 	void calculate_seepage_line_land_kozeny(double h_rel, Fpl_Seepage_Line_Point_List *point_list, const bool for_output);
+
+	///Calculate seepage line by time dependent parameters
+	void calculate_seepage_line_time_variant(double h_rel, Fpl_Seepage_Line_Point_List* point_list, const bool for_output, const double duration, const double rise, const double av_perm);
+
+	///Calculate the kappa-value for the time dependent seepage line
+	double claculate_kappa(const double h_rel, const double l, const double time_peak, const double time_rise, const double average_perm);
+
+	///Calculate table values for time dependent seepage line calculation
+	void calculate_table_values(const double l, double average_perm, double *b_value, double *z_value);
+	///Interpolate values for table calculation
+	double interpolate_values_table(const double x1, const double y1, const double x2, const double y2, const double xs);
 
 	///Set warning(s)
 	Warning set_warning(const int warn_type);

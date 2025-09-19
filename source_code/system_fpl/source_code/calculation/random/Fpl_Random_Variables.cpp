@@ -675,7 +675,9 @@ void Fpl_Random_Variables::set_input(QFile *ifile, int *line_counter, const stri
 			ostringstream info;
 			info << "This variable is not dynamically calculated, thus, it is required to set the data!"<<endl;
 			msg.make_second_info(info.str());
+			
 			throw msg;
+
 
 		}
 		else if(variable_found_flag==false && this->flag_calculated==true){

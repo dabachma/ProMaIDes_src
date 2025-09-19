@@ -142,7 +142,7 @@ void Fpl_Section::read_section_per_file(const string file_section, const bool fl
 				prefix << this->section_name<<"> ";
 				Sys_Common_Output::output_fpl->set_userprefix(&prefix);
 
-				this->type_of_section->read_section_type_per_file(&ifile, &line_counter, flag_frc_sim);
+				this->type_of_section->read_section_type_per_file(&ifile, &line_counter, flag_frc_sim, ptr_database);
 				//to begin of the file
 				ifile.reset();
 				line_counter=0;

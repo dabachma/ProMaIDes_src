@@ -79,7 +79,7 @@ void Fpl_Sec_Type_Dune::set_input(const int section_id,  const bool frc_sim, QSq
 	Sys_Common_Output::output_fpl->reset_prefix_was_outputed();
 }
 //Read in the fpl-section type from file
-void Fpl_Sec_Type_Dune::read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim){
+void Fpl_Sec_Type_Dune::read_section_type_per_file(QFile *ifile, int *line_counter, const bool frc_sim, QSqlDatabase* ptr_database){
 	ostringstream cout;
 	cout << "Input the general data of the dune section..."<<endl;
 	Sys_Common_Output::output_fpl->output_txt(&cout);

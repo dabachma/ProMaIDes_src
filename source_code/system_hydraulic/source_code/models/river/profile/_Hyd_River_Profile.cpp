@@ -45,6 +45,14 @@ _Hyd_River_Profile::_Hyd_River_Profile(void){
 
 	this->init_condition=0.0;
 	this->distance2upstream=0.0;
+	this->distance2upstream_left=0.0;
+	this->distance2upstream_right=0.0;
+
+	this->q_river_left = 0.0;
+	this->q_river_right = 0.0;
+	this->q_river_main = 0.0;
+
+
 	this->distance2downstream=0.0;
 	this->watervolume_init=0.0;
 	this->watervolume=0.0;
@@ -3081,6 +3089,9 @@ void _Hyd_River_Profile::clone_profile(_Hyd_River_Profile *profile){
 
 	this->init_condition=profile->init_condition;
 	this->distance2upstream=profile->distance2upstream;
+	this->distance2upstream_left = profile->distance2upstream_left;
+	this->distance2upstream_right = profile->distance2upstream_right;
+
 	this->distance2downstream=profile->distance2downstream;
 	this->watervolume_init=profile->watervolume_init;
 
@@ -3144,6 +3155,9 @@ double _Hyd_River_Profile::get_distance2upstream(void){
 //Set the distance to the upstream profile (distance2upstream)
 void _Hyd_River_Profile::set_distance2upstream(const double riverstation_upstream){
 	this->distance2upstream=riverstation_upstream-this->river_station;
+	this->distance2upstream_left = this->distance2upstream;
+	this->distance2upstream_right = this->distance2upstream;
+
 	if(this->distance2upstream<=0.0){
 		Error msg=this->set_error(10);
 		ostringstream info;
@@ -3152,6 +3166,29 @@ void _Hyd_River_Profile::set_distance2upstream(const double riverstation_upstrea
 		msg.make_second_info(info.str());
 		throw msg;
 	}
+
+	//set the distance of the banks
+	//this->typ_of_profile->get_first_point()->distance(this->typ_of_profile->get_last_point());
+	//this->ptr_upstream_prof
+	//this->typ_of_profile->get_points_left_bank
+
+}
+//Calculate distance of the banks
+void _Hyd_River_Profile::calculate_distance_banks(const double dist_left_bank, const double dist_mid, const double dist_right_bank) {
+
+
+	this->distance2upstream_left = (dist_left_bank/ dist_mid)*this->distance2upstream;
+	this->distance2upstream_left = (this->distance2upstream_left + this->distance2upstream) * 0.5;
+	this->distance2upstream_right = (dist_right_bank / dist_mid) * this->distance2upstream;
+	this->distance2upstream_right = (this->distance2upstream_right + this->distance2upstream) * 0.5;
+}
+//Get the distance of left bank
+double _Hyd_River_Profile::get_distance_left_bank(void) {
+	return this->distance2upstream_left;
+}
+//Get the distance of right bank
+double _Hyd_River_Profile::get_distance_right_bank(void) {
+	return this->distance2upstream_right;
 }
 //Get the distance to the downstream profile (distance2downstream)
 double _Hyd_River_Profile::get_distance2downstream(void){
@@ -4535,6 +4572,19 @@ double _Hyd_River_Profile::get_boundary_point_value(const double time) {
 	return 0.0;
 
 }
+//Get the actual discharge through this profile (main channel)
+double _Hyd_River_Profile::get_actual_river_discharge_main(void) {
+	return this->q_river_main;
+}
+//Get the actual discharge through this profile (left bank)
+double _Hyd_River_Profile::get_actual_river_discharge_left_bank(void) {
+	return this->q_river_left;
+}
+//Get the actual discharge through this profile (right bank)
+double _Hyd_River_Profile::get_actual_river_discharge_right_bank(void) {
+	return this->q_river_right;
+}
+
 //________________________________
 //private
 //Delete the bridge specific data after transferring it to the profile type

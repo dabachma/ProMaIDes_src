@@ -75,8 +75,8 @@ FplGui_System_Member_Wid::FplGui_System_Member_Wid(DataRole role, QWidget *paren
 	//seepage calculation
 	this->ui.seepage_max_waterlevel->set_label_text("Method for the maximum waterlevel");
 	this->ui.seepage_max_waterlevel->set_tooltip("The type of the calculation method for the maximum waterlevel");
-	string types_2[] = {fpl_label::seepage_max_base_land, fpl_label::seepage_max_one_third, fpl_label::seepage_max_kozeny};
-	this->ui.seepage_max_waterlevel->set_items(types_2, 3);
+	string types_2[] = {fpl_label::seepage_max_base_land, fpl_label::seepage_max_one_third, fpl_label::seepage_max_kozeny, fpl_label::seepage_max_time_dependent};
+	this->ui.seepage_max_waterlevel->set_items(types_2, 4);
 
 	this->ui.seepage_min_waterlevel->set_label_text("Method for the minimum waterlevel");
 	this->ui.seepage_min_waterlevel->set_tooltip("The type of the calculation method for the minimum waterlevel");

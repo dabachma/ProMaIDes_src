@@ -732,13 +732,14 @@ void Hyd_Model_River::init_river_model(Hyd_Param_Material *material_table){
 }
 //Initialize the river geometry
 void Hyd_Model_River::init_river_model_geometry(void){
-		//calculate the distance
-		this->calculate_distance_of_profiles();
-		this->calculate_deltaz_in2out();
+	//make the geometrical boundary of the river river polygon and the midline of the river
+	this->init_river_geometrie();
+	//calculate the distance
+	this->calculate_distance_of_profiles();
+	this->calculate_deltaz_in2out();
 
 
-		//make the geometrical boundary of the river river polygon and the midline of the river
-		this->init_river_geometrie();
+		
 }
 //check the river model
 void Hyd_Model_River::check_river_model(const bool output){
@@ -3146,6 +3147,8 @@ void Hyd_Model_River::calculate_distance_of_profiles(void){
 				else{//segments inbetween
 					this->river_profiles[i].set_distance2upstream(this->river_profiles[i-1].get_river_station());
 					this->river_profiles[i-1].set_distance2downstream(this->river_profiles[i].get_distance2upstream());
+					this->river_profiles[i].calculate_distance_banks(this ->river_leftline.my_segment[i + 1].get_distance(), this->river_minline.my_segment[i + 1].get_distance(), this->river_rightline.my_segment[i + 1].get_distance());
+					
 				}
 			}
 			//last segment
@@ -4519,6 +4522,8 @@ Error Hyd_Model_River::set_error(const int err_type){
 		throw msg;
 	}
 
+	bool bank_distance = false;
+
 	//boundary discharges are setted by syncronisation
 	try{
 		//set the da_dt values for each river segment
@@ -4547,8 +4552,12 @@ Error Hyd_Model_River::set_error(const int err_type){
 			//for the inbetween profiles
 			for(int i=1; i< rv_data->number_inbetween_profiles; i++){
 				//discharge through profile for corresponding segment
-				dh_da_data[i]=rv_data->river_profiles[i-1].get_actual_river_discharge()+(-1.0)*rv_data->river_profiles[i].get_actual_river_discharge();
-				dh_da_data[i]=rv_data->river_profiles[i-1].get_total_boundary_coupling_discharge(time,dh_da_data[i]);
+
+				if (bank_distance == false) {
+					dh_da_data[i] = rv_data->river_profiles[i - 1].get_actual_river_discharge() + (-1.0) * rv_data->river_profiles[i].get_actual_river_discharge();
+					dh_da_data[i] = rv_data->river_profiles[i - 1].get_total_boundary_coupling_discharge(time, dh_da_data[i]);
+				}
+				
 			}
 		
 		}
@@ -4562,8 +4571,88 @@ Error Hyd_Model_River::set_error(const int err_type){
 	
 		//transform discharge [m�/s] into areas per second [m�/s] by dividing through the half segment length upstream/downstream
 		dh_da_data[0]=dh_da_data[0]/(rv_data->inflow_river_profile.get_distance2downstream()*0.5);
-		for(int i=0; i<rv_data->number_inbetween_profiles; i++){
-			dh_da_data[i+1]=dh_da_data[i+1]/((rv_data->river_profiles[i].get_distance2upstream()+rv_data->river_profiles[i].get_distance2downstream())*0.5);
+		if (bank_distance == false) {
+			for (int i = 0; i < rv_data->number_inbetween_profiles; i++) {
+
+					dh_da_data[i + 1] = dh_da_data[i + 1] / ((rv_data->river_profiles[i].get_distance2upstream() + rv_data->river_profiles[i].get_distance2downstream()) * 0.5);
+			}
+		}
+		else {
+			for (int i = 0; i < rv_data->number_inbetween_profiles-1; i++) {
+				//discharge weighted reach length up
+				double buff_weighted_reach_length_up = 0.0;
+				double buff_weighted_reach_length_down = 0.0;
+				if (abs(rv_data->river_profiles[i].get_actual_river_discharge_left_bank()) < constant::flow_epsilon && abs(rv_data->river_profiles[i].get_actual_river_discharge_right_bank()) < constant::flow_epsilon) {
+					buff_weighted_reach_length_up = rv_data->river_profiles[i].get_distance2upstream();
+				}
+				else if (abs(rv_data->river_profiles[i].get_actual_river_discharge_main()) < constant::flow_epsilon) {
+					buff_weighted_reach_length_up = rv_data->river_profiles[i].get_distance2upstream();
+				}
+				else {
+					//buff_weighted_reach_length_up = (rv_data->river_profiles[i].get_actual_river_discharge_main() * rv_data->river_profiles[i].get_distance2upstream() + rv_data->river_profiles[i].get_actual_river_discharge_left_bank() * rv_data->river_profiles[i].get_distance_left_bank() + rv_data->river_profiles[i].get_actual_river_discharge_right_bank() * rv_data->river_profiles[i].get_distance_right_bank()) /
+						//(rv_data->river_profiles[i].get_actual_river_discharge_main() + rv_data->river_profiles[i].get_actual_river_discharge_left_bank() + rv_data->river_profiles[i].get_actual_river_discharge_right_bank());
+					
+					double fac_left = 0.0;
+					double fac_right = 0.0;
+					if (abs(rv_data->river_profiles[i].get_actual_river_discharge_left_bank()) > constant::flow_epsilon && rv_data->river_profiles[i].get_distance_left_bank() > rv_data->river_profiles[i].get_distance2upstream()) {
+						fac_left = 1.0;
+					}
+					if (abs(rv_data->river_profiles[i].get_actual_river_discharge_right_bank()) > constant::flow_epsilon && rv_data->river_profiles[i].get_distance_right_bank() > rv_data->river_profiles[i].get_distance2upstream()) {
+						fac_right = 1.0;
+					}
+					buff_weighted_reach_length_up = ( rv_data->river_profiles[i].get_distance2upstream() + fac_left * rv_data->river_profiles[i].get_distance_left_bank() + fac_right * rv_data->river_profiles[i].get_distance_right_bank()) /
+						(1.0+fac_left+fac_right);
+
+
+				}
+				//discharge weighted reach length down
+				if (abs(rv_data->river_profiles[i+1].get_actual_river_discharge_left_bank()) < constant::flow_epsilon && abs(rv_data->river_profiles[i+1].get_actual_river_discharge_right_bank()) < constant::flow_epsilon) {
+					buff_weighted_reach_length_down = rv_data->river_profiles[i+1].get_distance2upstream();
+				}
+				else if ((abs(rv_data->river_profiles[i+1].get_actual_river_discharge_main()) < constant::flow_epsilon)) {
+					buff_weighted_reach_length_down = rv_data->river_profiles[i+1].get_distance2upstream();
+
+				}
+				else {
+					//buff_weighted_reach_length_down = (rv_data->river_profiles[i + 1].get_actual_river_discharge_main() * rv_data->river_profiles[i + 1].get_distance2upstream() + rv_data->river_profiles[i + 1].get_actual_river_discharge_left_bank() * rv_data->river_profiles[i + 1].get_distance_left_bank() + rv_data->river_profiles[i + 1].get_actual_river_discharge_right_bank() * rv_data->river_profiles[i + 1].get_distance_right_bank()) /
+						//(rv_data->river_profiles[i + 1].get_actual_river_discharge_main() + rv_data->river_profiles[i + 1].get_actual_river_discharge_left_bank() + rv_data->river_profiles[i + 1].get_actual_river_discharge_right_bank());
+					double fac_left = 0.0;
+					double fac_right = 0.0;
+					if (abs(rv_data->river_profiles[i+1].get_actual_river_discharge_left_bank()) > constant::flow_epsilon && rv_data->river_profiles[i+1].get_distance_left_bank() > rv_data->river_profiles[i+1].get_distance2upstream()) {
+						fac_left = 1.0;
+					}
+					if (abs(rv_data->river_profiles[i+1].get_actual_river_discharge_right_bank()) > constant::flow_epsilon && rv_data->river_profiles[i + 1].get_distance_right_bank() > rv_data->river_profiles[i + 1].get_distance2upstream()) {
+						fac_right = 1.0;
+					}
+					buff_weighted_reach_length_down = (rv_data->river_profiles[i+1].get_distance2upstream() + fac_left * rv_data->river_profiles[i+1].get_distance_left_bank() + fac_right * rv_data->river_profiles[i+1].get_distance_right_bank()) /
+						(1.0 + fac_left + fac_right);
+				
+				
+				
+				
+				}
+
+				//main channel
+				dh_da_data[i + 1] = rv_data->river_profiles[i].get_actual_river_discharge_main() + (-1.0) * rv_data->river_profiles[i + 1].get_actual_river_discharge_main();
+				//dh_da_data[i + 1] = rv_data->river_profiles[i].get_actual_river_discharge() + (-1.0) * rv_data->river_profiles[i + 1].get_actual_river_discharge();
+
+				dh_da_data[i + 1] = rv_data->river_profiles[i].get_total_boundary_coupling_discharge(time, dh_da_data[i + 1]);
+				//dh_da_data[i + 1] = dh_da_data[i + 1] / ((rv_data->river_profiles[i].get_distance2upstream() + rv_data->river_profiles[i+1].get_distance2upstream()) * 0.5);
+				//banks
+				//dh_da_data[i + 1] = dh_da_data[i + 1] + (rv_data->river_profiles[i].get_actual_river_discharge_left_bank() + (-1.0) * rv_data->river_profiles[i + 1].get_actual_river_discharge_left_bank()) / ((rv_data->river_profiles[i].get_distance2upstream() + rv_data->river_profiles[i+1].get_distance2upstream()) * 0.5);
+				//dh_da_data[i + 1] = dh_da_data[i + 1] + (rv_data->river_profiles[i].get_actual_river_discharge_right_bank() + (-1.0) * rv_data->river_profiles[i + 1].get_actual_river_discharge_right_bank()) / ((rv_data->river_profiles[i].get_distance2upstream() + rv_data->river_profiles[i+1].get_distance2upstream()) * 0.5);
+				//dh_da_data[i + 1] = dh_da_data[i + 1] + (rv_data->river_profiles[i].get_actual_river_discharge_left_bank() + (-1.0) * rv_data->river_profiles[i + 1].get_actual_river_discharge_left_bank()) / ((rv_data->river_profiles[i].get_distance_left_bank() + rv_data->river_profiles[i + 1].get_distance_left_bank()) * 0.5);
+				//dh_da_data[i + 1] = dh_da_data[i + 1] + (rv_data->river_profiles[i].get_actual_river_discharge_right_bank() + (-1.0) * rv_data->river_profiles[i + 1].get_actual_river_discharge_right_bank()) / ((rv_data->river_profiles[i].get_distance_right_bank() + rv_data->river_profiles[i+1].get_distance_right_bank()) * 0.5);
+				dh_da_data[i + 1] = dh_da_data[i + 1] + (rv_data->river_profiles[i].get_actual_river_discharge_left_bank() + (-1.0) * rv_data->river_profiles[i + 1].get_actual_river_discharge_left_bank());
+				dh_da_data[i + 1] = dh_da_data[i + 1] + (rv_data->river_profiles[i].get_actual_river_discharge_right_bank() + (-1.0) * rv_data->river_profiles[i + 1].get_actual_river_discharge_right_bank());
+				 dh_da_data[i + 1] = dh_da_data[i + 1] / ((buff_weighted_reach_length_up + buff_weighted_reach_length_down) * 0.5);
+				
+			}
+			//last profile
+			
+			dh_da_data[rv_data->number_inbetween_profiles] = dh_da_data[rv_data->number_inbetween_profiles] / ((rv_data->river_profiles[rv_data->number_inbetween_profiles-1].get_distance2upstream() + rv_data->river_profiles[rv_data->number_inbetween_profiles-1].get_distance2downstream()) * 0.5);
+
+			
 		}
 
 

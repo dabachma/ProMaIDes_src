@@ -36,6 +36,39 @@ Hyd_River_Profile_Type_Bridge::~Hyd_River_Profile_Type_Bridge(void){
 void Hyd_River_Profile_Type_Bridge::set_profile_specific_value(const _hyd_bridge_values data){
 	this->bridge_data=data;
 }
+//Get the convenyance factor for the mid channel
+double Hyd_River_Profile_Type_Bridge::get_c_mid_channel(void) {
+	if (this->flag_pressure_flow == false) {
+		return this->c_mid_value;
+	}
+	else {
+
+		return (this->c_mid_table.get_interpolated_values(this->pressure_flow_area));
+	}
+
+}
+//Get the convenyance factor for the left bank
+double Hyd_River_Profile_Type_Bridge::get_c_left_bank(void) {
+	if (this->flag_pressure_flow == false) {
+		return this->c_left_value ;
+	}
+	else {
+
+		return ( this->c_left_table.get_interpolated_values(this->pressure_flow_area) );
+	}
+
+}
+//Get the convenyance factor for the right bank
+double Hyd_River_Profile_Type_Bridge::get_c_right_bank(void) {
+	if (this->flag_pressure_flow == false) {
+		return this->c_right_value;
+	}
+	else {
+
+		return (this->c_right_table.get_interpolated_values(this->pressure_flow_area));
+	}
+
+}
 //Get the convenyance factor total; it is limited by the bridge height
 double Hyd_River_Profile_Type_Bridge::get_c_value(void){
 
@@ -135,7 +168,7 @@ void Hyd_River_Profile_Type_Bridge::calc_alloc_tables(const double delta_x, Hyd_
 	}
 }
 //Calculate the actual discharge through this profile by a given upstream and downstream profile
-double Hyd_River_Profile_Type_Bridge::calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream){
+double Hyd_River_Profile_Type_Bridge::calculate_actual_discharge(_Hyd_River_Profile *upstream_profile,  _Hyd_River_Profile *downstream_profile, const double distance_upstream, double* q_main, double* q_left, double* q_right, const double distance_left, const double distance_right){
 	double discharge=0.0;
 	this->q_over=0.0;
 	this->flow_v_over=0.0;
@@ -156,7 +189,7 @@ double Hyd_River_Profile_Type_Bridge::calculate_actual_discharge(_Hyd_River_Prof
 	}
 	//normal manning flow
 	else if(delta1<=0.0 && delta2<=0.0){
-		this->q_under=Hyd_River_Profile_Type_Standard::calculate_actual_discharge(upstream_profile, downstream_profile, distance_upstream);
+		this->q_under=Hyd_River_Profile_Type_Standard::calculate_actual_discharge(upstream_profile, downstream_profile, distance_upstream, q_main, q_left, q_right,  distance_left, distance_right);
 		discharge=this->q_under;
 		this->flow_v_under=this->v_value;
 		this->flag_pressure_flow=false;
@@ -168,10 +201,12 @@ double Hyd_River_Profile_Type_Bridge::calculate_actual_discharge(_Hyd_River_Prof
 		//transition zone between manning flow and pressure flow
 		if(delta1>0.0 && delta1<=constant::min_seize_bridge){
 			//this->q_under=(1.0-(delta1/constant::min_seize_bridge))*this->fixed_normal_q;	
-			this->q_under=(1.0-(delta1/constant::min_seize_bridge))*Hyd_River_Profile_Type_Standard::calculate_actual_discharge(upstream_profile, downstream_profile, distance_upstream);
+			this->q_under=(1.0-(delta1/constant::min_seize_bridge))*Hyd_River_Profile_Type_Standard::calculate_actual_discharge(upstream_profile, downstream_profile, distance_upstream, q_main, q_left, q_right,distance_left, distance_right);
 			
 			this->q_under=this->q_under+(delta1/constant::min_seize_bridge)*this->calculate_pressure_flow(h_upstream, this->s_value);
 			discharge=this->q_under;
+			*q_main = discharge;
+
 			this->flow_v_under=(this->q_under/this->pressure_flow_area);
 			this->area2calc=this->pressure_flow_area;
 		}
@@ -179,6 +214,7 @@ double Hyd_River_Profile_Type_Bridge::calculate_actual_discharge(_Hyd_River_Prof
 		else if(delta1>0.0 && delta1>constant::min_seize_bridge){
 			this->q_under=this->calculate_pressure_flow(h_upstream, this->s_value);
 			discharge=this->q_under;
+			*q_main = discharge;
 			this->flow_v_under=(this->q_under/this->pressure_flow_area);
 			this->area2calc=this->pressure_flow_area;
 		}
@@ -189,6 +225,7 @@ double Hyd_River_Profile_Type_Bridge::calculate_actual_discharge(_Hyd_River_Prof
 			//add a weir discharge to the pressure discharge
 			this->q_over=this->calculate_weir_flow(h_upstream, this->s_value);
 			discharge=discharge+this->q_over;
+			*q_main = discharge;
 			this->flow_v_over=(this->q_over/this->weir_flow_area);
 		}
 		//no weir flow
@@ -207,11 +244,13 @@ double Hyd_River_Profile_Type_Bridge::calculate_actual_discharge(_Hyd_River_Prof
 		//transition zone between manning flow and pressure flow
 		if(delta2>0.0 && delta2<=constant::min_seize_bridge){
 			//this->q_under=(1.0-(delta2/constant::min_seize_bridge))*this->fixed_normal_q;
-			this->q_under=(1.0-(delta2/constant::min_seize_bridge))*Hyd_River_Profile_Type_Standard::calculate_actual_discharge(upstream_profile, downstream_profile, distance_upstream);
+			this->q_under=(1.0-(delta2/constant::min_seize_bridge))*Hyd_River_Profile_Type_Standard::calculate_actual_discharge(upstream_profile, downstream_profile, distance_upstream,q_main, q_left, q_right, distance_left, distance_right);
 			
 			this->q_under=this->q_under+(delta2/constant::min_seize_bridge)*(-1.0)*this->calculate_pressure_flow(this->s_value, h_upstream);
 			//this->q_under=(-1.0)*this->q_under;
 			discharge=this->q_under;
+			*q_main = discharge;
+
 			this->flow_v_under=(this->q_under/this->pressure_flow_area);
 			this->area2calc=this->pressure_flow_area;	
 		}
@@ -219,6 +258,8 @@ double Hyd_River_Profile_Type_Bridge::calculate_actual_discharge(_Hyd_River_Prof
 		else if(delta2>0.0 && delta2>constant::min_seize_bridge){
 			this->q_under=(-1.0)*this->calculate_pressure_flow(this->s_value, h_upstream);
 			discharge=this->q_under;
+			*q_main = discharge;
+
 			this->flow_v_under=(this->q_under/this->pressure_flow_area);
 			this->area2calc=this->pressure_flow_area;
 		}
@@ -228,6 +269,8 @@ double Hyd_River_Profile_Type_Bridge::calculate_actual_discharge(_Hyd_River_Prof
 		if(this->s_value>this->global_bridge_height+this->bridge_data.bridgebody_size){
 			this->q_over=(-1.0)*this->calculate_weir_flow( this->s_value, h_upstream);
 			discharge=discharge+this->q_over;
+			*q_main = discharge;
+
 			this->flow_v_over=(this->q_over/this->weir_flow_area);
 		}
 		//no weir flow
