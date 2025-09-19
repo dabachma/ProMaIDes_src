@@ -92,7 +92,7 @@ jobs:
       run: ls -R
 
     - name: '⬆️ Upload AppImage File'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: AppImageArtifact
         path: "${{env.UNIXNAME}}-Linux-x86_64.AppImage"
@@ -103,7 +103,7 @@ jobs:
     needs: BuildForLinux
     steps:
     - name: '⬇️ Download AppImage'
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: AppImageArtifact
         
