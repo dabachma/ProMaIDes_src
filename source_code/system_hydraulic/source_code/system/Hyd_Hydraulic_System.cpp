@@ -604,8 +604,11 @@ void Hyd_Hydraulic_System::create_hyd_database_tables(void){
 		Hyd_Model_Floodplain::create_table(&this->database);
 		//floodplain elements
 		Hyd_Element_Floodplain::create_table(&this->database);
+		Hyd_Element_Floodplain::create_element_boundary_table(&this->database);
+		Hyd_Element_Floodplain::create_bound2elems_view(&this->database);
 		//floodplain
 		Hyd_Element_Floodplain::create_erg_table(&this->database);
+		Hyd_Element_Floodplain::create_erg_instat_table(&this->database);
 	}
 	else{
 		//global
