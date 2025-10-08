@@ -1,7 +1,7 @@
 #include "Sys_Headers_Precompiled.h"
 //#include "Sys_Project.h"
 
-//init static members
+//init static members 
 string Sys_Project::main_path=QDir::currentPath().toStdString();
 string Sys_Project::current_path=QDir::currentPath().toStdString();
 string Sys_Project::project_name=label::not_set;
