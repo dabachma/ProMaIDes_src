@@ -72,7 +72,7 @@ public:
 	void reset_points(void);
 
 	///Syncronisation of the coupled models with the stored couplingspoints in the list
-	void syncronisation_models_bylistpoints(const double timepoint, const double delta_t, const bool time_check, const int internal_counter);
+	void syncronisation_models_bylistpoints(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, const double area_limiter, int *counter_limiter);
 
 	///Clone the coupling point list
 	void clone_list(Hyd_Coupling_Point_FP2FP_List *list, Hyd_Model_Floodplain *fp1, Hyd_Model_Floodplain *fp2);

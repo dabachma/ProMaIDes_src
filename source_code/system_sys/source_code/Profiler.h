@@ -35,7 +35,8 @@ public:
 	void profile(std::string, int flag);
 	bool doesntExists(std::string);
 	void createProfileElement(std::string);
-	void logValues();
+	///Add and output the profiler values
+	void logValues(void);
 	Profiler::ProfiledElement* getProfileElement(std::string);
 private:
 	std::vector<ProfiledElement*> profiledElements;

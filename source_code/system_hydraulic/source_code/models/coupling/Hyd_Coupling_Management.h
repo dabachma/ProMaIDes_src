@@ -243,6 +243,9 @@ public:
 	///Set the pointer to the output flags
 	void set_ptr2outputflags(_hyd_output_flags *flags);
 
+	///Out number of limiter hits
+	void output_number_limiter_hits(void);
+
 
 private:
 	
@@ -371,6 +374,8 @@ private:
 
 	///Output the coupling statistics
 	void output_coupling_statistic(void);
+
+
 
 	///Calculated total number of couplings
 	void calculate_total_number_coupling(void);

@@ -1052,11 +1052,11 @@ void Hyd_Coupling_Management::synchronise_couplings(const double timepoint, cons
 
 
 	//river to river
-	profiler->profile("river2river", Profiler::profilerFlags::START_PROFILING);
+	//profiler->profile("river2river", Profiler::profilerFlags::START_PROFILING);
 	for(int i=0; i< this->number_rv2rv; i++){
 		this->coupling_rv2rv[i].synchronise_models();
 	}
-	profiler->profile("river2river", Profiler::profilerFlags::END_PROFILING);
+	//profiler->profile("river2river", Profiler::profilerFlags::END_PROFILING);
 	//river to river as diversion channel
 	for(int i=0; i< number_rv2rv_diversion; i++){
 		this->coupling_1d_diversion[i].synchronise_models();
@@ -1073,18 +1073,19 @@ void Hyd_Coupling_Management::synchronise_couplings(const double timepoint, cons
 
 	
 	//river to floodplain (after dikebreak coupling)
+	//profiler->profile("river2fp", Profiler::profilerFlags::START_PROFILING);
 	for(int i=0; i< this->number_merged_rv2fp; i++){
 		this->coupling_merged_rv2fp[i].synchronise_models(timepoint,this->delta_t, time_check, internal_counter);
 	}
-	
+	//profiler->profile("river2fp", Profiler::profilerFlags::END_PROFILING);
 
 
 	//river to floodplain via a hydraulic structure
-	profiler->profile("river2fp", Profiler::profilerFlags::START_PROFILING);
+
 	for(int i=0; i< this->number_rv2fp_structure; i++){
 		this->coupling_rv2fp_structure[i].synchronise_models(timepoint, this->delta_t, time_check);
 	}
-	profiler->profile("river2fp", Profiler::profilerFlags::END_PROFILING);
+	
 	//river to coast
 	for(int i=0; i< this->number_rv2co; i++){
 		this->coupling_rv2co[i].synchronise_models();
@@ -1092,11 +1093,11 @@ void Hyd_Coupling_Management::synchronise_couplings(const double timepoint, cons
 	
 
 	//floodplain to floodplain
-	profiler->profile("fp2fp", Profiler::profilerFlags::START_PROFILING);
+	//profiler->profile("fp2fp", Profiler::profilerFlags::START_PROFILING);
 	for(int i=0; i< this->number_fp2fp; i++){
 		this->coupling_fp2fp[i].synchronise_models(timepoint, this->delta_t, time_check, internal_counter);
 	}
-	profiler->profile("fp2fp", Profiler::profilerFlags::END_PROFILING);
+	//profiler->profile("fp2fp", Profiler::profilerFlags::END_PROFILING);
 
 	//coast to floodplain via a dikebreak
 	for(int i=0; i< this->number_fp2co_dikebreak; i++){
@@ -1203,6 +1204,7 @@ void Hyd_Coupling_Management::reset_couplings(void){
 	//floodplain to floodplain
 	for(int i=0; i< this->number_fp2fp; i++){
 		this->coupling_fp2fp[i].list.reset_points();
+		this->coupling_fp2fp[i].reset_counter_limiter();
 	}
 
 	this->old_time_point=0.0;
@@ -1382,6 +1384,33 @@ void Hyd_Coupling_Management::init_output_files(void){
 //Set the pointer to the output flags
 void Hyd_Coupling_Management::set_ptr2outputflags(_hyd_output_flags *flags) {
 	this->ptr_output_flags = flags;
+}
+///Out number of limiter hits
+void Hyd_Coupling_Management::output_number_limiter_hits(void) {
+	if (this->number_fp2fp > 0) {
+		//set prefix for output
+		ostringstream prefix;
+		prefix << "COUP> ";
+		Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+
+		ostringstream cout;
+		int total = 0;
+		cout << "Number of limiter hits (FP2FP COUPLING) " << endl;
+		for (int i = 0; i < this->number_fp2fp; i++) {
+			this->coupling_fp2fp[i].output_number_limiter_hits(&total, &cout);
+
+
+
+		}
+
+		cout << " Total number                      :" << W(5) << total << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+		Sys_Common_Output::output_hyd->rewind_userprefix();
+
+
+	}
+
+
 }
 //__________________
 //private
@@ -1877,6 +1906,7 @@ void Hyd_Coupling_Management::output_coupling_statistic(void){
 		Sys_Common_Output::output_hyd->output_txt(&cout);
 	}
 }
+
 //Calculated total number of couplings
 void Hyd_Coupling_Management::calculate_total_number_coupling(void){
 	this->number_rv2fp_direct_out=0;

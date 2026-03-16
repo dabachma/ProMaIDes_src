@@ -272,7 +272,8 @@ void _Hyd_Model::init_solver_gpu(Hyd_Param_Global* global_params) {
 	ourCartesianDomain->setCellResolution(*myFloodplain->Param_FP.get_ptr_width_x(), *myFloodplain->Param_FP.get_ptr_width_y());
 	ourCartesianDomain->setCols(myFloodplain->Param_FP.get_no_elems_x());
 	ourCartesianDomain->setRows(myFloodplain->Param_FP.get_no_elems_y());
-	ourCartesianDomain->setUseOptimizedCoupling(myFloodplain->get_number_boundary_conditions() == 0 && myFloodplain->get_number_coupling_conditions() > 0 );
+	ourCartesianDomain->setUseOptimizedCoupling(myFloodplain->get_number_boundary_conditions() == 0 && myFloodplain->get_number_coupling_conditions() > 0 ); 
+	//ourCartesianDomain->setUseOptimizedCoupling(false);
 	ourCartesianDomain->setOptimizedCouplingSize(myFloodplain->get_number_coupling_conditions());
 	ourCartesianDomain->setName(myFloodplain->Param_FP.get_floodplain_name());
 	
@@ -280,8 +281,8 @@ void _Hyd_Model::init_solver_gpu(Hyd_Param_Global* global_params) {
 	model::SchemeSettings schemeSettings;
 	schemeSettings.scheme_type = scheme_info.scheme_type;
 	schemeSettings.CourantNumber = scheme_info.courant_number;
-	schemeSettings.DryThreshold = 1E-10;
-	schemeSettings.Timestep = 0.1;
+	schemeSettings.DryThreshold = 1E-10; //daniel 1e-10
+	schemeSettings.Timestep = 0.1;//daniel 0.1
 	schemeSettings.ReductionWavefronts = scheme_info.reduction_wavefronts;
 	schemeSettings.FrictionStatus = scheme_info.friction_status;
 	schemeSettings.NonCachedWorkgroupSize[0] = scheme_info.workgroup_size_x;

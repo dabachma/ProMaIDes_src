@@ -125,13 +125,14 @@ Profiler::ProfiledElement* Profiler::getProfileElement(std::string name) {
 	throw msg;
 	return nullptr;
 }
-
-void Profiler::logValues() {
+//Add and output the profiler values
+void Profiler::logValues(void) {
 	if (!activated) {
 		return;
 	}
 	ostringstream cout;
-	cout << "### PROFILE Results ###" << endl;
+	cout << "Statistics of the running time by profiler..." << endl;
+	
 
 	int numberOfElements = this->profiledElements.size();
 
@@ -149,11 +150,11 @@ void Profiler::logValues() {
 		#endif
 	}
 
-	cout << "----" << endl;
+	
 	for (int i = 0; i < numberOfElements; ++i) {
-		cout << names[i] << " : " << times[i] << " s" << endl;
+		cout << " "<<names[i] << ": " << times[i] << " s" << endl;
 	}
-	cout << "----" << endl;
+	
 
 	Sys_Common_Output::output_hyd->output_txt(&cout, true);
 

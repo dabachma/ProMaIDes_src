@@ -260,9 +260,11 @@ void Hyd_Coupling_Point_FP2FP_List::reset_points(void){
 	}
 }
 //Syncronisation of the coupled models with the stored couplingspoints in the list
-void Hyd_Coupling_Point_FP2FP_List::syncronisation_models_bylistpoints(const double timepoint, const double delta_t, const bool time_check, const int internal_counter){
+void Hyd_Coupling_Point_FP2FP_List::syncronisation_models_bylistpoints(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, const double area_limiter, int *counter_limiter){
 	for(int i=0; i<this->number;i++){
-		this->points[i].syncronisation_coupled_models(timepoint,delta_t, time_check, internal_counter);	
+
+		this->points[i].syncronisation_coupled_models(timepoint,delta_t, time_check, internal_counter, area_limiter, counter_limiter);	
+		
 	}
 }
 //Clone the coupling point list

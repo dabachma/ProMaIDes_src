@@ -1268,8 +1268,8 @@ unsigned long Hyd_Model_Floodplain::get_optimized_coupling_id(unsigned long inde
 	return this->coup_cond_id[index];
 }
 
-//solve_model
-void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const string system_id) {
+//Solve_model with GPU
+void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const string system_id, Profiler *profiler_input) {
 	try {
 		unsigned long ulCellID;
 		CDomainCartesian* myCarDomain = pManager->getDomain();
@@ -1277,6 +1277,7 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 		
 		//profiler->profile("SetBoundaryConditionsArray", Profiler::profilerFlags::START_PROFILING);
 		// Zero out the boundary conditions array
+		profiler_input->profile("  GPU set boundary", Profiler::profilerFlags::START_PROFILING);
 		if (myCarDomain->getUseOptimizedCoupling() == false) {
 			myCarDomain->resetBoundaryCondition();
 
@@ -1284,11 +1285,12 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 			for (int i = 0; i < this->number_bound_cond; i++) {
 				this->bound_cond_dsdt[i] = this->floodplain_elems[this->bound_cond_id[i]].element_type->get_bound_discharge() / this->Param_FP.area;
 				myCarDomain->setBoundaryCondition(this->bound_cond_id[i], this->floodplain_elems[this->bound_cond_id[i]].element_type->get_bound_discharge() / this->Param_FP.area);
+				
 			}
 
 			// Set the coupling conditions to the array
 			double currentBound = 0.0;
-			double coupValue = 0;
+			double coupValue = 0.0;
 			for (int i = 0; i < this->number_coup_cond; i++) {
 				currentBound = myCarDomain->getBoundaryCondition(this->coup_cond_id[i]);
 				coupValue = this->floodplain_elems[this->coup_cond_id[i]].element_type->get_coupling_discharge() / this->Param_FP.area;
@@ -1306,12 +1308,13 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 				myCarDomain->setOptimizedCouplingCondition(i, coupValue);
 			}
 		}
-		//profiler->profile("SetBoundaryConditionsArray", Profiler::profilerFlags::END_PROFILING);
+	
 
 		// Request to import Boundary condition and new coupled water heights
 		myScheme->importBoundaries();
+		profiler_input->profile("  GPU set boundary", Profiler::profilerFlags::END_PROFILING);
 
-		//profiler->profile("run_solver_gpu", Profiler::profilerFlags::START_PROFILING);
+		profiler_input->profile("  GPU run solver", Profiler::profilerFlags::START_PROFILING);
 		// Run the simulations until the target time, the results on the simulation are saved in readBuffers_opt_h
 		//cout << "Next_time_point: " << next_time_point << endl;
 		this->run_solver_gpu(next_time_point, system_id);
@@ -1349,10 +1352,11 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 			throw msg;
 		}
 
-		//profiler->profile("run_solver_gpu", Profiler::profilerFlags::END_PROFILING);
+		profiler_input->profile("  GPU run solver", Profiler::profilerFlags::END_PROFILING);
 
 
 		// OLD CODE ............................................... Better for inertial Scheme
+		profiler_input->profile("  GPU get results", Profiler::profilerFlags::START_PROFILING);
 		
 		if (myScheme->getSchemeType() == model::schemeTypes::kInertialGPU || myScheme->getSchemeType() == model::schemeTypes::kDiffusiveGPU) {
 
@@ -1416,7 +1420,7 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 					this->floodplain_elems[i].element_type->set_solver_result_value(opt_h_gpu[i]);
 				}
 			}
-
+			
 			//uses values from set_solver_result_value to calculate velocity
 			for (int i = 0; i < this->NEQ; i++) {
 				this->floodplain_elems[i].element_type->set_flowvelocity_vx(opt_v_x_gpu[i]);
@@ -1428,7 +1432,7 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 			delete[] opt_v_y_gpu;
 
 		}
-		
+		profiler_input->profile("  GPU get results", Profiler::profilerFlags::END_PROFILING);
 		this->old_time_point = next_time_point;
 	}
 	catch (Error msg) {

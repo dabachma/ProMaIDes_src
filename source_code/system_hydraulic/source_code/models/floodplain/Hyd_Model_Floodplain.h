@@ -151,7 +151,7 @@ public:
 	///Solve the model
 	void solve_model(const double next_time_point, const string system_id);
 	///Solve the model using gpu
-	void solve_model_gpu(const double next_time_point, const string system_id);
+	void solve_model_gpu(const double next_time_point, const string system_id, Profiler *profiler_input);
 
 	///Output the given members
 	void output_members(void);

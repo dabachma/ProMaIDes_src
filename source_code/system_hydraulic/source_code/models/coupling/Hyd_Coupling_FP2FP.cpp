@@ -6,6 +6,8 @@ Hyd_Coupling_FP2FP::Hyd_Coupling_FP2FP(void){
 	this->floodplain_model_1=NULL;
 	this->floodplain_model_2=NULL;
 	this->defining_polysegment.set_line_type(_hyd_floodplain_polysegment_type::FP_BOUNDARYLINE);
+	this->area_limiter = 0.0;
+	this->counter_limiter = 0;
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Coupling_FP2FP)-sizeof(Hyd_Coupling_Point_FP2FP_List), _sys_system_modules::HYD_SYS);
@@ -47,6 +49,11 @@ void Hyd_Coupling_FP2FP::init_coupling(void){
 		//second floodplain model
 		this->floodplain_model_2->raster.assign_elements2couplingpointlist(&this->list,false);
 
+		//set area for limiter
+		this->area_limiter=*this->floodplain_model_1->Param_FP.get_ptr_width_x()* *this->floodplain_model_1->Param_FP.get_ptr_width_y();
+		this->area_limiter = min(this->area_limiter, *this->floodplain_model_2->Param_FP.get_ptr_width_x() * *this->floodplain_model_2->Param_FP.get_ptr_width_y());
+		this->counter_limiter = 0;
+
 		//sort it along the defining line
 		this->list.sort_distance_along_polysegment();
 		//calculate the distances
@@ -79,7 +86,19 @@ void Hyd_Coupling_FP2FP::init_coupling(void){
 void Hyd_Coupling_FP2FP::synchronise_models(const double timepoint, const double delta_t, const bool time_check, const int internal_counter){
 
 	try{
-		this->list.syncronisation_models_bylistpoints(timepoint, delta_t, time_check, internal_counter);
+		//if (timepoint > 48600) {
+		//	//	//	Daniel test alfnitz
+		//	ostringstream cout;
+		//	cout << "-----fp1----- " << this->floodplain_model_1->Param_FP.get_floodplain_number() << " fp2 " << this->floodplain_model_2->Param_FP.get_floodplain_number();
+
+		//	cout << endl;
+		//	Sys_Common_Output::output_hyd->output_txt(&cout, true);
+
+
+		//}
+		
+		this->list.syncronisation_models_bylistpoints(timepoint, delta_t, time_check, internal_counter, this->area_limiter,&this->counter_limiter);
+		
 	}
 	catch(Error msg){
 		ostringstream info;
@@ -124,9 +143,22 @@ void Hyd_Coupling_FP2FP::clone_couplings(Hyd_Coupling_FP2FP *coupling, Hyd_Hydra
 	}
 
 	this->defining_polysegment.clone_polysegment(&coupling->defining_polysegment);
+	this->area_limiter = coupling->area_limiter;
+	this->counter_limiter = 0;
 
 	this->list.set_defining_polysegment(&this->defining_polysegment);
 	this->list.clone_list(&coupling->list, this->floodplain_model_1, this->floodplain_model_2); 
+
+}
+//Reset counter limiter
+void Hyd_Coupling_FP2FP::reset_counter_limiter(void) {
+	this->counter_limiter = 0;
+}
+//Output number of limiter hits
+void Hyd_Coupling_FP2FP::output_number_limiter_hits(int* total, ostringstream* out) {
+	*out << " Hits FP" <<this->floodplain_model_1->Param_FP.get_floodplain_number()<<" to FP"<< this->floodplain_model_2->Param_FP.get_floodplain_number()<<"   :" << this->counter_limiter << endl;
+
+	*total = *total + this->counter_limiter;
 
 }
 //______________

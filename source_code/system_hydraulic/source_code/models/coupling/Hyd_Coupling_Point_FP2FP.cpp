@@ -97,22 +97,22 @@ Hyd_Coupling_Point_FP2FP::~Hyd_Coupling_Point_FP2FP(void){
 //public
 //Output the header for the setted member (static)
 void Hyd_Coupling_Point_FP2FP::output_header_setted_member(ostringstream *cout){
-	*cout <<W(10) << "I_fp_small" << W(10) << "I_fp_big" << W(15) << "Coupling "<< W(15) <<"Dist_up " << label::m <<W(15)<< "Dist_down" << label::m;
-	*cout << W(18)<< "Dir_x-flow" << W(18) << "Flow-distance" << label::m;
-	*cout << W(15)<< "x" << label::m << W(17) << "y" <<label::m;
+	*cout <<W(10) << ",I_fp_small" << W(10) << ",I_fp_big" << W(15) << ",Coupling "<< W(15) <<",Dist_up " << label::m <<W(15)<< ",Dist_down" << label::m;
+	*cout << W(18)<< ",Dir_x-flow" << W(18) << ",Flow-distance" << label::m;
+	*cout << W(15)<< ",x" << label::m << W(17) << ",y" <<label::m;
 	*cout<< endl;
 	Sys_Common_Output::output_hyd->output_txt(cout,true);
 }
 //Output the setted members
 void Hyd_Coupling_Point_FP2FP::output_setted_members(ostringstream *cout){
-	*cout <<W(10) << this->fp1_elem_index << W(10) << this->fp2_elem_index;
-	*cout <<W(15) << functions::convert_boolean2string(this->coupling_flag);
-	*cout <<W(15) <<P(2)<< FORMAT_FIXED_REAL << this->distance_up ;
-	*cout <<W(17) <<P(2)<< FORMAT_FIXED_REAL << this->distance_down ;
-	*cout <<W(19) <<functions::convert_boolean2string(this->x_width_flag);
-	*cout <<W(17) <<P(2)<< FORMAT_FIXED_REAL << this->flow_distance;
-	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->x_coordinate ;
-	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->y_coordinate ;
+	*cout <<","<<W(10) << this->fp1_elem_index << "," << W(10) << this->fp2_elem_index << ",";
+	*cout <<W(15) << functions::convert_boolean2string(this->coupling_flag) << ",";
+	*cout <<W(15) <<P(2)<< FORMAT_FIXED_REAL << this->distance_up << ",";
+	*cout <<W(17) <<P(2)<< FORMAT_FIXED_REAL << this->distance_down << ",";
+	*cout <<W(19) <<functions::convert_boolean2string(this->x_width_flag) << ",";
+	*cout <<W(17) <<P(2)<< FORMAT_FIXED_REAL << this->flow_distance << ",";
+	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->x_coordinate << ",";
+	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->y_coordinate;
 	*cout<< endl;
 	Sys_Common_Output::output_hyd->output_txt(cout,true);	
 }
@@ -194,7 +194,7 @@ void Hyd_Coupling_Point_FP2FP::reset_coupling_discharge(void){
 	}
 }
 //Syncronisation of the coupled models with the couplingspoint
-void Hyd_Coupling_Point_FP2FP::syncronisation_coupled_models(const double timepoint, const double delta_t, const bool time_check, const int internal_counter){
+void Hyd_Coupling_Point_FP2FP::syncronisation_coupled_models(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, const double area_limiter, int *counter_limiter){
 	
 	_Hyd_Coupling_Point::syncronisation_coupled_models();
 	this->delta_t=delta_t;
@@ -292,6 +292,12 @@ void Hyd_Coupling_Point_FP2FP::syncronisation_coupled_models(const double timepo
 			q_buff=0.0;
 		}
 
+		//test daniel
+		//q_buff = min(q_buff, this->distance_down * this->flow_distance * delta_h / (4.0 * delta_t));
+
+
+
+
 		//just for testing
 		//if(q_buff!=0.0){
 		//	this->q_list.relevant=true;
@@ -326,6 +332,49 @@ void Hyd_Coupling_Point_FP2FP::syncronisation_coupled_models(const double timepo
 		}
 		else{
 			this->coupling_v=0.0;
+		}
+
+
+
+
+		//if (timepoint > 48600 && abs(this->current_q) > 0.0) {
+		//	//	//	Daniel test alfnitz
+		//	ostringstream cout;
+		//	cout << "t " << timepoint << " fp_1_elem " << this->fp1_elem_index << " fp_2_elem " << this->fp2_elem_index ;
+		//	cout << " s_1 " << this->fp1_elem->get_z_value() + h_one_buff << " s_2 " << this->fp2_elem->get_z_value() + h_two_buff;
+		//	cout << " wd " << this->distance_down << " flow_h " << flow_depth;
+		//	cout << " cp_Q_buf " << q_buff << " cp_Q_s " << this->current_q<< " Q_max "<< max_Q;
+		//	if (abs(this->current_q) > 5) {
+		//		cout << "*";
+		//	}
+		//	if (abs(this->current_q) > 10) {
+		//		cout << "*";
+		//	}
+		//	if (abs(this->current_q) > 15) {
+		//		cout << "*";
+		//	}
+
+		//	cout << endl;
+		//	Sys_Common_Output::output_hyd->output_txt(&cout, true);
+
+
+		//}
+		
+
+		//Test a delimiter
+		double max_Q = 0.0;
+		max_Q = (area_limiter* this->distance_down) / (4 * delta_t);
+		if (max_Q < abs(this->current_q)) {
+			if (time_check == false) {
+				(*counter_limiter)++;
+			}
+		}
+		max_Q=min(abs(this->current_q), max_Q);
+		if (this->current_q < 0.0) {
+			this->current_q = -1.0 * max_Q;
+		}
+		else {
+			this->current_q =  max_Q;
 		}
 
 

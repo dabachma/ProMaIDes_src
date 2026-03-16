@@ -152,26 +152,26 @@ void Hyd_Coupling_Point_FP2CO::set_couplingpoint_members(Hyd_Coupling_Point_FP2C
 }
 //Output the header for the setted member (static)
 void Hyd_Coupling_Point_FP2CO::output_header_setted_member(ostringstream *cout){
-	*cout <<W(10) << "I_co-line" << W(10) << "I_fp" << W(15) << "I_fp_elem" << W(15)<< "Coupling"<< W(15) << "Overflow"<< W(15)<<"Dist_up" << label::m <<W(15)<< "Dist_down" << label::m;
-	*cout << W(15)<< "abs_Height" << label::m << W(15) << "Dist_begin" <<label::m ;
-	*cout << W(15)<< "x" << label::m << W(17) << "y" <<label::m << W(15) << "mid base point height" << label::m << W(17) << "fixed base point height" << label::m << W(17) << "Coastline index" << label::no_unit;
+	*cout <<W(10) << ",I_co-line," << W(10) << ",I_fp" << W(15) << ",I_fp_elem" << W(15)<< ",Coupling"<< W(15) << ",Overflow"<< W(15)<<",Dist_up" << label::m <<W(15)<< ",Dist_down" << label::m;
+	*cout << W(15)<< ", abs_Height" << label::m << W(15) << ", Dist_begin" <<label::m ;
+	*cout << W(15)<< ",x" << label::m << W(17) << ",y" <<label::m << W(15) << ",mid base point height" << label::m << W(17) << ",fixed base point height" << label::m << W(17) << ",Coastline index" << label::no_unit;
 	*cout<< endl;
 	Sys_Common_Output::output_hyd->output_txt(cout,true);
 }
 //Output the setted members
 void Hyd_Coupling_Point_FP2CO::output_setted_members(ostringstream *cout){
-	*cout <<W(10) << this->coastdikeline_index << W(12) << this->floodplain_index;
-	*cout << W(10) <<this->floodplain_elem_index;
-	*cout <<W(16) << functions::convert_boolean2string(this->coupling_flag);
-	*cout <<W(16) << functions::convert_boolean2string(this->overflow_flag);
-	*cout <<W(17) <<P(2)<< FORMAT_FIXED_REAL << this->distance_up ;
-	*cout <<W(18) <<P(2)<< FORMAT_FIXED_REAL << this->distance_down ;
-	*cout <<W(20) <<P(2)<< FORMAT_FIXED_REAL << this->coastdikeline_height ;
-	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->distance_along_polysegment ;
-	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->x_coordinate ;
-	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->y_coordinate ;
-	*cout << W(21) << P(2) << FORMAT_FIXED_REAL << this->get_mid_basepoint_height();
-	*cout << W(21) << P(2) << FORMAT_FIXED_REAL << this->get_fixed_basepoint_height();
+	*cout <<W(10)<<"," << this->coastdikeline_index << W(12)<<"," << this->floodplain_index << ",";
+	*cout << W(10) <<this->floodplain_elem_index << ",";
+	*cout <<W(16) << functions::convert_boolean2string(this->coupling_flag) << ",";
+	*cout <<W(16) << functions::convert_boolean2string(this->overflow_flag) << ",";
+	*cout <<W(17) <<P(2)<< FORMAT_FIXED_REAL << this->distance_up << ",";
+	*cout <<W(18) <<P(2)<< FORMAT_FIXED_REAL << this->distance_down << ",";
+	*cout <<W(20) <<P(2)<< FORMAT_FIXED_REAL << this->coastdikeline_height << ",";
+	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->distance_along_polysegment << ",";
+	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->x_coordinate << ",";
+	*cout <<W(21) <<P(2)<< FORMAT_FIXED_REAL << this->y_coordinate << ",";
+	*cout << W(21) << P(2) << FORMAT_FIXED_REAL << this->get_mid_basepoint_height() << ",";
+	*cout << W(21) << P(2) << FORMAT_FIXED_REAL << this->get_fixed_basepoint_height() << ",";
 	*cout << W(21) << P(2) << FORMAT_FIXED_REAL << this->coastdikeline_index;
 	*cout<< endl;
 	Sys_Common_Output::output_hyd->output_txt(cout,true);

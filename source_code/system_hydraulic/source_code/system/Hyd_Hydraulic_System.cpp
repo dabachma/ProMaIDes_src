@@ -1632,7 +1632,7 @@ void Hyd_Hydraulic_System::make_calculation(void){
 		this->set_final_warning_number();
 		throw msg;
 	}
-	this->profiler.logValues();
+	//this->profiler.logValues();
 	this->set_final_warning_number();
 	//reset the counter
 	this->timestep_counter=0;
@@ -1783,6 +1783,11 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 	else if (this->temp_calc == false) {
 		ostringstream cout;
 		this->output_final_system_statistics();
+		cout << "Statistics of Coupling(s)..." << endl;
+		this->coupling_managment.output_number_limiter_hits();
+
+
+
 		//river models
 		if (this->global_parameters.GlobNofRV > 0) {
 			cout << "Statistics of the Rivermodel(s)..." << endl;
@@ -2625,6 +2630,10 @@ void Hyd_Hydraulic_System::output_final_system_statistics(void){
 	}
 
 	Sys_Common_Output::output_hyd->output_txt(&cout);
+	this->profiler.logValues();
+
+
+
 	//rewind the prefix
 	Sys_Common_Output::output_hyd->rewind_userprefix();
 }
@@ -3301,6 +3310,7 @@ void Hyd_Hydraulic_System::check_models(void){
 //make the calculation the internal loop (output time steps)
 void Hyd_Hydraulic_System::make_calculation_internal(void){
 	//starttime for this internal time step
+	this->profiler.profile("TOTAL", Profiler::profilerFlags::START_PROFILING);
 
 	this->internal_time=this->output_time-this->global_parameters.GlobTStep;
 
@@ -3311,7 +3321,9 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 	//loop over the internal timesteps
 	do{
 		//calculate optimal internal timestep
+		this->profiler.profile("check_internal_timestep", Profiler::profilerFlags::START_PROFILING);
 		this->internal_timestep_current=this->check_internal_timestep();
+		this->profiler.profile("check_internal_timestep", Profiler::profilerFlags::END_PROFILING);
 		this->internal_timestep_current = this->internal_timestep_base;
 
 		//evaluate the internal timestep
@@ -3342,6 +3354,7 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 		//syncronisation between the models via couplings; set exchange terms between the models
 		this->profiler.profile("synchronise_couplings", Profiler::profilerFlags::START_PROFILING);
 		this->coupling_managment.synchronise_couplings((this->internal_time+this->internal_timestep_current*0.5)-this->global_parameters.get_startime(),this->internal_timestep_current, false, this->total_internal_timestep, &profiler);
+		
 		this->profiler.profile("synchronise_couplings", Profiler::profilerFlags::END_PROFILING);
 
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
@@ -3373,7 +3386,7 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 		this->profiler.profile("make_calculation_floodplainmodel", Profiler::profilerFlags::END_PROFILING);
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
-		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+	
 
 
 
@@ -3386,7 +3399,9 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 		this->profiler.profile("make_hyd_balance_max_floodplainmodel", Profiler::profilerFlags::END_PROFILING);
 
 		//syncronisation of observation points
+		this->profiler.profile("syncron_obs_points", Profiler::profilerFlags::START_PROFILING);
 		this->obs_point_managment.syncron_obs_points(this->next_internal_time - this->global_parameters.get_startime());
+		this->profiler.profile("syncron_obs_points", Profiler::profilerFlags::END_PROFILING);
 
 		this->internal_time=this->next_internal_time;
 
@@ -3394,7 +3409,10 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 		this->total_internal_timestep++;
 
 		//reset the solver tolerances for the next step
+		this->profiler.profile("reset_solver_tolerances", Profiler::profilerFlags::START_PROFILING);
 		this->reset_solver_tolerances();
+		this->profiler.profile("reset_solver_tolerances", Profiler::profilerFlags::END_PROFILING);
+
 	}//end of interal loop
 	while(abs(this->internal_time-this->output_time)>constant::sec_epsilon);
 	//reset time difference
@@ -3444,12 +3462,20 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 	this->output_is_required=true;
 	emit output_required(this->thread_number);
 
+	this->profiler.profile("waitloop_output_calculation2display", Profiler::profilerFlags::START_PROFILING);
 	this->waitloop_output_calculation2display();
+	this->profiler.profile("waitloop_output_calculation2display", Profiler::profilerFlags::END_PROFILING);
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+	this->profiler.profile("output_calculation_steps_rivermodel2database", Profiler::profilerFlags::START_PROFILING);
 	this->output_calculation_steps_rivermodel2display(this->internal_time);
 	this->output_calculation_steps_rivermodel2database(this->internal_time, time);
+	this->profiler.profile("output_calculation_steps_rivermodel2database", Profiler::profilerFlags::END_PROFILING);
+
+	this->profiler.profile("output_calculation_steps_floodplainmodel2database", Profiler::profilerFlags::START_PROFILING);
 	this->output_calculation_steps_floodplainmodel2display(this->internal_time);
 	this->output_calculation_steps_floodplainmodel2database(this->internal_time, time);
+	this->profiler.profile("output_calculation_steps_floodplainmodel2database", Profiler::profilerFlags::END_PROFILING);
+
 	if(Hyd_Hydraulic_System::qt_thread_applied==true){
 		Sys_Common_Output::output_hyd->insert_separator(0);
 	}
@@ -3460,6 +3486,7 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 
 	//reset internal timestep counter
 	this->timestep_internal_counter=0;
+	this->profiler.profile("TOTAL", Profiler::profilerFlags::END_PROFILING);
 }
 //Make the temperature calculation for the internal loop
 void Hyd_Hydraulic_System::make_temp_calculation_internal(void) {
@@ -3474,7 +3501,7 @@ void Hyd_Hydraulic_System::make_temp_calculation_internal(void) {
 	//loop over the internal timesteps
 	do {
 		//calculate optimal internal timestep
-		this->internal_timestep_current = this->check_internal_timestep();
+		//this->internal_timestep_current = this->check_internal_timestep();
 		this->internal_timestep_current = this->internal_timestep_base;
 
 		//evaluate the internal timestep
@@ -3676,15 +3703,6 @@ void Hyd_Hydraulic_System::reset_solver_fp_models(void){
 		this->my_fpmodels[i].reset_solver();
 	}
 }
-
-//
-static void solve_model_gpu_of_fp(Hyd_Model_Floodplain** fps, int numOfFp, const double next_time_point, const string system_id) {
-	// We shouldn't need a mutex here as they are independent
-	for (int i = 0; i < numOfFp; i++){
-		fps[i]->solve_model_gpu(next_time_point, system_id);
-	}
-}
-
 //make the calculation of the floodplain models
 void Hyd_Hydraulic_System::make_calculation_floodplainmodel(void){
 	//solve it
@@ -3705,7 +3723,7 @@ void Hyd_Hydraulic_System::make_calculation_floodplainmodel(void){
 	for(int i=0; i< this->global_parameters.GlobNofFP;i++){
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		if(my_fpmodels[i].Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU && this->global_parameters.get_opencl_available()){
-			this->my_fpmodels[i].solve_model_gpu(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false));
+			this->my_fpmodels[i].solve_model_gpu(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false), &(this->profiler));
 		}else{
 			this->my_fpmodels[i].solve_model(this->next_internal_time-this->global_parameters.get_startime(), this->get_identifier_prefix(false));
 		}

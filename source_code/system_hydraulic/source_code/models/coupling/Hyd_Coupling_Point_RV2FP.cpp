@@ -518,6 +518,26 @@ void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models(const double timepo
 				if(this->overflow_flag==true){
 					this->syncronisation_coupled_models_overflow(timepoint, this->river_profile_up->get_overflow_poleni_left(), h_one_buff, h_two_buff);
 
+					//if (timepoint > 50400 && abs(this->current_q)>0.0) {
+					//	//	//	Daniel test alfnitz
+					//	ostringstream cout;
+					//	cout << "t " << timepoint << " l_b fp_id " << this->floodplain_index << " fp_elem " << this->floodplain_elem_index << " rv prof_up " << this->river_profile_index_up << " h_fp " << this->floodplain_elem->get_z_value() + h_one_buff << " h_rv " << h_two_buff << " wd " << this->overflow_width<< " mid_h "<< this->mid_height << " cp_Q " << this->current_q;
+					//	if(abs(this->current_q) > 5) {
+					//		cout << "*";
+					//	}
+					//	if (abs(this->current_q) > 10) {
+					//		cout << "*";
+					//	}
+					//	if (abs(this->current_q) > 15) {
+					//		cout << "*";
+					//	}
+					//	
+					//	cout << endl;
+					//	Sys_Common_Output::output_hyd->output_txt(&cout, true);
+
+
+					//}
+
 
 					if(this->horizontal_backwater_flag==false && this->horizontal_backwater_flag_upstream==false){
 						//discharge to river profile segment: division to the profiles weighted with the factors 
@@ -561,10 +581,21 @@ void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models(const double timepo
 				if(this->overflow_flag==true){
 					this->syncronisation_coupled_models_overflow(timepoint, this->river_profile_up->get_overflow_poleni_right(), h_one_buff, h_two_buff);
 			
-					//if (this->floodplain_elem_index == 285692) {
-					//	//	
+					//if (timepoint > 50400 && abs(this->current_q) > 0.0) {
+					//	//	//	Daniel test alfnitz
 					//	ostringstream cout;
-					//	cout << this->current_q << " mid_w " << this->mid_waterlevel << " pre " << this->predicted_h_two << " aver  " << h_two_buff << " mid_h " << this->mid_height << endl;
+					//	cout << "t " << timepoint << " r_b fp_id " << this->floodplain_index << " fp_elem " << this->floodplain_elem_index << " rv prof_up " << this->river_profile_index_up << " h_fp " << this->floodplain_elem->get_z_value()+h_one_buff << " h_rv " << h_two_buff << " wd " << this->overflow_width << " mid_h " << this->mid_height << " cp_Q " << this->current_q;
+					//	if (abs(this->current_q) > 5) {
+					//		cout << "*";
+					//	}
+					//	if (abs(this->current_q) > 10) {
+					//		cout << "*";
+					//	}
+					//	if (abs(this->current_q) > 15) {
+					//		cout << "*";
+					//	}
+
+					//	cout << endl;
 					//	Sys_Common_Output::output_hyd->output_txt(&cout, true);
 
 

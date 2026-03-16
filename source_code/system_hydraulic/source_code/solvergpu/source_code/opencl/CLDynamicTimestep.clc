@@ -238,8 +238,21 @@ void tst_Reduce(
 			#endif
 
 			#ifdef DIFFUSIVE_SCHEME
-				dVelX = sqrt( GRAVITY * dDepth );
-				dVelY = sqrt( GRAVITY * dDepth );
+				//daniel add
+				dVelX = pCellState.z;
+				dVelY = pCellState.w ;
+				if ( dVelX < 0.0 ) dVelX = -dVelX;
+				if ( dVelY < 0.0 ) dVelY = -dVelY;
+
+
+
+				dVelX += sqrt( GRAVITY * dDepth );
+				dVelY += sqrt( GRAVITY * dDepth );
+
+				//dVelX=dVelX*5;
+				//dVelY=dVelY*5;
+
+
 			#endif
 
 			#ifdef INERTIAL_SCHEME

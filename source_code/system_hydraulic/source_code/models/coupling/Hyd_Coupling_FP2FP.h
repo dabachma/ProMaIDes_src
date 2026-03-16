@@ -55,6 +55,12 @@ public:
 	///Clone the floodplain to floodplain couplings
 	void clone_couplings(Hyd_Coupling_FP2FP *coupling, Hyd_Hydraulic_System *system);
 
+	///Reset counter limiter
+	void reset_counter_limiter(void);
+
+	///Output number of limiter hits
+	void output_number_limiter_hits(int* total, ostringstream* out);
+
 
 private:
 	//members
@@ -64,6 +70,10 @@ private:
 	Hyd_Model_Floodplain *floodplain_model_2;
 	///Defining polysegment is the boundary of the first floodplain model
 	Hyd_Floodplain_Polysegment defining_polysegment;
+	///Relevant area for limiter
+	double area_limiter;
+	///Counter how often the limiter is reached
+	int counter_limiter;
 
 	//methods
 	///Set the defining polysegment with the boundary of the first floodplain model

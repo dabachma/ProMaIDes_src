@@ -342,6 +342,7 @@ cl_double2 manning_Solver(
 				if(abs_delta_h > flow_epsilon){
 					// P1 (Diffusive Scheme)
 					if(abs_delta_h<=0.005078){
+					//if(abs_delta_h<=0.000000005078){
 						dDischarge = 1.0/(0.5*(manning+manning_Neig)) * pow(flow_depth,5.0/3.0) / pow(DeltaXY ,0.5) * 0.10449968880528 * atan(159.877741951379*delta_h) ;
 					
 					}
@@ -356,14 +357,20 @@ cl_double2 manning_Solver(
 					//dDischarge = 0.0 - flow_depth * sqrt( GRAVITY * flow_depth ) * 4.0;
 
 					// Bates(2010):
-						cl_double Q = dDischarge;
-	
+					cl_double Q = dDischarge;
+
+						
+					
 					dDischarge = fmin(fabs(Q), DOMAIN_DELTAX* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep) / (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY));
+					
+
+					
+					
 	
-							if (Q<0.0){
+					if (Q<0.0){
 							dDischarge = dDischarge * (-1.0);
 					}
-					
+			
 					
 					
 					/*
@@ -375,11 +382,11 @@ cl_double2 manning_Solver(
 
 						if ( dDischarge > 0.0 && 
 											( mainVelocity / waveVelocity ) > FROUDE_LIMIT ){
-							dDischarge = flow_depth * sqrt( GRAVITY * flow_depth ) * FROUDE_LIMIT;
+							//dDischarge = flow_depth * sqrt( GRAVITY * flow_depth ) * FROUDE_LIMIT;
 					
 						}else if ( dDischarge < 0.0 &&
 											( mainVelocity / waveVelocity ) > FROUDE_LIMIT ){		
-							dDischarge = 0.0 - flow_depth * sqrt( GRAVITY * flow_depth ) * FROUDE_LIMIT;
+							//dDischarge = 0.0 - flow_depth * sqrt( GRAVITY * flow_depth ) * FROUDE_LIMIT;
 						}
 					#endif
 				
@@ -391,10 +398,10 @@ cl_double2 manning_Solver(
 						cl_double Nwater_depth = opt_s_Neig - opt_z_Neig;
 
 						if (dDischarge > 0.0 && dDischarge > DOMAIN_AREA * abs_delta_h / 4.0 / timestep){
-							dDischarge = DOMAIN_AREA * abs_delta_h / 5.0 / timestep;
+							//dDischarge = DOMAIN_AREA * abs_delta_h / 5.0 / timestep;
 						}
 						else if(dDischarge < 0.0 && -1.0 * dDischarge > DOMAIN_AREA * abs_delta_h / 4.0 / timestep){
-							dDischarge = 0 - DOMAIN_AREA * abs_delta_h / 5.0 / timestep;
+							//dDischarge = 0 - DOMAIN_AREA * abs_delta_h / 5.0 / timestep;
 						}
 					#endif
 					*/

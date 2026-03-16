@@ -55,6 +55,9 @@ __kernel void bdy_Promaides (
 	
 	// Apply the value...
 	pCellData.x = fmax(dCellBedElev, pCellData.x + dRate * dLclTimestep);
+	
+	
+	//printf("dLclTimestep %f dRate %f ",dLclTimestep, dRate);
 
 	pCellState[ulIdx] = pCellData;
 }

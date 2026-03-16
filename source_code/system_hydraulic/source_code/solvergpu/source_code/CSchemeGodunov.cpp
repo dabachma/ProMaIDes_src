@@ -62,7 +62,8 @@ CSchemeGodunov::CSchemeGodunov(void)
 
 	this->dCurrentTime = 0.0;
 	this->dCurrentTimestepMovAvg = 0.0;
-	this->dThresholdVerySmall = 1E-10;
+	this->dThresholdVerySmall = 1E-10; 
+	//this->dThresholdVerySmall = 1E-4; Daniel
 	this->dThresholdQuiteSmall = this->dThresholdVerySmall * 10;
 	this->bFrictionInFluxKernel = false;
 	this->uiTimestepReductionWavefronts = 200;
@@ -380,6 +381,7 @@ void CSchemeGodunov::prepare1OExecDimensions()
 
 	// TODO: May need to make this configurable?!
 	ulReductionWorkgroupSize = min(static_cast<size_t>(512), pDevice->clDeviceMaxWorkGroupSize);
+	//ulReductionWorkgroupSize = pDevice->clDeviceMaxWorkGroupSize;
 	//ulReductionWorkgroupSize = pDevice->clDeviceMaxWorkGroupSize / 2;
 	ulReductionGlobalSize = static_cast<unsigned long>(ceil((static_cast<double>(pDomain->getCellCount()) / this->uiTimestepReductionWavefronts) / ulReductionWorkgroupSize) * ulReductionWorkgroupSize);
 
