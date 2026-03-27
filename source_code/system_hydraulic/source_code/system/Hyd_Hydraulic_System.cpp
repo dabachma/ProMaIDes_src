@@ -3324,7 +3324,8 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 		this->profiler.profile("check_internal_timestep", Profiler::profilerFlags::START_PROFILING);
 		this->internal_timestep_current=this->check_internal_timestep();
 		this->profiler.profile("check_internal_timestep", Profiler::profilerFlags::END_PROFILING);
-		this->internal_timestep_current = this->internal_timestep_base;
+		//set it back not used!!
+		//this->internal_timestep_current = this->internal_timestep_base;
 
 		//evaluate the internal timestep
 		if(this->next_internal_time+this->internal_timestep_current<=this->output_time){
@@ -4078,6 +4079,21 @@ double Hyd_Hydraulic_System::check_internal_timestep(void){
 
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
+
+	new_timestep=this->coupling_managment.get_min_timestep_fp2fp();
+
+	if (new_timestep<=0.0) {
+		new_timestep = this->internal_timestep_base;
+	}
+	else if (new_timestep < this->internal_timestep_min) {
+
+		new_timestep = this->internal_timestep_min;
+	}
+	else if(new_timestep > this->internal_timestep_base) {
+
+		new_timestep = this->internal_timestep_base;
+	}
+
 	//get the maximum change of the river models
 	//this->get_max_changes_rivermodel(&change_rv, &change_v_rv, true, this->internal_timestep_current);
 
@@ -4086,39 +4102,39 @@ double Hyd_Hydraulic_System::check_internal_timestep(void){
 
 	//calculate the new internal time step
 	//floodplain changes
-	if(change_fp>0.0){
-		time_fp=this->global_parameters.max_h_change_fp/change_fp;
-	}
-	else{
-		time_fp=this->internal_timestep_base;
-	}
-	//river changes
-	if(change_rv>0.0){
-		time_rv=this->global_parameters.max_h_change_rv/change_rv;
-	}
-	else{
-		time_rv=this->internal_timestep_base;
-	}
+	//if(change_fp>0.0){
+	//	time_fp=this->global_parameters.max_h_change_fp/change_fp;
+	//}
+	//else{
+	//	time_fp=this->internal_timestep_base;
+	//}
+	////river changes
+	//if(change_rv>0.0){
+	//	time_rv=this->global_parameters.max_h_change_rv/change_rv;
+	//}
+	//else{
+	//	time_rv=this->internal_timestep_base;
+	//}
 
-	//changes of the explicit velocity head
-	if(change_v_rv>0.0){
-		time_v_rv=this->global_parameters.max_v_change_rv/change_v_rv;
-	}
-	else{
-		time_v_rv=this->internal_timestep_base;
-	}
+	////changes of the explicit velocity head
+	//if(change_v_rv>0.0){
+	//	time_v_rv=this->global_parameters.max_v_change_rv/change_v_rv;
+	//}
+	//else{
+	//	time_v_rv=this->internal_timestep_base;
+	//}
 
-	//take the min step
-	new_timestep=min(time_fp,time_rv);
-	new_timestep=min(time_v_rv,new_timestep);
+	////take the min step
+	//new_timestep=min(time_fp,time_rv);
+	//new_timestep=min(time_v_rv,new_timestep);
 
-	//set boundaries to the new timestep
-	if(new_timestep<=this->internal_timestep_min){
-		new_timestep=this->internal_timestep_min;
-	}
-	if(new_timestep>=this->internal_timestep_base){
-		new_timestep=this->internal_timestep_base;
-	}
+	////set boundaries to the new timestep
+	//if(new_timestep<=this->internal_timestep_min){
+	//	new_timestep=this->internal_timestep_min;
+	//}
+	//if(new_timestep>=this->internal_timestep_base){
+	//	new_timestep=this->internal_timestep_base;
+	//}
 
 	int step=this->internal_timestep_base/new_timestep;
 
@@ -4133,6 +4149,11 @@ double Hyd_Hydraulic_System::check_internal_timestep(void){
 	else{
 		new_timestep=this->internal_timestep_base;
 	}
+
+
+
+
+
 
 	return new_timestep;
 }

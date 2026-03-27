@@ -246,6 +246,9 @@ public:
 	///Out number of limiter hits
 	void output_number_limiter_hits(void);
 
+	///Get minimal timestep for FP2FP couplinbg
+	double get_min_timestep_fp2fp(void);
+
 
 private:
 	

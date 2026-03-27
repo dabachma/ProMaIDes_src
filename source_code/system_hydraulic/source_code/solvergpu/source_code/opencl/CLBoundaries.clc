@@ -11,7 +11,8 @@ __kernel void bdy_Promaides (
 	__global		cl_double *					pTimeStep,
 	__global		cl_double *					pTimeHydrological,
 	__global		cl_double4 *				pCellState,
-	__global		cl_double *					pCellBed
+	__global		cl_double *					pCellBed,
+	__global		cl_double * pBilanDef
 	)
 {
 	// Which global series are we processing, and which cell
@@ -34,6 +35,7 @@ __kernel void bdy_Promaides (
 	__private cl_double					dLclTimestepHydro	= *pTimeHydrological;
 	__private cl_double4				pCellData			= pCellState[ulIdx];
 	__private cl_double					dCellBedElev		= pCellBed[ulIdx];
+	
 
 	// Hydrological processes have their own timesteps
 	if (dLclTimestep <= 0.0 || pCellData.y <= -9999.0 || pCellData.x == -9999.0){
@@ -53,8 +55,19 @@ __kernel void bdy_Promaides (
 	//	return;
 	//}
 	
+	//calculate the deficit
+	if(pCellData.x + dRate * dLclTimestep<dCellBedElev){
+		
+		(*pBilanDef)=(*pBilanDef)+((dRate-((dCellBedElev-pCellData.x)/dLclTimestep))*dLclTimestep)*-1.0;
+		//printf("deficit  %f %f %f\n",(*pBilanDef), dLclTimestep, dRate);
+		
+	}
+	
 	// Apply the value...
 	pCellData.x = fmax(dCellBedElev, pCellData.x + dRate * dLclTimestep);
+
+
+	
 	
 	
 	//printf("dLclTimestep %f dRate %f ",dLclTimestep, dRate);
@@ -68,7 +81,8 @@ __kernel void bdy_Promaides_by_id (
 	__global		cl_double const * restrict	pCouplingBound,
 	__global		cl_double const * restrict pTimeStep,
 	__global		cl_double4 *				pCellState,
-	__global		cl_double const * restrict pCellBed
+	__global		cl_double const * restrict pCellBed,
+	__global		cl_double * pBilanDef
 	)
 {
 	// Which array entry are we processing
@@ -87,12 +101,26 @@ __kernel void bdy_Promaides_by_id (
 	__private cl_double4				pCellData			= pCellState[ulIdx];
 	__private cl_double					dCellBedElev		= pCellBed[ulIdx];
 
+	
+
 	// Check timestep
 	if (dLclTimestep <= 0.0){
 		return;
 	}
+
+	//calculate the deficit
+	if(pCellData.x + dRate * dLclTimestep<dCellBedElev){
+		
+		(*pBilanDef)=(*pBilanDef)+((dRate-((dCellBedElev-pCellData.x)/dLclTimestep))*dLclTimestep)*-1.0;
+		//printf("deficit  %f %f %f\n",(*pBilanDef), dLclTimestep, dRate);
+		
+	}
+
 	// Apply the value...
 	pCellData.x = fmax(dCellBedElev, pCellData.x + dRate * dLclTimestep);
+
+
+
 
 	pCellState[ulIdx] = pCellData;
 }

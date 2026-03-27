@@ -60,7 +60,7 @@ public:
 	///Reset the current coupling discharge of the points and the coupled element
 	void reset_coupling_discharge(void);
 	///Syncronisation of the coupled models with the couplingspoint
-	void syncronisation_coupled_models(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, const double area_limiter, int *counter_limiter);
+	void syncronisation_coupled_models(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, const double area_limiter, int *counter_limiter, int *counter_tot, double *opt_time_hit, double *opt_time_cor);
 
 	///Reset the smoothing calculation members
 	void reset_smoothing(void);

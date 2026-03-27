@@ -194,7 +194,7 @@ void Hyd_Coupling_Point_FP2FP::reset_coupling_discharge(void){
 	}
 }
 //Syncronisation of the coupled models with the couplingspoint
-void Hyd_Coupling_Point_FP2FP::syncronisation_coupled_models(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, const double area_limiter, int *counter_limiter){
+void Hyd_Coupling_Point_FP2FP::syncronisation_coupled_models(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, const double area_limiter, int *counter_limiter, int* counter_tot, double* opt_time_hit, double* opt_time_cor){
 	
 	_Hyd_Coupling_Point::syncronisation_coupled_models();
 	this->delta_t=delta_t;
@@ -326,24 +326,18 @@ void Hyd_Coupling_Point_FP2FP::syncronisation_coupled_models(const double timepo
 		//	this->q_list.smooth_discharge.append(this->current_q);
 		//}
 		
-		//calculate the flow-velocity
-		if(flow_depth!=0.0){
-			this->coupling_v=-1.0*this->current_q/(this->distance_down*flow_depth);
-		}
-		else{
-			this->coupling_v=0.0;
-		}
 
 
 
 
-		//if (timepoint > 48600 && abs(this->current_q) > 0.0) {
+
+		//if (timepoint > 83000 && abs(this->current_q) > 0.0 && time_check==true) {
 		//	//	//	Daniel test alfnitz
 		//	ostringstream cout;
 		//	cout << "t " << timepoint << " fp_1_elem " << this->fp1_elem_index << " fp_2_elem " << this->fp2_elem_index ;
 		//	cout << " s_1 " << this->fp1_elem->get_z_value() + h_one_buff << " s_2 " << this->fp2_elem->get_z_value() + h_two_buff;
 		//	cout << " wd " << this->distance_down << " flow_h " << flow_depth;
-		//	cout << " cp_Q_buf " << q_buff << " cp_Q_s " << this->current_q<< " Q_max "<< max_Q;
+		//	cout << " cp_Q_buf " << q_buff << " cp_Q_s " << this->current_q;
 		//	if (abs(this->current_q) > 5) {
 		//		cout << "*";
 		//	}
@@ -362,19 +356,63 @@ void Hyd_Coupling_Point_FP2FP::syncronisation_coupled_models(const double timepo
 		
 
 		//Test a delimiter
+		//Total overflow to total hits delimiter
+		if (abs(this->current_q) > 0.0) {
+			if (time_check == false) {
+				(*counter_tot)++; //double* opt_time_cor
+			}
+		}
+
 		double max_Q = 0.0;
+		//calculate the delimiter
 		max_Q = (area_limiter* this->distance_down) / (4 * delta_t);
 		if (max_Q < abs(this->current_q)) {
 			if (time_check == false) {
 				(*counter_limiter)++;
 			}
 		}
+		//calculate optimal timestep for not hitting delimiter
+		if (time_check == true) {
+			if (max_Q < abs(this->current_q)) {
+
+				(*opt_time_hit) = (area_limiter * this->distance_down) / (4 * abs(this->current_q));
+			}
+			else {
+
+				(*opt_time_hit) = -1.0;
+			}
+		}
+		//set the delimiter
 		max_Q=min(abs(this->current_q), max_Q);
+	
 		if (this->current_q < 0.0) {
 			this->current_q = -1.0 * max_Q;
 		}
 		else {
 			this->current_q =  max_Q;
+		}
+		
+
+		//calculate the flow-velocity
+		if (flow_depth != 0.0) {
+			this->coupling_v = -1.0 * this->current_q / (this->distance_down * flow_depth);
+		}
+		else {
+			this->coupling_v = 0.0;
+		}
+
+		//calculate optimal timestep with Courant-Criteria
+		if (time_check == true) {
+			double courant = 0.5;
+			if (abs(this->coupling_v) > 0) {
+				(*opt_time_cor) = (courant * this->flow_distance) / abs(this->coupling_v);
+				
+			}
+			else {
+				(*opt_time_cor) = -1.0;
+
+			}
+
 		}
 
 

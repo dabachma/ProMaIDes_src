@@ -51,6 +51,9 @@ public:
 		virtual COCLBuffer*	getNextCellSourceBuffer();								// Get the next source cell state buffer
 		void				setDebugger(unsigned int debugX, unsigned int debugY);	// Set the debugger at a cell
 
+		//Function to get the bilan deficit
+		double get_bilan_deficit(void);
+
 		#ifdef PLATFORM_WIN
 		static DWORD		Threaded_runBatchLaunch(LPVOID param);
 		#endif
@@ -138,6 +141,8 @@ protected:
 		COCLBuffer*			oclBufferBatchTimesteps;
 		COCLBuffer*			oclBufferBatchSuccessful;
 		COCLBuffer*			oclBufferBatchSkipped;
+		//buffer counting negativ discharge out of model for the balance calculation
+		COCLBuffer* oclBufferBilanDef;
 
 };
 

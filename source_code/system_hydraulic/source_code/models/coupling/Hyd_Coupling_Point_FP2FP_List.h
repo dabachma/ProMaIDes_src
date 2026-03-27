@@ -72,7 +72,7 @@ public:
 	void reset_points(void);
 
 	///Syncronisation of the coupled models with the stored couplingspoints in the list
-	void syncronisation_models_bylistpoints(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, const double area_limiter, int *counter_limiter);
+	void syncronisation_models_bylistpoints(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, const double area_limiter, int *counter_limiter, int* counter_tot, double* opt_time_hit, double* opt_time_cor);
 
 	///Clone the coupling point list
 	void clone_list(Hyd_Coupling_Point_FP2FP_List *list, Hyd_Model_Floodplain *fp1, Hyd_Model_Floodplain *fp2);
@@ -80,12 +80,17 @@ public:
 	//Output the discharge list to file (just for testing)
 	//void output_discharge_lists(void);
 
+	///Get the minimal timestep
+	double get_min_timestep(void);
+
 
 private:
 
 	//members
 	///Coupling points in list
 	Hyd_Coupling_Point_FP2FP *points;
+	///Minimal timestep
+	double min_timestep;
 
 
 	//methods

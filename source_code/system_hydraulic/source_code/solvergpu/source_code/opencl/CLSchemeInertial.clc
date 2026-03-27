@@ -364,12 +364,12 @@ cl_double calculateInertialFlux(
 	//	dDischarge = 0.0 - dDepth * sqrt( GRAVITY * dDepth ) * FROUDE_LIMIT;
 
 	// Bates(2010):
-	//cl_double Q = dDischarge;
-	//dDischarge = fmin(fabs(Q), (cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4*dTimestep));
+	cl_double Q = dDischarge;
+	dDischarge = fmin(fabs(Q), (cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4*dTimestep));
 	//
-	//if (Q<0.0){
-	//	dDischarge = dDischarge * (-1.0);
-	//}
+	if (Q<0.0){
+		dDischarge = dDischarge * (-1.0);
+	}
 
 
 

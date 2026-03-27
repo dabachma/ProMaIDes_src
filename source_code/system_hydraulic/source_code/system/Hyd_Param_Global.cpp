@@ -152,6 +152,11 @@ void Hyd_Param_Global::globals_per_parser(const string globalfile){
 	glob_parser.close_input_file();
 	
 	*this=glob_parser.get_global_params();
+
+	//the min timestep for coupling is set here to the normal given timestep...so no dynamic time step in coupling ist by default activated; a min time step given per file is always overwritten
+	this->min_internal_step = this->GlobTStep / this->GlobNofITS;
+
+
 	this->calculate_total_numbers();
 	this->set_global_path(globalfile);
 	//add the global path to the material file

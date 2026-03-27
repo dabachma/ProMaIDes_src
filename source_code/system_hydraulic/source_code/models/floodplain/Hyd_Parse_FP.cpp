@@ -176,6 +176,17 @@ void Hyd_Parse_FP::parse_general(_hyd_keyword_file Key, word Command){
 		}
 		else if (Key == eANGLE){
 			buffer>>this->fp_params.angle;
+
+			if (this->fp_params.angle >= 90.0 - constant::angle_epsilon && this->fp_params.angle <= 90.0 + constant::angle_epsilon) {
+
+				this->fp_params.angle = this->fp_params.angle - constant::angle_epsilon*10;
+			}
+			if (this->fp_params.angle >= -90.0 - constant::angle_epsilon && this->fp_params.angle <= -90.0 + constant::angle_epsilon) {
+
+				this->fp_params.angle = this->fp_params.angle + constant::angle_epsilon*10;
+			}
+
+
 			this->found_angle=true;
 		}
 		else if (Key == eLOWLEFTX){

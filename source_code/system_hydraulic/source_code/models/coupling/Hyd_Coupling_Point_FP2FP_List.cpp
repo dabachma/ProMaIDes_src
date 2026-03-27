@@ -5,6 +5,7 @@
 Hyd_Coupling_Point_FP2FP_List::Hyd_Coupling_Point_FP2FP_List(void){
 	this->number=0;
 	this->points=NULL;
+	this->min_timestep = 0.0;
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Coupling_Point_FP2FP_List), _sys_system_modules::HYD_SYS);
@@ -128,6 +129,7 @@ void Hyd_Coupling_Point_FP2FP_List::set_new_couplingpoint(Hyd_Coupling_Point_FP2
 void Hyd_Coupling_Point_FP2FP_List::delete_list(void){
 	this->delete_couplingpoints();
 	this->number=0;
+	this->min_timestep = 0.0;
 }
 //Sort the points after the distance to the beginning of the defining polysegment
 void Hyd_Coupling_Point_FP2FP_List::sort_distance_along_polysegment(void){
@@ -260,12 +262,54 @@ void Hyd_Coupling_Point_FP2FP_List::reset_points(void){
 	}
 }
 //Syncronisation of the coupled models with the stored couplingspoints in the list
-void Hyd_Coupling_Point_FP2FP_List::syncronisation_models_bylistpoints(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, const double area_limiter, int *counter_limiter){
+void Hyd_Coupling_Point_FP2FP_List::syncronisation_models_bylistpoints(const double timepoint, const double delta_t, const bool time_check, const int internal_counter, const double area_limiter, int *counter_limiter, int* counter_tot, double* opt_time_hit, double* opt_time_cor){
+	Sys_Median_Calculator by_hits;
+	Sys_Median_Calculator by_cor;
+
 	for(int i=0; i<this->number;i++){
 
-		this->points[i].syncronisation_coupled_models(timepoint,delta_t, time_check, internal_counter, area_limiter, counter_limiter);	
+		this->points[i].syncronisation_coupled_models(timepoint,delta_t, time_check, internal_counter, area_limiter, counter_limiter, counter_tot,opt_time_hit, opt_time_cor);
+
+		//claculate the median of the timesteps
+		if (time_check == true) {
+			
+			if (*opt_time_hit > 0.0) {
+				by_hits.add_value(*opt_time_hit);
+			}
+			
+			if (*opt_time_cor > 0.0) {
+				by_cor.add_value(*opt_time_cor);
+				//output
+				/*ostringstream cout;
+				cout << "t " << timepoint << " step " << delta_t << " opt_time " << (*opt_time_cor);
+				cout << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout, true);*/
+			}
+
+
+
+
+
+		}
+
 		
 	}
+
+	if(time_check==true){
+		//output
+		//ostringstream cout;
+		//cout << "t " << timepoint << " step " << delta_t<< " med_hit " << by_hits.get_median()<< " perc25_hit "<< by_hits.get_perc25();
+		//cout << " med_cor " << by_cor.get_median() << " perc_25 " << by_cor.get_perc25() << " s";
+		//cout << endl;
+		//Sys_Common_Output::output_hyd->output_txt(&cout, true);
+		 
+		
+		//Make decision wich one courant crit or hit crit ...median, perc etc.
+		this->min_timestep = by_cor.get_median();
+	
+	}
+
+
 }
 //Clone the coupling point list
 void Hyd_Coupling_Point_FP2FP_List::clone_list(Hyd_Coupling_Point_FP2FP_List *list, Hyd_Model_Floodplain *fp1, Hyd_Model_Floodplain *fp2){
@@ -283,6 +327,10 @@ void Hyd_Coupling_Point_FP2FP_List::clone_list(Hyd_Coupling_Point_FP2FP_List *li
 		this->points[i].set_first_fpelem_pointer(fp1->get_ptr_floodplain_elem(list->points[i].fp1_elem_index));
 		this->points[i].set_second_fpelem_pointer(fp2->get_ptr_floodplain_elem(list->points[i].fp2_elem_index));
 	}
+}
+//Get the minimal timestep
+double Hyd_Coupling_Point_FP2FP_List::get_min_timestep(void) {
+	return this->min_timestep;
 }
 //Output the discharge list to file
 //void Hyd_Coupling_Point_FP2FP_List::output_discharge_lists(void){

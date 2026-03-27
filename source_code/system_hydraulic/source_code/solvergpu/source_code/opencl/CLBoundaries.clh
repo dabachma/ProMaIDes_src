@@ -22,7 +22,9 @@ __kernel void bdy_Promaides (
 	__global		cl_double *,
 	__global		cl_double *,
 	__global		cl_double4 *,
-	__global		cl_double *
+	__global		cl_double * ,
+	__global		cl_double *  pBilanDef
+
 );
 
 __kernel void bdy_Promaides_by_id (
@@ -30,6 +32,7 @@ __kernel void bdy_Promaides_by_id (
 	__global		cl_double const * restrict	pCouplingBound,
 	__global		cl_double const * restrict pTimeStep,
 	__global		cl_double4 *				pCellState,
-	__global		cl_double const * restrict pCellBed
+	__global		cl_double const * restrict pCellBed,
+	__global		cl_double  *  pBilanDef
 	);
 #endif

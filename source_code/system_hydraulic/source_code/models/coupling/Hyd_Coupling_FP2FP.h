@@ -61,6 +61,9 @@ public:
 	///Output number of limiter hits
 	void output_number_limiter_hits(int* total, ostringstream* out);
 
+	///Get the minimal timestep for coupling
+	double get_min_timestep(void);
+
 
 private:
 	//members
@@ -74,6 +77,13 @@ private:
 	double area_limiter;
 	///Counter how often the limiter is reached
 	int counter_limiter;
+
+	///Total counter how often a coupling is active
+	int counter_tot_coupling_active;
+	///Optimal timestep to avoid hitting limiter
+	double timestep_opt_hit_limit;
+	///Optimal timestep after Courant-criteria
+	double timestep_opt_cor;
 
 	//methods
 	///Set the defining polysegment with the boundary of the first floodplain model

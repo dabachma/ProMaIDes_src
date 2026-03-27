@@ -126,6 +126,10 @@
 #include "Sys_Letter_Button.h"
 
 
+//Median calculator
+#include "Sys_Median_Calculator.h"
+
+
 //Dialog for creating new projects
 #include "Sys_New_Project_Dia.h"
 

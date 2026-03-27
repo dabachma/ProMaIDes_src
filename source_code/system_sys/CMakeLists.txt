@@ -52,6 +52,7 @@ set(H_FILES
 	source_code/Sys_Common_Output.h
 	source_code/Sys_Memory_Count.h
 	source_code/Sys_Output_Division.h
+	source_code/Sys_Median_Calculator.h
 	source_code/Sys_Headers_Precompiled.h
 	source_code/Tables.h
 	source_code/Sys_Project.h
@@ -146,6 +147,7 @@ set(CPP_FILES
 	source_code/Common_Function.cpp
 	source_code/Sys_Memory_Count.cpp
 	source_code/Sys_Output_Division.cpp
+	source_code/Sys_Median_Calculator.cpp
 	source_code/Tables.cpp
 	source_code/Sys_Project_Copier.cpp
 	source_code/Sys_Thread_Closing_Manager.cpp

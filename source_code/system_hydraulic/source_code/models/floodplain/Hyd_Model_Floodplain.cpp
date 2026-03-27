@@ -1186,6 +1186,16 @@ void Hyd_Model_Floodplain::make_hyd_balance_max(const double time_point){
 	for(int i=0; i< this->number_coup_cond; i++){
 		this->floodplain_elems[this->coup_cond_id[i]].element_type->calculate_hydrolocigal_balance_coupling(delta_t);
 	}
+
+	if (this->Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU) {
+		//check balanc deficit in gpu modells
+		
+
+		this->error_zero_outflow_volume= this->pManager->getDomain()->getScheme()->get_bilan_deficit()*-1.0;
+
+	}
+
+
 }
 //Reset the solver of the model
 void Hyd_Model_Floodplain::reset_solver(void){

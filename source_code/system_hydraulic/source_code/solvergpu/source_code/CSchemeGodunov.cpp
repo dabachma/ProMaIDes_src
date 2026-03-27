@@ -107,6 +107,7 @@ CSchemeGodunov::CSchemeGodunov(void)
 	oclBufferBatchTimesteps = NULL;
 	oclBufferBatchSuccessful = NULL;
 	oclBufferBatchSkipped = NULL;
+	this->oclBufferBilanDef = NULL;
 
 	if (this->bDebugOutput)
 		model::doError("Debug mode is enabled!",
@@ -621,11 +622,13 @@ void CSchemeGodunov::prepare1OMemory(){
 	// Timesteps and current simulation time
 	// --
 
+	//Alloc ocl Buffers
 	this->oclBufferTimestep = new COCLBuffer("Timestep", oclModel, false, true, ucFloatSize, true);
 	this->oclBufferTime = new COCLBuffer("Time", oclModel, false, true, ucFloatSize, true);
 	this->oclBufferTimeTarget = new COCLBuffer("Target time (sync)", oclModel, false, true, ucFloatSize, true);
 	this->oclBufferTimestepMovAvg = new COCLBuffer("Timestep Moving Average", oclModel, false, true, ucFloatSize, true);
 	this->oclBufferTimeHydrological = new COCLBuffer("Time (hydrological)", oclModel, false, true, ucFloatSize, true);
+	this->oclBufferBilanDef= new COCLBuffer("BilanDef", oclModel, false, true, ucFloatSize, true);
 
 	// We duplicate the time and timestep variables if we're using single-precision so we have copies in both formats
 	if (cModel->getFloatPrecision() == model::floatPrecision::kSingle)
@@ -635,6 +638,7 @@ void CSchemeGodunov::prepare1OMemory(){
 		*(this->oclBufferTimestepMovAvg->getHostBlock<float*>()) = 0.0f;
 		*(this->oclBufferTimeHydrological->getHostBlock<float*>()) = 0.0f;
 		*(this->oclBufferTimeTarget->getHostBlock<float*>()) = 0.0f;
+		*(this->oclBufferBilanDef->getHostBlock<float*>()) = 0.0f;
 	}
 	else {
 		*(this->oclBufferTime->getHostBlock<double*>()) = this->dCurrentTime;
@@ -642,13 +646,15 @@ void CSchemeGodunov::prepare1OMemory(){
 		*(this->oclBufferTimestepMovAvg->getHostBlock<double*>()) = 0.0;
 		*(this->oclBufferTimeHydrological->getHostBlock<double*>()) = 0.0;
 		*(this->oclBufferTimeTarget->getHostBlock<double*>()) = 0.0;
+		*(this->oclBufferBilanDef->getHostBlock<double*>()) = 0.0;
 	}
-
+	//create the buffers
 	this->oclBufferTimestep->createBuffer();
 	this->oclBufferTime->createBuffer();
 	this->oclBufferTimestepMovAvg->createBuffer();
 	this->oclBufferTimeHydrological->createBuffer();
 	this->oclBufferTimeTarget->createBuffer();
+	this->oclBufferBilanDef->createBuffer();
 
 	// --
 	// Timestep reduction global array
@@ -703,7 +709,7 @@ void CSchemeGodunov::prepareGeneralKernels()
 		oclKernelBoundary->setGlobalSize(this->ulNonCachedGlobalSizeX, this->ulNonCachedGlobalSizeY);
 
 		// TODO: Alaa: remove the hydrological buffer and code
-		COCLBuffer* aryArgsBdy[] = { oclBufferCellBoundary, oclBufferTimestep, oclBufferTimeHydrological ,oclBufferCellStates, oclBufferCellBed };
+		COCLBuffer* aryArgsBdy[] = { oclBufferCellBoundary, oclBufferTimestep, oclBufferTimeHydrological ,oclBufferCellStates, oclBufferCellBed, oclBufferBilanDef};
 
 		oclKernelBoundary->assignArguments(aryArgsBdy);
 
@@ -714,7 +720,7 @@ void CSchemeGodunov::prepareGeneralKernels()
 		oclKernelBoundary->setGroupSize(8);
 		oclKernelBoundary->setGlobalSize(8 * static_cast<unsigned long>(ceil(static_cast<double>(this->ulCouplingArraySize) / 8.0)));
 
-		COCLBuffer* aryArgsBdy[] = { oclBufferCouplingIDs, oclBufferCouplingValues, oclBufferTimestep ,oclBufferCellStates, oclBufferCellBed };
+		COCLBuffer* aryArgsBdy[] = { oclBufferCouplingIDs, oclBufferCouplingValues, oclBufferTimestep ,oclBufferCellStates, oclBufferCellBed, oclBufferBilanDef};
 
 		oclKernelBoundary->assignArguments(aryArgsBdy);
 	}
@@ -861,7 +867,10 @@ void	CSchemeGodunov::prepareSimulation()
 	oclBufferTimestep->queueWriteAll();
 	oclBufferTimestepMovAvg->queueWriteAll();
 	oclBufferTimeHydrological->queueWriteAll();
+	this->oclBufferBilanDef->queueWriteAll();
+
 	this->pDomain->getDevice()->blockUntilFinished();
+	
 
 	// Sort out memory alternation
 	bUseAlternateKernel = false;
@@ -1043,7 +1052,10 @@ void CSchemeGodunov::Threaded_runBatch()
 			oclBufferBatchSkipped->queueReadAll();
 			oclBufferBatchSuccessful->queueReadAll();
 			oclBufferBatchTimesteps->queueReadAll();
+			this->oclBufferBilanDef->queueReadAll();
+
 			this->pDomain->getDevice()->blockUntilFinished();
+			
 
 			this->readKeyStatistics();
 
@@ -1204,6 +1216,25 @@ void CSchemeGodunov::setDebugger(unsigned int debugX, unsigned int debugY) {
 	bDebugOutput = true;
 	uiDebugCellX = debugX;
 	uiDebugCellY = debugY;
+}
+//Function to get the bilan deficit
+double CSchemeGodunov::get_bilan_deficit(void) {
+	if (this->oclBufferBilanDef != NULL) {
+		
+
+		if (cModel->getFloatPrecision() == model::floatPrecision::kSingle)
+		{
+			return *(this->oclBufferBilanDef->getHostBlock<float*>());
+		}
+		else {
+			return *(this->oclBufferBilanDef->getHostBlock<double*>());
+		}
+	}
+	else {
+		return 0.0;
+	}
+	
+
 }
 
 void CSchemeGodunov::dumpMemory() {

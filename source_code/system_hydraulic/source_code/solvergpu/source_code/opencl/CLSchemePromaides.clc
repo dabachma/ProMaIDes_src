@@ -262,6 +262,8 @@ void pro_cacheDisabled (
 	}
 
 	dDeltaFSL	= (dDischarges[DOMAIN_DIR_E].x + dDischarges[DOMAIN_DIR_W].x + dDischarges[DOMAIN_DIR_N].x + dDischarges[DOMAIN_DIR_S].x)/(DOMAIN_DELTAX*DOMAIN_DELTAY);
+
+		
 	
 
 	pCellData.z		= dDischarges[DOMAIN_DIR_E].y;
@@ -358,15 +360,7 @@ cl_double2 manning_Solver(
 
 					// Bates(2010):
 					cl_double Q = dDischarge;
-
-						
-					
-					dDischarge = fmin(fabs(Q), DOMAIN_DELTAX* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep) / (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY));
-					
-
-					
-					
-	
+					dDischarge = fmin(fabs(Q), DOMAIN_DELTAX* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep) / (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY));	
 					if (Q<0.0){
 							dDischarge = dDischarge * (-1.0);
 					}
@@ -374,9 +368,9 @@ cl_double2 manning_Solver(
 					
 					
 					/*
-					// P2 (New Castle Limiter)
+					// P2 (New Castle Limiter) does not work (Daniel)
 					#ifdef useP2	
-						#define FROUDE_LIMIT			0.8
+						#define FROUDE_LIMIT			0.5
 						#define mainVelocity fabs(dDischarge)/flow_depth
 						#define waveVelocity sqrt(GRAVITY*flow_depth)
 

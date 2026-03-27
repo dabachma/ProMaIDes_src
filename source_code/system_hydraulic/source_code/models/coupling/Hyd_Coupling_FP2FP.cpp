@@ -8,6 +8,9 @@ Hyd_Coupling_FP2FP::Hyd_Coupling_FP2FP(void){
 	this->defining_polysegment.set_line_type(_hyd_floodplain_polysegment_type::FP_BOUNDARYLINE);
 	this->area_limiter = 0.0;
 	this->counter_limiter = 0;
+	this->counter_tot_coupling_active=0;
+	this->timestep_opt_hit_limit=0.0;
+	this->timestep_opt_cor=0.0;
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Coupling_FP2FP)-sizeof(Hyd_Coupling_Point_FP2FP_List), _sys_system_modules::HYD_SYS);
@@ -53,6 +56,9 @@ void Hyd_Coupling_FP2FP::init_coupling(void){
 		this->area_limiter=*this->floodplain_model_1->Param_FP.get_ptr_width_x()* *this->floodplain_model_1->Param_FP.get_ptr_width_y();
 		this->area_limiter = min(this->area_limiter, *this->floodplain_model_2->Param_FP.get_ptr_width_x() * *this->floodplain_model_2->Param_FP.get_ptr_width_y());
 		this->counter_limiter = 0;
+		this->counter_tot_coupling_active = 0;
+		this->timestep_opt_hit_limit = 0.0;
+		this->timestep_opt_cor = 0.0;
 
 		//sort it along the defining line
 		this->list.sort_distance_along_polysegment();
@@ -96,8 +102,12 @@ void Hyd_Coupling_FP2FP::synchronise_models(const double timepoint, const double
 
 
 		//}
+		if (time_check == true) {
+			this->timestep_opt_hit_limit = 0.0;
+			this->timestep_opt_cor = 0.0;
+		}
 		
-		this->list.syncronisation_models_bylistpoints(timepoint, delta_t, time_check, internal_counter, this->area_limiter,&this->counter_limiter);
+		this->list.syncronisation_models_bylistpoints(timepoint, delta_t, time_check, internal_counter, this->area_limiter,&this->counter_limiter, &this->counter_tot_coupling_active, &this->timestep_opt_hit_limit, &this->timestep_opt_cor);
 		
 	}
 	catch(Error msg){
@@ -145,6 +155,9 @@ void Hyd_Coupling_FP2FP::clone_couplings(Hyd_Coupling_FP2FP *coupling, Hyd_Hydra
 	this->defining_polysegment.clone_polysegment(&coupling->defining_polysegment);
 	this->area_limiter = coupling->area_limiter;
 	this->counter_limiter = 0;
+	this->counter_tot_coupling_active = 0;
+	this->timestep_opt_hit_limit = 0.0;
+	this->timestep_opt_cor = 0.0;
 
 	this->list.set_defining_polysegment(&this->defining_polysegment);
 	this->list.clone_list(&coupling->list, this->floodplain_model_1, this->floodplain_model_2); 
@@ -153,12 +166,24 @@ void Hyd_Coupling_FP2FP::clone_couplings(Hyd_Coupling_FP2FP *coupling, Hyd_Hydra
 //Reset counter limiter
 void Hyd_Coupling_FP2FP::reset_counter_limiter(void) {
 	this->counter_limiter = 0;
+	this->counter_tot_coupling_active = 0;
 }
 //Output number of limiter hits
 void Hyd_Coupling_FP2FP::output_number_limiter_hits(int* total, ostringstream* out) {
-	*out << " Hits FP" <<this->floodplain_model_1->Param_FP.get_floodplain_number()<<" to FP"<< this->floodplain_model_2->Param_FP.get_floodplain_number()<<"   :" << this->counter_limiter << endl;
+	double perc = 0.0;
+	if (this->counter_tot_coupling_active > 0) {
+		perc = ((double)this->counter_limiter / (double)this->counter_tot_coupling_active) * 100.0;
+
+	}
+	*out << " Hits FP" <<this->floodplain_model_1->Param_FP.get_floodplain_number()<<" to FP"<< this->floodplain_model_2->Param_FP.get_floodplain_number()<<"   :" << this->counter_limiter <<" (active: "<< this->counter_tot_coupling_active<< P(1) << " "<< perc<<"%)"<< endl;
 
 	*total = *total + this->counter_limiter;
+
+}
+//Get the minimal timestep for coupling
+double Hyd_Coupling_FP2FP::get_min_timestep(void) {
+
+	return this->list.get_min_timestep();
 
 }
 //______________

@@ -1412,6 +1412,24 @@ void Hyd_Coupling_Management::output_number_limiter_hits(void) {
 
 
 }
+///Get minimal timestep for FP2FP couplinbg
+double Hyd_Coupling_Management::get_min_timestep_fp2fp(void) {
+	double min_t = 1000000000;
+
+	if (this->number_fp2fp > 0) {
+		
+
+
+		for (int i = 0; i < this->number_fp2fp; i++) {
+			min_t = min(this->coupling_fp2fp[i].list.get_min_timestep(), min_t);
+		}
+
+
+	}
+
+	return min_t;
+
+}
 //__________________
 //private
 //Insert special points to the merged RV2FP point list (e.g. river junctions, diversion channels)

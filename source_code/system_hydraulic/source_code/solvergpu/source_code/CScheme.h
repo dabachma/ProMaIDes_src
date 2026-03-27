@@ -85,6 +85,9 @@ class CScheme
 		bool								isSimulationSlow(void);													// Check if the simulation is too slow (timestep very low)
 		bool								isSolverThreadStopped(void);											//Check if the solver thread has errors
 
+		//Function to get the bilan deficit
+		virtual double get_bilan_deficit(void)=0;
+
 	protected:
 
 		// Private functions
