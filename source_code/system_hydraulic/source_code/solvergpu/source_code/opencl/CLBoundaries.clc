@@ -41,6 +41,9 @@ __kernel void bdy_Promaides (
 	if (dLclTimestep <= 0.0 || pCellData.y <= -9999.0 || pCellData.x == -9999.0){
 		return;
 	}
+	if(dRate==0.0){
+		return;
+	}
 
 	//if (ulIdx == 7116 ){
 	//	//printf("Postion: X: %f Y:%f \n",lIdxX*1.0 , lIdxY*1.0 );
@@ -56,11 +59,11 @@ __kernel void bdy_Promaides (
 	//}
 	
 	//calculate the deficit
-	if(pCellData.x + dRate * dLclTimestep<dCellBedElev){
-		
-		(*pBilanDef)=(*pBilanDef)+((dRate-((dCellBedElev-pCellData.x)/dLclTimestep))*dLclTimestep)*-1.0;
-		//printf("deficit  %f %f %f\n",(*pBilanDef), dLclTimestep, dRate);
-		
+	if(dRate<0.0){
+		if(pCellData.x + dRate * dLclTimestep<dCellBedElev){
+			pBilanDef[ulIdx]=pBilanDef[ulIdx]+((dRate-((dCellBedElev-pCellData.x)/dLclTimestep))*dLclTimestep)*-1.0;
+			//printf("deficit  %f %f %f %f\n",pBilanDef[ulIdx], dLclTimestep, dRate, pCellData.x );
+		}
 	}
 	
 	// Apply the value...
@@ -107,12 +110,18 @@ __kernel void bdy_Promaides_by_id (
 	if (dLclTimestep <= 0.0){
 		return;
 	}
+	if(dRate==0.0){
+		return;
+	}
 
 	//calculate the deficit
-	if(pCellData.x + dRate * dLclTimestep<dCellBedElev){
+	if(dRate<0.0){
+		if(pCellData.x + dRate * dLclTimestep<dCellBedElev){
 		
-		(*pBilanDef)=(*pBilanDef)+((dRate-((dCellBedElev-pCellData.x)/dLclTimestep))*dLclTimestep)*-1.0;
-		//printf("deficit  %f %f %f\n",(*pBilanDef), dLclTimestep, dRate);
+			pBilanDef[lId]=pBilanDef[ulIdx]+((dRate-((dCellBedElev-pCellData.x)/dLclTimestep))*dLclTimestep)*-1.0;
+			//printf("deficit  %f %f %f %f\n",pBilanDef[lId], dLclTimestep, dRate, pCellData.x );
+		
+		}
 		
 	}
 

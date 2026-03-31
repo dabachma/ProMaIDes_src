@@ -254,7 +254,7 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_v_out(const double sin_valu
 		this->v_x_out = (this->v_x + this->element_x_minus->element_type->get_flowvelocity_vx())*0.5;
 	}
 	else {
-		this->v_x_out = (this->v_x + 0.0)*0.5;
+		this->v_x_out = (this->v_x)*0.5;
 	}
 
 	//y-direction
@@ -262,7 +262,7 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_v_out(const double sin_valu
 		this->v_y_out = (this->v_y + this->element_y_minus->element_type->get_flowvelocity_vy())*0.5;
 	}
 	else {
-		this->v_y_out = (this->v_y + 0.0)*0.5;
+		this->v_y_out = (this->v_y)*0.5;
 	}
 
 	//turning
@@ -1358,6 +1358,7 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_wet_dry_duration(const doub
 	if(this->was_wet_flag==false && this->h_value>wet_boundary){
 		this->was_wet_flag=true;
 	}
+
 	if(this->wet_flag==false && this->h_value>wet_boundary){
 		this->wet_flag=true;
 		this->time_wet_start=time_point;
@@ -1369,6 +1370,7 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_wet_dry_duration(const doub
 		this->wet_duration=this->wet_duration+(time_point-this->time_wet_start);
 		this->time_wet_start=time_point;
 	}
+
 	//set the duration
 	if(this->wet_flag==true && this->h_value<wet_boundary){
 		this->wet_flag=false;

@@ -101,6 +101,7 @@ protected:
 		unsigned int		uiDebugCellX;											// Debug info cell X
 		unsigned int		uiDebugCellY;											// Debug info cell Y
 		unsigned int		uiTimestepReductionWavefronts;							// Number of wavefronts used in reduction
+		double sum_deficit_bilan; //Sum of Bilan deficitin
 
 		// Private functions
 		virtual void		prepareCode();											// Prepare the code required

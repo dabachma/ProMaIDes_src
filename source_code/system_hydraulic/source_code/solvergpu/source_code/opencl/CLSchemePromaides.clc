@@ -15,6 +15,8 @@
 /*
  *  Calculate everything without using LDS caching
  */
+ //______________________
+ //calculation of the overfow for the four neihgboring elements; it is i decide her if Manning (normal flow) or poleni (weir-flow over 1d-dikeline) is used
 __kernel REQD_WG_SIZE_FULL_TS
 void pro_cacheDisabled ( 
 			__constant	cl_double *  				dTimestep,					// Timestep
@@ -315,7 +317,8 @@ void pro_cacheDisabled (
 	pCellStateDst[ ulIdx ] = pCellData;
 }
 
-
+//_________________________________________________
+//calculation the overflow via Manning-equation (normal flow)
 cl_double2 manning_Solver(
 	cl_double timestep,		// Current Time-step
 	cl_double manning,     	// Manning of Main Cell
@@ -416,6 +419,8 @@ cl_double2 manning_Solver(
 
 	}
 
+//_________________________________________________
+//calculation the overflow between elements via Poleni weir equation (1d-dike line element)
 cl_double2 poleni_Solver(
 	cl_double timestep,		// Current Time-step
 	cl_double manning,     	// Manning of Main Cell

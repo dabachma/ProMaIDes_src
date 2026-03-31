@@ -1421,7 +1421,9 @@ double Hyd_Coupling_Management::get_min_timestep_fp2fp(void) {
 
 
 		for (int i = 0; i < this->number_fp2fp; i++) {
-			min_t = min(this->coupling_fp2fp[i].list.get_min_timestep(), min_t);
+			if (this->coupling_fp2fp[i].list.get_min_timestep()>0) {
+				min_t = min(this->coupling_fp2fp[i].list.get_min_timestep(), min_t);
+			}
 		}
 
 

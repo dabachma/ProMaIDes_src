@@ -3724,8 +3724,36 @@ void Hyd_Hydraulic_System::make_calculation_floodplainmodel(void){
 	for(int i=0; i< this->global_parameters.GlobNofFP;i++){
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		if(my_fpmodels[i].Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU && this->global_parameters.get_opencl_available()){
+			//solve gpu model
 			this->my_fpmodels[i].solve_model_gpu(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false), &(this->profiler));
 		}else{
+
+
+			//must wait until gpu thread is finished if there is a mixed application
+			if (numGpuFp != 0 && numCpuFp != 0) {
+				bool all_finished = false;
+				int counter = 0;
+				while (all_finished==false) {
+					for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
+						if (my_fpmodels[i].Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU && this->global_parameters.get_opencl_available()) {
+						
+							if (my_fpmodels[i].pManager->getDomain()->getScheme()->isRunning() == false && my_fpmodels[i].pManager->getDomain()->getDevice()->isBusy() == false) {
+
+								counter++;
+
+							}
+						}
+
+					}
+					if (counter == numGpuFp) {
+						all_finished = true;
+					}
+					
+
+				}
+			}
+
+			//solve cpu model
 			this->my_fpmodels[i].solve_model(this->next_internal_time-this->global_parameters.get_startime(), this->get_identifier_prefix(false));
 		}
 	}

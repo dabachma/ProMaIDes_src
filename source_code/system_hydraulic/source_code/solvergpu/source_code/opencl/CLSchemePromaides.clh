@@ -28,6 +28,7 @@ typedef struct sUsePolini {
 #ifdef USE_FUNCTION_STUBS
 
 // Function definitions
+//calculation of the overfow for the four neihgboring elements; it is i decide her if Manning (normal flow) or poleni (weir-flow over 1d-dikeline) is used
 __kernel  REQD_WG_SIZE_FULL_TS
 void pro_cacheDisabled ( 
 	__constant	cl_double *,
@@ -42,6 +43,7 @@ void pro_cacheDisabled (
 	__global	cl_double  const * restrict
 );
 
+//calculation the overflow via Manning-equation (normal flow)
 cl_double2 manning_Solver(
 	cl_double Timestep,
 	cl_double manning,
@@ -53,7 +55,7 @@ cl_double2 manning_Solver(
 	cl_double DeltaXY,
 	bool debug
 	);
-
+//calculation the overflow between elements via Poleni weir equation (1d-dike line element)
 cl_double2 poleni_Solver(
 	cl_double Timestep,
 	cl_double manning,

@@ -265,8 +265,8 @@ void _Hyd_Model::init_solver_gpu(Hyd_Param_Global* global_params) {
 	pManager->setSelectedDevice(scheme_info.selected_device);							// Set GPU device to Use. Important: Has to be called after setExecutor. Default is the faster one.
 	pManager->setSimulationLength(simulationLength);									// Set Simulation Length
 	pManager->setOutputFrequency(outputFrequency);										// Set Output Frequency
-	pManager->setFloatPrecision(model::floatPrecision::kDouble);						// Set Precision
-	
+	pManager->setFloatPrecision(model::floatPrecision::kDouble);						// Set Precision 
+	//pManager->setFloatPrecision(model::floatPrecision::kSingle);
 	//Create the domain
 	CDomainCartesian* ourCartesianDomain = pManager->getDomain();
 	ourCartesianDomain->setCellResolution(*myFloodplain->Param_FP.get_ptr_width_x(), *myFloodplain->Param_FP.get_ptr_width_y());
