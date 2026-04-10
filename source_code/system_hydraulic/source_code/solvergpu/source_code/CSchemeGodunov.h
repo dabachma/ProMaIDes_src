@@ -11,6 +11,7 @@
 
 #include "CScheme.h"
 #include <mutex>
+#include <Sys_Memory_Count.h>
 
 
  /*
@@ -144,6 +145,9 @@ protected:
 		COCLBuffer*			oclBufferBatchSkipped;
 		//buffer counting negativ discharge out of model for the balance calculation
 		COCLBuffer* oclBufferBilanDef;
+
+		//Number of storage size
+		long storage;
 
 };
 

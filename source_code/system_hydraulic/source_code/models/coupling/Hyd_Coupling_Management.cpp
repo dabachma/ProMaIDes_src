@@ -1398,9 +1398,6 @@ void Hyd_Coupling_Management::output_number_limiter_hits(void) {
 		cout << "Number of limiter hits (FP2FP COUPLING) " << endl;
 		for (int i = 0; i < this->number_fp2fp; i++) {
 			this->coupling_fp2fp[i].output_number_limiter_hits(&total, &cout);
-
-
-
 		}
 
 		cout << " Total number                      :" << W(5) << total << endl;

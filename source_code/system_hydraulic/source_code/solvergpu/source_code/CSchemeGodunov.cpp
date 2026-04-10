@@ -77,6 +77,7 @@ CSchemeGodunov::CSchemeGodunov(void)
 	this->ulCachedWorkgroupSizeY = 0;
 	this->ulNonCachedWorkgroupSizeX = 0;
 	this->ulNonCachedWorkgroupSizeY = 0;
+	this->storage = 0;
 
 	// Default null values for OpenCL objects
 	oclModel = NULL;
@@ -118,12 +119,14 @@ CSchemeGodunov::CSchemeGodunov(void)
 		);
 
 	model::log->logInfo("Populated scheme with default settings.");
+	Sys_Memory_Count::self()->add_mem(sizeof(CSchemeGodunov), _sys_system_modules::HYD_SYS);
 }
 
 //Destructor
 CSchemeGodunov::~CSchemeGodunov(void)
 {
 	this->releaseResources();
+	Sys_Memory_Count::self()->minus_mem(sizeof(CSchemeGodunov), _sys_system_modules::HYD_SYS);
 }
 
 //Log the details and properties of this scheme instance.
@@ -590,7 +593,7 @@ void CSchemeGodunov::prepare1OMemory(){
 	this->oclBufferCellBed = new COCLBuffer("Bed elevations", oclModel, true, true);
 
 	
-
+	//here the big data buffers are specify!
 	this->oclBufferCellStates->setPointer(pCellStates, ucFloatSize * 4 * pDomain->getCellCount());
 	this->oclBufferCellStatesAlt->setPointer(pCellStates, ucFloatSize * 4 * pDomain->getCellCount());
 	this->oclBufferCellManning->setPointer(pManningValues, ucFloatSize * pDomain->getCellCount());
@@ -622,6 +625,7 @@ void CSchemeGodunov::prepare1OMemory(){
 		this->oclBufferCouplingValues->createBuffer();
 		this->oclBufferBilanDef->createBuffer();
 	}
+	//here the big data buffers are allocated!
 	this->oclBufferUsePoleni->createBuffer();
 	this->oclBuffer_opt_zxmax->createBuffer();
 	this->oclBuffer_opt_cx->createBuffer();
@@ -679,6 +683,24 @@ void CSchemeGodunov::prepare1OMemory(){
 	// VISUALISER STUFF
 	// TODO: Make this a bit better, put it somewhere else, etc.
 	this->oclBufferCellStates->setCallbackRead(CModel::visualiserCallback);
+
+	//count the memory
+	this->storage = 0;
+	this->storage = 6 * sizeof(double) + 2 + sizeof(int) + 2 * 4 * sizeof(double) * pDomain->getCellCount() + 5 * pDomain->getCellCount() * sizeof(double)+ 1* pDomain->getCellCount() * sizeof(bool);
+
+	this->storage = this->storage + sizeof(double) * this->ulReductionGlobalSize;
+
+	//boundary
+	if (this->bUseOptimizedBoundary == false) {
+		this->storage = this->storage + pDomain->getCellCount() * sizeof(double);
+	}
+	else {
+
+		this->storage = this->storage + this->ulCouplingArraySize * sizeof(double)+ this->ulCouplingArraySize * sizeof(long);
+	}
+
+	Sys_Memory_Count::self()->add_mem(this->storage*2, _sys_system_modules::HYD_SYS);
+
 
 }
 
@@ -788,6 +810,7 @@ void CSchemeGodunov::releaseResources()
 void CSchemeGodunov::release1OResources()
 {
 	this->bReady = false;
+	//Here all are data are released!
 
 	if (this->oclModel != NULL)							delete oclModel;
 	if (this->oclKernelFullTimestep != NULL)				delete oclKernelFullTimestep;
@@ -848,6 +871,8 @@ void CSchemeGodunov::release1OResources()
 	oclBufferBatchTimesteps = NULL;
 	oclBufferBatchSuccessful = NULL;
 	oclBufferBatchSkipped = NULL;
+
+	Sys_Memory_Count::self()->minus_mem(this->storage*2, _sys_system_modules::HYD_SYS);
 
 }
 
@@ -1048,17 +1073,39 @@ void CSchemeGodunov::Threaded_runBatch()
 			}
 
 			// Schedule a batch-load of work for the device
+			//this is the loop over the time steps internal; all are on gpu
 			if (this->dCurrentTime < dTargetTime - 1e-8) {
 				oclKernelResetCounters->scheduleExecution();
 				for (unsigned int i = 0; i < uiQueueAmount; i++) {
-					///here the clacluation is started
+					///here the time step is started
 					this->scheduleIteration();
+					//Heun-Verfahren...
+					// 1. Schritt:speicher s in s_start mach 1 Zeitschritt, speicher ds_dt in ds_dt1, s wird verändert
+					// 2. Schritt: mach den zweiten mit neuen hs; speicher ds_dt in ds_dt2_ swird nicht verändert
+					// 3. mittel die ds/dt, setze h/s zurück am s_start; rechne h aus
+					// 4. nächster Zeitschritt
+					//ich brauche zwei/3 neue Zeiger mit der Größe der Anzhal elemente s_start; ds_dt1; ds_dt2
+					//eine neue Kernel funktion h/s ausrechnen
+					//speichermanagment updaten...was wird allociert für GPU
+					//neue GPU rechen art...mehrschritt prom gpu...dann bleibt alles andere unangetastet
+					//dazu neue Kernels-funktionen: schritt1_rechnen1 schritt2rechnen2 schritt3_zusammenführen
+					//wie mit boundaries??
+
+					//außerdem: Number um time step in display...avergae timestep anzeigen
+
+
+
+
+
 					uiIterationsSinceTargetChanged++;
 					ulCurrentCellsCalculated += this->pDomain->getCellCount();
 					bUseAlternateKernel = !bUseAlternateKernel;
+					
 				}
 
 			}
+
+			
 
 			// Schedule reading data back. We always need the timestep but we might not need the other details always...
 			oclBufferTimestep->queueReadAll();
@@ -1170,6 +1217,11 @@ void	CSchemeGodunov::scheduleIteration() {
 	oclKernelTimestepReduction->assignArgument(0, bufferDst);
 
 	profiless
+
+
+		printf("Internal time  %.15f  \n", this->dCurrentTime);
+
+
 	//here the timesteps is claculated depending to the scheme, e.g. function pro_cacheDisabled in CLSchemePromaides.clc/.h
 	oclKernelFullTimestep->scheduleExecution();
 	profilese
@@ -1180,6 +1232,7 @@ void	CSchemeGodunov::scheduleIteration() {
 	}
 
 	profilebs
+		printf("Next boundary \n");
 	//here the´bounadries are set e.g. function pro_cacheDisabled in CLSchemePromaides.clc/.h
 	oclKernelBoundary->scheduleExecution();
 	profilebe

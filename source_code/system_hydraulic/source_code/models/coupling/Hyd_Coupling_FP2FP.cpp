@@ -175,7 +175,7 @@ void Hyd_Coupling_FP2FP::output_number_limiter_hits(int* total, ostringstream* o
 		perc = ((double)this->counter_limiter / (double)this->counter_tot_coupling_active) * 100.0;
 
 	}
-	*out << " Hits FP" <<this->floodplain_model_1->Param_FP.get_floodplain_number()<<" to FP"<< this->floodplain_model_2->Param_FP.get_floodplain_number()<<"   :" << this->counter_limiter <<" (active: "<< this->counter_tot_coupling_active<< P(1) << " "<< perc<<"%)"<< endl;
+	*out << " Hits FP" <<this->floodplain_model_1->Param_FP.get_floodplain_number()<<" to FP"<< this->floodplain_model_2->Param_FP.get_floodplain_number()<<"   :" << this->counter_limiter <<" (active: "<< this->counter_tot_coupling_active<< FORMAT_FIXED_REAL << P(2) << " "<< perc<<"%)"<< endl;
 
 	*total = *total + this->counter_limiter;
 

@@ -18,6 +18,11 @@ Sys_Status_Bar_Wid::Sys_Status_Bar_Wid(void){
 	buff = "No floodplains are running";
 	this->label_status_cgpu->setToolTip(buff.c_str());
 
+	this->line_2->setFrameShape(QFrame::VLine);
+	this->line->setFrameShape(QFrame::VLine);
+	this->line_3->setFrameShape(QFrame::VLine);
+	this->line_4->setFrameShape(QFrame::VLine);
+
 	this->close_flag=false;
 
 	this->my_close->setToolTip("Press to reduce the information");

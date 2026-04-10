@@ -239,7 +239,24 @@ target_link_libraries(ProMaIDeS
 # - The programmer is required to check if OpenCL.dll exists, and to only use OpenCL functions if it exists
 # TODO: Alaa Not sure what the Linux equivalent is?
 if(MSVC)
-  target_link_options(ProMaIDeS PRIVATE "/DELAYLOAD:OpenCL.dll")
+  target_link_options(ProMaIDeS PRIVATE 
+	"/DELAYLOAD:OpenCL.dll"
+	 $<$<CONFIG:Release>:/LTCG>            # Link-Zeit-Codegenerierung
+     $<$<CONFIG:Release>:/OPT:REF>         # Entfernt ungenutzten Code
+	
+
+	)
+  #set compiler options
+  target_compile_options(ProMaIDeS PRIVATE
+        $<$<CONFIG:Release>:/O2>        # Maximale Geschwindigkeit
+       # $<$<CONFIG:Release>:/arch:AVX2> # Hardware-Vektorisierung (SIMD)
+       # $<$<CONFIG:Release>:/fp:fast>   # Schnelles Gleitkommamodell
+        $<$<CONFIG:Release>:/GL>        # Ganze Programmausoptimierung
+       # $<$<CONFIG:Release>:/Oi>        # Intrinsische Funktionen
+   )
+  
+  
+  
 endif()
 
 # - qt_wrap_ui (or qt5_wrap_ui) wraps ui files, in other words generating .h files from them

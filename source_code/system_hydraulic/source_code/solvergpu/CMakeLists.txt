@@ -138,7 +138,7 @@ target_include_directories(solvergpu
 # - The headers include the function names but not what they actually do
 # - The dlls or libs are what include the functions themselves.
 # - Linking the opencl is required so that solvergpu knows where to go when an opencl function is called
-target_link_libraries(solvergpu OpenCL::OpenCL)
+target_link_libraries(solvergpu OpenCL::OpenCL system_sys)
 
 # - message is just a print command similar to a cout <<
 # - The OpenCL library Include folder is printed here for debug purposes

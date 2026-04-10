@@ -193,10 +193,13 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_boundary_value(const double
 }
 //Calculate the maximum values and the wet duration
 void Hyd_Element_Floodplain_Type_Standard::calc_max_values(const double time_point, const double wet_boundary){
-	//calculate the maximum values
-	this->calculate_maximum_values(time_point);
+	
 	//calculate the wet or dry flags
 	this->calculate_wet_dry_duration(time_point, wet_boundary);
+
+
+	//calculate the maximum values
+	this->calculate_maximum_values(time_point);
 	//calculate volume
 	this->calculate_watervolume_element();
 }
@@ -1318,9 +1321,7 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_ds_dt_poleni_y(void){
 }
 //Calculate the maximum values to a given time point
 void Hyd_Element_Floodplain_Type_Standard::calculate_maximum_values(const double time_point){
-	if(this->h_value<constant::dry_hyd_epsilon){
-		return;
-	}
+	
 
 	//calculation of the maximum
 	if(this->h_value>this->max_h_value.maximum){
@@ -1353,7 +1354,7 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_maximum_values(const double
 }
 //Calculate if the element gets wet or dry and the duration of being wet
 void Hyd_Element_Floodplain_Type_Standard::calculate_wet_dry_duration(const double time_point, const double wet_boundary){
-
+	
 	//set was_wet_flag
 	if(this->was_wet_flag==false && this->h_value>wet_boundary){
 		this->was_wet_flag=true;

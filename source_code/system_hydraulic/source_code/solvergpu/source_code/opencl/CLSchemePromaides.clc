@@ -265,6 +265,9 @@ void pro_cacheDisabled (
 
 	dDeltaFSL	= (dDischarges[DOMAIN_DIR_E].x + dDischarges[DOMAIN_DIR_W].x + dDischarges[DOMAIN_DIR_N].x + dDischarges[DOMAIN_DIR_S].x)/(DOMAIN_DELTAX*DOMAIN_DELTAY);
 
+
+	printf("Time  %i %f %.15f %.15f\n",ulIdx, dLclTimestep, dDeltaFSL , pCellData.x);
+
 		
 	
 

@@ -90,8 +90,8 @@ int main(int argc, char *argv[]){
 		
         QCoreApplication::setLibraryPaths(buff);
 		//try to change style; no effect!
-		//QApplication::setStyle(QStyleFactory::create("Fusion"));
-       //app.setStyle(QStyleFactory::create("Windows"));
+		//QApplication::setStyle(QStyleFactory::create("windows11"));
+       //app.setStyle(QStyleFactory::create("windows11"));
        //app.setStyle(QStyleFactory::create("windowsvista"));
        //app.setStyle(QStyleFactory::create("Fusion"));
        
