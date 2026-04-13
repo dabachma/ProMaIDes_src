@@ -126,6 +126,7 @@ CSchemeGodunov::CSchemeGodunov(void)
 CSchemeGodunov::~CSchemeGodunov(void)
 {
 	this->releaseResources();
+	Sys_Memory_Count::self()->minus_mem(this->storage * 2, _sys_system_modules::HYD_SYS);
 	Sys_Memory_Count::self()->minus_mem(sizeof(CSchemeGodunov), _sys_system_modules::HYD_SYS);
 }
 
@@ -872,7 +873,7 @@ void CSchemeGodunov::release1OResources()
 	oclBufferBatchSuccessful = NULL;
 	oclBufferBatchSkipped = NULL;
 
-	Sys_Memory_Count::self()->minus_mem(this->storage*2, _sys_system_modules::HYD_SYS);
+	
 
 }
 

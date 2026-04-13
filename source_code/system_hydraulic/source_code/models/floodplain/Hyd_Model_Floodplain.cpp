@@ -1167,21 +1167,21 @@ void Hyd_Model_Floodplain::make_hyd_balance_max(const double time_point){
 	double delta_t=time_point-this->old_time_point_syncron;
 	this->old_time_point_syncron=time_point;
 
-	//Recalc velocities TODO
+	//Recalc velocities 
 	double sin_value = sin(this->Param_FP.angle*constant::Cpi / 180.0);
 	double cos_value = cos(this->Param_FP.angle*constant::Cpi / 180.0);
 	for (int i = this->NEQ - 1; i >= 0; i--) {
-		if (this->floodplain_elems[i].element_type->get_h_value() >= constant::dry_hyd_epsilon || this->floodplain_elems[i].element_type->get_wet_flag()==true) {
+		if (this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::RIVER_ELEM) {
+			this->floodplain_elems[i].element_type->calc_max_values(time_point, this->Param_FP.FPWet);
+		}
+		else if (this->floodplain_elems[i].element_type->get_h_value() >= constant::dry_hyd_epsilon || this->floodplain_elems[i].element_type->get_wet_flag()==true) {
 
 			this->floodplain_elems[i].element_type->calculate_v_out(sin_value, cos_value);
 			this->floodplain_elems[i].element_type->calc_max_values(time_point, this->Param_FP.FPWet);
 		}
 	}
 
-	/*for(int i=0;i<this->NEQ;i++){
-		this->floodplain_elems[i].element_type->calc_max_values(time_point, this->Param_FP.FPWet);
-		
-	}*/
+
 
 	//boundary condition
 	for(int i=0; i< this->number_bound_cond; i++){
@@ -2395,7 +2395,7 @@ void Hyd_Model_Floodplain::output_result2database(QSqlDatabase *ptr_database, co
 		}
 
 		//send packages of 100 Daniel check if working!
-		if (counter == 500) {
+		if (counter == 750) {
 			query_total << query_header << query_data.str();
 			//delete last komma
 			string buff = query_total.str();
@@ -4476,7 +4476,7 @@ void Hyd_Model_Floodplain::transfer_element_members2database(QSqlDatabase *ptr_d
 		counter++;
 
 		//send packages of 100
-		if(counter==100){
+		if(counter==500){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();
