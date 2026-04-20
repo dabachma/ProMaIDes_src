@@ -125,7 +125,7 @@ CSchemeGodunov::CSchemeGodunov(void)
 //Destructor
 CSchemeGodunov::~CSchemeGodunov(void)
 {
-	this->releaseResources();
+	this->releaseResources(); 
 	Sys_Memory_Count::self()->minus_mem(this->storage * 2, _sys_system_modules::HYD_SYS);
 	Sys_Memory_Count::self()->minus_mem(sizeof(CSchemeGodunov), _sys_system_modules::HYD_SYS);
 }
@@ -549,6 +549,7 @@ void CSchemeGodunov::prepare1OMemory(){
 	void* pBedElevations = NULL;
 	void* pManningValues = NULL;
 	void* pBoundaryValues = NULL;
+	void* pBilanValues = NULL;
 	void* pPoleniValues = NULL;
 	void* pOpt_zxmax = NULL;
 	void* pOpt_cx = NULL;
@@ -569,6 +570,7 @@ void CSchemeGodunov::prepare1OMemory(){
 		&pOpt_cy,
 		&pCouplingIDs,
 		&pCouplingValues,
+		&pBilanValues,
 		ucFloatSize
 	);
 
@@ -594,18 +596,18 @@ void CSchemeGodunov::prepare1OMemory(){
 	this->oclBufferCellBed = new COCLBuffer("Bed elevations", oclModel, true, true);
 
 	
-	//here the big data buffers are specify!
+
 	this->oclBufferCellStates->setPointer(pCellStates, ucFloatSize * 4 * pDomain->getCellCount());
 	this->oclBufferCellStatesAlt->setPointer(pCellStates, ucFloatSize * 4 * pDomain->getCellCount());
 	this->oclBufferCellManning->setPointer(pManningValues, ucFloatSize * pDomain->getCellCount());
 	if (this->bUseOptimizedBoundary == false) {
 		this->oclBufferCellBoundary->setPointer(pBoundaryValues, ucFloatSize * pDomain->getCellCount());
-		this->oclBufferBilanDef->setPointer(pBoundaryValues, ucFloatSize * pDomain->getCellCount());
+		this->oclBufferBilanDef->setPointer(pBilanValues, ucFloatSize * pDomain->getCellCount());
 	}
 	else {
 		this->oclBufferCouplingIDs->setPointer(pCouplingIDs, sizeof(cl_ulong) * this->ulCouplingArraySize);
 		this->oclBufferCouplingValues->setPointer(pCouplingValues, ucFloatSize * this->ulCouplingArraySize);
-		this->oclBufferBilanDef->setPointer(pCouplingValues, ucFloatSize * this->ulCouplingArraySize);
+		this->oclBufferBilanDef->setPointer(pBilanValues, ucFloatSize * this->ulCouplingArraySize);
 	}
 	this->oclBufferUsePoleni->setPointer(pPoleniValues, sizeof(sUsePoleni) * pDomain->getCellCount());
 	this->oclBuffer_opt_zxmax->setPointer(pOpt_zxmax, ucFloatSize * pDomain->getCellCount());
@@ -626,7 +628,6 @@ void CSchemeGodunov::prepare1OMemory(){
 		this->oclBufferCouplingValues->createBuffer();
 		this->oclBufferBilanDef->createBuffer();
 	}
-	//here the big data buffers are allocated!
 	this->oclBufferUsePoleni->createBuffer();
 	this->oclBuffer_opt_zxmax->createBuffer();
 	this->oclBuffer_opt_cx->createBuffer();
@@ -684,10 +685,11 @@ void CSchemeGodunov::prepare1OMemory(){
 	// VISUALISER STUFF
 	// TODO: Make this a bit better, put it somewhere else, etc.
 	this->oclBufferCellStates->setCallbackRead(CModel::visualiserCallback);
+	this->oclBufferBilanDef->setCallbackRead(CModel::visualiserCallback);
 
 	//count the memory
 	this->storage = 0;
-	this->storage = 6 * sizeof(double) + 2 + sizeof(int) + 2 * 4 * sizeof(double) * pDomain->getCellCount() + 5 * pDomain->getCellCount() * sizeof(double)+ 1* pDomain->getCellCount() * sizeof(bool);
+	this->storage = 6 * sizeof(double) + 2 + sizeof(int) + 2 * 4 * sizeof(double) * pDomain->getCellCount() + 5 * pDomain->getCellCount() * sizeof(double) + 1 * pDomain->getCellCount() * sizeof(bool);
 
 	this->storage = this->storage + sizeof(double) * this->ulReductionGlobalSize;
 
@@ -697,11 +699,10 @@ void CSchemeGodunov::prepare1OMemory(){
 	}
 	else {
 
-		this->storage = this->storage + this->ulCouplingArraySize * sizeof(double)+ this->ulCouplingArraySize * sizeof(long);
+		this->storage = this->storage + this->ulCouplingArraySize * sizeof(double) + this->ulCouplingArraySize * sizeof(long);
 	}
 
-	Sys_Memory_Count::self()->add_mem(this->storage*2, _sys_system_modules::HYD_SYS);
-
+	Sys_Memory_Count::self()->add_mem(this->storage * 2, _sys_system_modules::HYD_SYS);
 
 }
 
@@ -811,7 +812,6 @@ void CSchemeGodunov::releaseResources()
 void CSchemeGodunov::release1OResources()
 {
 	this->bReady = false;
-	//Here all are data are released!
 
 	if (this->oclModel != NULL)							delete oclModel;
 	if (this->oclKernelFullTimestep != NULL)				delete oclKernelFullTimestep;
@@ -872,8 +872,6 @@ void CSchemeGodunov::release1OResources()
 	oclBufferBatchTimesteps = NULL;
 	oclBufferBatchSuccessful = NULL;
 	oclBufferBatchSkipped = NULL;
-
-	
 
 }
 
@@ -1074,12 +1072,15 @@ void CSchemeGodunov::Threaded_runBatch()
 			}
 
 			// Schedule a batch-load of work for the device
-			//this is the loop over the time steps internal; all are on gpu
 			if (this->dCurrentTime < dTargetTime - 1e-8) {
 				oclKernelResetCounters->scheduleExecution();
 				for (unsigned int i = 0; i < uiQueueAmount; i++) {
-					///here the time step is started
+					///here the clacluation is started
 					this->scheduleIteration();
+					uiIterationsSinceTargetChanged++;
+					ulCurrentCellsCalculated += this->pDomain->getCellCount();
+					bUseAlternateKernel = !bUseAlternateKernel;
+
 					//Heun-Verfahren...
 					// 1. Schritt:speicher s in s_start mach 1 Zeitschritt, speicher ds_dt in ds_dt1, s wird verändert
 					// 2. Schritt: mach den zweiten mit neuen hs; speicher ds_dt in ds_dt2_ swird nicht verändert
@@ -1096,17 +1097,9 @@ void CSchemeGodunov::Threaded_runBatch()
 
 
 
-
-
-					uiIterationsSinceTargetChanged++;
-					ulCurrentCellsCalculated += this->pDomain->getCellCount();
-					bUseAlternateKernel = !bUseAlternateKernel;
-					
 				}
 
 			}
-
-			
 
 			// Schedule reading data back. We always need the timestep but we might not need the other details always...
 			oclBufferTimestep->queueReadAll();
@@ -1115,58 +1108,17 @@ void CSchemeGodunov::Threaded_runBatch()
 			oclBufferBatchSkipped->queueReadAll();
 			oclBufferBatchSuccessful->queueReadAll();
 			oclBufferBatchTimesteps->queueReadAll();
-			this->sum_deficit_bilan = 0.0;
-			if (this->bUseOptimizedBoundary == false) {
-				this->oclBufferBilanDef->queueReadAll();
-				for (int i = 0; i < pDomain->getCellCount();i++) {
-					if (cModel->getFloatPrecision() == model::floatPrecision::kSingle)
-					{
-						float* data = (this->oclBufferBilanDef->getHostBlock<float*>());
-						
-						this->sum_deficit_bilan = this->sum_deficit_bilan+data[i];
-						
-					}
-					else {
-						
-						double* data = (this->oclBufferBilanDef->getHostBlock<double*>());
-
-						this->sum_deficit_bilan = this->sum_deficit_bilan+data[i];
-						
-					}
-					
 
 
-				}
+			this->pDomain->getDevice()->blockUntilFinished();
 
 
 
-			}
-			else {
-				this->oclBufferBilanDef->queueReadAll();
-				for (int i = 0; i < this->ulCouplingArraySize; i++) {
-					if (cModel->getFloatPrecision() == model::floatPrecision::kSingle)
-					{
-						float* data = (this->oclBufferBilanDef->getHostBlock<float*>());
-
-						this->sum_deficit_bilan = this->sum_deficit_bilan+ data[i];
-
-					}
-					else {
-
-						double* data = (this->oclBufferBilanDef->getHostBlock<double*>());
-
-						this->sum_deficit_bilan = this->sum_deficit_bilan+ data[i];
-
-					}
-
-
-				}
-			}
 
 
 			
 
-			this->pDomain->getDevice()->blockUntilFinished();
+			
 			
 
 			this->readKeyStatistics();
@@ -1178,6 +1130,42 @@ void CSchemeGodunov::Threaded_runBatch()
 
 			// Wait until further work is scheduled
 			this->bRunning = false;
+
+
+			//this->sum_deficit_bilan = 0.0;
+			//if (this->bUseOptimizedBoundary == false) {
+			//	//this->oclBufferBilanDef->queueReadAll();
+			//	for (int i = 0; i < pDomain->getCellCount(); i++) {
+			//		if (cModel->getFloatPrecision() == model::floatPrecision::kSingle)
+			//		{
+			//			//float* data = (this->oclBufferBilanDef->getHostBlock<float*>());
+			//			this->sum_deficit_bilan = this->sum_deficit_bilan + 0;//data[i];
+			//		}
+			//		else {
+			//			//double* data = (this->oclBufferBilanDef->getHostBlock<double*>());
+
+			//			this->sum_deficit_bilan = this->sum_deficit_bilan + 0;// data[i];
+			//		}
+			//	}
+			//}
+			//else {
+			//	this->oclBufferBilanDef->queueReadAll();
+			//	for (int i = 0; i < this->ulCouplingArraySize; i++) {
+			//		if (cModel->getFloatPrecision() == model::floatPrecision::kSingle)
+			//		{
+			//			//float* data = (this->oclBufferBilanDef->getHostBlock<float*>());
+
+			//			this->sum_deficit_bilan = this->sum_deficit_bilan + 0;// data[i];
+
+			//		}
+			//		else {
+
+			//			//double* data = (this->oclBufferBilanDef->getHostBlock<double*>());
+
+			//			this->sum_deficit_bilan = this->sum_deficit_bilan + 0;// data[i];
+			//		}
+			//	}
+			//}
 
 			this->cModel->profiler->profile("BatchRunning", CProfiler::profilerFlags::END_PROFILING);
 
@@ -1219,9 +1207,7 @@ void	CSchemeGodunov::scheduleIteration() {
 
 	profiless
 
-
-		printf("Internal time  %.15f  \n", this->dCurrentTime);
-
+		//printf("Internal time  %.15f  \n", this->dCurrentTime);
 
 	//here the timesteps is claculated depending to the scheme, e.g. function pro_cacheDisabled in CLSchemePromaides.clc/.h
 	oclKernelFullTimestep->scheduleExecution();
@@ -1233,7 +1219,6 @@ void	CSchemeGodunov::scheduleIteration() {
 	}
 
 	profilebs
-		printf("Next boundary \n");
 	//here the´bounadries are set e.g. function pro_cacheDisabled in CLSchemePromaides.clc/.h
 	oclKernelBoundary->scheduleExecution();
 	profilebe
@@ -1262,6 +1247,12 @@ void CSchemeGodunov::readDomainAll()
 	else {
 		oclBufferCellStates->queueReadAll();
 	}
+	this->oclBufferBilanDef->queueReadAll();
+
+
+
+
+
 	this->cModel->profiler->profile("readDomainAll", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
 }
 
@@ -1350,7 +1341,11 @@ double CSchemeGodunov::get_bilan_deficit(void) {
 	
 
 }
+//Set the bilan deficit
+void CSchemeGodunov::set_bilan_deficit(double deficit) {
 
+	this->sum_deficit_bilan = deficit;
+}
 void CSchemeGodunov::dumpMemory() {
 	COCLBuffer* COCLBuffers[19] = { oclBufferCellStates,oclBufferCellManning,oclBufferCellBoundary,oclBufferUsePoleni,oclBuffer_opt_zxmax,
 	oclBuffer_opt_cx,oclBuffer_opt_zymax,oclBuffer_opt_cy,oclBufferCellBed,oclBufferTimestep,oclBufferTimestepReduction,oclBufferTime,

@@ -3987,6 +3987,22 @@ void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2database(con
 		Hyd_Element_Floodplain::delete_data_in_instat_erg_table(&this->database, this->system_id, this->hyd_sz.get_id(), this->break_sz);
 	}
 
+	//Set the query
+	QSqlQuery query_buff(this->database);
+
+	ostringstream prep_str;
+	//unlog table
+	//prep_str << "Alter Table " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << " Set Unlogged;";
+	//Data_Base::database_request(&query_buff, prep_str.str(), &this->database);
+	//prep_str.str("");
+	//prep_str.clear();
+
+	////delete prim key
+	//prep_str << "Alter Table " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << " DROP CONSTRAINT " << Hyd_Element_Floodplain::erg_instat_table->get_pure_table_name() << "_pkey; ";
+	//Data_Base::database_request(&query_buff, prep_str.str(), &this->database);
+	//prep_str.str("");
+	//prep_str.clear();
+
 	
 	//loop over the floodplain models
 	for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
@@ -3997,6 +4013,19 @@ void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2database(con
 		}
 		
 	}
+
+
+	////remake prim key
+	//prep_str << "Alter Table " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << " Add Primary key (" << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::glob_id) << "); ";
+	//Data_Base::database_request(&query_buff, prep_str.str(), &this->database);
+	//prep_str.str("");
+	//prep_str.clear();
+
+	////log table
+	//prep_str << "Alter Table " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << " Set Logged;";
+	//Data_Base::database_request(&query_buff, prep_str.str(), &this->database);
+	//prep_str.str("");
+	//prep_str.clear();
 }
 //Clear all not needed data of the models before the solver is initialized
 void Hyd_Hydraulic_System::clear_models(void){
@@ -4164,10 +4193,10 @@ double Hyd_Hydraulic_System::check_internal_timestep(void){
 	//	new_timestep=this->internal_timestep_base;
 	//}
 
-	int step=this->internal_timestep_base/new_timestep;
+	double step=this->internal_timestep_base/new_timestep;
 
 	if(step>1){
-		new_timestep=this->internal_timestep_base/step;
+		new_timestep=(int)(this->internal_timestep_base/step);
 		//try with reset of fp-models
 		if(step>4){
 			//this->reset_solver_rv_models();

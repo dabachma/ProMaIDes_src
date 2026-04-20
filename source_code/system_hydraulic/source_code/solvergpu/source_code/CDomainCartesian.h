@@ -115,7 +115,7 @@ class CDomainCartesian
 
 		void				createStoreBuffers(void**, void**, void**, void**, void**,
 			void**, void**, void**, void**, void**,
-			void**, unsigned char);												// Allocates memory and returns pointers to the three arrays
+			void**, void**, unsigned char);												// Allocates memory and returns pointers to the three arrays
 		void				resetAllValues();									// Resets all buffer values
 		void				setScheme(CScheme*);								// Set the scheme running for this domain
 		CScheme*			getScheme();										// Get the scheme running for this domain
@@ -143,6 +143,7 @@ class CDomainCartesian
 		double			getZxmax(unsigned long);								// Gets the Zx value for a given cell
 		double			getZymax(unsigned long);								// Gets the Zy value for a given cell
 		double			getBoundaryCondition(unsigned long ulCellID);			// Gets the boundary condition for a given cell
+		double			getBilanValue(unsigned long ID);						// Gets the bilan for a given cell
 		bool			isDoublePrecision() { return (ucFloatSize == 8); };		// Are we using double-precision?
 
 		//HelperFunctions
@@ -181,6 +182,7 @@ class CDomainCartesian
 		cl_double* dOpt_zymaxValues;		// Heap for opt_zymax values
 		cl_double* dOpt_cyValues;			// Heap for opt_cy values
 		cl_double* dCouplingValues;			// Heap for optimized coupling values
+		cl_double* dBilanValues;			// Heap for optimized Bilan values 
 
 		cl_float4* fCellStates;				// Heap for cell state date (single)
 		cl_float* fBedElevations;			// Heap for bed elevations (single)
@@ -191,6 +193,7 @@ class CDomainCartesian
 		cl_float* fOpt_zymaxValues;			// Heap for opt_zymax values (single)
 		cl_float* fOpt_cyValues;			// Heap for opt_cy values (single)
 		cl_float* fCouplingValues;			// Heap for optimized coupling values (single)
+		cl_float* fBilanValues;				// Heap for optimized Bilan values (single)
 
 		sUsePoleni* bPoleniValues;			// Heap for Struct of Poleni values
 		cl_ulong* ulCouplingIDs;			// Heap for optimized coupling IDs

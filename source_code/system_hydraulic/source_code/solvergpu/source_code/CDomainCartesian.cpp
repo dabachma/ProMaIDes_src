@@ -49,6 +49,7 @@ CDomainCartesian::CDomainCartesian(void)
 	this->dOpt_zymaxValues = NULL;
 	this->dOpt_cyValues = NULL;
 	this->dCouplingValues = NULL;
+	this->dBilanValues = NULL;
 
 	this->fCellStates = NULL;
 	this->fBedElevations = NULL;
@@ -59,6 +60,7 @@ CDomainCartesian::CDomainCartesian(void)
 	this->fOpt_zymaxValues = NULL;
 	this->fOpt_cyValues = NULL;
 	this->fCouplingValues = NULL;
+	this->fBilanValues = NULL;
 
 	this->bPoleniValues = NULL;
 	this->ulCouplingIDs = NULL;
@@ -76,6 +78,7 @@ CDomainCartesian::~CDomainCartesian(void)
 		if (this->fOpt_cxValues != NULL)			delete[] this->fOpt_cxValues;
 		if (this->fOpt_zymaxValues != NULL)		delete[] this->fOpt_zymaxValues;
 		if (this->fOpt_cyValues != NULL)			delete[] this->fOpt_cyValues;
+		if (this->fBilanValues != NULL) delete[] this->fBilanValues;
 		if (this->bUseOptimizedBoundary == false) {
 			if (this->fBoundaryValues != NULL)	delete[] this->fBoundaryValues;
 		}
@@ -92,6 +95,7 @@ CDomainCartesian::~CDomainCartesian(void)
 		if (this->dOpt_cxValues != NULL)		delete[] this->dOpt_cxValues;
 		if (this->dOpt_zymaxValues != NULL)		delete[] this->dOpt_zymaxValues;
 		if (this->dOpt_cyValues != NULL)		delete[] this->dOpt_cyValues;
+		if (this->dBilanValues != NULL)			delete[] this->dBilanValues;
 		if (this->bUseOptimizedBoundary == false) {
 			if (this->dBoundaryValues != NULL)	delete[] this->dBoundaryValues;
 		}
@@ -151,6 +155,7 @@ void	CDomainCartesian::createStoreBuffers(
 	void** vArrayOpt_cy,
 	void** vArrayCouplingIDs,
 	void** vArrayCouplingValues,
+    void** vArrayBilanValues,
 	unsigned char	ucFloatSize_input
 )
 {
@@ -187,10 +192,16 @@ void	CDomainCartesian::createStoreBuffers(
 			*vArrayOpt_zymax = static_cast<void*>(this->fOpt_zymaxValues);
 			*vArrayOpt_cy = static_cast<void*>(this->fOpt_cyValues);
 
+			
+
 			if (this->bUseOptimizedBoundary == false) {
 				this->fBoundaryValues = new cl_float[ulCellCount];
 				this->dBoundaryValues = (cl_double*)(this->fBoundaryValues);
 				*vArrayBoundaryValues = static_cast<void*>(this->fBoundaryValues);
+
+				this->fBilanValues = new cl_float[ulCellCount];
+				this->dBilanValues = (cl_double*)(this->fBilanValues);
+				*vArrayBilanValues = static_cast<void*>(this->fBilanValues);
 			}
 			else {
 				this->fCouplingValues = new cl_float[this->ulCouplingArraySize];
@@ -199,6 +210,10 @@ void	CDomainCartesian::createStoreBuffers(
 
 				this->ulCouplingIDs = new cl_ulong[this->ulCouplingArraySize];
 				*vArrayCouplingIDs = static_cast<void*>(this->ulCouplingIDs);
+
+				this->fBilanValues = new cl_float[this->ulCouplingArraySize];
+				this->dBilanValues = (cl_double*)(this->fBilanValues);
+				*vArrayBilanValues = static_cast<void*>(this->fBilanValues);
 			}
 		}
 		else {
@@ -227,10 +242,18 @@ void	CDomainCartesian::createStoreBuffers(
 			*vArrayOpt_zymax = static_cast<void*>(this->dOpt_zymaxValues);
 			*vArrayOpt_cy = static_cast<void*>(this->dOpt_cyValues);
 
+			
+
 			if (this->bUseOptimizedBoundary == false) {
 				this->dBoundaryValues = new cl_double[ulCellCount];
 				this->fBoundaryValues = (cl_float*)(this->dBoundaryValues);
 				*vArrayBoundaryValues = static_cast<void*>(this->fBoundaryValues);
+
+				this->dBilanValues = new cl_double[ulCellCount];
+				this->fBilanValues = (cl_float*)(this->dBilanValues);
+				*vArrayBilanValues = static_cast<void*>(this->fBilanValues);
+
+
 			}
 			else {
 				this->dCouplingValues = new cl_double[this->ulCouplingArraySize];
@@ -239,6 +262,12 @@ void	CDomainCartesian::createStoreBuffers(
 
 				this->ulCouplingIDs = new cl_ulong[this->ulCouplingArraySize];
 				*vArrayCouplingIDs = static_cast<void*>(this->ulCouplingIDs);
+
+				this->dBilanValues = new cl_double[this->ulCouplingArraySize];
+				this->fBilanValues = (cl_float*)(this->dBilanValues);
+				*vArrayBilanValues = static_cast<void*>(this->fBilanValues);
+
+
 			}
 
 		}
@@ -273,7 +302,9 @@ void	CDomainCartesian::resetAllValues(){
 			this->fCellStates[i].s[3] = 0.0;	// Discharge Y
 			this->fBedElevations[i] = 0.0;	// Bed elevation
 			this->fManningValues[i] = 0.0;	// Manning coefficient
+			
 			if (this->bUseOptimizedBoundary == false) {
+				this->fBilanValues[i] = 0.0;
 				this->fBoundaryValues[i] = 0.0;	// Boundary Values
 			}
 
@@ -289,6 +320,7 @@ void	CDomainCartesian::resetAllValues(){
 			this->dBedElevations[i] = 0.0;	// Bed elevation
 			this->dManningValues[i] = 0.0;	// Manning coefficient
 			if (this->bUseOptimizedBoundary == false) {
+				this->dBilanValues[i] = 0.0;
 				this->dBoundaryValues[i] = 0.0;	// Boundary Values
 			}
 			this->dOpt_zxmaxValues[i] = 0.0;	// Maxium elevation for poleni in X
@@ -303,8 +335,10 @@ void	CDomainCartesian::resetAllValues(){
 	if (this->bUseOptimizedBoundary == true) {
 		for (unsigned long i = 0; i < this->ulCouplingArraySize; i++){
 			if (this->ucFloatSize == 4){
+				this->fBilanValues[i] = 0.0;
 				this->fCouplingValues[i] = 0.0;	// Optimized Coupling Values
 			}else {
+				this->dBilanValues[i] = 0.0;
 				this->dCouplingValues[i] = 0.0;	// Optimized Coupling Values
 			}
 			this->ulCouplingIDs[i] = 0;    // Optimized Coupling Values
@@ -573,6 +607,24 @@ void CDomainCartesian::readBuffers_opt_h(double* valueArray)
 		}
 	}
 
+	//read bilan out
+	this->getScheme()->set_bilan_deficit(0.0);
+	if (this->bUseOptimizedBoundary == false) {
+
+
+
+
+		for (int i = 0; i < this->getCellCount(); i++) {
+			this->getScheme()->set_bilan_deficit(this->getScheme()->get_bilan_deficit() + this->getBilanValue(i));
+		}
+	}
+
+	else {
+		for (int i = 0; i < this->ulCouplingArraySize; i++) {
+			this->getScheme()->set_bilan_deficit(this->getScheme()->get_bilan_deficit() + this->getBilanValue(i));
+		}
+	}
+
 }
 
 //Read water depth, velocity in x, velocity in , to a double pointer
@@ -584,11 +636,7 @@ void CDomainCartesian::readBuffers_h_vx_vy(double* opt_h, double* v_x, double* v
 	pScheme->readDomainAll();
 	pDevice->blockUntilFinished();
 
-	//temp
-	//double highestV = 0 ;
-	//int index = 0;
-	////temp
-
+	
 
 	unsigned long	ulCellID;
 	double dDepth, dV_x, dV_y;
@@ -615,6 +663,21 @@ void CDomainCartesian::readBuffers_h_vx_vy(double* opt_h, double* v_x, double* v
 	//temp
 	//std::cout << "Highest V: " << highestV << " at " << index << std::endl;
 	//temp
+
+	//read bilan out
+	this->getScheme()->set_bilan_deficit(0.0);
+	if (this->bUseOptimizedBoundary == false) {
+		
+		for (int i = 0; i < this->getCellCount(); i++) {
+			this->getScheme()->set_bilan_deficit(this->getScheme()->get_bilan_deficit() + this->getBilanValue(i));
+		}
+	}
+
+	else {
+		for (int i = 0; i < this->ulCouplingArraySize; i++) {
+			this->getScheme()->set_bilan_deficit(this->getScheme()->get_bilan_deficit() + this->getBilanValue(i));
+		}
+	}
 }
 
 //Read Velocity in x buffer to double pointer
@@ -893,6 +956,13 @@ double	CDomainCartesian::getBoundaryCondition(unsigned long ulCellID)
 	if (this->ucFloatSize == 4)
 		return static_cast<double>(this->fBoundaryValues[ulCellID]);
 	return this->dBoundaryValues[ulCellID];
+}
+//Gets the Bilan value for a given cell
+double	CDomainCartesian::getBilanValue(unsigned long ulCellID)
+{
+	if (this->ucFloatSize == 4)
+		return static_cast<double>(this->fBilanValues[ulCellID]);
+	return this->dBilanValues[ulCellID];
 }
 
 ////Helper Functions

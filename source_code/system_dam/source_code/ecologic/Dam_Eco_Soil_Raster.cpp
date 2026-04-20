@@ -149,7 +149,7 @@ void Dam_Eco_Soil_Raster::transfer_input_members2database(QSqlDatabase *ptr_data
 		glob_id++;
 		counter++;
 
-        if(i%25000==0 && i>0){
+        if(i%20000==0 && i>0){
             cout << "Transfer soil-erosion raster elements "<< i <<" to " << i+25000 <<" (from "<<this->number_polygons<<")" <<" to database..."<< endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
 		}
@@ -392,7 +392,7 @@ void Dam_Eco_Soil_Raster::output_results2database(QSqlDatabase *ptr_database,con
 	bool must_output2=false;
 
 	for(int i=0; i<this->number_polygons; i++){
-		if(i%10000==0 && i>0){
+		if(i%20000==0 && i>0){
 			cout << i <<" ("<<this->get_number_elements()<<") results of soil-erosion raster elements are transfered to database..."<< endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
 			Dam_Damage_System::check_stop_thread_flag();
@@ -410,7 +410,7 @@ void Dam_Eco_Soil_Raster::output_results2database(QSqlDatabase *ptr_database,con
 			*was_output=true;
 		}
 		//send packages of 100
-		if(counter==100){
+		if(counter==500){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();
@@ -794,7 +794,7 @@ void Dam_Eco_Soil_Raster::transfer_intercepted_elem_data2database(QSqlDatabase *
 	QSqlQuery query_buff(*ptr_database);
 
 	for(int i=0; i<this->number_polygons; i++){
-		if(i%10000==0 && i>0){
+		if(i%20000==0 && i>0){
 			cout << i <<" ("<<this->get_number_elements()<<") soil-erosion raster elements are transfered to database..."<< endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
 			Dam_Damage_System::check_stop_thread_flag();
@@ -805,7 +805,7 @@ void Dam_Eco_Soil_Raster::transfer_intercepted_elem_data2database(QSqlDatabase *
 		};
 
 		//send packages of 100
-		if(counter==100){
+		if(counter==500){
 			//delete last semikolon
 			string buff=query_total.str();
 			buff.erase(buff.length()-1);

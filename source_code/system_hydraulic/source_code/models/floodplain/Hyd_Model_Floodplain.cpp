@@ -3538,7 +3538,7 @@ void Hyd_Model_Floodplain::output_result_max2database(QSqlDatabase *ptr_database
 		if(i==this->NEQ-1 && must_output==true && *was_output==false){
 			must_output2=true;
 		}
-		if(i%10000==0 && i>0){
+		if(i%20000==0 && i>0){
 			cout << i <<" ("<<this->get_number_elements()<<") result data of HYD raster elements are transfered to database..."<< endl;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
 			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
@@ -3554,7 +3554,7 @@ void Hyd_Model_Floodplain::output_result_max2database(QSqlDatabase *ptr_database
 		}
 
 		//send packages of 100
-		if(counter==100){
+		if(counter==500){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();
@@ -4462,7 +4462,7 @@ void Hyd_Model_Floodplain::transfer_element_members2database(QSqlDatabase *ptr_d
 	string buffer_data;
 
 	for(int i=0; i<this->NEQ; i++){
-		if(i%10000==0 && i>0){
+		if(i%20000==0 && i>0){
 			cout << i <<" ("<<this->get_number_elements()<<") data of HYD raster elements are transfered to database..."<< endl;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
 			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();

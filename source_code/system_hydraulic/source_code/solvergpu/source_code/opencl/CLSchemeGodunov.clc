@@ -461,13 +461,13 @@ void gts_cacheDisabled (
 	//	pCellData.w = 0.0;
 	//}
 	// Crazy low depths?
-	if ( pCellData.x - dCellBedElev < 1e-5 ){ 
+	if ( pCellData.x - dCellBedElev < 1e-3 ){ 
 		pCellData.z = 0.0;
 		pCellData.w = 0.0;
 	}
 	// Crazy low depths?
 	if ( pCellData.x - dCellBedElev < 1e-10 ){ 
-		pCellData.x = dCellBedElev;
+		//pCellData.x = dCellBedElev;
 	}
 
 	// Commit to global memory

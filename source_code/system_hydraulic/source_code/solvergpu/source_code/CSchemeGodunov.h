@@ -54,6 +54,8 @@ public:
 
 		//Function to get the bilan deficit
 		double get_bilan_deficit(void);
+		//Set the bilan deficit
+		void set_bilan_deficit(double deficit);
 
 		#ifdef PLATFORM_WIN
 		static DWORD		Threaded_runBatchLaunch(LPVOID param);

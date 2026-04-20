@@ -87,6 +87,8 @@ class CScheme
 
 		//Function to get the bilan deficit
 		virtual double get_bilan_deficit(void)=0;
+		//Set the bilan deficit
+		virtual void set_bilan_deficit(double deficit) = 0;
 
 	protected:
 

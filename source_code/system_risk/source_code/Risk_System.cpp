@@ -7945,7 +7945,7 @@ void Risk_System::calc_detailed_result_element_ecn(_risk_risk_results *total){
 
 
 		for(int i=0; i< number; i++){
-			if(i%10000==0 && i>0){
+			if(i%20000==0 && i>0){
 				cout << i <<" ("<<number<<") detailed risk results of economical raster elements are transfered to database..."<< endl;
 				Sys_Common_Output::output_risk->output_txt(&cout);
 				Risk_System::check_stop_thread_flag();
@@ -8004,7 +8004,7 @@ void Risk_System::calc_detailed_result_element_ecn(_risk_risk_results *total){
 
 			glob_id++;
 			counter++;
-			if(counter==100){
+			if(counter==500){
 				query_total<< query_header << query_data.str();
 				//delete last komma
 				string buff=query_total.str();
@@ -8080,7 +8080,7 @@ void Risk_System::calc_detailed_result_element_eco_btype(_risk_risk_results *tot
 
 
 		for(int i=0; i< number; i++){
-			if(i%10000==0 && i>0){
+			if(i%20000==0 && i>0){
 				cout << i <<" ("<<number<<") detailed risk results of ecological biotope-type raster elements are transfered to database..."<< endl;
 				Sys_Common_Output::output_risk->output_txt(&cout);
 				Risk_System::check_stop_thread_flag();
@@ -8128,7 +8128,7 @@ void Risk_System::calc_detailed_result_element_eco_btype(_risk_risk_results *tot
 
 			glob_id++;
 			counter++;
-			if(counter==100){
+			if(counter==500){
 				query_total<< query_header << query_data.str();
 				//delete last komma
 				string buff=query_total.str();
@@ -8204,7 +8204,7 @@ void Risk_System::calc_detailed_result_element_eco_soil(_risk_risk_results *tota
 
 
 		for(int i=0; i< number; i++){
-			if(i%10000==0 && i>0){
+			if(i%20000==0 && i>0){
 				cout << i <<" ("<<number<<") detailed risk results of ecological soil-erosion raster elements are transfered to database..."<< endl;
 				Sys_Common_Output::output_risk->output_txt(&cout);
 				Risk_System::check_stop_thread_flag();
@@ -8252,7 +8252,7 @@ void Risk_System::calc_detailed_result_element_eco_soil(_risk_risk_results *tota
 
 			glob_id++;
 			counter++;
-			if(counter==100){
+			if(counter==500){
 				query_total<< query_header << query_data.str();
 				//delete last komma
 				string buff=query_total.str();
@@ -8331,7 +8331,7 @@ void Risk_System::calc_detailed_result_element_pop(_risk_risk_results *total){
 
 
 		for(int i=0; i< number; i++){
-			if(i%10000==0 && i>0){
+			if(i%20000==0 && i>0){
 				cout << i <<" ("<<number<<") detailed risk results of people2risk raster elements are transfered to database..."<< endl;
 				Sys_Common_Output::output_risk->output_txt(&cout);
 				Risk_System::check_stop_thread_flag();
@@ -8400,7 +8400,7 @@ void Risk_System::calc_detailed_result_element_pop(_risk_risk_results *total){
 
 			glob_id++;
 			counter++;
-			if(counter==100){
+			if(counter==500){
 				query_total<< query_header << query_data.str();
 				//delete last komma
 				string buff=query_total.str();
@@ -8478,7 +8478,7 @@ void Risk_System::calc_detailed_result_element_pys(_risk_risk_results *total){
 
 
 		for(int i=0; i< number; i++){
-			if(i%10000==0 && i>0){
+			if(i%20000==0 && i>0){
 				cout << i <<" ("<<number<<") detailed risk results of pyscho-social raster elements are transfered to database..."<< endl;
 				Sys_Common_Output::output_risk->output_txt(&cout);
 				Risk_System::check_stop_thread_flag();
@@ -8621,7 +8621,7 @@ void Risk_System::calc_detailed_result_element_pys(_risk_risk_results *total){
 
 			glob_id++;
 			counter++;
-			if(counter==100){
+			if(counter==500){
 				query_total<< query_header << query_data.str();
 				//delete last komma
 				string buff=query_total.str();
@@ -8708,7 +8708,7 @@ void Risk_System::calc_detailed_result_point_sc(_risk_risk_results *total){
 			buff.sc_cult_build=0.0;
 			buff.sc_person_build=0.0;
 
-			if(i%10000==0 && i>0){
+			if(i%20000==0 && i>0){
 				cout << i <<" ("<<number<<") detailed risk results of simple counting points are transfered to database..."<< endl;
 				Sys_Common_Output::output_risk->output_txt(&cout);
 				Risk_System::check_stop_thread_flag();
@@ -8807,7 +8807,7 @@ void Risk_System::calc_detailed_result_point_sc(_risk_risk_results *total){
 
 			glob_id++;
 			counter++;
-			if(counter==100){
+			if(counter==500){
 				query_total<< query_header << query_data.str();
 				//delete last komma
 				string buff=query_total.str();

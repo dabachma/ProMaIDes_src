@@ -268,7 +268,7 @@ void Dam_Sc_Point_Manager::transfer_input_members2database(QSqlDatabase *ptr_dat
 			Sys_Common_Output::output_dam->output_txt(&cout);
 		}
 		//send packages of 100
-		if(counter==100){
+		if(counter==500){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();
@@ -589,7 +589,7 @@ void Dam_Sc_Point_Manager::transfer_intercepted_point_data2database(QSqlDatabase
 		};
 
 		//send packages of 100
-		if(counter==100){
+		if(counter==500){
 			//delete last semikolon
 			string buff=query_total.str();
 			buff.erase(buff.length()-1);
@@ -724,7 +724,7 @@ void Dam_Sc_Point_Manager::output_results2database(QSqlDatabase *ptr_database,co
 			*was_output=true;
 		}
 		//send packages of 100
-		if(counter==100){
+		if(counter==500){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();
