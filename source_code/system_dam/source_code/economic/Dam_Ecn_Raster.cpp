@@ -232,7 +232,7 @@ void Dam_Ecn_Raster::transfer_input_members2database(QSqlDatabase *ptr_database)
 		glob_id++;
 		counter++;
 
-        if(i%20000==0 && i>0){
+        if(i%100000==0 && i>0){
             cout << "Transfer economical raster elements "<< i <<" to " << i+25000 <<" (from "<<this->number_polygons<<")" <<" to database..."<< endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
 		}
@@ -484,7 +484,7 @@ void Dam_Ecn_Raster::output_results2database(QSqlDatabase *ptr_database, const i
 	bool must_output2=false;
 
 	for(int i=0; i<this->number_polygons; i++){
-		if(i%20000==0 && i>0){
+		if(i%100000==0 && i>0){
 			cout << i <<" ("<<this->get_number_elements()<<") results of economical raster elements are transfered to database..."<< endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
 			Dam_Damage_System::check_stop_thread_flag();
@@ -899,7 +899,7 @@ void Dam_Ecn_Raster::transfer_intercepted_elem_data2database(QSqlDatabase *ptr_d
 	QSqlQuery query_buff(*ptr_database);
 
 	for(int i=0; i<this->number_polygons; i++){
-		if(i%20000==0 && i>0){
+		if(i%100000==0 && i>0){
 			cout << i <<" ("<<this->get_number_elements()<<") economical raster elements are transfered to database..."<< endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
 			Dam_Damage_System::check_stop_thread_flag();

@@ -108,7 +108,7 @@ double _Hyd_Element_Floodplain_Type::get_flowvelocity_vtotal(void){
 	return 0.0;
 }
 //Get the if the element is wet
-double _Hyd_Element_Floodplain_Type::get_wet_flag(void){
+bool _Hyd_Element_Floodplain_Type::get_wet_flag(void){
 	return false;
 }
 //Add the hydrological balance value of the boundary condition discharges to the given pointer

@@ -76,6 +76,8 @@ void Geo_Ray::calc_interception(Geo_Segment *interception_segment,  _geo_interce
 	my_interception->name_2=*(interception_segment->get_ptr_name());
 	my_interception->indefinite_flag=false;
 	my_interception->interception_flag=false;
+
+	//Abfrage if gradient_ray==0, dann check y koor of point mit y coor of segment
 	
 	//exception: check vertical line
 	if(this->vertical_flag==true && interception_segment->get_vertical_flag()==false){//check if it is vertic

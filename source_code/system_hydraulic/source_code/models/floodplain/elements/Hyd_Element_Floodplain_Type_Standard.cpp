@@ -311,7 +311,7 @@ double Hyd_Element_Floodplain_Type_Standard::get_flowvelocity_vtotal(void){
 	return this->v_total;
 }
 //Get the if the element is wet
-double Hyd_Element_Floodplain_Type_Standard::get_wet_flag(void){
+bool Hyd_Element_Floodplain_Type_Standard::get_wet_flag(void){
 	return this->wet_flag;
 }
 //Get the relevant area of the element

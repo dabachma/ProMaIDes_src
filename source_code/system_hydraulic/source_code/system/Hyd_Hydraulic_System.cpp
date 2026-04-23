@@ -1578,8 +1578,9 @@ void Hyd_Hydraulic_System::init_temp_solver(void) {
 //make the calculation
 void Hyd_Hydraulic_System::make_calculation(void){
 	//set Profiler
-	Profiler profiler = new Profiler(true);
-	this->profiler = profiler;
+	//Profiler profiler = new Profiler(true);
+	//this->profiler = profiler;
+	this->profiler.activate_profiler(true);
 
 	//set the first output time
 	this->output_time=this->global_parameters.GlobTStep+this->global_parameters.get_startime();
@@ -3997,7 +3998,7 @@ void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2database(con
 	//prep_str.str("");
 	//prep_str.clear();
 
-	////delete prim key
+	//delete prim key
 	//prep_str << "Alter Table " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << " DROP CONSTRAINT " << Hyd_Element_Floodplain::erg_instat_table->get_pure_table_name() << "_pkey; ";
 	//Data_Base::database_request(&query_buff, prep_str.str(), &this->database);
 	//prep_str.str("");
@@ -4015,13 +4016,13 @@ void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2database(con
 	}
 
 
-	////remake prim key
+	//remake prim key
 	//prep_str << "Alter Table " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << " Add Primary key (" << Hyd_Element_Floodplain::erg_instat_table->get_column_name(label::glob_id) << "); ";
 	//Data_Base::database_request(&query_buff, prep_str.str(), &this->database);
 	//prep_str.str("");
 	//prep_str.clear();
 
-	////log table
+	//log table
 	//prep_str << "Alter Table " << Hyd_Element_Floodplain::erg_instat_table->get_table_name() << " Set Logged;";
 	//Data_Base::database_request(&query_buff, prep_str.str(), &this->database);
 	//prep_str.str("");

@@ -332,8 +332,15 @@ Hyd_Floodplainraster_Point * Hyd_Floodplain_Raster::get_raster_point(const int i
 }
 //Set a given type to Hyd_Element_Floodplain (e.g. noflow) if a raster polygon (Hyd_Floodplain_Raster_Polygon) is inside a given polygon 
 void Hyd_Floodplain_Raster::set_rasterpolygon_inside(Hyd_Floodplain_Polygon *polygon){
+	
+
+
+
 	for(int i=0; i< this->number_polygons; i++){
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+		if (polygon->check_point_inside(this->floodplain_pointer[i].get_mid_point()) == false) {
+			continue;
+		}
 		//set the polygon
 		this->set_raster_polygon(i);
 		//check if the raster polygon is inside the given polygon

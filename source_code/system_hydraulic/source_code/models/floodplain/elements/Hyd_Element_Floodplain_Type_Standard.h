@@ -84,7 +84,7 @@ public:
 	///Get the total flow velocity
 	double get_flowvelocity_vtotal(void);
 	///Get the if the element is wet
-	double get_wet_flag(void);
+	bool get_wet_flag(void);
 
 	///Get the relevant area of the element
 	double get_relevant_area(void);

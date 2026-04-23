@@ -879,7 +879,13 @@ void Hyd_Coupling_Management::init_couplings(void){
 		for(int i=0; i< this->number_rv2fp; i++){
 			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 			this->coupling_rv2fp[i].init_coupling();
+			cout << "Profiling coupling FP"<< this->coupling_rv2fp[i].get_floodplain_index()<<" to RV" <<this->coupling_rv2fp[i].get_river_index() << endl;
+			Sys_Common_Output::output_hyd->output_txt(&cout,true);
+			this->coupling_rv2fp[i].couplingprof.logValues();
+
 		}
+
+
 	
 		cout << "Merge river- and floodplainmodel couplings..." << endl ;
 		Sys_Common_Output::output_hyd->output_txt(&cout);

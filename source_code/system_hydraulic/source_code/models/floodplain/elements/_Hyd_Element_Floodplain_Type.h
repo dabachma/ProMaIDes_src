@@ -172,7 +172,7 @@ public:
 	///Get the total flow velocity
 	virtual double get_flowvelocity_vtotal(void);
 	///Get the if the element is wet
-	virtual double get_wet_flag(void);
+	virtual bool get_wet_flag(void);
 
 	///Add the hydrological balance value of the boundary condition discharges to the given pointer
 	virtual void add_hydro_balance_boundary(_hyd_hydrological_balance *given);

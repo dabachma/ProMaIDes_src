@@ -48,7 +48,7 @@ public:
 	///Get the local waterlevel (h_value)
 	double get_h_value(void);
 	///Get the if the element is wet
-	double get_wet_flag(void);
+	bool get_wet_flag(void);
 
 	///Get the maximum local waterlevel (h_value)
 	_hyd_max_values get_max_h_value(void);

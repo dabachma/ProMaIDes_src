@@ -390,6 +390,11 @@ string Tables::get_table_name(void){
 		return this->table_name.name;
 	}
 }
+///Get the pure table name
+string Tables::get_pure_table_name(void) {
+	return this->table_name.name;
+
+}
 //Get the used name of a column with a given id-name; needed for a database query
 string Tables::get_column_name(const string id){
 	this->my_locker.lock();

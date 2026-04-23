@@ -1023,12 +1023,12 @@ void Hyd_Model_Floodplain::reset_model(Hyd_Param_Global *global_params){
 //Initialize the solver with the given parameters
 void Hyd_Model_Floodplain::init_solver(Hyd_Param_Global *global_params){
 
-	//test opti
+	//test opti (brauche ich nur für cpu!)
 	this->allocate_opt_data();
 	this->init_opt_data();
-    this->init_opt_data_bound_coup();
-    this->allocate_opt_data_reduced();
-    this->init_reduced_id();
+	this->init_opt_data_bound_coup();
+	this->allocate_opt_data_reduced();
+	this->init_reduced_id();
 
 	if (this->Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU) {
 
@@ -1039,26 +1039,31 @@ void Hyd_Model_Floodplain::init_solver(Hyd_Param_Global *global_params){
 			msg.make_second_info(info.str());
 			msg.output_msg(2);
 
-			//Run Cpu scheme
+					//Run Cpu scheme
 			_Hyd_Model::init_solver(global_params);
 		}
 		else {
+			
 			_Hyd_Model::init_solver_gpu(global_params);
+		
 		}
 	}else {
+	
 		_Hyd_Model::init_solver(global_params);
+
 	}
 }
 //Reinitialize the solver
-void Hyd_Model_Floodplain::reinit_solver(Hyd_Param_Global *global_params){
+void Hyd_Model_Floodplain::reinit_solver(Hyd_Param_Global* global_params) {
 
 	//test opti
-
+	
 	this->allocate_opt_data();
-    this->init_opt_data();
-    this->allocate_opt_data_reduced();
-    this->init_reduced_id();
-    //this->NEQ_real=this->NEQ;
+	this->init_opt_data();
+	this->allocate_opt_data_reduced();
+	this->init_reduced_id();
+	
+    
     _Hyd_Model::reinit_solver(global_params);
 
 }
@@ -1267,22 +1272,18 @@ void Hyd_Model_Floodplain::solve_model(const double next_time_point, const strin
 		throw msg;
 	}
 }
-
 //Fetches the number of boundary condition of the floodplain; the number of cells who will have a boundary values after each iteration
 int Hyd_Model_Floodplain::get_number_boundary_conditions() {
 	return this->number_bound_cond;
 }
-
 //Fetches the number of coupling condition of the floodplain; the number of cells who will have a coupling values after each iteration
 int Hyd_Model_Floodplain::get_number_coupling_conditions() {
 	return this->number_coup_cond;
 }
-
 //Fetches the optimized coupling ids
 unsigned long Hyd_Model_Floodplain::get_optimized_coupling_id(unsigned long index) {
 	return this->coup_cond_id[index];
 }
-
 //Solve_model with GPU
 void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const string system_id, Profiler *profiler_input) {
 	try {
@@ -1372,6 +1373,10 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 
 		// OLD CODE ............................................... Better for inertial Scheme
 		profiler_input->profile("  GPU get results", Profiler::profilerFlags::START_PROFILING);
+
+		//optimieren
+		//keine alloc!...direktes umschreiben der ergebnisse!
+		//output beim schreiben->20000 auf 50000!
 		
 		if (myScheme->getSchemeType() == model::schemeTypes::kInertialGPU || myScheme->getSchemeType() == model::schemeTypes::kDiffusiveGPU) {
 
@@ -1394,6 +1399,7 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 			//profiler->profile("update_ds_dt", Profiler::profilerFlags::START_PROFILING);
 			//update ds_dt value (Used for Output and Display)
 			for (int i = 0; i < this->NEQ; i++) {
+				//das ist falsch oder?
 					this->floodplain_elems[i].element_type->set_ds2dt_value(opt_h_gpu[i] - this->floodplain_elems[i].element_type->get_h_value());
 			}
 			//profiler->profile("update_ds_dt", Profiler::profilerFlags::END_PROFILING);
@@ -1422,7 +1428,7 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 			double* opt_v_y_gpu = new double[this->NEQ];
 			pManager->getDomain()->readBuffers_h_vx_vy(opt_h_gpu, opt_v_x_gpu, opt_v_y_gpu);
 
-			//update ds_dt value (Used for Output and Display)
+			//update ds_dt value (Used for Output and Display) / syncronstep!!
 			for (int i = 0; i < this->NEQ; i++) {
 				if (this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::STANDARD_ELEM || this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::DIKELINE_ELEM) {
 					this->floodplain_elems[i].element_type->set_ds2dt_value(opt_h_gpu[i] - this->floodplain_elems[i].element_type->get_h_value());
@@ -1458,7 +1464,6 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 		throw msg;
 	}
 }
-
 //output the members
 void Hyd_Model_Floodplain::output_members(void){
 	//set prefix for output
@@ -2395,7 +2400,7 @@ void Hyd_Model_Floodplain::output_result2database(QSqlDatabase *ptr_database, co
 		}
 
 		//send packages of 100 Daniel check if working!
-		if (counter == 750) {
+		if (counter == 5000) {
 			query_total << query_header << query_data.str();
 			//delete last komma
 			string buff = query_total.str();
@@ -3538,7 +3543,7 @@ void Hyd_Model_Floodplain::output_result_max2database(QSqlDatabase *ptr_database
 		if(i==this->NEQ-1 && must_output==true && *was_output==false){
 			must_output2=true;
 		}
-		if(i%20000==0 && i>0){
+		if(i%100000==0 && i>0){
 			cout << i <<" ("<<this->get_number_elements()<<") result data of HYD raster elements are transfered to database..."<< endl;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
 			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
@@ -3554,7 +3559,7 @@ void Hyd_Model_Floodplain::output_result_max2database(QSqlDatabase *ptr_database
 		}
 
 		//send packages of 100
-		if(counter==500){
+		if(counter==5000){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();
@@ -4462,7 +4467,7 @@ void Hyd_Model_Floodplain::transfer_element_members2database(QSqlDatabase *ptr_d
 	string buffer_data;
 
 	for(int i=0; i<this->NEQ; i++){
-		if(i%20000==0 && i>0){
+		if(i%100000==0 && i>0){
 			cout << i <<" ("<<this->get_number_elements()<<") data of HYD raster elements are transfered to database..."<< endl;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
 			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();

@@ -46,6 +46,9 @@ public:
 	///The relevant coupling points are stored here for the right river bank (in flow direction)
 	Hyd_Coupling_Point_RV2FP_List list_right;
 
+	/// Profiler for coupling speed
+	Profiler couplingprof;
+
 	//methods
 	///The pointer of the models for coupling are set
 	void set_ptr_coupling(Hyd_Model_Floodplain *floodplain, Hyd_Model_River *river);
@@ -70,6 +73,8 @@ public:
 	///Get that the couplings are already merged
 	bool get_is_merged(void);
 
+	
+
 
 private:
 	//members
@@ -79,6 +84,10 @@ private:
 	Hyd_Model_River *river_model;
 	///Flag if the couplings are already merged
 	bool is_merged_flag;
+
+	
+
+
 
 	//methods
 	///Set error(s)

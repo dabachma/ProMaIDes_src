@@ -134,7 +134,7 @@ double Hyd_Element_Floodplain_Type_River::get_s_value(void){
 	return this->s_value;
 }
 //Get the if the element is wet
-double Hyd_Element_Floodplain_Type_River::get_wet_flag(void){
+bool Hyd_Element_Floodplain_Type_River::get_wet_flag(void){
 	return this->wet_flag;
 }
 //Get the maximum local waterlevel (h_value)

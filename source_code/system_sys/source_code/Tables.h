@@ -112,6 +112,8 @@ public:
 
 	///Get the used name of the table; needed for a database query
 	string get_table_name(void);
+	///Get the pure table name
+	string get_pure_table_name(void); 
 	///Get the used name of a column with a given id-name; needed for a database query
 	string get_column_name(const string id);
 	///Get the used name of a column with a given id-name; needed for a database query; table name is added

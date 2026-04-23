@@ -1,20 +1,23 @@
 #include "Profiler.h"
 
+//Default constructor
 Profiler::Profiler() {
-	activated = false;
+	this->activated = false;
 }
-
+//Constructor with immediat activation
 Profiler::Profiler(bool state) {
-	activated = state;
+	this->activated = state;
 }
-
+//destructor
 Profiler::~Profiler() {
 	for (ProfiledElement* profiledElement : this->profiledElements) {
 		delete profiledElement;
 	}
 	this->profiledElements.clear();
 }
-
+//__________________
+//public
+//Start and end profiling for parts in the programm
 void Profiler::profile(std::string name, int flag) {
 	if (!activated)
 		return;
@@ -161,4 +164,8 @@ void Profiler::logValues(void) {
 	delete[] names;
 	delete[] times;
 
+}
+// Activate profiler
+void Profiler::activate_profiler(bool flag) {
+	this->activated = flag;
 }
