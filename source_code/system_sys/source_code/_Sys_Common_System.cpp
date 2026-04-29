@@ -1,6 +1,9 @@
 //#include "_Sys_Common_System.h"
 #include "Sys_Headers_Precompiled.h"
 
+int _Sys_Common_System::no_openmp_threads=1;
+bool _Sys_Common_System::openmp_used=true;
+
 //constructor
 _Sys_Common_System::_Sys_Common_System(void){
 	this->system_id.area_state=0;

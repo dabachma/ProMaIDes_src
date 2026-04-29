@@ -3561,7 +3561,7 @@ string Hyd_Element_Floodplain::get_datastring_erg_instat_2database(const int id,
 	else {
 		query_string << this->polygon_string << " ) ";
 	}
-	this->polygon_string = label::not_set;
+	//this->polygon_string = label::not_set;
 
 	
 
@@ -3839,6 +3839,27 @@ void Hyd_Element_Floodplain::set_glob_elem_id(const int id) {
 //Get the global element id
 int Hyd_Element_Floodplain::get_glob_elem_id(void) {
 	return this->glob_elem_number;
+}
+//Set the gpu solver results directly to the elements
+void Hyd_Element_Floodplain::set_gpu_solver_results(const double h, const double vx, const double vy, const double time) {
+	
+	if (this->get_elem_type() == _hyd_elem_type::STANDARD_ELEM || this->get_elem_type() == _hyd_elem_type::DIKELINE_ELEM) {
+			/*this->element_type->set_ds2dt_value((h - this->element_type->get_h_value())/time);
+			this->element_type->set_solver_result_value(h);
+			this->element_type->set_flowvelocity_vx(vx);
+			this->element_type->set_flowvelocity_vy(vy);*/
+
+			this->element_type->set_gpu_solver_god_results((h - this->element_type->get_h_value()) / time, h, vx, vy);
+		}
+}
+
+//Set the gpu solver of Promaides Scheme results directly to the elements
+void Hyd_Element_Floodplain::set_gpu_prom_solver_results(const double h, const double time) {
+	if (this->get_elem_type() == _hyd_elem_type::STANDARD_ELEM || this->get_elem_type() == _hyd_elem_type::DIKELINE_ELEM) {
+		this->element_type->set_ds2dt_value((h - this->element_type->get_h_value()) / time);
+		this->element_type->set_solver_result_value(h);
+	}
+
 }
 //____________
 //private

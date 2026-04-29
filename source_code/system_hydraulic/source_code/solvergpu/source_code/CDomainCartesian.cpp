@@ -679,7 +679,6 @@ void CDomainCartesian::readBuffers_h_vx_vy(double* opt_h, double* v_x, double* v
 		}
 	}
 }
-
 //Read Velocity in x buffer to double pointer
 void CDomainCartesian::readBuffers_v_x(double* v_x_array)
 {
@@ -964,11 +963,20 @@ double	CDomainCartesian::getBilanValue(unsigned long ulCellID)
 		return static_cast<double>(this->fBilanValues[ulCellID]);
 	return this->dBilanValues[ulCellID];
 }
+//Get the boundary optimized flag
+bool CDomainCartesian::get_bound_opti(void) {
+	return this->bUseOptimizedBoundary;
 
+}
+//Get the size of the coudpling array
+unsigned long CDomainCartesian::get_coupling_size(void) {
+	return this->ulCouplingArraySize;
+
+}
 ////Helper Functions
 
 //Fetch the X and Y indices for a cell using its ID
-void	CDomainCartesian::getCellIndices(unsigned long ulID, unsigned long* lIdxX, unsigned long* lIdxY)
+void CDomainCartesian::getCellIndices(unsigned long ulID, unsigned long* lIdxX, unsigned long* lIdxY)
 {
 	*lIdxX = ulID % this->getCellCount();
 	*lIdxY = (ulID - *lIdxX) / this->getCellCount();

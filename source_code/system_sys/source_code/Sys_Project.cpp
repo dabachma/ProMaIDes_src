@@ -40,6 +40,7 @@ Sys_Project::Sys_Project(void){
 
 	this->hyd_state.file_output_required=true;
 	this->hyd_state.number_threads=3;
+	this->hyd_state.openmp_used=false;
 
 	this->system_id.measure_nr=0;
 	this->system_id.area_state=0;
@@ -519,6 +520,7 @@ void Sys_Project::close_project(void){
 
 	this->hyd_state.file_output_required=true;
 	this->hyd_state.number_threads=3;
+	this->hyd_state.openmp_used = false;
 
 	this->system_id.measure_nr=0;
 	this->system_id.area_state=0;
@@ -549,6 +551,7 @@ void Sys_Project::output_project_param(void){
 		cout<<"HYDRAULIC SETTINGS"<<endl;
 		cout<< " Fileoutput database    : " << functions::convert_boolean2string(this->hyd_state.file_output_required) <<endl;
 		cout<< " Number threads         : " << this->hyd_state.number_threads <<endl;
+		cout<< " OpenMP is used         : " << functions::convert_boolean2string(this->hyd_state.openmp_used) << endl;
 	}
 	if(this->project_type==_sys_project_type::proj_all || this->project_type==_sys_project_type::proj_risk){
 		cout <<"RISK SETTINGS"<<endl;
@@ -774,6 +777,7 @@ void Sys_Project::close_delete_project(QSqlDatabase *ptr_database){
 
 	this->hyd_state.file_output_required=true;
 	this->hyd_state.number_threads=3;
+	this->hyd_state.openmp_used = false;
 
 	this->system_id.measure_nr=0;
 	this->system_id.area_state=0;
@@ -1442,6 +1446,25 @@ void Sys_Project::find_key_values_file(string myline , int *must_found_counter){
 			return;
 		}
 	}
+
+	pos = myline.find(sys_label::key_project_hyd_openmp);
+	if (pos >= 0 && wrong_input == false) {
+		buffer = myline.substr(sys_label::key_project_hyd_openmp.length());
+		functions::clean_string(&buffer);
+		buffer1 << buffer;
+		try {
+			this->hyd_state.openmp_used = functions::convert_string2boolean(buffer1.str());
+			_Sys_Common_System::openmp_used = this->hyd_state.openmp_used;
+		}
+		catch (Error msg) {
+			wrong_input = true;
+		}
+		if (wrong_input != true) {
+			//(*must_found_counter)++;
+			return;
+		}
+	}
+
 	pos=myline.find(sys_label::key_project_hyd_file_out);
 	if(pos>=0 && wrong_input==false){
 		buffer=myline.substr(sys_label::key_project_hyd_file_out.length());
@@ -2225,6 +2248,7 @@ string Sys_Project::generate_project_txt2file(void){
 		txt<<"#Hydraulic data"<<endl;
 		txt<< sys_label::key_project_hyd_file_out << " " << functions::convert_boolean2string(this->hyd_state.file_output_required) <<endl;
 		txt<< sys_label::key_project_hyd_thread << " " << this->hyd_state.number_threads <<endl;
+		txt << sys_label::key_project_hyd_openmp << " " << functions::convert_boolean2string(this->hyd_state.openmp_used) << endl;
 	}
 	if(this->project_type==_sys_project_type::proj_all || this->project_type==_sys_project_type::proj_risk){
 		txt<<"#Risk data"<<endl;

@@ -1603,7 +1603,7 @@ void Hyd_Hydraulic_System::make_calculation(void){
 		Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
 		cout <<"Start calculation..."<<endl;
 		cout <<W(17) << " Step " <<  W(15) << " Modeltime " <<  W(15)<< " Modeltime "  << W(20)<< " Real time (Diff)" ;
-		cout << W(28) << " Solversteps (Diff)" << W(12) << " norm.Error " << W(12) << " max.Error " << W(12) << " Internal t_step (Diff)" << endl;
+		cout << W(28) << " Solversteps (Diff)" << W(8) << " CPU_norm.Err/GPU_av_t.sp_sync " << W(8) << " CPU_max.Err/GPU_av_t.sp_tot " << W(8) << " Internal t_step (Diff)" << endl;
 		cout << W(29) << label::sec << W(23) << label::time_unit_output << W(19) << label::time_unit_output << endl;
 		Sys_Common_Output::output_hyd->output_txt(&cout);
 		//rewind the prefix
@@ -3393,17 +3393,16 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 
 
 		//max values and hydrological balance of the models
-		this->profiler.profile("make_hyd_balance_max_rivermodel", Profiler::profilerFlags::START_PROFILING);
+		//this->profiler.profile("make_hyd_balance_max_rivermodel", Profiler::profilerFlags::START_PROFILING); !!not relevant!!
 		this->make_hyd_balance_max_rivermodel();
-		this->profiler.profile("make_hyd_balance_max_rivermodel", Profiler::profilerFlags::END_PROFILING);
+		//this->profiler.profile("make_hyd_balance_max_rivermodel", Profiler::profilerFlags::END_PROFILING);
 		this->profiler.profile("make_hyd_balance_max_floodplainmodel", Profiler::profilerFlags::START_PROFILING);
 		this->make_hyd_balance_max_floodplainmodel();
 		this->profiler.profile("make_hyd_balance_max_floodplainmodel", Profiler::profilerFlags::END_PROFILING);
 
 		//syncronisation of observation points
-		this->profiler.profile("syncron_obs_points", Profiler::profilerFlags::START_PROFILING);
 		this->obs_point_managment.syncron_obs_points(this->next_internal_time - this->global_parameters.get_startime());
-		this->profiler.profile("syncron_obs_points", Profiler::profilerFlags::END_PROFILING);
+		
 
 		this->internal_time=this->next_internal_time;
 
@@ -3411,9 +3410,8 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 		this->total_internal_timestep++;
 
 		//reset the solver tolerances for the next step
-		this->profiler.profile("reset_solver_tolerances", Profiler::profilerFlags::START_PROFILING);
 		this->reset_solver_tolerances();
-		this->profiler.profile("reset_solver_tolerances", Profiler::profilerFlags::END_PROFILING);
+		
 
 	}//end of interal loop
 	while(abs(this->internal_time-this->output_time)>constant::sec_epsilon);
@@ -3464,16 +3462,16 @@ void Hyd_Hydraulic_System::make_calculation_internal(void){
 	this->output_is_required=true;
 	emit output_required(this->thread_number);
 
-	this->profiler.profile("waitloop_output_calculation2display", Profiler::profilerFlags::START_PROFILING);
+	//this->profiler.profile("waitloop_output_calculation2display", Profiler::profilerFlags::START_PROFILING); !!not relevant!!
 	this->waitloop_output_calculation2display();
-	this->profiler.profile("waitloop_output_calculation2display", Profiler::profilerFlags::END_PROFILING);
+	//this->profiler.profile("waitloop_output_calculation2display", Profiler::profilerFlags::END_PROFILING);
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
-	this->profiler.profile("output_calculation_steps_rivermodel2database", Profiler::profilerFlags::START_PROFILING);
+	this->profiler.profile("output_calculation_steps_rivermodel2database", Profiler::profilerFlags::START_PROFILING); 
 	this->output_calculation_steps_rivermodel2display(this->internal_time);
 	this->output_calculation_steps_rivermodel2database(this->internal_time, time);
 	this->profiler.profile("output_calculation_steps_rivermodel2database", Profiler::profilerFlags::END_PROFILING);
 
-	this->profiler.profile("output_calculation_steps_floodplainmodel2database", Profiler::profilerFlags::START_PROFILING);
+	this->profiler.profile("output_calculation_steps_floodplainmodel2database", Profiler::profilerFlags::START_PROFILING); 
 	this->output_calculation_steps_floodplainmodel2display(this->internal_time);
 	this->output_calculation_steps_floodplainmodel2database(this->internal_time, time);
 	this->profiler.profile("output_calculation_steps_floodplainmodel2database", Profiler::profilerFlags::END_PROFILING);
@@ -3972,7 +3970,17 @@ void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2display(cons
 		//to console/display (for development)
 		//this->my_fpmodels[i].output_result_members_per_timestep();
 
-		this->my_fpmodels[i].output_solver_errors(timestep,this->timestep_counter, this->model_time_str, this->real_time_str,this->diff_real_time,this->total_internal_timestep, this->timestep_internal_counter);
+		
+		if (this->my_fpmodels[i].Param_FP.get_scheme_info().scheme_type == model::schemeTypes::kDiffusiveCPU) {
+			this->my_fpmodels[i].output_solver_errors(timestep, this->timestep_counter, this->model_time_str, this->real_time_str, this->diff_real_time, this->total_internal_timestep, this->timestep_internal_counter);
+		}
+		else {
+			
+
+			this->my_fpmodels[i].output_solver_errors_gpu(timestep, this->timestep_counter, this->model_time_str, this->real_time_str, this->diff_real_time, this->total_internal_timestep, this->timestep_internal_counter, this->global_parameters.GlobTStep);
+
+		}
+		
 		//rewind two times the prefix
 		Sys_Common_Output::output_hyd->rewind_userprefix();
 		Sys_Common_Output::output_hyd->rewind_userprefix();

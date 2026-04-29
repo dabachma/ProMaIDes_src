@@ -1690,6 +1690,27 @@ void Hyd_Multiple_Hydraulic_Systems::check_hydraulic_system_database(void){
 //Calculate one/multiple hydraulic system, read in from a database
 void Hyd_Multiple_Hydraulic_Systems::calculate_hydraulic_system_database(void){
 	int counter_sys=0;
+
+	//Calculate the cores used for openmp
+	
+	if (_Sys_Common_System::openmp_used == true) {
+		int cores = 1;
+		
+
+		cores = int((omp_get_num_procs() - 4) / this->required_threads);
+		if (cores < 1) {
+			cores = 1;
+		}
+		_Sys_Common_System::no_openmp_threads = min(cores, 4);
+		//openmp_threads = _Sys_Common_System::no_openmp_threads;
+	}
+	else {
+		_Sys_Common_System::no_openmp_threads =1;
+		//openmp_threads = _Sys_Common_System::no_openmp_threads;
+
+	}
+
+
 	ostringstream cout;
 	//begin time recording	
 	time(&this->start_time);
@@ -1724,6 +1745,8 @@ void Hyd_Multiple_Hydraulic_Systems::calculate_hydraulic_system_database(void){
 		}
 
 	}
+	
+
 
 	//set the actual time
 	time(&this->actual_time);

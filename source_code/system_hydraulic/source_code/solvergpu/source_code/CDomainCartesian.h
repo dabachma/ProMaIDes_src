@@ -11,6 +11,7 @@
 
 #include "COCLDevice.h"
 
+
  // Public structures
 struct DomainSummary
 {
@@ -58,6 +59,9 @@ struct DomainCell
 	double			dCalculatedVelocity;
 	double			dExpectedTimeStep;
 };
+
+
+
 /*
  *  DOMAIN CLASS
  *  CDomainCartesian
@@ -145,6 +149,8 @@ class CDomainCartesian
 		double			getBoundaryCondition(unsigned long ulCellID);			// Gets the boundary condition for a given cell
 		double			getBilanValue(unsigned long ID);						// Gets the bilan for a given cell
 		bool			isDoublePrecision() { return (ucFloatSize == 8); };		// Are we using double-precision?
+		bool			get_bound_opti(void);									//Get the boundary optimized flag
+		unsigned long	get_coupling_size(void);								//Get the size of the coudpling array
 
 		//HelperFunctions
 		unsigned long		getCellID(unsigned long, unsigned long);										// Get the cell ID using an X and Y index

@@ -555,6 +555,7 @@ void Hyd_Param_Global::output_members(void){
 	cout << " Initial step size                             : " << W(7) << P(2) << this->GlobInitStepSize <<  label::sec <<endl;
 	cout << " Maximum step size                             : " << W(7) << P(2) << this->GlobMaxStepSize <<  label::sec <<endl;
 	cout << " Limit of internal steps                       : " << W(7) << P(2) << this->GlobMaxNumSteps << endl;
+	cout << " Use of OpenMP (Number of threads)             : " << W(7) << P(2) << functions::convert_boolean2string(_Sys_Common_System::openmp_used)<< " ("<< _Sys_Common_System::no_openmp_threads<<")" << endl;
 	cout << "PRECONDITIONER SETTINGS" <<endl;
 	cout << " Preconditioning method                        : " << W(7) << this->convert_precontype2txt(this->GlobPreType) << endl;
 	cout << " Gram-Schmidt scheme                           : " << W(7) << this->convert_gramschmidttype2txt(this->GlobGramSchmidt) << endl;

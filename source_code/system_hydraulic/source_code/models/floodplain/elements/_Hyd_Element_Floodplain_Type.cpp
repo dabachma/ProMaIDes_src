@@ -15,52 +15,58 @@ _Hyd_Element_Floodplain_Type::~_Hyd_Element_Floodplain_Type(void){
 void _Hyd_Element_Floodplain_Type::connect_instat_boundarycurve(Hyd_Instationary_Boundary *bound_curve){
 	Hyd_Instationary_Boundary *dummy;
 	dummy=bound_curve;
+	return;
 }
 //Calculate the hydolocigal balance for boundary condition (every syncronisation step)
 void _Hyd_Element_Floodplain_Type::calculate_hydrolocigal_balance_boundary(const double ){
-
+	return;
 }
 //Calculate the hydolocigal balance for coupling (every syncronisation step)
 void _Hyd_Element_Floodplain_Type::calculate_hydrolocigal_balance_coupling(const double ){
-
+	return;
 }
 
 //Calculate the boundary value to a given time point
 void _Hyd_Element_Floodplain_Type::calculate_boundary_value(const double ){
+	return;
 
 }
 //Calculate the maximum values and the wet duration
 void _Hyd_Element_Floodplain_Type::calc_max_values(const double , const double ){
-
+	return;
 }
 //Set the result value (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 void _Hyd_Element_Floodplain_Type::set_solver_result_value(const double ){
-
+	return;
 }
 //Set a value to the the variation of the global waterlevel over time
 void _Hyd_Element_Floodplain_Type::set_ds2dt_value(const double ){
-
+	return;
+}
+//Set the results of the gpu solver Godunov scheme in one step
+void _Hyd_Element_Floodplain_Type::set_gpu_solver_god_results(const double ds_dt, const double h, const double vx, const double vy) {
+	return;
 }
 //Calculate the variation of the global waterlevel over time(just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 void _Hyd_Element_Floodplain_Type::calculate_ds_dt(void){
-
+	return;
 }
 ///Calculate the flow velocities over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 void _Hyd_Element_Floodplain_Type::calculate_v_out(const double , const double ) {
-
+	return;
 }
 //Distribute the flows (ds_dt) to the neighbouring x- and y-elements (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 //Add a value to the the variation of the global waterlevel over time (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 void _Hyd_Element_Floodplain_Type::add_ds_dt(const double ){
-
+	return;
 }
 //Set the flow velocity in x-direction
 void _Hyd_Element_Floodplain_Type::set_flowvelocity_vx(const double) {
-
+	return;
 }
 //Set the flow velocity in y-direction
 void _Hyd_Element_Floodplain_Type::set_flowvelocity_vy(const double) {
-
+	return;
 }
 //Get the global waterlevel (s_value); here the z_value (here the global geodetic height (z_value) is return, because the cell is always dry) 
 double _Hyd_Element_Floodplain_Type::get_s_value(void){
@@ -80,7 +86,7 @@ double _Hyd_Element_Floodplain_Type::get_coupling_ds2dt(void){
 }
 //Rewind the element
 void _Hyd_Element_Floodplain_Type::rewind_element(const double ){
-
+	return;
 
 }
 //Get the variation of the global waterlevel over time as result value ds_dt_value
@@ -253,7 +259,7 @@ double _Hyd_Element_Floodplain_Type::get_coupling_discharge(void){
 }
 //Set the maximum results values directly
 void _Hyd_Element_Floodplain_Type::set_max_results_directly(const double , const double , const double , const double ){
-		
+	return;
 }
 //Get the maximum local waterlevel (h_value)
 _hyd_max_values _Hyd_Element_Floodplain_Type::get_max_h_value(void){
@@ -329,7 +335,7 @@ void _Hyd_Element_Floodplain_Type::add_coupling_discharge_rv_overflow(const doub
 }
 //Reset the discharge, which comming from coupled river models due to hydraulic structure coupling (coupling_q_rv_structure)
 void _Hyd_Element_Floodplain_Type::reset_coupling_discharge_rv_structure(void){
-
+	return;
 }
 //Add coupling discharge, which comming from coupled river models due to hydraulic structure coupling (coupling_q_rv_structure) during syncronisation 
 void _Hyd_Element_Floodplain_Type::add_coupling_discharge_rv_structure(const double discharge){
@@ -338,7 +344,7 @@ void _Hyd_Element_Floodplain_Type::add_coupling_discharge_rv_structure(const dou
 }
 //Reset the discharge, which comming from coupled river models due to dikebreak coupling (coupling_q_rv_dikebreak)
 void _Hyd_Element_Floodplain_Type::reset_coupling_discharge_rv_dikebreak(void){
-
+	return;
 }
 //Add coupling discharge, which comming from coupled river models due to dikebreak coupling (coupling_q_rv_dikebreak) during syncronisation 
 void _Hyd_Element_Floodplain_Type::add_coupling_discharge_rv_dikebreak(const double discharge){
@@ -347,7 +353,7 @@ void _Hyd_Element_Floodplain_Type::add_coupling_discharge_rv_dikebreak(const dou
 }
 //Reset the discharge, which comming from a coupled coast model due to overflow (coupling_q_co_overflow)
 void _Hyd_Element_Floodplain_Type::reset_coupling_discharge_co_overflow(void){
-
+	return;
 }
 //Add coupling discharge, which comming from a coupled coast model due to overflow (coupling_q_co_overflow) during syncronisation 
 void _Hyd_Element_Floodplain_Type::add_coupling_discharge_co_overflow(const double discharge){
@@ -356,7 +362,7 @@ void _Hyd_Element_Floodplain_Type::add_coupling_discharge_co_overflow(const doub
 }
 //Reset the discharge, which comming from a coupled coast model due to dikebreak coupling (coupling_q_co_dikebreak)
 void _Hyd_Element_Floodplain_Type::reset_coupling_discharge_co_dikebreak(void){
-
+	return;
 }
 //Add coupling discharge, which comming from a coupled coast model due to dikebreak coupling (coupling_q_co_dikebreak) during syncronisation 
 void _Hyd_Element_Floodplain_Type::add_coupling_discharge_co_dikebreak(const double discharge){
@@ -365,6 +371,7 @@ void _Hyd_Element_Floodplain_Type::add_coupling_discharge_co_dikebreak(const dou
 }
 //Reset the discharge, which comming from a coupled river model directly from the outflow profile (coupling_q_rv_direct)
 void _Hyd_Element_Floodplain_Type::reset_coupling_discharge_rv_direct(void){
+	return;
 }
 //Add coupling discharge, which comming from a coupled river model directly from the outflow profile (coupling_q_rv_direct)
 void _Hyd_Element_Floodplain_Type::add_coupling_discharge_rv_direct(const double discharge){
@@ -493,12 +500,13 @@ void _Hyd_Element_Floodplain_Type::reset_hydrobalance_maxvalues(void){
 }
 //Set the connected element (just relevant for river element types)
 void _Hyd_Element_Floodplain_Type::set_connected_element(_hyd_neighbouring_elems ){
-
+	return;
 }
 //Set the pointer to the sea waterlevel
 void _Hyd_Element_Floodplain_Type::set_ptr_sea_waterlevel(double *){
 /**This method is just important for the coastal elements.
 */
+	return;
 }
 //Get the maximum change in a element 
 void _Hyd_Element_Floodplain_Type::get_max_changes_elements(double *max_change_h, const bool ){
@@ -526,10 +534,11 @@ bool _Hyd_Element_Floodplain_Type::get_bound_flag(void){
 }
 //Delete the data of boundary condition
 void _Hyd_Element_Floodplain_Type::delete_bound_data(void){
+	return;
 }
 //Set coupling data
 void _Hyd_Element_Floodplain_Type::set_coupling_data(void){
-
+	return;
 }
 //_____________
 //protected
@@ -561,22 +570,27 @@ void _Hyd_Element_Floodplain_Type::set_data_buffers(const _hyd_boundarydata_floo
 }
 //Set new boundary condition data
 void _Hyd_Element_Floodplain_Type::set_boundary_condition_data(const _hyd_boundarydata_floodplain_elem ){
+	return;
 
 }
 ///Set element flag for flow in x-direction (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 void _Hyd_Element_Floodplain_Type::set_x_noflow_flag(const bool ){
+	return;
 	
 }
 ///Set element flag for flow in y-direction (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 void _Hyd_Element_Floodplain_Type::set_y_noflow_flag(const bool ){
+	return;
 
 }
 ///Set the relative element border height z (m) in x-direction (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 void _Hyd_Element_Floodplain_Type::set_x_border_z(const double , const double ){
+	return;
 ;
 }
 ///Set the relative element border height z (m) in y-direction (just needed in child-class Hyd_Element_Floodplain_Type_Standard)
 void _Hyd_Element_Floodplain_Type::set_y_border_z(const double , const double ){
+	return;
 
 }
 //(static) Ouput the header for the maximum calculated values output

@@ -23,6 +23,8 @@
 #include "Geo_Point.h"
 #include "Geo_Raster_Polygon.h"
 
+
+
 using namespace std;
 
 ///Enumerator for the element types \ingroup hyd
@@ -318,6 +320,12 @@ public:
 	void set_glob_elem_id(const int id);
 	///Get the global element id
 	int get_glob_elem_id(void);
+
+	///Set the gpu solver of Godunov Scheme results directly to the elements
+	void set_gpu_solver_results(const double h, const double vx, const double vy, const double time);
+
+	///Set the gpu solver of Promaides Scheme results directly to the elements
+	void set_gpu_prom_solver_results(const double h, const double time);
 
 private:
 	//members

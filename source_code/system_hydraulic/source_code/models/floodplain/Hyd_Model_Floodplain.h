@@ -178,6 +178,12 @@ public:
 
 	///Output solver errors for one solver step
 	void output_solver_errors(const double time_point, const int step_counter, const string timestring, const string realtime, const double diff_time, const int total_internal, const int internal_steps);
+	
+	///Output solver errors for one solver step for the GPU solver
+	void output_solver_errors_gpu(const double time_point, const int step_counter, const string timestring, const string realtime, const double diff_time, const int total_internal, const int internal_steps, const double glob_time_step);
+
+
+
 	///Output final statistics of the floodplain model
 	void output_final(void);
 	///Output the maximum result members to tecplot
@@ -346,6 +352,10 @@ private:
 
 	///Run the solver GPU
 	void run_solver_gpu(const double next_time_point, const string system_id);
+	///Get GPU solver results of Godunov scheme
+	void get_gpu_solver_results(Profiler* profiler_input);
+	///Get GPU solver results of Promiades scheme
+	void get_gpu_prom_solver_results(Profiler* profiler_input);
 
 
 	///Generate the geometrical boundary of the raster polygon
@@ -451,6 +461,8 @@ private:
 	void set_function2solver(void);
 	///Output the statistics of the solver
 	void output_solver_statistics(void);
+	///Output the statistics of the gpu solver
+	void output_solver_gpu_statistics(void);
 	///Output the maximum values of the elements
 	void output_maximum_values(void);
 

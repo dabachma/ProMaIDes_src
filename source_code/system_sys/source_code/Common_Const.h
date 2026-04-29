@@ -461,6 +461,8 @@ namespace sys_label{
 	const string key_project_hyd_file_out("!FILE_OUTPUT");
 	///Key word for the general parameter (integer for the threads) of a project for file-input \see Sys_Project
 	const string key_project_hyd_thread("!THREADS");
+	///Key word for the general parameter (bool if openmp is used for the threads) of a project for file-input \see Sys_Project
+	const string key_project_hyd_openmp("!OPENMP");
 
 	///Folder name of the logfile archive
 	const string folder_logfile_archiv("/archiv_logfile");

@@ -8,7 +8,7 @@ Hyd_Coupling_RV2FP::Hyd_Coupling_RV2FP(void){
 	this->list_left.set_leftriver_bank_line(true);
 	this->list_right.set_leftriver_bank_line(false);
 	this->is_merged_flag=false;
-	this->couplingprof.activate_profiler(true);
+	this->couplingprof.activate_profiler(true); 
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Coupling_RV2FP)-sizeof(Hyd_Coupling_Point_RV2FP_List)*2, _sys_system_modules::HYD_SYS);
@@ -38,16 +38,16 @@ void Hyd_Coupling_RV2FP::init_coupling(void){
 	cout << " and river model " <<this->river_model->Param_RV.get_river_number() <<"..." << endl ;
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 	try{
-		this->couplingprof.profile("TOTAL", Profiler::profilerFlags::START_PROFILING);
+		//this->couplingprof.profile("TOTAL", Profiler::profilerFlags::START_PROFILING);
 
-		this->couplingprof.profile("set_defining_polysegment", Profiler::profilerFlags::START_PROFILING);
+		//this->couplingprof.profile("set_defining_polysegment", Profiler::profilerFlags::START_PROFILING);
 		//set the river banks (left) as the relevant polysegment line
 		this->list_left.set_defining_polysegment(&(this->river_model->river_leftline));
 		//set the river banks (right) as the relevant polysegment line
 		this->list_right.set_defining_polysegment(&(this->river_model->river_rightline));
-		this->couplingprof.profile("set_defining_polysegment", Profiler::profilerFlags::END_PROFILING);
+		//this->couplingprof.profile("set_defining_polysegment", Profiler::profilerFlags::END_PROFILING);
 
-		this->couplingprof.profile("assign_elements2couplingpointlist", Profiler::profilerFlags::START_PROFILING);
+		//this->couplingprof.profile("assign_elements2couplingpointlist", Profiler::profilerFlags::START_PROFILING);
 		//fill the list with the floodplain elements
 		this->floodplain_model->raster.assign_elements2couplingpointlist(&this->list_left);
 		if (this->list_left.get_number_couplings() <= 1) {
@@ -68,9 +68,9 @@ void Hyd_Coupling_RV2FP::init_coupling(void){
 			msg.make_second_info(info.str());
 			throw msg;
 		}
-		this->couplingprof.profile("assign_elements2couplingpointlist", Profiler::profilerFlags::END_PROFILING);
+		//this->couplingprof.profile("assign_elements2couplingpointlist", Profiler::profilerFlags::END_PROFILING);
 
-		this->couplingprof.profile("further list operation", Profiler::profilerFlags::START_PROFILING);
+		//this->couplingprof.profile("further list operation", Profiler::profilerFlags::START_PROFILING);
 		//add the relevant points of the defining polysegment
 		this->list_left.add_relevant_polysegment_points(&(this->floodplain_model->raster.geometrical_bound));
 		this->list_right.add_relevant_polysegment_points(&(this->floodplain_model->raster.geometrical_bound));
@@ -88,9 +88,9 @@ void Hyd_Coupling_RV2FP::init_coupling(void){
 		//transfer the infos to the coupling points
 		this->list_left.transfer_informations2points();
 		this->list_right.transfer_informations2points();
-		this->couplingprof.profile("further list operation", Profiler::profilerFlags::END_PROFILING);
+		//this->couplingprof.profile("further list operation", Profiler::profilerFlags::END_PROFILING);
 
-		this->couplingprof.profile("TOTAL", Profiler::profilerFlags::END_PROFILING);
+		//this->couplingprof.profile("TOTAL", Profiler::profilerFlags::END_PROFILING);
 
 
 	}

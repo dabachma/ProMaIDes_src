@@ -1060,7 +1060,7 @@ void CSchemeGodunov::Threaded_runBatch()
 
 			if (dCurrentTimestepMovAvg > 0.001 && dTargetTime - dCurrentTime>0.01) {
 				estimatedQ = (dTargetTime - dCurrentTime) / dCurrentTimestepMovAvg;
-				uiQueueAmount = max(min(300, estimatedQ),1);
+				uiQueueAmount = max(min(300, estimatedQ),1); //300
 			}
 			else {
 				if (dCurrentTime > 0.1 && dCurrentTimestepMovAvg < 0.001) {
@@ -1071,6 +1071,7 @@ void CSchemeGodunov::Threaded_runBatch()
 				uiQueueAmount = 1;
 			}
 
+			//printf("2reach %.15f  que %i \n", dTargetTime, uiQueueAmount);
 			// Schedule a batch-load of work for the device
 			if (this->dCurrentTime < dTargetTime - 1e-8) {
 				oclKernelResetCounters->scheduleExecution();
@@ -1126,7 +1127,10 @@ void CSchemeGodunov::Threaded_runBatch()
 			this->readKeyStatistics();
 
 			dAvgTimestep = (dAvgTimestep * uiIterationsTotal + dCurrentTimestep * uiIterationsSinceTargetChanged) / (uiIterationsTotal + uiIterationsSinceTargetChanged);
-			uiIterationsTotal += uiIterationsSinceTargetChanged;
+			//uiIterationsTotal += uiIterationsSinceTargetChanged;
+			if ((dTargetTime - this->dCurrentTime) > 1e-5) {
+				uiIterationsTotal += uiQueueAmount;
+			}
 			uiSuccessfulIterationsTotal += uiBatchSuccessful;
 			uiSkippedIterationsTotal += uiBatchSkipped;
 
@@ -1207,33 +1211,33 @@ void	CSchemeGodunov::scheduleIteration() {
 	oclKernelBoundary->assignArgument(3, bufferDst);
 	oclKernelTimestepReduction->assignArgument(0, bufferDst);
 
-	profiless
+	//profiless
 
 		//printf("Internal time  %.15f  \n", this->dCurrentTime);
 
 	//here the timesteps is claculated depending to the scheme, e.g. function pro_cacheDisabled in CLSchemePromaides.clc/.h
 	oclKernelFullTimestep->scheduleExecution();
-	profilese
+	//profilese
 
 
 	if (this->bFrictionEffects && !this->bFrictionInFluxKernel) {
 		oclKernelFriction->scheduleExecution();
 	}
 
-	profilebs
+	//profilebs
 	//here the´bounadries are set e.g. function pro_cacheDisabled in CLSchemePromaides.clc/.h
 	oclKernelBoundary->scheduleExecution();
-	profilebe
+	//profilebe
 
-	profilers
+	//profilers
 	if (this->bDynamicTimestep) { 
 		oclKernelTimestepReduction->scheduleExecution(); 
 	}
-	profilere
+	//profilere
 
-	profilets
+	//profilets
 	oclKernelTimeAdvance->scheduleExecution();
-	profilete
+	//profilete
 
 }
 
@@ -1244,7 +1248,7 @@ void CSchemeGodunov::readDomainAll()
 	this->cModel->profiler->profile("readDomainAll", CProfiler::profilerFlags::START_PROFILING);
 	if (bUseAlternateKernel)
 	{
-		oclBufferCellStatesAlt->queueReadAll();
+		oclBufferCellStatesAlt->queueReadAll(); 
 	}
 	else {
 		oclBufferCellStates->queueReadAll();

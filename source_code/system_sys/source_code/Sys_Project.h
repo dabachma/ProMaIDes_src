@@ -60,6 +60,8 @@ struct _hyd_state_data{
 	bool file_output_required;
 	///Number of required threads
 	int number_threads;
+	///OpenMP is used
+	bool openmp_used;
 };
 
 

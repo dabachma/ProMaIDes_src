@@ -305,3 +305,15 @@ target_link_libraries(system_hydraulic solver solvergpu system_sys)
 # - qt_wrap_ui (or qt5_wrap_ui) wraps ui files, in other words generating .h files from them
 # - AUTOMOC can also be used which does this automatically. This, however, is not recommened, it brings more troubles than solutions  
 qt_wrap_ui(UI_FILES ${UI_FILES})
+
+
+if(MSVC)
+  #set compiler options
+  target_compile_options(system_hydraulic PRIVATE
+        $<$<CONFIG:Release>:/openmp>        # openmp support
+   )
+ else()
+   target_compile_options(system_hydraulic PRIVATE
+        $<$<CONFIG:Release>:-fopenmp>        # openmp support
+   )
+endif()

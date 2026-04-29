@@ -54,10 +54,13 @@ public:
 
 	///Set the result value from the solver
 	void set_solver_result_value(const double result);
+	///Set the results of the gpu solver Godunov scheme in one step
+	void set_gpu_solver_god_results(const double ds_dt, const double h, const double vx, const double vy);
 	///Get the global waterlevel (s_value)
 	double get_s_value(void);
 	///Get the local waterlevel (h_value)
 	double get_h_value(void);
+
 
 
 	///Calculate the variation of the global waterlevel over time

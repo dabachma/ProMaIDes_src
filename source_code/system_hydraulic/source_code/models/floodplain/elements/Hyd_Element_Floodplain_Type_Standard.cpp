@@ -217,6 +217,22 @@ void Hyd_Element_Floodplain_Type_Standard::set_solver_result_value(const double 
 		this->s_value=(*this->z_value)+this->h_value;
 	}
 }
+//Set the results of the gpu solver Godunov scheme in one step
+void Hyd_Element_Floodplain_Type_Standard::set_gpu_solver_god_results(const double ds_dt, const double h, const double vx, const double vy) {
+	this->ds_dt_value = ds_dt;
+	this->v_x = vx;
+	this->v_y = vy;
+
+	if (h <= constant::dry_hyd_epsilon) {
+
+		this->h_value = 0.0;
+		this->s_value = (*this->z_value);
+	}
+	else {
+		this->h_value = h;
+		this->s_value = (*this->z_value) + this->h_value;
+	}
+}
 //Get the global waterlevel (s_value)
 double Hyd_Element_Floodplain_Type_Standard::get_s_value(void){
 	return this->s_value;
@@ -224,7 +240,7 @@ double Hyd_Element_Floodplain_Type_Standard::get_s_value(void){
 //Get the local waterlevel (h_value)
 double Hyd_Element_Floodplain_Type_Standard::get_h_value(void){
 	return this->h_value;
-}
+}	
 //Calculate the variation of the global waterlevel over time
 void Hyd_Element_Floodplain_Type_Standard::calculate_ds_dt(void){
 	//TODO TIME???

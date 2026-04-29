@@ -136,6 +136,10 @@ public:
 	///Get the local waterlevel (h_value)
 	virtual double get_h_value(void);
 
+
+	///Set the results of the gpu solver Godunov scheme in one step
+	virtual void set_gpu_solver_god_results(const double ds_dt, const double h, const double vx, const double vy);
+
 	///Get the relevant area of the element
 	virtual double get_relevant_area(void);
 

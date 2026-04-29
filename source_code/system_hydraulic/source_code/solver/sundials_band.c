@@ -348,6 +348,7 @@ void bandCopy(realtype **a, realtype **b, int n, int a_smu, int b_smu,
   a_buff=a_smu-copymu;
   b_buff=b_smu-copymu;
  
+
   for (j=0; j < n; j++) {
     a_col_j = a[j]+a_buff;
     b_col_j = b[j]+b_buff;
@@ -376,6 +377,7 @@ void bandCopyJ(realtype **a, realtype **b, int n, int a_smu, int b_smu,
   }
 
   //set values
+   //#pragma omp parallel for private(j, id, id1, a_col_j, b_col_j)
   for (j=0; j < neq; j++) {
       id=r_id[j];
      if(id>=0){
@@ -455,7 +457,8 @@ void bandCopyJ_ilu(realtype **a, realtype **b, int n, int a_smu, int b_smu,
 //  omp_set_num_threads(3);
 // #pragma omp parallel
 //  {
-// #pragma omp for
+
+  //#pragma omp parallel for private(j, i, a_col_j, b_col_j) num_threads(4)
   for (j=0; j < n; j++) {
 
     b_col_j = b[j];
@@ -548,6 +551,7 @@ void bandScaleJ(realtype c, realtype **a, int n, int mu, int ml, int smu)
 
 
   //set values
+//#pragma omp parallel for private(j, col_j) num_threads(4)
   for (j=0; j < n; j++) {
     col_j = a[j]+buff;
     //for (i=0; i < 5; i++)

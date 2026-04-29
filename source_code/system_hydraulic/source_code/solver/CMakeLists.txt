@@ -93,6 +93,8 @@ set(CPP_FILES
 # - What follows are the source codes
 add_library(solver ${UI_FILES} ${H_FILES} ${CPP_FILES})
 
+
+
 # - target_include_directories sets the include directories for a specfic target
 # - In this case the include directories for the solver package are defined
 # - It is set to PUBLIC meaning the parent targerts also inherit these directories
@@ -102,3 +104,14 @@ target_include_directories(solver
     PUBLIC
     	./.
 )
+if(MSVC)
+  #set compiler options
+  target_compile_options(solver PRIVATE
+        $<$<CONFIG:Release>:/openmp>        # openmp support
+   )
+ else()
+   target_compile_options(solver PRIVATE
+        $<$<CONFIG:Release>:-fopenmp>        # openmp support
+   )
+endif()
+

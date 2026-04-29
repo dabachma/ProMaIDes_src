@@ -37,6 +37,7 @@ bool HydGui_System_State_Dia::start_dialog(const bool database_flag){
 	if(database_flag==false){
 		this->checkBox_file_output->setEnabled(false);
 	}
+
 	int decision =this->exec();
 	 //rejected
 	if(decision ==0){
@@ -50,6 +51,7 @@ bool HydGui_System_State_Dia::start_dialog(const bool database_flag){
 //Set the current set parameters
 void HydGui_System_State_Dia::set_current_system_data(const _hyd_state_data current){
 	this->checkBox_file_output->setChecked(current.file_output_required);
+	this->checkBox_openmp->setChecked(current.openmp_used);
 	this->spinBox_threads->setValue(current.number_threads);
 }
 //Set the new parameters
@@ -57,6 +59,8 @@ _hyd_state_data HydGui_System_State_Dia::get_new_system_data(void){
 	_hyd_state_data buffer;
 	buffer.file_output_required=this->checkBox_file_output->isChecked();
 	buffer.number_threads=this->spinBox_threads->value();
+	buffer.openmp_used= this->checkBox_openmp->isChecked();
+	_Sys_Common_System::openmp_used = buffer.openmp_used;
 
 	return buffer;
 }

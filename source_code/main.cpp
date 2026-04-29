@@ -94,9 +94,15 @@ int main(int argc, char *argv[]){
        //app.setStyle(QStyleFactory::create("windows11"));
        //app.setStyle(QStyleFactory::create("windowsvista"));
        //app.setStyle(QStyleFactory::create("Fusion"));
-       
+    
+     /*   cout << "Max thereads " <<omp_get_max_threads() << endl;
 
+        #pragma omp parallel for 
+        for (int i = 0; i < 10000; i++) {
 
+            cout << "No. " << i << " thread no " << omp_get_thread_num() << endl;
+
+        }*/
 
 	
 

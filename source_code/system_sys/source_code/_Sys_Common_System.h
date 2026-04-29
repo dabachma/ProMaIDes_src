@@ -45,6 +45,13 @@ public:
 	_sys_system_id get_sys_system_id(void);
 	///Get a pointer to the system id (_sys_system_id);
 	_sys_system_id* get_ptr_sys_system_id(void);
+
+
+	//members
+	///Static variable for the number of openMP threads
+	static int no_openmp_threads;
+	///Static variable if openMP is used
+	static bool openmp_used;
 	
 
 protected:	

@@ -1023,7 +1023,7 @@ void Hyd_Model_Floodplain::reset_model(Hyd_Param_Global *global_params){
 //Initialize the solver with the given parameters
 void Hyd_Model_Floodplain::init_solver(Hyd_Param_Global *global_params){
 
-	//test opti (brauche ich nur für cpu!)
+	//test opti 
 	this->allocate_opt_data();
 	this->init_opt_data();
 	this->init_opt_data_bound_coup();
@@ -1152,9 +1152,15 @@ void Hyd_Model_Floodplain::set_new_boundary_condition(const bool output_flag, QS
 }
 //make the syncronisation between the models and the boundaries
 void Hyd_Model_Floodplain::make_syncronisation(const double time_point){
+	if (this->number_bound_cond == 0) {
+		return;
+	}
 	//the instationary boundary
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 	for(int i=0;i<this->NEQ;i++){
-		this->floodplain_elems[i].element_type->calculate_boundary_value(time_point);
+		if (this->floodplain_elems[i].element_type->get_bound_flag() == true) {
+			this->floodplain_elems[i].element_type->calculate_boundary_value(time_point);
+		}
 	}
 }
 //Get the maximum change in a element
@@ -1175,7 +1181,11 @@ void Hyd_Model_Floodplain::make_hyd_balance_max(const double time_point){
 	//Recalc velocities 
 	double sin_value = sin(this->Param_FP.angle*constant::Cpi / 180.0);
 	double cos_value = cos(this->Param_FP.angle*constant::Cpi / 180.0);
+	
+
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 	for (int i = this->NEQ - 1; i >= 0; i--) {
+		
 		if (this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::RIVER_ELEM) {
 			this->floodplain_elems[i].element_type->calc_max_values(time_point, this->Param_FP.FPWet);
 		}
@@ -1186,13 +1196,13 @@ void Hyd_Model_Floodplain::make_hyd_balance_max(const double time_point){
 		}
 	}
 
-
-
 	//boundary condition
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 	for(int i=0; i< this->number_bound_cond; i++){
 		this->floodplain_elems[this->bound_cond_id[i]].element_type->calculate_hydrolocigal_balance_boundary(delta_t);
 	}
 	//coupling condition
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 	for(int i=0; i< this->number_coup_cond; i++){
 		this->floodplain_elems[this->coup_cond_id[i]].element_type->calculate_hydrolocigal_balance_coupling(delta_t);
 	}
@@ -1291,7 +1301,7 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 		CDomainCartesian* myCarDomain = pManager->getDomain();
 		CScheme* myScheme = pManager->getDomain()->getScheme();
 		
-		//profiler->profile("SetBoundaryConditionsArray", Profiler::profilerFlags::START_PROFILING);
+		
 		// Zero out the boundary conditions array
 		profiler_input->profile("  GPU set boundary", Profiler::profilerFlags::START_PROFILING);
 		if (myCarDomain->getUseOptimizedCoupling() == false) {
@@ -1371,89 +1381,70 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 		profiler_input->profile("  GPU run solver", Profiler::profilerFlags::END_PROFILING);
 
 
-		// OLD CODE ............................................... Better for inertial Scheme
-		profiler_input->profile("  GPU get results", Profiler::profilerFlags::START_PROFILING);
+		
+		profiler_input->profile("  GPU postprocessing", Profiler::profilerFlags::START_PROFILING);
 
-		//optimieren
-		//keine alloc!...direktes umschreiben der ergebnisse!
-		//output beim schreiben->20000 auf 50000!
+		
 		
 		if (myScheme->getSchemeType() == model::schemeTypes::kInertialGPU || myScheme->getSchemeType() == model::schemeTypes::kDiffusiveGPU) {
 
-			// Read water depth values and set them to element
-			//profiler->profile("solve_gpu_readBuffers_opt_h", Profiler::profilerFlags::START_PROFILING);
-			double* opt_h_gpu = new double[this->NEQ];
-			pManager->getDomain()->readBuffers_opt_h(opt_h_gpu);
-			//profiler->profile("solve_gpu_readBuffers_opt_h", Profiler::profilerFlags::END_PROFILING);
+			////version not optimized
+			//// Read water depth values and set them to element
+			//double* opt_h_gpu = new double[this->NEQ];
+			//pManager->getDomain()->readBuffers_opt_h(opt_h_gpu);
+			//this->reached_time = pManager->getDomain()->getScheme()->getTargetTime();
 
-			//TODO: Fix Balancing for -ve boundary conditions 
-			// FIX for balance should be here! 
-			//double negative_boundary_error = 0.0;
-			//for (int i = 0; i < this->number_bound_cond; i++) {
-			//	if (this->bound_cond_dsdt[i] < 0.0) {
-			//		negative_boundary_error += this->bound_cond_dsdt[i];
-			//	}
+			////update ds_dt value (Used for Output and Display)
+			//for (int i = 0; i < this->NEQ; i++) {
+			//	//das ist falsch oder?
+			//		this->floodplain_elems[i].element_type->set_ds2dt_value((opt_h_gpu[i] - this->floodplain_elems[i].element_type->get_h_value())/ (this->reached_time - this->old_time_point));
+			//		this->floodplain_elems[i].element_type->set_solver_result_value(opt_h_gpu[i]);
 			//}
-			//this->error_zero_outflow_volume += negative_boundary_error * (next_time_point - old_time_point);
+		
+			////uses values from set_solver_result_value to calculate velocity
+			//for (int i = 0; i < this->NEQ; i++) {
+			//	this->floodplain_elems[i].element_type->calculate_ds_dt();
+			//}
+			//
+			//delete[] opt_h_gpu;
 
-			//profiler->profile("update_ds_dt", Profiler::profilerFlags::START_PROFILING);
-			//update ds_dt value (Used for Output and Display)
-			for (int i = 0; i < this->NEQ; i++) {
-				//das ist falsch oder?
-					this->floodplain_elems[i].element_type->set_ds2dt_value(opt_h_gpu[i] - this->floodplain_elems[i].element_type->get_h_value());
-			}
-			//profiler->profile("update_ds_dt", Profiler::profilerFlags::END_PROFILING);
-
-			//profiler->profile("update_h_value", Profiler::profilerFlags::START_PROFILING);
-			//Update h_value and s_value used for everything
-			for (int i = 0; i < this->NEQ; i++) {
-					this->floodplain_elems[i].element_type->set_solver_result_value(opt_h_gpu[i]);
-			}
-			//profiler->profile("update_h_value", Profiler::profilerFlags::END_PROFILING);
-
-			//profiler->profile("calculate_ds_dt", Profiler::profilerFlags::START_PROFILING);
-			//uses values from set_solver_result_value to calculate velocity
-			for (int i = 0; i < this->NEQ; i++) {
-				this->floodplain_elems[i].element_type->calculate_ds_dt();
-			}
-			//profiler->profile("calculate_ds_dt", Profiler::profilerFlags::END_PROFILING);
-			
-			delete[] opt_h_gpu;
+			//_______________________
+			//Version optimiert?
+			this->get_gpu_prom_solver_results(profiler_input);
 
 		}else {
-		
-			//Send double* for the solvergpu library to fill them with the correct data
-			double* opt_h_gpu = new double[this->NEQ];
-			double* opt_v_x_gpu = new double[this->NEQ];
-			double* opt_v_y_gpu = new double[this->NEQ];
-			pManager->getDomain()->readBuffers_h_vx_vy(opt_h_gpu, opt_v_x_gpu, opt_v_y_gpu);
 
-			//update ds_dt value (Used for Output and Display) / syncronstep!!
-			for (int i = 0; i < this->NEQ; i++) {
-				if (this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::STANDARD_ELEM || this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::DIKELINE_ELEM) {
-					this->floodplain_elems[i].element_type->set_ds2dt_value(opt_h_gpu[i] - this->floodplain_elems[i].element_type->get_h_value());
-				}
-			}
+			////version not optimized
+			////Send double* for the solvergpu library to fill them with the correct data
+			//double* opt_h_gpu = new double[this->NEQ];
+			//double* opt_v_x_gpu = new double[this->NEQ];
+			//double* opt_v_y_gpu = new double[this->NEQ];
+			//pManager->getDomain()->readBuffers_h_vx_vy(opt_h_gpu, opt_v_x_gpu, opt_v_y_gpu);
+			//this->reached_time = pManager->getDomain()->getScheme()->getTargetTime();
 
-			//Update h_value and s_value used for everything
-			for (int i = 0; i < this->NEQ; i++) {
-				if (this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::STANDARD_ELEM || this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::DIKELINE_ELEM) {
-					this->floodplain_elems[i].element_type->set_solver_result_value(opt_h_gpu[i]);
-				}
-			}
-			
-			//uses values from set_solver_result_value to calculate velocity
-			for (int i = 0; i < this->NEQ; i++) {
-				this->floodplain_elems[i].element_type->set_flowvelocity_vx(opt_v_x_gpu[i]);
-				this->floodplain_elems[i].element_type->set_flowvelocity_vy(opt_v_y_gpu[i]);
-			}
+			////update ds_dt value (Used for Output and Display) / syncronstep!!
+			//for (int i = 0; i < this->NEQ; i++) {
+			//	if (this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::STANDARD_ELEM || this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::DIKELINE_ELEM) {
+			//		this->floodplain_elems[i].element_type->set_ds2dt_value((opt_h_gpu[i] - this->floodplain_elems[i].element_type->get_h_value())/( this->reached_time - this->old_time_point));
+			//		//Update h_value and s_value used for everything
+			//		this->floodplain_elems[i].element_type->set_solver_result_value(opt_h_gpu[i]);
+			//		//uses values from set_solver_result_value to calculate velocity
+			//		this->floodplain_elems[i].element_type->set_flowvelocity_vx(opt_v_x_gpu[i]);
+			//		this->floodplain_elems[i].element_type->set_flowvelocity_vy(opt_v_y_gpu[i]);
+			//	}
+			//}
 
-			delete[] opt_h_gpu;
-			delete[] opt_v_x_gpu;
-			delete[] opt_v_y_gpu;
+			//delete[] opt_h_gpu;
+			//delete[] opt_v_x_gpu;
+			//delete[] opt_v_y_gpu;
+	
+
+			//_______________________
+			//Version optimiert?
+			this->get_gpu_solver_results(profiler_input);
 
 		}
-		profiler_input->profile("  GPU get results", Profiler::profilerFlags::END_PROFILING);
+		profiler_input->profile("  GPU postprocessing", Profiler::profilerFlags::END_PROFILING);
 		this->old_time_point = next_time_point;
 	}
 	catch (Error msg) {
@@ -2460,9 +2451,9 @@ void Hyd_Model_Floodplain::output_solver_errors(const double time_point, const i
 	cout << P(1)<< FORMAT_FIXED_REAL<< "  (" << diff_time<<")  ";
 	cout << W(15) << this->get_number_solversteps() ;
 	cout << "  ("<<this->get_number_solversteps()-this->diff_solver_steps<<")   ";
-	cout << W(12) << P(1)<< FORMAT_SCIENTIFIC_REAL<<  this->norm_estim_error;
-	cout << W(12) << P(1)<< FORMAT_SCIENTIFIC_REAL<< this->max_estim_error;
-	cout << W(12) << total_internal;
+	cout << W(15) << P(1)<< FORMAT_SCIENTIFIC_REAL<<  this->norm_estim_error;
+	cout << W(22) << P(1)<< FORMAT_SCIENTIFIC_REAL<< this->max_estim_error;
+	cout << W(18) << total_internal;
 	cout << "  ("<<internal_steps <<")";
 	cout <<endl;
 	Sys_Common_Output::output_hyd->output_txt(&cout);
@@ -2472,7 +2463,34 @@ void Hyd_Model_Floodplain::output_solver_errors(const double time_point, const i
 	//rewind the prefix
 	Sys_Common_Output::output_hyd->rewind_userprefix();
 }
-//out put final statistics for the floodplain
+//Output solver errors for one solver step for the GPU solver
+void Hyd_Model_Floodplain::output_solver_errors_gpu(const double time_point, const int step_counter, const string timestring, const string realtime, const double diff_time, const int total_internal, const int internal_steps, const double glob_time_step) {
+	//set prefix for output
+	ostringstream prefix;
+	prefix << "FP_" << this->Param_FP.FPNumber << "> ";
+	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
+
+	ostringstream cout;
+	cout << W(2) << step_counter;
+	cout << W(15) << P(1) << FORMAT_FIXED_REAL << time_point;
+	cout << W(15) << timestring;
+	cout << W(15) << realtime;
+	cout << P(1) << FORMAT_FIXED_REAL << "  (" << diff_time << ")  ";
+	cout << W(15) << this->pManager->getDomain()->getScheme()->getIterationsTotal();
+	cout << "  (" << this->pManager->getDomain()->getScheme()->getIterationsTotal() - this->diff_solver_steps << ")   ";
+	cout << W(18) << P(4) << FORMAT_FIXED_REAL << glob_time_step/(this->pManager->getDomain()->getScheme()->getIterationsTotal() - this->diff_solver_steps);
+	cout << W(26) << P(4) << FORMAT_FIXED_REAL << ((step_counter + 1) * glob_time_step)/(this->pManager->getDomain()->getScheme()->getIterationsTotal()) ;
+	cout << W(18) << total_internal;
+	cout << "  (" << internal_steps << ")";
+	cout << endl;
+	Sys_Common_Output::output_hyd->output_txt(&cout);
+
+	this->diff_solver_steps = this->pManager->getDomain()->getScheme()->getIterationsTotal();
+
+	//rewind the prefix
+	Sys_Common_Output::output_hyd->rewind_userprefix();
+}
+//output final statistics for the floodplain
 void Hyd_Model_Floodplain::output_final(void){
 	//set prefix for output
 	ostringstream prefix;
@@ -2480,7 +2498,8 @@ void Hyd_Model_Floodplain::output_final(void){
 	Sys_Common_Output::output_hyd->set_userprefix(prefix.str());
 
 	if (this->gpu_in_use) {
-	
+		this->output_solver_gpu_statistics();
+		
 	}
 	else {
 		this->output_solver_statistics();
@@ -3824,10 +3843,108 @@ void Hyd_Model_Floodplain::transfer_glob_elem_id_fp(Hyd_Model_Floodplain *to_fp)
 
 }
 //____________________________________
-
 //Run the solver GPU
 void Hyd_Model_Floodplain::run_solver_gpu(const double next_time_point, const string system_id) {
 	pManager->runNext(next_time_point);
+}
+//Get GPU solver results
+void Hyd_Model_Floodplain::get_gpu_solver_results(Profiler* profiler_input) {
+
+
+	//profiler_input->profile("   GPU readAll", Profiler::profilerFlags::START_PROFILING);
+	pManager->getDomain()->getDevice()->blockUntilFinished();
+	pManager->getDomain()->getScheme()->readDomainAll();
+	pManager->getDomain()->getDevice()->blockUntilFinished();
+	//profiler_input->profile("   GPU readAll", Profiler::profilerFlags::END_PROFILING);
+
+	unsigned long	ulCellID;
+	double dDepth, dV_x, dV_y;
+
+	this->reached_time = pManager->getDomain()->getScheme()->getTargetTime();
+
+	//profiler_input->profile("   GPU data2elems", Profiler::profilerFlags::START_PROFILING);
+	#pragma omp parallel for private(ulCellID, dDepth, dV_x, dV_y) num_threads(_Sys_Common_System::no_openmp_threads)
+	for (int iRow = 0; iRow < pManager->getDomain()->getRows(); ++iRow) {
+		for (int iCol = 0; iCol < pManager->getDomain()->getCols(); ++iCol) {
+			unsigned long ulCellID = pManager->getDomain()->getCellID(iCol, iRow);
+			double dDepth = pManager->getDomain()->getStateValue(ulCellID, model::domainValueIndices::kValueFreeSurfaceLevel) - pManager->getDomain()->getBedElevation(ulCellID);
+			double dV_x = dDepth > 1E-8 ? (pManager->getDomain()->getStateValue(ulCellID, model::domainValueIndices::kValueDischargeX) / dDepth) : 0.0;
+			double dV_y = dDepth > 1E-8 ? (pManager->getDomain()->getStateValue(ulCellID, model::domainValueIndices::kValueDischargeY) / dDepth) : 0.0;
+			
+			this->floodplain_elems[ulCellID].set_gpu_solver_results(dDepth, dV_x, dV_y, this->reached_time - this->old_time_point);
+			
+		}
+	}
+
+	//profiler_input->profile("   GPU data2elems", Profiler::profilerFlags::END_PROFILING);
+	
+
+	//read bilan out
+	pManager->getDomain()->getScheme()->set_bilan_deficit(0.0);
+	if (pManager->getDomain()->get_bound_opti() == false) {
+
+		for (int i = 0; i < pManager->getDomain()->getCellCount(); i++) {
+			pManager->getDomain()->getScheme()->set_bilan_deficit(pManager->getDomain()->getScheme()->get_bilan_deficit() + pManager->getDomain()->getBilanValue(i));
+		}
+	}
+
+	else {
+		for (int i = 0; i < pManager->getDomain()->get_coupling_size(); i++) {
+			pManager->getDomain()->getScheme()->set_bilan_deficit(pManager->getDomain()->getScheme()->get_bilan_deficit() + pManager->getDomain()->getBilanValue(i));
+		}
+	}
+
+
+}
+//Get GPU solver results of Promiades scheme
+void Hyd_Model_Floodplain::get_gpu_prom_solver_results(Profiler* profiler_input) {
+
+	//profiler_input->profile("   GPU readAll", Profiler::profilerFlags::START_PROFILING);
+	pManager->getDomain()->getDevice()->blockUntilFinished();
+	pManager->getDomain()->getScheme()->readDomainAll();
+	pManager->getDomain()->getDevice()->blockUntilFinished();
+	//profiler_input->profile("   GPU readAll", Profiler::profilerFlags::END_PROFILING);
+
+
+
+
+	this->reached_time = pManager->getDomain()->getScheme()->getTargetTime();
+
+	unsigned long	ulCellID;
+	double dDepth;
+
+	//profiler_input->profile("   GPU data2elems", Profiler::profilerFlags::START_PROFILING);
+	//double Volume = 0;
+	for (unsigned long iRow = 0; iRow < pManager->getDomain()->getRows(); ++iRow) {
+		for (unsigned long iCol = 0; iCol < pManager->getDomain()->getCols(); ++iCol) {
+			ulCellID = pManager->getDomain()->getCellID(iCol, iRow);
+			dDepth = pManager->getDomain()->getStateValue(ulCellID, model::domainValueIndices::kValueFreeSurfaceLevel) - pManager->getDomain()->getBedElevation(ulCellID);
+			
+			this->floodplain_elems[ulCellID].set_gpu_prom_solver_results(dDepth, this->reached_time - this->old_time_point);
+		}
+	}
+
+	//uses values from set_solver_result_value to calculate velocity
+	for (int i = 0; i < this->NEQ; i++) {
+		this->floodplain_elems[i].element_type->calculate_ds_dt();
+	}
+
+	//profiler_input->profile("   GPU data2elems", Profiler::profilerFlags::END_PROFILING);
+
+	//read bilan out
+	pManager->getDomain()->getScheme()->set_bilan_deficit(0.0);
+	if (pManager->getDomain()->get_bound_opti() == false) {
+
+		for (int i = 0; i < pManager->getDomain()->getCellCount(); i++) {
+			pManager->getDomain()->getScheme()->set_bilan_deficit(pManager->getDomain()->getScheme()->get_bilan_deficit() + pManager->getDomain()->getBilanValue(i));
+		}
+	}
+
+	else {
+		for (int i = 0; i < pManager->getDomain()->get_coupling_size(); i++) {
+			pManager->getDomain()->getScheme()->set_bilan_deficit(pManager->getDomain()->getScheme()->get_bilan_deficit() + pManager->getDomain()->getBilanValue(i));
+		}
+	}
 }
 //Generate the geometrical boundary of the raster polygon
 void Hyd_Model_Floodplain::generate_geo_bound_raster_polygon(void){
@@ -5019,7 +5136,6 @@ Hyd_Element_Floodplain* Hyd_Model_Floodplain::set_neighbouring_elements(const in
 	}
 	return ptr_buff;
 }
-
 //set function to solve to the solver
 void Hyd_Model_Floodplain::set_function2solver(void){
 	int flag=-1;
@@ -5066,13 +5182,24 @@ void Hyd_Model_Floodplain::set_function2solver(void){
 		throw msg;
 	}
 }
-
 //output final statistics of the solver
 void Hyd_Model_Floodplain::output_solver_statistics(void){
 	ostringstream cout;
 	cout << "SOLVER" << endl;
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 	_Hyd_Model::output_solver_statistics(&cout);
+}
+//Output the statistics of the gpu solver
+void Hyd_Model_Floodplain::output_solver_gpu_statistics(void) {
+	ostringstream cout;
+	cout << "SOLVER_GPU" << endl;
+	Sys_Common_Output::output_hyd->output_txt(&cout);
+	
+	cout << " Number of timesteps                      :" << P(0) << W(15) << this->pManager->getDomain()->getScheme()->getIterationsTotal() << endl;
+	cout << " Average timestep                         :" << P(3) << W(15) << this->reached_time/this->pManager->getDomain()->getScheme()->getIterationsTotal() << endl;
+
+
+	Sys_Common_Output::output_hyd->output_txt(&cout);
 }
 //output the maximum values of the elements
 void Hyd_Model_Floodplain::output_maximum_values(void){
@@ -5573,7 +5700,7 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 	int counter=0;
 
 	//set data
-	for(int i=0; i<fp_data->Param_FP.get_no_elems_y(); i++){
+		for(int i=0; i<fp_data->Param_FP.get_no_elems_y(); i++){
 		for(int j=0; j<fp_data->Param_FP.get_no_elems_x(); j++){
 			if(fp_data->flow_elem[i][j]==true){
 				if(result_data[counter]<=constant::dry_hyd_epsilon){
@@ -5604,8 +5731,9 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 //{
 // omp_set_num_threads(3);
 //#pragma omp for reduction(+:counter)
-    clock_t c_start = clock();
+    //clock_t c_start = clock();
 	//calculate new data
+	
 	for(int i=0; i<fp_data->Param_FP.get_no_elems_y(); i++){
 		for(int j=0; j<fp_data->Param_FP.get_no_elems_x(); j++){
 			if(fp_data->flow_elem[i][j]==true){

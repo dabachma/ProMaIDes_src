@@ -6,6 +6,9 @@
 #include "globheads.h"
 #include "protos.h"
 
+//define how many openMP threads are available
+
+
 void errexit( char *f_str, ... ){
   va_list argp;
   char out1[256], out2[256];

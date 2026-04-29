@@ -72,6 +72,9 @@ class CScheme
 		unsigned int						getBatchSize()					{ return uiQueueAdditionSize; }			// Get the batch size
 		unsigned int						getIterationsSuccessful()		{ return uiBatchSuccessful; }			// Get the successful iterations
 		unsigned int						getIterationsSkipped()			{ return uiBatchSkipped; }				// Get the number of iterations skipped
+		unsigned int						getIterationsTotal()			{ return uiIterationsTotal; }			// Get the number of iterations total
+		unsigned int						getIterationsSuccessfulTotal()  { return uiSuccessfulIterationsTotal; } // Get the number of successfull iterations total
+		unsigned int						getIterationsSkippedTotal()     { return uiSkippedIterationsTotal; } // Get the number of successfull iterations total
 		virtual void						readDomainAll() = 0;													// Read back all domain data
 		virtual void						importBoundaries() = 0;													// Read back synchronization zone data
 		virtual void						prepareSimulation() = 0;												// Set everything up to start running for this domain
