@@ -318,6 +318,6 @@ if(MSVC)
    #)
    #target_link_options(system_hydraulic PRIVATE $<$<CONFIG:Release>:-fopenmp>)
    find_package(OpenMP REQUIRED)
-   target_link_libraries(system_hydraulic PRIVATE OpenMP::OpenMP_CXX)
+   target_link_libraries(system_hydraulic OpenMP::OpenMP_CXX)
    
 endif()
