@@ -149,7 +149,7 @@ public:
 	///Reset the solver of the model
 	void reset_solver(void);
 	///Solve the model
-	void solve_model(const double next_time_point, const string system_id);
+	void solve_model(const double next_time_point, const string system_id, Profiler* profiler_input);
 	///Solve the model using gpu
 	void solve_model_gpu(const double next_time_point, const string system_id, Profiler *profiler_input);
 

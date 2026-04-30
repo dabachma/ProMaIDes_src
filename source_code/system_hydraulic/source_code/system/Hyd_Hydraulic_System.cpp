@@ -3659,7 +3659,7 @@ void Hyd_Hydraulic_System::make_calculation_rivermodel(void){
 	//solve it
 	for(int i=0; i< this->global_parameters.GlobNofRV;i++){
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
-		this->my_rvmodels[i].solve_model(this->next_internal_time-this->global_parameters.get_startime(), this->get_identifier_prefix(false));
+		this->my_rvmodels[i].solve_model(this->next_internal_time-this->global_parameters.get_startime(), this->get_identifier_prefix(false), NULL);
 	}
 }
 //Make the calculation of the temperature models for each internal step
@@ -3667,7 +3667,7 @@ void Hyd_Hydraulic_System::make_calculation_tempmodel(void) {
 	//solve it
 	for (int i = 0; i < this->global_parameters.GlobNofRV; i++) {
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
-		this->my_temp_model[i].solve_model(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false));
+		this->my_temp_model[i].solve_model(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false), NULL);
 	}
 }
 //Make the syncronisation of the floodplain models for each internal step
@@ -3753,7 +3753,7 @@ void Hyd_Hydraulic_System::make_calculation_floodplainmodel(void){
 			}
 
 			//solve cpu model
-			this->my_fpmodels[i].solve_model(this->next_internal_time-this->global_parameters.get_startime(), this->get_identifier_prefix(false));
+			this->my_fpmodels[i].solve_model(this->next_internal_time-this->global_parameters.get_startime(), this->get_identifier_prefix(false), &(this->profiler));
 		}
 	}
 

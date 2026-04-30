@@ -1818,7 +1818,7 @@ void HydTemp_Model::reset_solver(void){
 //	}
 }
 //solve_model
-void HydTemp_Model::solve_model(const double next_time_point, const string system_id){
+void HydTemp_Model::solve_model(const double next_time_point, const string system_id, Profiler* profiler_input){
 	
 	if (this->model_is_applied == false) {
 		return;

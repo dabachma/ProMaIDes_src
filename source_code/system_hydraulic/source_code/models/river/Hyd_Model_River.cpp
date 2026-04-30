@@ -2420,7 +2420,7 @@ void Hyd_Model_River::reset_solver(void){
 	}
 }
 //solve_model
-void Hyd_Model_River::solve_model(const double next_time_point, const string system_id){
+void Hyd_Model_River::solve_model(const double next_time_point, const string system_id, Profiler* profiler_input){
 	try{
 		//run the solver
 		this->run_solver(next_time_point, system_id);

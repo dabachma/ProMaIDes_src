@@ -316,4 +316,5 @@ if(MSVC)
    target_compile_options(system_hydraulic PRIVATE
         $<$<CONFIG:Release>:-fopenmp>        # openmp support
    )
+   target_link_options(system_hydraulic PRIVATE $<$<CONFIG:Release>:-fopenmp>)
 endif()

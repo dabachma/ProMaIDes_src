@@ -1224,22 +1224,22 @@ void Hyd_Model_Floodplain::reset_solver(void){
 	this->no_reset++;
 }
 //solve_model
-void Hyd_Model_Floodplain::solve_model(const double next_time_point, const string system_id){
+void Hyd_Model_Floodplain::solve_model(const double next_time_point, const string system_id, Profiler* profiler_input){
 	try{
-		//profiler->profile("upd_opt", Profiler::profilerFlags::START_PROFILING);
+		//profiler_input->profile("  CPU upd_opt", Profiler::profilerFlags::START_PROFILING);
 		this->update_opt_data_by_elems();
-		//profiler->profile("upd_opt", Profiler::profilerFlags::END_PROFILING);
-		//profiler->profile("calc_maxS", Profiler::profilerFlags::START_PROFILING);
+		//profiler_input->profile("  CPU upd_opt", Profiler::profilerFlags::END_PROFILING);
+		//profiler_input->profile("  CPU calc_maxS", Profiler::profilerFlags::START_PROFILING);
 		this->calc_set_max_step_size(next_time_point);
-		//profiler->profile("calc_maxS", Profiler::profilerFlags::END_PROFILING);
+		//profiler_input->profile("  CPU calc_maxS", Profiler::profilerFlags::END_PROFILING);
 
 		//cout << "simulating until: " << next_time_point << endl;
-		//profiler->profile("RunSolver", Profiler::profilerFlags::START_PROFILING);
+		profiler_input->profile("  CPU RunSolver", Profiler::profilerFlags::START_PROFILING);
 		this->run_solver(next_time_point, system_id);
-		//profiler->profile("RunSolver", Profiler::profilerFlags::END_PROFILING);
+		profiler_input->profile("  CPU RunSolver", Profiler::profilerFlags::END_PROFILING);
 
 
-		//profiler->profile("setSolverV", Profiler::profilerFlags::START_PROFILING);
+		//profiler_input->profile("  CPU setSolverV", Profiler::profilerFlags::START_PROFILING);
 		double volume = 0.0;
         long int counter=0;
         long int counter_wet=0;
@@ -1258,7 +1258,7 @@ void Hyd_Model_Floodplain::solve_model(const double next_time_point, const strin
             }
 
 		}
-		//profiler->profile("setSolverV", Profiler::profilerFlags::END_PROFILING);
+		//profiler_input->profile("  CPU setSolverV", Profiler::profilerFlags::END_PROFILING);
 		//cout << "Volume after solver: " << volume << endl;
 
 		//profiler->profile("upt_opt_a", Profiler::profilerFlags::START_PROFILING);
@@ -3857,13 +3857,12 @@ void Hyd_Model_Floodplain::get_gpu_solver_results(Profiler* profiler_input) {
 	pManager->getDomain()->getDevice()->blockUntilFinished();
 	//profiler_input->profile("   GPU readAll", Profiler::profilerFlags::END_PROFILING);
 
-	unsigned long	ulCellID;
-	double dDepth, dV_x, dV_y;
+	
 
 	this->reached_time = pManager->getDomain()->getScheme()->getTargetTime();
 
 	//profiler_input->profile("   GPU data2elems", Profiler::profilerFlags::START_PROFILING);
-	#pragma omp parallel for private(ulCellID, dDepth, dV_x, dV_y) num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 	for (int iRow = 0; iRow < pManager->getDomain()->getRows(); ++iRow) {
 		for (int iCol = 0; iCol < pManager->getDomain()->getCols(); ++iCol) {
 			unsigned long ulCellID = pManager->getDomain()->getCellID(iCol, iRow);
@@ -3910,21 +3909,22 @@ void Hyd_Model_Floodplain::get_gpu_prom_solver_results(Profiler* profiler_input)
 
 	this->reached_time = pManager->getDomain()->getScheme()->getTargetTime();
 
-	unsigned long	ulCellID;
-	double dDepth;
+
 
 	//profiler_input->profile("   GPU data2elems", Profiler::profilerFlags::START_PROFILING);
-	//double Volume = 0;
-	for (unsigned long iRow = 0; iRow < pManager->getDomain()->getRows(); ++iRow) {
-		for (unsigned long iCol = 0; iCol < pManager->getDomain()->getCols(); ++iCol) {
-			ulCellID = pManager->getDomain()->getCellID(iCol, iRow);
-			dDepth = pManager->getDomain()->getStateValue(ulCellID, model::domainValueIndices::kValueFreeSurfaceLevel) - pManager->getDomain()->getBedElevation(ulCellID);
+		//double Volume = 0;
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	for (int iRow = 0; iRow < pManager->getDomain()->getRows(); ++iRow) {
+		for (int iCol = 0; iCol < pManager->getDomain()->getCols(); ++iCol) {
+			unsigned long ulCellID = pManager->getDomain()->getCellID(iCol, iRow);
+			double dDepth = pManager->getDomain()->getStateValue(ulCellID, model::domainValueIndices::kValueFreeSurfaceLevel) - pManager->getDomain()->getBedElevation(ulCellID);
 			
 			this->floodplain_elems[ulCellID].set_gpu_prom_solver_results(dDepth, this->reached_time - this->old_time_point);
 		}
 	}
 
 	//uses values from set_solver_result_value to calculate velocity
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 	for (int i = 0; i < this->NEQ; i++) {
 		this->floodplain_elems[i].element_type->calculate_ds_dt();
 	}

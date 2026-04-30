@@ -2,7 +2,7 @@
 #include "Sys_Headers_Precompiled.h"
 
 int _Sys_Common_System::no_openmp_threads=1;
-bool _Sys_Common_System::openmp_used=true;
+bool _Sys_Common_System::openmp_used=false;
 
 //constructor
 _Sys_Common_System::_Sys_Common_System(void){

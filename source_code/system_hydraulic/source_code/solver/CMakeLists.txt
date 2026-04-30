@@ -113,5 +113,6 @@ if(MSVC)
    target_compile_options(solver PRIVATE
         $<$<CONFIG:Release>:-fopenmp>        # openmp support
    )
+   target_link_options(solver PRIVATE $<$<CONFIG:Release>:-fopenmp>)
 endif()
 

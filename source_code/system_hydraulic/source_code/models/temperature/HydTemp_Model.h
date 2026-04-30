@@ -154,7 +154,7 @@ public:
 	///Reset the solver of the model
 	void reset_solver(void);
 	///Solve the model
-	void solve_model(const double next_time_point, const string system_id);
+	void solve_model(const double next_time_point, const string system_id, Profiler* profiler_input);
 //
 	///Close the output file for a tecplot output
 	void close_tecplot_output(void);

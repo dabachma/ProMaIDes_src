@@ -124,7 +124,7 @@ public:
 	virtual void set_new_hyd_bound_sz_id(Hyd_Boundary_Szenario new_sz)=0;
 
 	///Solve the model
-	virtual void solve_model(const double next_time_point,  const string system_id)=0;
+	virtual void solve_model(const double next_time_point,  const string system_id, Profiler* profiler_input=NULL)=0;
 
 	///Output final statistics of the river model
 	virtual void output_final(void)=0;
