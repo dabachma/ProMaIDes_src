@@ -242,6 +242,10 @@ private:
     double **opt_z;
 	///Waterlevel + Geodetic height
 	double **opt_s;
+	///Buffer of discharge in x
+	double **opt_buff_qx;
+	///Buffer of discharge in y
+	double** opt_buff_qy;
 	///Conveancy/Poleni in x-direction
 	double **opt_cx;
 	///Conveancy/Poleni in y-direction

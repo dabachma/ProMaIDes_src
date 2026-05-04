@@ -31,6 +31,8 @@ Hyd_Model_Floodplain::Hyd_Model_Floodplain(void){
 	this->opt_dsdt=NULL;
 	this->opt_z=NULL;
 	this->opt_s=NULL;
+	this->opt_buff_qx = NULL;
+	this->opt_buff_qy = NULL;
 	this->opt_cx=NULL;
 	this->opt_cy=NULL;
 	this->opt_zxmax=NULL;
@@ -1240,22 +1242,16 @@ void Hyd_Model_Floodplain::solve_model(const double next_time_point, const strin
 
 
 		//profiler_input->profile("  CPU setSolverV", Profiler::profilerFlags::START_PROFILING);
-		double volume = 0.0;
-        long int counter=0;
-        long int counter_wet=0;
+		//double volume = 0.0;
+        //long int counter=0;
+        //long int counter_wet=0;
+		#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 		for(int i=0; i< this->NEQ; i++){
-            if(this->floodplain_elems[i].get_elem_type()==_hyd_elem_type::STANDARD_ELEM ||
-                this->floodplain_elems[i].get_elem_type()==_hyd_elem_type::DIKELINE_ELEM){
-                    this->floodplain_elems[i].element_type->set_solver_result_value(this->results_real[counter]);
-					
-					//volume += this->floodplain_elems[i].element_type->get_h_value() * this->floodplain_elems[i].element_type->get_relevant_area();
-                    
-                    //TEST: change the abs tolerance according to number of wet elements
-                    //if(this->floodplain_elems[i].element_type->get_h_value()>0.0){
-                      //  counter_wet++;
-                   // }
-                counter++;
-            }
+            if(this->floodplain_elems[i].get_elem_type()==_hyd_elem_type::STANDARD_ELEM || this->floodplain_elems[i].get_elem_type()==_hyd_elem_type::DIKELINE_ELEM){
+                    /*this->floodplain_elems[i].element_type->set_solver_result_value(this->results_real[counter]);
+					counter++;*/
+					this->floodplain_elems[i].element_type->set_solver_result_value(this->results_real[this->id_reduced[i]]);
+			}
 
 		}
 		//profiler_input->profile("  CPU setSolverV", Profiler::profilerFlags::END_PROFILING);
@@ -1266,12 +1262,12 @@ void Hyd_Model_Floodplain::solve_model(const double next_time_point, const strin
 		this->update_elems_by_opt_data();
 		//profiler->profile("upt_opt_a", Profiler::profilerFlags::END_PROFILING);
         //TEST: change the abs tolerance according to number of wet elements
-        double new_abs_tol=0.0;
+       /* double new_abs_tol=0.0;
         new_abs_tol=(double(counter_wet)/double(counter))*this->setted_abs_tol;
         if(new_abs_tol<1e-5){
 
             new_abs_tol=1e-5;
-        }
+        }*/
         //CVode_change_SStolerances(this->cvode_mem, this->setted_rel_tol,new_abs_tol);
 	}
 	catch(Error msg){
@@ -4023,6 +4019,18 @@ void Hyd_Model_Floodplain::allocate_opt_data(void){
 			this->opt_s[i]=new double[this->Param_FP.FPNofX];
 		}
 
+		this->opt_buff_qx = new double* [this->Param_FP.FPNofY];
+		for (int i = 0; i < this->Param_FP.FPNofY; i++) {
+			this->opt_buff_qx[i] = NULL;
+			this->opt_buff_qx[i] = new double[this->Param_FP.FPNofX];
+		}
+		this->opt_buff_qy = new double* [this->Param_FP.FPNofY];
+		for (int i = 0; i < this->Param_FP.FPNofY; i++) {
+			this->opt_buff_qy[i] = NULL;
+			this->opt_buff_qy[i] = new double[this->Param_FP.FPNofX];
+		}
+
+
 		this->opt_cx=new double*[this->Param_FP.FPNofY];
 		for(int i=0;i<this->Param_FP.FPNofY;i++){
 			this->opt_cx[i]=NULL;
@@ -4078,7 +4086,7 @@ void Hyd_Model_Floodplain::allocate_opt_data(void){
             this->id_reduced[i]=-1;
         }
 
-        Sys_Memory_Count::self()->add_mem(sizeof(int)*this->NEQ+sizeof(double)*5*this->NEQ+sizeof(double)*3*this->NEQ+sizeof(bool)*5*this->NEQ, _sys_system_modules::HYD_SYS);
+        Sys_Memory_Count::self()->add_mem(sizeof(int)*this->NEQ+sizeof(double)*7*this->NEQ+sizeof(double)*3*this->NEQ+sizeof(bool)*5*this->NEQ, _sys_system_modules::HYD_SYS);
 	}
 	catch(bad_alloc&t){
 		Error msg=this->set_error(15);
@@ -4105,6 +4113,8 @@ void Hyd_Model_Floodplain::delete_opt_data(void){
 			delete []this->flow_elem[i];
 			delete []this->noflow_x[i];
 			delete []this->noflow_y[i];
+			delete []this->opt_buff_qx[i];
+			delete[]this->opt_buff_qy[i];
 		}
 
 		delete []this->opt_h;
@@ -4112,6 +4122,8 @@ void Hyd_Model_Floodplain::delete_opt_data(void){
 		this->opt_h=NULL;
 		delete []this->opt_z;
 		delete []this->opt_s;
+		delete[]this->opt_buff_qx;
+		delete[]this->opt_buff_qy;
 		delete []this->opt_cx;
 		delete []this->opt_cy;
 		delete []this->opt_zxmax;
@@ -4125,7 +4137,7 @@ void Hyd_Model_Floodplain::delete_opt_data(void){
             delete []this->id_reduced;
             this->id_reduced=NULL;
         }
-        Sys_Memory_Count::self()->minus_mem(sizeof(int)*this->NEQ+sizeof(double)*5*this->NEQ+sizeof(double)*3*this->NEQ+sizeof(bool)*5*this->NEQ, _sys_system_modules::HYD_SYS);
+        Sys_Memory_Count::self()->minus_mem(sizeof(int)*this->NEQ+sizeof(double)*7*this->NEQ+sizeof(double)*3*this->NEQ+sizeof(bool)*5*this->NEQ, _sys_system_modules::HYD_SYS);
 	}
 
 
@@ -4333,15 +4345,12 @@ void Hyd_Model_Floodplain::init_opt_data_bound_coup(void){
 //Update the optimized data by the elements per syncronization step
 void Hyd_Model_Floodplain::update_opt_data_by_elems(void){
 	//boundary condition
-
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 	for(int i=0; i< this->number_bound_cond; i++){
 		this->bound_cond_dsdt[i]=this->floodplain_elems[this->bound_cond_id[i]].element_type->get_bound_discharge()/this->Param_FP.area;
-
-
-
-
     }
 	//coupling condition
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 	for(int i=0; i< this->number_coup_cond; i++){
 		//cout << this->coup_cond_id[i] << ": " << this->floodplain_elems[this->coup_cond_id[i]].element_type->get_coupling_discharge() / this->Param_FP.area << endl;
 		this->coup_cond_dsdt[i]=this->floodplain_elems[this->coup_cond_id[i]].element_type->get_coupling_discharge()/this->Param_FP.area;
@@ -4352,16 +4361,21 @@ void Hyd_Model_Floodplain::update_elems_by_opt_data(void){
 	int counter=0;
 	double volume = 0.0;
 
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 	for(int i=0; i<this->Param_FP.FPNofY; i++){
 		for(int j=0; j<this->Param_FP.FPNofX; j++){
-			this->floodplain_elems[counter].element_type->set_ds2dt_value((this->opt_dsdt[i][j]));
-			counter++;
+			int local_counter = i * this->Param_FP.FPNofX + j;
+			//this->floodplain_elems[counter].element_type->set_ds2dt_value((this->opt_dsdt[i][j]));
+			//counter++;
+			this->floodplain_elems[local_counter].element_type->set_ds2dt_value((this->opt_dsdt[i][j]));
+			this->floodplain_elems[local_counter].element_type->calculate_ds_dt();
+
 		}
 	}
-	//TODO: Bach? TIME???
-	for(int i=0; i< this->NEQ; i++){
-		this->floodplain_elems[i].element_type->calculate_ds_dt();
-	}
+	
+	//for(int i=0; i< this->NEQ; i++){
+	//	this->floodplain_elems[i].element_type->calculate_ds_dt();
+	//}
 
 
 
@@ -5685,25 +5699,29 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 	realtype *result_data=NULL;
 	result_data=NV_DATA_S(results);
 
-	realtype *ds_dt_data=NULL;
+	double *ds_dt_data=NULL;
 	ds_dt_data=NV_DATA_S(ds_dt);
 	// Initialize dh_dt with zero
 	N_VConst(0.0, ds_dt);
 
 	//optimization
-	double flow_depth=0.0;
+	/*double flow_depth=0.0;
 	double flow_depth_neigh=0.0;
 	double delta_h=0.0;
 	double abs_delta_h=0.0;
-	double ds_dt_buff=0.0;
-	double reduction_term=0.0;
+	double ds_dt_buff=0.0;*/
+	//double reduction_term = 0.0;
 	int counter=0;
 
+	
+
 	//set data
-		for(int i=0; i<fp_data->Param_FP.get_no_elems_y(); i++){
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	for(int i=0; i<fp_data->Param_FP.get_no_elems_y(); i++){
 		for(int j=0; j<fp_data->Param_FP.get_no_elems_x(); j++){
+			int local_counter = i * fp_data->Param_FP.get_no_elems_x() + j;
 			if(fp_data->flow_elem[i][j]==true){
-				if(result_data[counter]<=constant::dry_hyd_epsilon){
+			/*	if(result_data[counter]<=constant::dry_hyd_epsilon){
 					fp_data->opt_h[i][j]=0.0;
 					fp_data->opt_s[i][j]=fp_data->opt_z[i][j];
 				}
@@ -5711,7 +5729,19 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 					fp_data->opt_h[i][j]=result_data[counter];
 					fp_data->opt_s[i][j]=fp_data->opt_z[i][j]+result_data[counter];
 				}
-                counter++;
+                counter++*/;
+
+				//openmpi optimized
+				if (result_data[fp_data->id_reduced[local_counter]] <= constant::dry_hyd_epsilon) {
+					fp_data->opt_h[i][j] = 0.0;
+					fp_data->opt_s[i][j] = fp_data->opt_z[i][j];
+				}
+				else {
+					fp_data->opt_h[i][j] = result_data[fp_data->id_reduced[local_counter]];
+					fp_data->opt_s[i][j] = fp_data->opt_z[i][j] + result_data[fp_data->id_reduced[local_counter]];
+				}
+
+
 			}
             //change here
             //counter++;
@@ -5733,9 +5763,20 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 //#pragma omp for reduction(+:counter)
     //clock_t c_start = clock();
 	//calculate new data
-	
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 	for(int i=0; i<fp_data->Param_FP.get_no_elems_y(); i++){
 		for(int j=0; j<fp_data->Param_FP.get_no_elems_x(); j++){
+			int local_counter = i * fp_data->Param_FP.get_no_elems_x() + j;
+			double flow_depth = 0.0;
+			double flow_depth_neigh = 0.0;
+			double delta_h = 0.0;
+			double abs_delta_h = 0.0;
+			double ds_dt_buff = 0.0;
+			double reduction_term = 0.0;
+			fp_data->opt_buff_qx[i][j] = 0.0;
+			fp_data->opt_buff_qy[i][j] = 0.0;
+
+
 			if(fp_data->flow_elem[i][j]==true){
 				//in x-direction
 				if(fp_data->noflow_x[i][j]==false){
@@ -5764,19 +5805,27 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 
 									if(abs_delta_h>constant::flow_epsilon){
 										ds_dt_buff=fp_data->opt_cx[i][j]*pow(flow_depth, (5.0/3.0));
+										//ds_dt_buff = fp_data->opt_cx[i][j] * flow_depth * cbrt(flow_depth * flow_depth);
+										
 										//replace the manning strickler function by a tangens- function by a given boundary; this functions is the best fit to the square-root
 										//functions between 0.001 m and 0.02 m; the boundary is set, where the functions (arctan/square root) are identically)
-
 										if(abs_delta_h<=0.005078){
 											ds_dt_buff=ds_dt_buff*0.10449968880528*atan(159.877741951379*delta_h); //0.0152
 										}
 										else{
 											ds_dt_buff=ds_dt_buff*(delta_h/pow(abs_delta_h,0.5));
+											//ds_dt_buff = ds_dt_buff * (delta_h / sqrt(abs_delta_h));
 										}
 
 									//set the result
-										ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
-										ds_dt_data[counter+1]=ds_dt_data[counter+1]-ds_dt_buff;
+										//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
+										//ds_dt_data[counter+1]=ds_dt_data[counter+1]-ds_dt_buff;
+
+										/*#pragma omp critical
+										ds_dt_data[fp_data->id_reduced[local_counter]] +=  ds_dt_buff;
+										#pragma omp critical
+										ds_dt_data[fp_data->id_reduced[local_counter] + 1] -=  ds_dt_buff;*/
+										fp_data->opt_buff_qx[i][j] = ds_dt_buff;
 									}
 								}
 							}
@@ -5837,11 +5886,20 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 								}
 							}
 							//set the result
-							ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
-							ds_dt_data[counter+1]=ds_dt_data[counter+1]-ds_dt_buff;
+							//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
+							//ds_dt_data[counter+1]=ds_dt_data[counter+1]-ds_dt_buff;
+						/*	#pragma omp critical
+							ds_dt_data[fp_data->id_reduced[local_counter]] +=  ds_dt_buff;
+							#pragma omp critical
+							ds_dt_data[fp_data->id_reduced[local_counter] + 1] -= ds_dt_buff;*/
+
+							fp_data->opt_buff_qx[i][j] = ds_dt_buff;
 						}
 					}
+
 				}
+
+
 				//in y-direction
 				if(fp_data->noflow_y[i][j]==false){
 					if(fp_data->opt_pol_y[i][j]==false){
@@ -5860,7 +5918,7 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
                             flow_depth=max(flow_depth,flow_depth_neigh);
 
 							if(flow_depth>constant::flow_epsilon){
-									//diffusive wave
+								//diffusive wave
                                 delta_h=fp_data->opt_s[i+1][j]-fp_data->opt_s[i][j];
                                 abs_delta_h=abs(delta_h);
 									//kinematic wave
@@ -5869,20 +5927,30 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 
 								if(abs_delta_h>constant::flow_epsilon){
 									ds_dt_buff=fp_data->opt_cy[i][j]*pow(flow_depth, (5.0/3.0));
-										//replace the manning strickler function by a tangens- function by a given boundary; this functions is the best fit to the square-root
-										//functions between 0.001 m and 0.02 m; the boundary is set, where the functions (arctan/square root) are identically)
+									//ds_dt_buff = fp_data->opt_cy[i][j] * flow_depth* std::cbrt(flow_depth* flow_depth);
 
+									//replace the manning strickler function by a tangens- function by a given boundary; this functions is the best fit to the square-root
+									//functions between 0.001 m and 0.02 m; the boundary is set, where the functions (arctan/square root) are identically)
 									if(abs_delta_h<=0.005078){
 										ds_dt_buff=ds_dt_buff*0.10449968880528*atan(159.877741951379*delta_h); //0.0152
 										}
 									else{
-										ds_dt_buff=ds_dt_buff*(delta_h/pow(abs_delta_h,0.5));
+										//ds_dt_buff=ds_dt_buff*(delta_h/pow(abs_delta_h,0.5));
+										ds_dt_buff = ds_dt_buff * (delta_h / sqrt(abs_delta_h));
 										}
 
 										//set the result
-									ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
+									//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
 										//ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]=ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]-ds_dt_buff;
-									ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
+									//ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
+
+								/*	#pragma omp critical
+									ds_dt_data[fp_data->id_reduced[local_counter]] +=  ds_dt_buff;
+									#pragma omp critical
+									ds_dt_data[fp_data->id_y[fp_data->id_reduced[local_counter]]] -= ds_dt_buff;*/
+
+									fp_data->opt_buff_qy[i][j] = ds_dt_buff;
+																		
 								}
 							}
 						}
@@ -5944,13 +6012,26 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 							}
 
 							//set result data
-							ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
+							//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
                             //ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]=ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]-ds_dt_buff;
-                            ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
+                            //ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
+
+							//#pragma omp critical
+							////ds_dt_data[fp_data->id_reduced[local_counter]] += ds_dt_data[fp_data->id_reduced[local_counter]] + ds_dt_buff;
+							//ds_dt_data[fp_data->id_reduced[local_counter]] +=  ds_dt_buff;
+							//#pragma omp critical
+							//ds_dt_data[fp_data->id_y[fp_data->id_reduced[local_counter]]] -= ds_dt_buff;
+
+							fp_data->opt_buff_qy[i][j] = ds_dt_buff;
+
+
 						}
 					}
+
+
+
                 }
-                counter++;
+                //counter++;
 			}
             //change here
             //counter++;
@@ -5961,6 +6042,26 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
     //my_c=my_c+1;
     //printf("Time %i  %f  \n",my_c,my_time);
 //}
+
+	//set results
+	for (int i = 0; i < fp_data->Param_FP.get_no_elems_y(); i++) {
+		for (int j = 0; j < fp_data->Param_FP.get_no_elems_x(); j++) {
+			int local_counter = i * fp_data->Param_FP.get_no_elems_x() + j;
+			if (fp_data->flow_elem[i][j] == true) {
+				if (fp_data->noflow_x[i][j] == false) {
+					ds_dt_data[fp_data->id_reduced[local_counter]] += fp_data->opt_buff_qx[i][j];
+					ds_dt_data[fp_data->id_reduced[local_counter] + 1] -= fp_data->opt_buff_qx[i][j];
+				}
+				if (fp_data->noflow_y[i][j] == false) {
+					ds_dt_data[fp_data->id_reduced[local_counter]] += fp_data->opt_buff_qy[i][j];
+					ds_dt_data[fp_data->id_y[fp_data->id_reduced[local_counter]]] -= fp_data->opt_buff_qy[i][j];
+				}
+			}
+		}
+	}
+
+
+
 	fp_data->q_zero_outflow_error=0.0;
 	//check for zero outflow of boundary and coupling
 	//boundary
@@ -6027,11 +6128,16 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 	}
 
 	counter=0;
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
 	for(int i=0; i<fp_data->Param_FP.get_no_elems_y(); i++){
 		for(int j=0; j<fp_data->Param_FP.get_no_elems_x(); j++){
+			int local_counter = i * fp_data->Param_FP.get_no_elems_x() + j;
             if(fp_data->flow_elem[i][j]==true){
-                fp_data->opt_dsdt[i][j]=ds_dt_data[counter];
-                counter++;
+                //fp_data->opt_dsdt[i][j]=ds_dt_data[counter];
+                //counter++;
+
+				//openmp optimized
+				fp_data->opt_dsdt[i][j] = ds_dt_data[fp_data->id_reduced[local_counter]];
             }
             //change here
             //counter++;

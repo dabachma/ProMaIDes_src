@@ -313,10 +313,7 @@ if(MSVC)
         $<$<CONFIG:Release>:/openmp>        # openmp support
    )
  else()
-   #target_compile_options(system_hydraulic PRIVATE
-   #     $<$<CONFIG:Release>:-fopenmp>        # openmp support
-   #)
-   #target_link_options(system_hydraulic PRIVATE $<$<CONFIG:Release>:-fopenmp>)
+ 
    find_package(OpenMP REQUIRED)
    target_link_libraries(system_hydraulic OpenMP::OpenMP_CXX)
    

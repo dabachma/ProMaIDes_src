@@ -1794,9 +1794,9 @@ void Hyd_Model_River::output_solver_errors(const double time_point, const int st
 	cout << P(1)<< FORMAT_FIXED_REAL<<"  (" << diff_time<<")  ";
 	cout << W(15) << this->get_number_solversteps() ;
 	cout << "  ("<<this->get_number_solversteps()-this->diff_solver_steps<<")   ";
-	cout << W(12) << P(1)<< FORMAT_SCIENTIFIC_REAL<<  this->norm_estim_error;
-	cout << W(12) << P(1)<< FORMAT_SCIENTIFIC_REAL<< this->max_estim_error;
-	cout << W(12) << total_internal;
+	cout << W(15) << P(1)<< FORMAT_SCIENTIFIC_REAL<<  this->norm_estim_error;
+	cout << W(22) << P(1)<< FORMAT_SCIENTIFIC_REAL<< this->max_estim_error;
+	cout << W(18) << total_internal;
 	cout << "  ("<<internal_steps <<")";
 	cout << endl;
 	Sys_Common_Output::output_hyd->output_txt(&cout);
