@@ -16,7 +16,7 @@ HydGui_System_State_Dia::HydGui_System_State_Dia(QWidget *parent): QDialog(paren
 		thread=(QThread::idealThreadCount()-1);
 	}
 	buffer << thread;
-	this->spinBox_threads->setToolTip(buffer.str().c_str());
+	//this->spinBox_threads->setToolTip(buffer.str().c_str());
 
 	QObject::connect(this->okButton, SIGNAL(clicked()), this, SLOT(accept()));
 	QObject::connect(this->cancelButton, SIGNAL(clicked()), this, SLOT(reject()));

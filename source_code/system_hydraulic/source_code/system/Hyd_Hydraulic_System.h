@@ -309,6 +309,10 @@ private:
 	///Differences of real time
 	double diff_real_time;
 
+	///Best indexes for penMP calculation of FP-models
+	vector<int>* fp_indizes;
+	///Number threads for FP-models openMP parallel (different from total one)
+	int no_threads_FP;
 
 	///Counter of the internal timesteps
 	int timestep_counter;
@@ -521,6 +525,9 @@ private:
 
 	///Check if OpenCl is available on the system
 	void check_opencl_available();
+
+	///Calculate the best thread number
+	int calculate_best_thread_no(void);
 
 	///Check the internal time steps
 	double check_internal_timestep(void);

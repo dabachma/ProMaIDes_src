@@ -50,6 +50,8 @@ public:
 	//members
 	///Static variable for the number of openMP threads
 	static int no_openmp_threads;
+	///Static variable for the number of openMP threads inside an openmp thread
+	static int no_openmp_threads_inside;
 	///Static variable if openMP is used
 	static bool openmp_used;
 	

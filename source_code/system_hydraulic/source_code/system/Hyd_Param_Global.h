@@ -114,7 +114,7 @@ public:
 	void globals_per_database(QSqlDatabase *ptr_database, const bool output=true);
 
 	///Output the global parameter
-	void output_members(void);
+	void output_members(const int fp_threads, vector<int> &fp_indices);
 
 	///Check the mebers
 	void check_members(void);

@@ -31,8 +31,9 @@ Hyd_Model_Floodplain::Hyd_Model_Floodplain(void){
 	this->opt_dsdt=NULL;
 	this->opt_z=NULL;
 	this->opt_s=NULL;
-	this->opt_buff_qx = NULL;
-	this->opt_buff_qy = NULL;
+	//this->opt_buff_qx = NULL;
+	//this->opt_buff_qy = NULL;
+	this->buff_q_thread = NULL;
 	this->opt_cx=NULL;
 	this->opt_cy=NULL;
 	this->opt_zxmax=NULL;
@@ -1158,7 +1159,7 @@ void Hyd_Model_Floodplain::make_syncronisation(const double time_point){
 		return;
 	}
 	//the instationary boundary
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads) if(_Sys_Common_System::no_openmp_threads > 1)
 	for(int i=0;i<this->NEQ;i++){
 		if (this->floodplain_elems[i].element_type->get_bound_flag() == true) {
 			this->floodplain_elems[i].element_type->calculate_boundary_value(time_point);
@@ -1185,7 +1186,7 @@ void Hyd_Model_Floodplain::make_hyd_balance_max(const double time_point){
 	double cos_value = cos(this->Param_FP.angle*constant::Cpi / 180.0);
 	
 
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads) if(_Sys_Common_System::no_openmp_threads > 1)
 	for (int i = this->NEQ - 1; i >= 0; i--) {
 		
 		if (this->floodplain_elems[i].get_elem_type() == _hyd_elem_type::RIVER_ELEM) {
@@ -1199,12 +1200,12 @@ void Hyd_Model_Floodplain::make_hyd_balance_max(const double time_point){
 	}
 
 	//boundary condition
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads) if(_Sys_Common_System::no_openmp_threads > 1)
 	for(int i=0; i< this->number_bound_cond; i++){
 		this->floodplain_elems[this->bound_cond_id[i]].element_type->calculate_hydrolocigal_balance_boundary(delta_t);
 	}
 	//coupling condition
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads) if(_Sys_Common_System::no_openmp_threads > 1)
 	for(int i=0; i< this->number_coup_cond; i++){
 		this->floodplain_elems[this->coup_cond_id[i]].element_type->calculate_hydrolocigal_balance_coupling(delta_t);
 	}
@@ -1236,16 +1237,16 @@ void Hyd_Model_Floodplain::solve_model(const double next_time_point, const strin
 		//profiler_input->profile("  CPU calc_maxS", Profiler::profilerFlags::END_PROFILING);
 
 		//cout << "simulating until: " << next_time_point << endl;
-		profiler_input->profile("  CPU RunSolver", Profiler::profilerFlags::START_PROFILING);
+		//profiler_input->profile("  CPU RunSolver", Profiler::profilerFlags::START_PROFILING);
 		this->run_solver(next_time_point, system_id);
-		profiler_input->profile("  CPU RunSolver", Profiler::profilerFlags::END_PROFILING);
+		//profiler_input->profile("  CPU RunSolver", Profiler::profilerFlags::END_PROFILING);
 
 
 		//profiler_input->profile("  CPU setSolverV", Profiler::profilerFlags::START_PROFILING);
 		//double volume = 0.0;
         //long int counter=0;
         //long int counter_wet=0;
-		#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+		#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads_inside) if(_Sys_Common_System::no_openmp_threads_inside > 1)
 		for(int i=0; i< this->NEQ; i++){
             if(this->floodplain_elems[i].get_elem_type()==_hyd_elem_type::STANDARD_ELEM || this->floodplain_elems[i].get_elem_type()==_hyd_elem_type::DIKELINE_ELEM){
                     /*this->floodplain_elems[i].element_type->set_solver_result_value(this->results_real[counter]);
@@ -1299,7 +1300,7 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 		
 		
 		// Zero out the boundary conditions array
-		profiler_input->profile("  GPU set boundary", Profiler::profilerFlags::START_PROFILING);
+		//profiler_input->profile("  GPU set boundary", Profiler::profilerFlags::START_PROFILING);
 		if (myCarDomain->getUseOptimizedCoupling() == false) {
 			myCarDomain->resetBoundaryCondition();
 
@@ -1334,9 +1335,9 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 
 		// Request to import Boundary condition and new coupled water heights
 		myScheme->importBoundaries();
-		profiler_input->profile("  GPU set boundary", Profiler::profilerFlags::END_PROFILING);
+		//profiler_input->profile("  GPU set boundary", Profiler::profilerFlags::END_PROFILING);
 
-		profiler_input->profile("  GPU run solver", Profiler::profilerFlags::START_PROFILING);
+		//profiler_input->profile("  GPU run solver", Profiler::profilerFlags::START_PROFILING);
 		// Run the simulations until the target time, the results on the simulation are saved in readBuffers_opt_h
 		//cout << "Next_time_point: " << next_time_point << endl;
 		this->run_solver_gpu(next_time_point, system_id);
@@ -1374,11 +1375,11 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 			throw msg;
 		}
 
-		profiler_input->profile("  GPU run solver", Profiler::profilerFlags::END_PROFILING);
+		//profiler_input->profile("  GPU run solver", Profiler::profilerFlags::END_PROFILING);
 
 
 		
-		profiler_input->profile("  GPU postprocessing", Profiler::profilerFlags::START_PROFILING);
+		//profiler_input->profile("  GPU postprocessing", Profiler::profilerFlags::START_PROFILING);
 
 		
 		
@@ -1440,7 +1441,7 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 			this->get_gpu_solver_results(profiler_input);
 
 		}
-		profiler_input->profile("  GPU postprocessing", Profiler::profilerFlags::END_PROFILING);
+		//profiler_input->profile("  GPU postprocessing", Profiler::profilerFlags::END_PROFILING);
 		this->old_time_point = next_time_point;
 	}
 	catch (Error msg) {
@@ -2474,8 +2475,8 @@ void Hyd_Model_Floodplain::output_solver_errors_gpu(const double time_point, con
 	cout << P(1) << FORMAT_FIXED_REAL << "  (" << diff_time << ")  ";
 	cout << W(15) << this->pManager->getDomain()->getScheme()->getIterationsTotal();
 	cout << "  (" << this->pManager->getDomain()->getScheme()->getIterationsTotal() - this->diff_solver_steps << ")   ";
-	cout << W(18) << P(4) << FORMAT_FIXED_REAL << glob_time_step/(this->pManager->getDomain()->getScheme()->getIterationsTotal() - this->diff_solver_steps);
-	cout << W(26) << P(4) << FORMAT_FIXED_REAL << ((step_counter + 1) * glob_time_step)/(this->pManager->getDomain()->getScheme()->getIterationsTotal()) ;
+	cout << W(15) << P(4) << FORMAT_FIXED_REAL << glob_time_step/(this->pManager->getDomain()->getScheme()->getIterationsTotal() - this->diff_solver_steps);
+	cout << W(22) << P(4) << FORMAT_FIXED_REAL << ((step_counter + 1) * glob_time_step)/(this->pManager->getDomain()->getScheme()->getIterationsTotal()) ;
 	cout << W(18) << total_internal;
 	cout << "  (" << internal_steps << ")";
 	cout << endl;
@@ -3858,7 +3859,7 @@ void Hyd_Model_Floodplain::get_gpu_solver_results(Profiler* profiler_input) {
 	this->reached_time = pManager->getDomain()->getScheme()->getTargetTime();
 
 	//profiler_input->profile("   GPU data2elems", Profiler::profilerFlags::START_PROFILING);
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads_inside) if(_Sys_Common_System::no_openmp_threads_inside > 1)
 	for (int iRow = 0; iRow < pManager->getDomain()->getRows(); ++iRow) {
 		for (int iCol = 0; iCol < pManager->getDomain()->getCols(); ++iCol) {
 			unsigned long ulCellID = pManager->getDomain()->getCellID(iCol, iRow);
@@ -3909,7 +3910,7 @@ void Hyd_Model_Floodplain::get_gpu_prom_solver_results(Profiler* profiler_input)
 
 	//profiler_input->profile("   GPU data2elems", Profiler::profilerFlags::START_PROFILING);
 		//double Volume = 0;
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads_inside) if(_Sys_Common_System::no_openmp_threads_inside > 1)
 	for (int iRow = 0; iRow < pManager->getDomain()->getRows(); ++iRow) {
 		for (int iCol = 0; iCol < pManager->getDomain()->getCols(); ++iCol) {
 			unsigned long ulCellID = pManager->getDomain()->getCellID(iCol, iRow);
@@ -3920,7 +3921,7 @@ void Hyd_Model_Floodplain::get_gpu_prom_solver_results(Profiler* profiler_input)
 	}
 
 	//uses values from set_solver_result_value to calculate velocity
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads_inside) if(_Sys_Common_System::no_openmp_threads_inside > 1)
 	for (int i = 0; i < this->NEQ; i++) {
 		this->floodplain_elems[i].element_type->calculate_ds_dt();
 	}
@@ -4019,16 +4020,21 @@ void Hyd_Model_Floodplain::allocate_opt_data(void){
 			this->opt_s[i]=new double[this->Param_FP.FPNofX];
 		}
 
-		this->opt_buff_qx = new double* [this->Param_FP.FPNofY];
-		for (int i = 0; i < this->Param_FP.FPNofY; i++) {
-			this->opt_buff_qx[i] = NULL;
-			this->opt_buff_qx[i] = new double[this->Param_FP.FPNofX];
-		}
-		this->opt_buff_qy = new double* [this->Param_FP.FPNofY];
-		for (int i = 0; i < this->Param_FP.FPNofY; i++) {
-			this->opt_buff_qy[i] = NULL;
-			this->opt_buff_qy[i] = new double[this->Param_FP.FPNofX];
-		}
+		//this->opt_buff_qx = new double* [this->Param_FP.FPNofY];
+		//for (int i = 0; i < this->Param_FP.FPNofY; i++) {
+		//	this->opt_buff_qx[i] = NULL;
+		//	this->opt_buff_qx[i] = new double[this->Param_FP.FPNofX];
+		//}
+		//this->opt_buff_qy = new double* [this->Param_FP.FPNofY];
+		//for (int i = 0; i < this->Param_FP.FPNofY; i++) {
+		//	this->opt_buff_qy[i] = NULL;
+		//	this->opt_buff_qy[i] = new double[this->Param_FP.FPNofX];
+		//}
+
+		//this->buff_q_thread= new double* [_Sys_Common_System::no_openmp_threads];
+		//for (int t = 0; t < _Sys_Common_System::no_openmp_threads; t++) {
+		//	this->buff_q_thread[t] = new double[this->Param_FP.FPNofX* this->Param_FP.FPNofY]; // max_idx ist die Länge von ds_dt_data
+		//}
 
 
 		this->opt_cx=new double*[this->Param_FP.FPNofY];
@@ -4086,7 +4092,7 @@ void Hyd_Model_Floodplain::allocate_opt_data(void){
             this->id_reduced[i]=-1;
         }
 
-        Sys_Memory_Count::self()->add_mem(sizeof(int)*this->NEQ+sizeof(double)*7*this->NEQ+sizeof(double)*3*this->NEQ+sizeof(bool)*5*this->NEQ, _sys_system_modules::HYD_SYS);
+        Sys_Memory_Count::self()->add_mem(sizeof(int)*this->NEQ+sizeof(double)*(5+ 0)*this->NEQ+sizeof(double)*3*this->NEQ+sizeof(bool)*5*this->NEQ, _sys_system_modules::HYD_SYS);
 	}
 	catch(bad_alloc&t){
 		Error msg=this->set_error(15);
@@ -4113,17 +4119,21 @@ void Hyd_Model_Floodplain::delete_opt_data(void){
 			delete []this->flow_elem[i];
 			delete []this->noflow_x[i];
 			delete []this->noflow_y[i];
-			delete []this->opt_buff_qx[i];
-			delete[]this->opt_buff_qy[i];
+			//delete []this->opt_buff_qx[i];
+			//delete[]this->opt_buff_qy[i];
 		}
+		/*for (int i = 0; i < _Sys_Common_System::no_openmp_threads; i++) {
+			delete []this->buff_q_thread[i];
+		}
+		delete []this->buff_q_thread;*/
 
 		delete []this->opt_h;
 		delete []this->opt_dsdt;
 		this->opt_h=NULL;
 		delete []this->opt_z;
 		delete []this->opt_s;
-		delete[]this->opt_buff_qx;
-		delete[]this->opt_buff_qy;
+		//delete[]this->opt_buff_qx;
+		//delete[]this->opt_buff_qy;
 		delete []this->opt_cx;
 		delete []this->opt_cy;
 		delete []this->opt_zxmax;
@@ -4137,7 +4147,7 @@ void Hyd_Model_Floodplain::delete_opt_data(void){
             delete []this->id_reduced;
             this->id_reduced=NULL;
         }
-        Sys_Memory_Count::self()->minus_mem(sizeof(int)*this->NEQ+sizeof(double)*7*this->NEQ+sizeof(double)*3*this->NEQ+sizeof(bool)*5*this->NEQ, _sys_system_modules::HYD_SYS);
+        Sys_Memory_Count::self()->minus_mem(sizeof(int)*this->NEQ+sizeof(double)*(5+ 0 )*this->NEQ+sizeof(double)*3*this->NEQ+sizeof(bool)*5*this->NEQ, _sys_system_modules::HYD_SYS);
 	}
 
 
@@ -4345,12 +4355,12 @@ void Hyd_Model_Floodplain::init_opt_data_bound_coup(void){
 //Update the optimized data by the elements per syncronization step
 void Hyd_Model_Floodplain::update_opt_data_by_elems(void){
 	//boundary condition
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads_inside) if(_Sys_Common_System::no_openmp_threads_inside > 1)
 	for(int i=0; i< this->number_bound_cond; i++){
 		this->bound_cond_dsdt[i]=this->floodplain_elems[this->bound_cond_id[i]].element_type->get_bound_discharge()/this->Param_FP.area;
     }
 	//coupling condition
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads_inside) if(_Sys_Common_System::no_openmp_threads_inside > 1)
 	for(int i=0; i< this->number_coup_cond; i++){
 		//cout << this->coup_cond_id[i] << ": " << this->floodplain_elems[this->coup_cond_id[i]].element_type->get_coupling_discharge() / this->Param_FP.area << endl;
 		this->coup_cond_dsdt[i]=this->floodplain_elems[this->coup_cond_id[i]].element_type->get_coupling_discharge()/this->Param_FP.area;
@@ -4361,7 +4371,7 @@ void Hyd_Model_Floodplain::update_elems_by_opt_data(void){
 	int counter=0;
 	double volume = 0.0;
 
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads_inside) if(_Sys_Common_System::no_openmp_threads_inside > 1)
 	for(int i=0; i<this->Param_FP.FPNofY; i++){
 		for(int j=0; j<this->Param_FP.FPNofX; j++){
 			int local_counter = i * this->Param_FP.FPNofX + j;
@@ -5716,7 +5726,7 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 	
 
 	//set data
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads_inside) if(_Sys_Common_System::no_openmp_threads_inside > 1)
 	for(int i=0; i<fp_data->Param_FP.get_no_elems_y(); i++){
 		for(int j=0; j<fp_data->Param_FP.get_no_elems_x(); j++){
 			int local_counter = i * fp_data->Param_FP.get_no_elems_x() + j;
@@ -5763,137 +5773,161 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 //#pragma omp for reduction(+:counter)
     //clock_t c_start = clock();
 	//calculate new data
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
-	for(int i=0; i<fp_data->Param_FP.get_no_elems_y(); i++){
-		for(int j=0; j<fp_data->Param_FP.get_no_elems_x(); j++){
+	// 
+
+
+//#pragma omp parallel num_threads(_Sys_Common_System::no_openmp_threads)
+//{
+//	int tid = omp_get_thread_num();
+//	double* my_buf = fp_data->buff_q_thread[tid];
+//	std::fill(my_buf, my_buf + fp_data->Param_FP.get_no_elems_y() * fp_data->Param_FP.get_no_elems_x(), 0.0);
+//#pragma omp barrier 
+//
+//
+//	#pragma omp for schedule(static)
+	//#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads) 
+	for (int i = 0; i < fp_data->Param_FP.get_no_elems_y(); i++) {
+		for (int j = 0; j < fp_data->Param_FP.get_no_elems_x(); j++) {
 			int local_counter = i * fp_data->Param_FP.get_no_elems_x() + j;
+			int idx = fp_data->id_reduced[local_counter];
 			double flow_depth = 0.0;
 			double flow_depth_neigh = 0.0;
 			double delta_h = 0.0;
 			double abs_delta_h = 0.0;
 			double ds_dt_buff = 0.0;
 			double reduction_term = 0.0;
-			fp_data->opt_buff_qx[i][j] = 0.0;
-			fp_data->opt_buff_qy[i][j] = 0.0;
+			/*fp_data->opt_buff_qx[i][j] = 0.0;
+			fp_data->opt_buff_qy[i][j] = 0.0;*/
 
 
-			if(fp_data->flow_elem[i][j]==true){
+			if (fp_data->flow_elem[i][j] == true) {
 				//in x-direction
-				if(fp_data->noflow_x[i][j]==false){
-					if(fp_data->opt_pol_x[i][j]==false){
-							//manning x
-							if(fp_data->opt_h[i][j]>constant::flow_epsilon || fp_data->opt_h[i][j+1]>constant::flow_epsilon){
-								//calculate the mid of the flow depth
-								flow_depth=fp_data->opt_s[i][j]-fp_data->opt_zxmax[i][j];
-								if(flow_depth <0.0){
-									flow_depth=0.0;
-								}
-								flow_depth_neigh=fp_data->opt_s[i][j+1]-fp_data->opt_zxmax[i][j];
-								if(flow_depth_neigh<0.0){
-									flow_depth_neigh=0.0;
-								}
-							    //flow_depth=0.5*(flow_depth+flow_depth_neigh);
-							    flow_depth=max(flow_depth,flow_depth_neigh);
+				if (fp_data->noflow_x[i][j] == false) {
+					if (fp_data->opt_pol_x[i][j] == false) {
+						//manning x
+						if (fp_data->opt_h[i][j] > constant::flow_epsilon || fp_data->opt_h[i][j + 1] > constant::flow_epsilon) {
+							//calculate the mid of the flow depth
+							flow_depth = fp_data->opt_s[i][j] - fp_data->opt_zxmax[i][j];
+							if (flow_depth < 0.0) {
+								flow_depth = 0.0;
+							}
+							flow_depth_neigh = fp_data->opt_s[i][j + 1] - fp_data->opt_zxmax[i][j];
+							if (flow_depth_neigh < 0.0) {
+								flow_depth_neigh = 0.0;
+							}
+							//flow_depth=0.5*(flow_depth+flow_depth_neigh);
+							flow_depth = max(flow_depth, flow_depth_neigh);
 
-								if(flow_depth>constant::flow_epsilon){
-							        //diffusive wave
-							        delta_h=fp_data->opt_s[i][j+1]-fp_data->opt_s[i][j];
-							        abs_delta_h=abs(delta_h);
-							        //kinematic wave
-							        //delta_h=fp_data->opt_zxmax[i][j+1]-fp_data->opt_zxmax[i][j];
-							        //abs_delta_h=abs(delta_h);
+							if (flow_depth > constant::flow_epsilon) {
+								//diffusive wave
+								delta_h = fp_data->opt_s[i][j + 1] - fp_data->opt_s[i][j];
+								abs_delta_h = abs(delta_h);
+								//kinematic wave
+								//delta_h=fp_data->opt_zxmax[i][j+1]-fp_data->opt_zxmax[i][j];
+								//abs_delta_h=abs(delta_h);
 
-									if(abs_delta_h>constant::flow_epsilon){
-										ds_dt_buff=fp_data->opt_cx[i][j]*pow(flow_depth, (5.0/3.0));
-										//ds_dt_buff = fp_data->opt_cx[i][j] * flow_depth * cbrt(flow_depth * flow_depth);
-										
-										//replace the manning strickler function by a tangens- function by a given boundary; this functions is the best fit to the square-root
-										//functions between 0.001 m and 0.02 m; the boundary is set, where the functions (arctan/square root) are identically)
-										if(abs_delta_h<=0.005078){
-											ds_dt_buff=ds_dt_buff*0.10449968880528*atan(159.877741951379*delta_h); //0.0152
-										}
-										else{
-											ds_dt_buff=ds_dt_buff*(delta_h/pow(abs_delta_h,0.5));
-											//ds_dt_buff = ds_dt_buff * (delta_h / sqrt(abs_delta_h));
-										}
+								if (abs_delta_h > constant::flow_epsilon) {
+									ds_dt_buff = fp_data->opt_cx[i][j] * pow(flow_depth, (5.0 / 3.0));
+									//ds_dt_buff = fp_data->opt_cx[i][j] * flow_depth * cbrt(flow_depth * flow_depth);
+
+									//replace the manning strickler function by a tangens- function by a given boundary; this functions is the best fit to the square-root
+									//functions between 0.001 m and 0.02 m; the boundary is set, where the functions (arctan/square root) are identically)
+									if (abs_delta_h <= 0.005078) {
+										ds_dt_buff = ds_dt_buff * 0.10449968880528 * atan(159.877741951379 * delta_h); //0.0152
+									}
+									else {
+										ds_dt_buff = ds_dt_buff * (delta_h / pow(abs_delta_h, 0.5));
+										//ds_dt_buff = ds_dt_buff * (delta_h / sqrt(abs_delta_h));
+									}
 
 									//set the result
 										//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
 										//ds_dt_data[counter+1]=ds_dt_data[counter+1]-ds_dt_buff;
 
-										/*#pragma omp critical
-										ds_dt_data[fp_data->id_reduced[local_counter]] +=  ds_dt_buff;
-										#pragma omp critical
-										ds_dt_data[fp_data->id_reduced[local_counter] + 1] -=  ds_dt_buff;*/
-										fp_data->opt_buff_qx[i][j] = ds_dt_buff;
-									}
+									//#pragma omp atomic
+									ds_dt_data[idx] += ds_dt_buff;
+									//#pragma omp atomic
+									ds_dt_data[idx + 1] -= ds_dt_buff;
+									 
+									//fp_data->opt_buff_qx[i][j] = ds_dt_buff;
+
+									/*my_buf[idx] += ds_dt_buff;
+									my_buf[idx + 1] -= ds_dt_buff;*/
+
+
+
 								}
 							}
 						}
+					}
 					//poleni x
-					else{
-						flow_depth=fp_data->opt_s[i][j]-fp_data->opt_zxmax[i][j];
-						flow_depth_neigh=fp_data->opt_s[i][j+1]-fp_data->opt_zxmax[i][j];
+					else {
+						flow_depth = fp_data->opt_s[i][j] - fp_data->opt_zxmax[i][j];
+						flow_depth_neigh = fp_data->opt_s[i][j + 1] - fp_data->opt_zxmax[i][j];
 						//both waterlevel are under the weirsill or same waterlevels=> no flow
-						if((flow_depth<=0.0 && flow_depth_neigh<=0.0) || (abs(flow_depth-flow_depth_neigh)<=0.0)){
-							ds_dt_buff=0.0;
+						if ((flow_depth <= 0.0 && flow_depth_neigh <= 0.0) || (abs(flow_depth - flow_depth_neigh) <= 0.0)) {
+							ds_dt_buff = 0.0;
 						}
 						//flow
-						else{
+						else {
 							//flow out of this element without submerged weirflow reduction into the neihgbouring element
-							if(flow_depth> 0.0 && flow_depth_neigh <= 0.0){
-								ds_dt_buff=-1.0*constant::Cfacweir*fp_data->opt_cx[i][j]*pow(flow_depth,(3.0/2.0));
+							if (flow_depth > 0.0 && flow_depth_neigh <= 0.0) {
+								ds_dt_buff = -1.0 * constant::Cfacweir * fp_data->opt_cx[i][j] * pow(flow_depth, (3.0 / 2.0));
 							}
 							//flow out of the neighbouring element without submerged weirflow reduction into this element
-							else if(flow_depth<= 0.0 && flow_depth_neigh > 0.0){
-								ds_dt_buff=constant::Cfacweir*fp_data->opt_cx[i][j]*pow(flow_depth_neigh,(3.0/2.0));
+							else if (flow_depth <= 0.0 && flow_depth_neigh > 0.0) {
+								ds_dt_buff = constant::Cfacweir * fp_data->opt_cx[i][j] * pow(flow_depth_neigh, (3.0 / 2.0));
 							}
 							//submerged weirflow with reduction
-							else if(flow_depth > 0.0 && flow_depth_neigh > 0.0){
+							else if (flow_depth > 0.0 && flow_depth_neigh > 0.0) {
 								//flow out of this element into the neihgbouring element
-								if(flow_depth>flow_depth_neigh){
-									ds_dt_buff=constant::Cfacweir*fp_data->opt_cx[i][j]*pow(flow_depth,(3.0/2.0));
+								if (flow_depth > flow_depth_neigh) {
+									ds_dt_buff = constant::Cfacweir * fp_data->opt_cx[i][j] * pow(flow_depth, (3.0 / 2.0));
 									//reduction of the discharge (submerged weirflow)
-									reduction_term=(1.0-flow_depth_neigh/flow_depth);
+									reduction_term = (1.0 - flow_depth_neigh / flow_depth);
 									//replace the ^(1/3) by a fitted arctan-function; at the boundary they have the same values
-									if(reduction_term<=0.000463529){
-										ds_dt_buff=-1.0*ds_dt_buff*0.057965266895*atan(8984.365582471040*reduction_term);
+									if (reduction_term <= 0.000463529) {
+										ds_dt_buff = -1.0 * ds_dt_buff * 0.057965266895 * atan(8984.365582471040 * reduction_term);
 									}
 									//test performance DB 7.2.2020
 									//if (reduction_term <= 0.005) {
 									//	ds_dt_buff = -1.0*ds_dt_buff*pow(6839.903787*reduction_term,2.0);
 									//}
-									else{
-										ds_dt_buff=-1.0*ds_dt_buff*pow(reduction_term,(1.0/3.0));
+									else {
+										ds_dt_buff = -1.0 * ds_dt_buff * pow(reduction_term, (1.0 / 3.0));
 									}
 								}
 								//flow out of the neighbouring element into this element
-								else{
-									ds_dt_buff=constant::Cfacweir*fp_data->opt_cx[i][j]*pow(flow_depth_neigh,(3.0/2.0));
+								else {
+									ds_dt_buff = constant::Cfacweir * fp_data->opt_cx[i][j] * pow(flow_depth_neigh, (3.0 / 2.0));
 									//reduction of the discharge (submerged weirflow)
-									reduction_term=(1.0-flow_depth/flow_depth_neigh);
+									reduction_term = (1.0 - flow_depth / flow_depth_neigh);
 									//replace the ^(1/3) by a fitted arctan-function; at the boundary they have the same values
-									if(reduction_term<=0.000463529){
-										ds_dt_buff=ds_dt_buff*0.057965266895*atan(8984.365582471040*reduction_term);
+									if (reduction_term <= 0.000463529) {
+										ds_dt_buff = ds_dt_buff * 0.057965266895 * atan(8984.365582471040 * reduction_term);
 									}
 									//test performance DB 7.2.2020
 								/*	if (reduction_term <= 0.005) {
 										ds_dt_buff = ds_dt_buff * pow(6839.903787*reduction_term, 2.0);
 									}*/
-									else{
-										ds_dt_buff=ds_dt_buff*pow(reduction_term,(1.0/3.0));
+									else {
+										ds_dt_buff = ds_dt_buff * pow(reduction_term, (1.0 / 3.0));
 									}
 								}
 							}
 							//set the result
 							//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
 							//ds_dt_data[counter+1]=ds_dt_data[counter+1]-ds_dt_buff;
-						/*	#pragma omp critical
-							ds_dt_data[fp_data->id_reduced[local_counter]] +=  ds_dt_buff;
-							#pragma omp critical
-							ds_dt_data[fp_data->id_reduced[local_counter] + 1] -= ds_dt_buff;*/
+							// 
+							//#pragma omp atomic
+							ds_dt_data[idx] += ds_dt_buff;
+							//#pragma omp atomic
+							ds_dt_data[idx + 1] -= ds_dt_buff;
 
-							fp_data->opt_buff_qx[i][j] = ds_dt_buff;
+							//fp_data->opt_buff_qx[i][j] = ds_dt_buff;
+
+							/*my_buf[idx] += ds_dt_buff;
+							my_buf[idx + 1] -= ds_dt_buff;*/
 						}
 					}
 
@@ -5901,128 +5935,133 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 
 
 				//in y-direction
-				if(fp_data->noflow_y[i][j]==false){
-					if(fp_data->opt_pol_y[i][j]==false){
-							//manning y
-						if(fp_data->opt_h[i][j]>constant::flow_epsilon || fp_data->opt_h[i+1][j]>constant::flow_epsilon){
-								//calculate the mid of the flow depth
-							flow_depth=fp_data->opt_s[i][j]-fp_data->opt_zymax[i][j];
-							if(flow_depth <0.0){
-								flow_depth=0.0;
-								}
-							flow_depth_neigh=fp_data->opt_s[i+1][j]-fp_data->opt_zymax[i][j];
-							if(flow_depth_neigh<0.0){
-								flow_depth_neigh=0.0;
-								}
-								//flow_depth=(flow_depth+flow_depth_neigh)*0.5;
-                            flow_depth=max(flow_depth,flow_depth_neigh);
+				if (fp_data->noflow_y[i][j] == false) {
+					if (fp_data->opt_pol_y[i][j] == false) {
+						//manning y
+						if (fp_data->opt_h[i][j] > constant::flow_epsilon || fp_data->opt_h[i + 1][j] > constant::flow_epsilon) {
+							//calculate the mid of the flow depth
+							flow_depth = fp_data->opt_s[i][j] - fp_data->opt_zymax[i][j];
+							if (flow_depth < 0.0) {
+								flow_depth = 0.0;
+							}
+							flow_depth_neigh = fp_data->opt_s[i + 1][j] - fp_data->opt_zymax[i][j];
+							if (flow_depth_neigh < 0.0) {
+								flow_depth_neigh = 0.0;
+							}
+							//flow_depth=(flow_depth+flow_depth_neigh)*0.5;
+							flow_depth = max(flow_depth, flow_depth_neigh);
 
-							if(flow_depth>constant::flow_epsilon){
+							if (flow_depth > constant::flow_epsilon) {
 								//diffusive wave
-                                delta_h=fp_data->opt_s[i+1][j]-fp_data->opt_s[i][j];
-                                abs_delta_h=abs(delta_h);
-									//kinematic wave
-								   //delta_h=fp_data->opt_zymax[i+1][j]-fp_data->opt_zymax[i][j];
-								   //abs_delta_h=abs(delta_h);
+								delta_h = fp_data->opt_s[i + 1][j] - fp_data->opt_s[i][j];
+								abs_delta_h = abs(delta_h);
+								//kinematic wave
+							   //delta_h=fp_data->opt_zymax[i+1][j]-fp_data->opt_zymax[i][j];
+							   //abs_delta_h=abs(delta_h);
 
-								if(abs_delta_h>constant::flow_epsilon){
-									ds_dt_buff=fp_data->opt_cy[i][j]*pow(flow_depth, (5.0/3.0));
+								if (abs_delta_h > constant::flow_epsilon) {
+									ds_dt_buff = fp_data->opt_cy[i][j] * pow(flow_depth, (5.0 / 3.0));
 									//ds_dt_buff = fp_data->opt_cy[i][j] * flow_depth* std::cbrt(flow_depth* flow_depth);
 
 									//replace the manning strickler function by a tangens- function by a given boundary; this functions is the best fit to the square-root
 									//functions between 0.001 m and 0.02 m; the boundary is set, where the functions (arctan/square root) are identically)
-									if(abs_delta_h<=0.005078){
-										ds_dt_buff=ds_dt_buff*0.10449968880528*atan(159.877741951379*delta_h); //0.0152
-										}
-									else{
-										//ds_dt_buff=ds_dt_buff*(delta_h/pow(abs_delta_h,0.5));
-										ds_dt_buff = ds_dt_buff * (delta_h / sqrt(abs_delta_h));
-										}
+									if (abs_delta_h <= 0.005078) {
+										ds_dt_buff = ds_dt_buff * 0.10449968880528 * atan(159.877741951379 * delta_h); //0.0152
+									}
+									else {
+										ds_dt_buff = ds_dt_buff * (delta_h / pow(abs_delta_h, 0.5));
+										//ds_dt_buff = ds_dt_buff * (delta_h / sqrt(abs_delta_h));
+									}
 
-										//set the result
-									//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
-										//ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]=ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]-ds_dt_buff;
-									//ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
+									//set the result
+								//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
+									//ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]=ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]-ds_dt_buff;
+								//ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
 
-								/*	#pragma omp critical
-									ds_dt_data[fp_data->id_reduced[local_counter]] +=  ds_dt_buff;
-									#pragma omp critical
-									ds_dt_data[fp_data->id_y[fp_data->id_reduced[local_counter]]] -= ds_dt_buff;*/
+									//#pragma omp atomic
+									ds_dt_data[idx] += ds_dt_buff;
+									//#pragma omp atomic
+									ds_dt_data[fp_data->id_y[idx]] -= ds_dt_buff;
 
-									fp_data->opt_buff_qy[i][j] = ds_dt_buff;
-																		
+									//fp_data->opt_buff_qy[i][j] = ds_dt_buff;
+
+									/*my_buf[idx] += ds_dt_buff;
+									my_buf[fp_data->id_y[idx]] -= ds_dt_buff;*/
+
 								}
 							}
 						}
 					}
 					//poleni y
-					else{
-						flow_depth=fp_data->opt_s[i][j]-fp_data->opt_zymax[i][j];
-						flow_depth_neigh=fp_data->opt_s[i+1][j]-fp_data->opt_zymax[i][j];
+					else {
+						flow_depth = fp_data->opt_s[i][j] - fp_data->opt_zymax[i][j];
+						flow_depth_neigh = fp_data->opt_s[i + 1][j] - fp_data->opt_zymax[i][j];
 						//both waterlevel are under the weirsill or same waterlevels=> no flow
-						if((flow_depth<=0.0 && flow_depth_neigh<=0.0) || (abs(flow_depth-flow_depth_neigh)<=0.0)){
-							ds_dt_buff=0.0;
+						if ((flow_depth <= 0.0 && flow_depth_neigh <= 0.0) || (abs(flow_depth - flow_depth_neigh) <= 0.0)) {
+							ds_dt_buff = 0.0;
 						}
 						//flow
-						else{
+						else {
 							//flow out of this element without submerged weirflow reduction into the neihgbouring element
-							if(flow_depth> 0.0 && flow_depth_neigh <= 0.0){
-								ds_dt_buff=-1.0*constant::Cfacweir*fp_data->opt_cy[i][j]*pow(flow_depth,(3.0/2.0));
+							if (flow_depth > 0.0 && flow_depth_neigh <= 0.0) {
+								ds_dt_buff = -1.0 * constant::Cfacweir * fp_data->opt_cy[i][j] * pow(flow_depth, (3.0 / 2.0));
 							}
 							//flow out of the neighbouring element without submerged weirflow reduction into this element
-							else if(flow_depth<= 0.0 && flow_depth_neigh > 0.0){
-								ds_dt_buff=constant::Cfacweir*fp_data->opt_cy[i][j]*pow(flow_depth_neigh,(3.0/2.0));
+							else if (flow_depth <= 0.0 && flow_depth_neigh > 0.0) {
+								ds_dt_buff = constant::Cfacweir * fp_data->opt_cy[i][j] * pow(flow_depth_neigh, (3.0 / 2.0));
 							}
 							//submerged weirflow with reduction
-							else if(flow_depth > 0.0 && flow_depth_neigh > 0.0){
+							else if (flow_depth > 0.0 && flow_depth_neigh > 0.0) {
 								//flow out of this element into the neihgbouring element
-								if(flow_depth>flow_depth_neigh){
-									ds_dt_buff=constant::Cfacweir*fp_data->opt_cy[i][j]*pow(flow_depth,(3.0/2.0));
+								if (flow_depth > flow_depth_neigh) {
+									ds_dt_buff = constant::Cfacweir * fp_data->opt_cy[i][j] * pow(flow_depth, (3.0 / 2.0));
 									//reduction of the discharge (submerged weirflow)
-									reduction_term=(1.0-flow_depth_neigh/flow_depth);
+									reduction_term = (1.0 - flow_depth_neigh / flow_depth);
 									//replace the ^(1/3) by a fitted arctan-function; at the boundary they have the same values
-									if(reduction_term<=0.000463529){
-										ds_dt_buff=-1.0*ds_dt_buff*0.057965266895*atan(8984.365582471040*reduction_term);
+									if (reduction_term <= 0.000463529) {
+										ds_dt_buff = -1.0 * ds_dt_buff * 0.057965266895 * atan(8984.365582471040 * reduction_term);
 									}
 									//test performance DB 7.2.2020
 				/*					if (reduction_term <= 0.005) {
 										ds_dt_buff = -1.0*ds_dt_buff*pow(6839.903787*reduction_term, 2.0);
 									}*/
-									else{
-										ds_dt_buff=-1.0*ds_dt_buff*pow(reduction_term,(1.0/3.0));
+									else {
+										ds_dt_buff = -1.0 * ds_dt_buff * pow(reduction_term, (1.0 / 3.0));
 									}
 								}
 								//flow out of the neighbouring element into this element
-								else{
-									ds_dt_buff=constant::Cfacweir*fp_data->opt_cy[i][j]*pow(flow_depth_neigh,(3.0/2.0));
+								else {
+									ds_dt_buff = constant::Cfacweir * fp_data->opt_cy[i][j] * pow(flow_depth_neigh, (3.0 / 2.0));
 									//reduction of the discharge (submerged weirflow)
-									reduction_term=(1.0-flow_depth/flow_depth_neigh);
+									reduction_term = (1.0 - flow_depth / flow_depth_neigh);
 									//replace the ^(1/3) by a fitted arctan-function; at the boundary they have the same values
-									if(reduction_term<=0.000463529){
-										ds_dt_buff=ds_dt_buff*0.057965266895*atan(8984.365582471040*reduction_term);
+									if (reduction_term <= 0.000463529) {
+										ds_dt_buff = ds_dt_buff * 0.057965266895 * atan(8984.365582471040 * reduction_term);
 									}
 									//test performance DB 7.2.2020
 	/*								if (reduction_term <= 0.005) {
 										ds_dt_buff = ds_dt_buff * pow(6839.903787*reduction_term, 2.0);
 									}*/
-									else{
-										ds_dt_buff=ds_dt_buff*pow(reduction_term,(1.0/3.0));
+									else {
+										ds_dt_buff = ds_dt_buff * pow(reduction_term, (1.0 / 3.0));
 									}
 								}
 							}
 
 							//set result data
 							//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
-                            //ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]=ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]-ds_dt_buff;
-                            //ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
+							//ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]=ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]-ds_dt_buff;
+							//ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
 
-							//#pragma omp critical
-							////ds_dt_data[fp_data->id_reduced[local_counter]] += ds_dt_data[fp_data->id_reduced[local_counter]] + ds_dt_buff;
-							//ds_dt_data[fp_data->id_reduced[local_counter]] +=  ds_dt_buff;
-							//#pragma omp critical
-							//ds_dt_data[fp_data->id_y[fp_data->id_reduced[local_counter]]] -= ds_dt_buff;
+							//#pragma omp atomic
+							ds_dt_data[idx] += ds_dt_buff;
+							//#pragma omp atomic
+							ds_dt_data[fp_data->id_y[idx]] -= ds_dt_buff;
 
-							fp_data->opt_buff_qy[i][j] = ds_dt_buff;
+							//fp_data->opt_buff_qy[i][j] = ds_dt_buff;
+
+						/*	my_buf[idx] += ds_dt_buff;
+							my_buf[fp_data->id_y[idx]] -= ds_dt_buff;*/
 
 
 						}
@@ -6030,35 +6069,58 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 
 
 
-                }
-                //counter++;
+				}
+				//counter++;
 			}
-            //change here
-            //counter++;
+			//change here
+			//counter++;
 		}
-    }
+	}
+//}
     //clock_t c_end = clock();
     //my_time=my_time+1000.0 * (c_end-c_start) / CLOCKS_PER_SEC;
     //my_c=my_c+1;
     //printf("Time %i  %f  \n",my_c,my_time);
 //}
 
+
+
+	//#pragma omp parallel num_threads(_Sys_Common_System::no_openmp_threads)
+	//{
+	//	// Die t-Schleife muss sequentiell bleiben, um deine Reihenfolge zu wahren
+	//	for (int t = 0; t < _Sys_Common_System::no_openmp_threads; t++) {
+	//		double* src = fp_data->buff_q_thread[t];
+
+	//		// NUR das "for" ist parallel. Die Threads teilen sich die Arbeit an ds_dt_data.
+	//		// Hier gibt es KEINEN neuen Thread-Start-Overhead (Fork/Join).
+	//		#pragma omp for schedule(static)
+	//		for (int i = 0; i < fp_data->NEQ_real; i++) {
+	//			ds_dt_data[i] += src[i];
+	//		}
+
+	//		// WICHTIG: Die Barriere ist am Ende von "omp for" implizit enthalten. 
+	//		// Sie stellt sicher, dass Thread 0 fertig ist, bevor Thread 1 addiert wird.
+	//	}
+	//}
+
+
+
 	//set results
-	for (int i = 0; i < fp_data->Param_FP.get_no_elems_y(); i++) {
-		for (int j = 0; j < fp_data->Param_FP.get_no_elems_x(); j++) {
-			int local_counter = i * fp_data->Param_FP.get_no_elems_x() + j;
-			if (fp_data->flow_elem[i][j] == true) {
-				if (fp_data->noflow_x[i][j] == false) {
-					ds_dt_data[fp_data->id_reduced[local_counter]] += fp_data->opt_buff_qx[i][j];
-					ds_dt_data[fp_data->id_reduced[local_counter] + 1] -= fp_data->opt_buff_qx[i][j];
-				}
-				if (fp_data->noflow_y[i][j] == false) {
-					ds_dt_data[fp_data->id_reduced[local_counter]] += fp_data->opt_buff_qy[i][j];
-					ds_dt_data[fp_data->id_y[fp_data->id_reduced[local_counter]]] -= fp_data->opt_buff_qy[i][j];
-				}
-			}
-		}
-	}
+	//for (int i = 0; i < fp_data->Param_FP.get_no_elems_y(); i++) {
+	//	for (int j = 0; j < fp_data->Param_FP.get_no_elems_x(); j++) {
+	//		int local_counter = i * fp_data->Param_FP.get_no_elems_x() + j;
+	//		if (fp_data->flow_elem[i][j] == true) {
+	//			if (fp_data->noflow_x[i][j] == false) {
+	//				ds_dt_data[fp_data->id_reduced[local_counter]] += fp_data->opt_buff_qx[i][j];
+	//				ds_dt_data[fp_data->id_reduced[local_counter] + 1] -= fp_data->opt_buff_qx[i][j];
+	//			}
+	//			if (fp_data->noflow_y[i][j] == false) {
+	//				ds_dt_data[fp_data->id_reduced[local_counter]] += fp_data->opt_buff_qy[i][j];
+	//				ds_dt_data[fp_data->id_y[fp_data->id_reduced[local_counter]]] -= fp_data->opt_buff_qy[i][j];
+	//			}
+	//		}
+	//	}
+	//}
 
 
 
@@ -6128,7 +6190,7 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 	}
 
 	counter=0;
-	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads)
+	#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads_inside) if(_Sys_Common_System::no_openmp_threads_inside > 1)
 	for(int i=0; i<fp_data->Param_FP.get_no_elems_y(); i++){
 		for(int j=0; j<fp_data->Param_FP.get_no_elems_x(); j++){
 			int local_counter = i * fp_data->Param_FP.get_no_elems_x() + j;

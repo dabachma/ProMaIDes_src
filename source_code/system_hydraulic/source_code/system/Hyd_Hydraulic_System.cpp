@@ -20,6 +20,9 @@ Hyd_Hydraulic_System::Hyd_Hydraulic_System(void){
 	this->timestep_internal_counter=0;
 	this->total_internal_timestep=0;
 	this->diff_real_time=0.0;
+	this->fp_indizes = NULL;
+	this->no_threads_FP = 1;
+	
 
 	this->internal_timestep_current=0.0;
 	this->internal_timestep_base=0.0;
@@ -73,6 +76,8 @@ Hyd_Hydraulic_System::~Hyd_Hydraulic_System(void){
 	if(this->my_fpmodels!=NULL){
 		delete []this->my_fpmodels;
 		this->my_fpmodels=NULL;
+		delete this->fp_indizes;
+		this->fp_indizes = NULL;
 	}
 	if(this->my_rvmodels!=NULL){
 		delete []this->my_rvmodels;
@@ -1039,7 +1044,7 @@ void Hyd_Hydraulic_System::output_glob_models(void){
 	ostringstream cout;
 
 	//output the globalparameters
-	this->global_parameters.output_members();
+	this->global_parameters.output_members(this->no_threads_FP, *this->fp_indizes);
 
 	//output the material parameter
 	this->material_params.output_members();
@@ -2663,6 +2668,7 @@ void Hyd_Hydraulic_System::allocate_floodplain_models(void){
 	// alloc the fp-models
 	try{
 		this->my_fpmodels = new Hyd_Model_Floodplain [this->global_parameters.GlobNofFP];
+		this->fp_indizes = new vector<int>(this->global_parameters.GlobNofFP);
 	}
 	catch(bad_alloc& ){
 		Error msg=this->set_error(0);
@@ -2698,6 +2704,7 @@ void Hyd_Hydraulic_System::input_floodplains_models(const string global_file){
 	catch(Error msg){
 		throw msg;
 	}
+	this->no_threads_FP = this->calculate_best_thread_no();
 }
 //Transfer the data of the floodplain models to the database
 void Hyd_Hydraulic_System::transfer_floodplainmodel_data2database(QSqlDatabase *ptr_database){
@@ -2738,6 +2745,7 @@ void Hyd_Hydraulic_System::input_floodplains_models(const QSqlTableModel *query_
 	catch(Error msg){
 		throw msg;
 	}
+	this->no_threads_FP=this->calculate_best_thread_no();
 }
 //Initialize and connect the data of the floodplain models
 void Hyd_Hydraulic_System::connect_floodplains(void){
@@ -3720,40 +3728,70 @@ void Hyd_Hydraulic_System::make_calculation_floodplainmodel(void){
 	}
 	emit statusbar_Multi_hyd_solver_update(numCpuFp, numGpuFp);
 
+	bool stop_requested = false;
+	Error my_msg;
+	
+	#pragma omp parallel for num_threads(this->no_threads_FP) schedule(dynamic,1) if(this->no_threads_FP > 1)
 	for(int i=0; i< this->global_parameters.GlobNofFP;i++){
-		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
-		if(my_fpmodels[i].Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU && this->global_parameters.get_opencl_available()){
-			//solve gpu model
-			this->my_fpmodels[i].solve_model_gpu(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false), &(this->profiler));
-		}else{
+		int idx = (*this->fp_indizes)[i];
+
+		if (stop_requested) continue;
+
+		try {
+			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+			if (my_fpmodels[idx].Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU && this->global_parameters.get_opencl_available()) {
+				//solve gpu model
+				this->my_fpmodels[idx].solve_model_gpu(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false), &(this->profiler));
+			}
+			else {
 
 
-			//must wait until gpu thread is finished if there is a mixed application
-			if (numGpuFp != 0 && numCpuFp != 0) {
-				bool all_finished = false;
-				int counter = 0;
-				while (all_finished==false) {
-					for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
-						if (my_fpmodels[i].Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU && this->global_parameters.get_opencl_available()) {
-						
-							if (my_fpmodels[i].pManager->getDomain()->getScheme()->isRunning() == false && my_fpmodels[i].pManager->getDomain()->getDevice()->isBusy() == false) {
-
-								counter++;
-
-							}
-						}
-
-					}
-					if (counter == numGpuFp) {
-						all_finished = true;
-					}
-					
-
+				//solve cpu model
+				this->my_fpmodels[idx].solve_model(this->next_internal_time - this->global_parameters.get_startime(), this->get_identifier_prefix(false), &(this->profiler));
+			}
+		}
+		catch (Error msg) {
+			#pragma omp critical
+			{
+				if (!stop_requested) {
+					stop_requested = true;
+					my_msg = msg; // Die Exception zwischenspeichern
 				}
 			}
 
-			//solve cpu model
-			this->my_fpmodels[i].solve_model(this->next_internal_time-this->global_parameters.get_startime(), this->get_identifier_prefix(false), &(this->profiler));
+		}
+	}
+
+	if (stop_requested == true) {
+		throw my_msg;
+	}
+
+	//must wait until gpu thread is finished if there is a mixed application
+	if (numGpuFp != 0 && numCpuFp != 0) {
+		bool all_finished = false;
+		int counter = 0;
+		while (all_finished == false) {
+			for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
+				if (my_fpmodels[j].Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU && this->global_parameters.get_opencl_available()) {
+
+					if (my_fpmodels[j].pManager->getDomain()->getScheme()->isRunning() == false && my_fpmodels[j].pManager->getDomain()->getDevice()->isBusy() == false) {
+
+						counter++;
+
+					}
+				}
+
+			}
+			if (counter == numGpuFp) {
+				all_finished = true;
+			}
+			else {
+				// 1 Millisekunde schlafen spart massiv CPU-Last
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+			}
+
+
 		}
 	}
 
@@ -4120,6 +4158,102 @@ void Hyd_Hydraulic_System::check_opencl_available() {
 		this->global_parameters.set_opencl_available(true);
 	}
 
+}
+///Calculate the best thread number
+int Hyd_Hydraulic_System::calculate_best_thread_no(void) {
+
+	
+	int nRaster = this->global_parameters.GlobNofFP;
+	int maxT = _Sys_Common_System::no_openmp_threads;
+	_Sys_Common_System::no_openmp_threads_inside;
+
+	// Sicherheitscheck: Falls der Pointer nicht initialisiert ist
+	if (this->fp_indizes == nullptr) {
+		_Sys_Common_System::no_openmp_threads_inside = 1; // Sicherer Fallback
+		return 1;
+	}
+
+	// 1. Fall: Weniger Raster als Threads (oder nur 1 Thread erlaubt)
+	if (nRaster <= maxT || maxT <= 1) {
+		for (int i = 0; i < nRaster; i++) {
+			(*this->fp_indizes)[i] = i; // Einfache aufsteigende Indizes
+		}
+		int bestesT = (maxT <= 1) ? 1 : nRaster;
+
+		// WICHTIG: Auch hier die inneren Threads berechnen!
+		// Wenn z.B. 1 Raster da ist und maxT=4, dann inside = 4.
+		_Sys_Common_System::no_openmp_threads_inside = (maxT*2) / bestesT;
+		_Sys_Common_System::no_openmp_threads_inside = min(maxT, _Sys_Common_System::no_openmp_threads_inside);
+		if (_Sys_Common_System::no_openmp_threads_inside < 1)
+			_Sys_Common_System::no_openmp_threads_inside = 1;
+
+		return bestesT;
+	}
+
+	// 2. Fall: Lastverteilung optimieren
+	struct RasterLast {
+		int index;
+		long last;
+		int is_gpu;
+	};
+	std::vector<RasterLast> tempListe(nRaster);
+
+	for (int i = 0; i < nRaster; i++) {
+		tempListe[i].index = i;
+		tempListe[i].last = this->my_fpmodels[i].get_number_elements();
+		 if (this->my_fpmodels[i].Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU && this->global_parameters.get_opencl_available() == true) {
+			 tempListe[i].is_gpu = true;
+		}
+		 else {
+			 tempListe[i].is_gpu = false;
+		 }
+	}
+
+	// Absteigend sortieren: Die rechenintensivsten Raster zuerst
+	std::sort(tempListe.begin(), tempListe.end(), [](const RasterLast& a, const RasterLast& b) {
+		if (a.is_gpu != b.is_gpu) {
+			return a.is_gpu > b.is_gpu; // true (1) kommt vor false (0)
+		}
+		return a.last > b.last;
+		});
+
+	// Sortierte Reihenfolge in den Member-Pointer schreiben
+	for (int i = 0; i < nRaster; i++) {
+		(*this->fp_indizes)[i] = tempListe[i].index;
+	}
+
+	// Optimale Thread-Zahl zwischen 1 und maxT ermitteln
+	int bestesT = 1;
+	long minimaleMaxLast = -1;
+
+	for (int t = 1; t <= maxT; ++t) {
+		std::vector<long> threadLast(t, 0);
+
+		// Simulation der Greedy-Verteilung auf t Threads
+		for (int i = 0; i < nRaster; i++) {
+			auto it = std::min_element(threadLast.begin(), threadLast.end());
+			*it += tempListe[i].last;
+		}
+
+		long aktuelleMaxLast = *std::max_element(threadLast.begin(), threadLast.end());
+
+		if (minimaleMaxLast == -1 || aktuelleMaxLast < minimaleMaxLast) {
+			minimaleMaxLast = aktuelleMaxLast;
+			bestesT = t;
+		}
+		else if (aktuelleMaxLast == minimaleMaxLast) {
+			// Ressourcenschonung: Weniger Threads bei gleicher Last
+			bestesT = std::min(bestesT, t);
+		}
+	}
+
+	// Berechnung der inneren Threads für den komplexen Fall
+	_Sys_Common_System::no_openmp_threads_inside = (maxT*2) / bestesT;
+	_Sys_Common_System::no_openmp_threads_inside = min(maxT, _Sys_Common_System::no_openmp_threads_inside);
+	if (_Sys_Common_System::no_openmp_threads_inside < 1)
+		_Sys_Common_System::no_openmp_threads_inside = 1;
+
+	return bestesT;
 }
 //Check the internal time steps
 double Hyd_Hydraulic_System::check_internal_timestep(void){

@@ -25,6 +25,9 @@ Hyd_Multiple_Hydraulic_Systems::Hyd_Multiple_Hydraulic_Systems(void){
 	this->profil_import_dia=NULL;
 	this->profil_dgm_conversion=NULL;
 
+	
+	omp_set_nested(1);
+
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Multiple_Hydraulic_Systems)-sizeof(Hyd_Boundary_Szenario_Management), _sys_system_modules::HYD_SYS);
@@ -1702,11 +1705,11 @@ void Hyd_Multiple_Hydraulic_Systems::calculate_hydraulic_system_database(void){
 			cores = 1;
 		}
 		_Sys_Common_System::no_openmp_threads = min(cores, 4);
-		//openmp_threads = _Sys_Common_System::no_openmp_threads;
+		
 	}
 	else {
 		_Sys_Common_System::no_openmp_threads =1;
-		//openmp_threads = _Sys_Common_System::no_openmp_threads;
+		_Sys_Common_System::no_openmp_threads_inside = 1;
 
 	}
 

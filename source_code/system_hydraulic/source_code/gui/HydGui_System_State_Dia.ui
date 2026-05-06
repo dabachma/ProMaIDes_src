@@ -122,6 +122,9 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="toolTip">
+    <string>Scenario parallelisation (do not overload your CPU esp. in combination with openMP); max suggested threads 3</string>
+   </property>
   </widget>
   <widget class="QCheckBox" name="checkBox_file_output">
    <property name="geometry">
@@ -149,7 +152,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>Check this box if OpenMP support should be used during calculation</string>
+    <string>Check this box if OpenMP support should be used during calculation; max 4 threads are taken</string>
    </property>
    <property name="text">
     <string/>

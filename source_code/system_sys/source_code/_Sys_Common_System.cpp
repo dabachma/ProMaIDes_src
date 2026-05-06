@@ -2,6 +2,7 @@
 #include "Sys_Headers_Precompiled.h"
 
 int _Sys_Common_System::no_openmp_threads=1;
+int _Sys_Common_System::no_openmp_threads_inside = 1;
 bool _Sys_Common_System::openmp_used=false;
 
 //constructor

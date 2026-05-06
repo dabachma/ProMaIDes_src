@@ -46,6 +46,7 @@ void Hyd_Coupling_RV2FP::init_coupling(void){
 		//set the river banks (right) as the relevant polysegment line
 		this->list_right.set_defining_polysegment(&(this->river_model->river_rightline));
 		//this->couplingprof.profile("set_defining_polysegment", Profiler::profilerFlags::END_PROFILING);
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
 		//this->couplingprof.profile("assign_elements2couplingpointlist", Profiler::profilerFlags::START_PROFILING);
 		//fill the list with the floodplain elements
@@ -58,7 +59,7 @@ void Hyd_Coupling_RV2FP::init_coupling(void){
 			msg.make_second_info(info.str());
 			throw msg;
 		}
-
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		this->floodplain_model->raster.assign_elements2couplingpointlist(&this->list_right);
 		if (this->list_right.get_number_couplings() <= 1) {
 			Error msg = this->set_error(1);
@@ -84,6 +85,8 @@ void Hyd_Coupling_RV2FP::init_coupling(void){
 		//set the profile pointer
 		this->list_left.convert_profiles_index2pointer(this->river_model);
 		this->list_right.convert_profiles_index2pointer(this->river_model);
+
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 
 		//transfer the infos to the coupling points
 		this->list_left.transfer_informations2points();
