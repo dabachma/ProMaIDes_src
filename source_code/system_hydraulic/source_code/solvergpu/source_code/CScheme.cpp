@@ -67,7 +67,7 @@ void CScheme::createScheme(CModel* cModel, model::SchemeSettings scheme_settings
 			newScheme = new CSchemePromaides();
 			break;
 		case model::schemeTypes::kDiffusive2StGPU:
-			newScheme = new CSchemePromaides2St(); //Create another scheme!!! Daniel
+			newScheme = new CSchemePromaides2St(); 
 			break;
 		case model::schemeTypes::kDiffusiveCPU:
 			model::doError(
