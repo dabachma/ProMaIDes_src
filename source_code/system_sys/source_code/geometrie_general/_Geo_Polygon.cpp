@@ -502,6 +502,9 @@ void _Geo_Polygon::calculate_polysegment_interception(Geo_Interception_Point_Lis
 
 
 	for(int j=0; j< check_polysegment->get_number_segments(); j++){
+		if (check_polysegment->get_segment(j)->get_intercep_check_req() == false) {
+			continue;
+		}
 		for(int i=0; i< this->number_segments;i++){
 			this->segments[i].calc_interception(&(check_polysegment->my_segment[j]), &(buffer.line_interception));
 			if(buffer.line_interception.interception_flag==true){

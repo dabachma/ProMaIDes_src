@@ -80,6 +80,8 @@ public:
 	///Compare operator !=
 	bool operator!=(const Geo_Raster_Segment& object);
 
+
+
 protected:
 	//members
 	///Horizontal distance of the segment
@@ -88,6 +90,8 @@ protected:
 	double vertical_dist;
 	///Total distance of the segment
 	double distance;
+
+
 	
 	//methods
 

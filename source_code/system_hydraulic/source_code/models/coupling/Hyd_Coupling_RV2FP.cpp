@@ -105,6 +105,7 @@ void Hyd_Coupling_RV2FP::init_coupling(void){
 		throw msg;
 	}
 
+	//this->couplingprof.logValues();
 
 	//rewind the prefix
 	Sys_Common_Output::output_hyd->rewind_userprefix();

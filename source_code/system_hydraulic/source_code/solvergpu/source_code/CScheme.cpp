@@ -13,6 +13,7 @@
 #include "CSchemeMUSCLHancock.h"
 #include "CSchemeInertial.h"
 #include "CSchemePromaides.h"
+#include "CSchemePromaides2St.h"
 #include "CDomainCartesian.h"
 
 //Default constructor
@@ -64,6 +65,9 @@ void CScheme::createScheme(CModel* cModel, model::SchemeSettings scheme_settings
 			break;
 		case model::schemeTypes::kDiffusiveGPU:
 			newScheme = new CSchemePromaides();
+			break;
+		case model::schemeTypes::kDiffusive2StGPU:
+			newScheme = new CSchemePromaides2St(); //Create another scheme!!! Daniel
 			break;
 		case model::schemeTypes::kDiffusiveCPU:
 			model::doError(

@@ -634,6 +634,9 @@ model::schemeTypes::schemeTypes Hyd_Param_FP::convert_txt2schemetype(string txt)
 	else if (txt == hyd_label::scheme_type_muscl_gpu) {
 		type = model::schemeTypes::kMUSCLGPU;
 	}
+	else if (txt == hyd_label::scheme_type_diffusive_2st_gpu) {
+		type = model::schemeTypes::kDiffusive2StGPU;
+	}
 	else {
 		Warning msg = this->set_warning(4);
 		ostringstream info;
@@ -664,6 +667,8 @@ string Hyd_Param_FP::convert_schemetype2txt(model::schemeTypes::schemeTypes  typ
 	case model::schemeTypes::kMUSCLGPU:
 		txt = hyd_label::scheme_type_muscl_gpu;
 		break;
+	case model::schemeTypes::kDiffusive2StGPU:
+			txt = hyd_label::scheme_type_diffusive_2st_gpu;
 	default:
 		txt = label::unknown_type;
 	}

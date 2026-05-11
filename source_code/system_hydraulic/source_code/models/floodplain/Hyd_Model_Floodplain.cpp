@@ -1383,7 +1383,7 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 
 		
 		
-		if (myScheme->getSchemeType() == model::schemeTypes::kInertialGPU || myScheme->getSchemeType() == model::schemeTypes::kDiffusiveGPU) {
+		if (myScheme->getSchemeType() == model::schemeTypes::kInertialGPU || myScheme->getSchemeType() == model::schemeTypes::kDiffusiveGPU || myScheme->getSchemeType() == model::schemeTypes::kDiffusive2StGPU) {
 
 			////version not optimized
 			//// Read water depth values and set them to element

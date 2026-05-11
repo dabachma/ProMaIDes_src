@@ -6,6 +6,7 @@ Geo_Segment::Geo_Segment(void){
 	this->horizontal_dist=0.0;
 	this->vertical_dist=0.0;
 	this->distance=0.0;
+	this->intercep_check_req = true;
 	//common
 	Sys_Memory_Count::self()->add_mem(sizeof(Geo_Segment)-(sizeof(Geo_Straight_Line)), _sys_system_modules::GEOSYS_SYS);//count the memory
 }
@@ -570,6 +571,17 @@ void Geo_Segment::output_members(ostringstream *cout){
 void Geo_Segment::output_point_members(ostringstream *cout){
 	this->point1.output_coor_members(cout);
 	this->point2.output_coor_members(cout);
+}
+//Set interception check required
+void Geo_Segment::set_intercep_check_req(const bool required) {
+	this->intercep_check_req = required;
+
+
+}
+//Get interception check required
+bool Geo_Segment::get_intercep_check_req(void) {
+	return this->intercep_check_req;
+
 }
 //Copy operator
 Geo_Segment& Geo_Segment::operator=(const Geo_Segment& object){

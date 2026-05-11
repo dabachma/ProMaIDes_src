@@ -85,6 +85,12 @@ public:
 	///Output point members to display/console
 	void output_point_members(ostringstream *cout);
 
+	///Set interception check required
+	void set_intercep_check_req(const bool required);
+
+	///Get interception check required
+	bool get_intercep_check_req(void);
+
 	///Copy operator
 	Geo_Segment& operator=(const Geo_Segment& object);
 	///Compare operator ==
@@ -100,6 +106,8 @@ protected:
 	double vertical_dist;
 	///Total distance of the segment
 	double distance;
+	///Bool if a interception check is required
+	bool intercep_check_req;
 	
 	//methods
 

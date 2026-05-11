@@ -175,8 +175,9 @@ namespace model{
 			kGodunovGPU = 1,	// Godunov (first-order)
 			kMUSCLGPU = 2,	// MUSCL-Hancock (second-order)
 			kInertialGPU = 3,	// Inertial simplification
-			kDiffusiveGPU = 4,	// Inertial simplification
-			kDiffusiveCPU = 5		// Diffusive CPU
+			kDiffusiveGPU = 4,	// Diffisive GPU
+			kDiffusiveCPU = 5,		// Diffusive CPU
+			kDiffusive2StGPU		// Diffusive wave GPU 2 Step or multiple step approach
 		};
 	}
 

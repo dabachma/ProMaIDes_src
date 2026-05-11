@@ -80,6 +80,10 @@ void Hyd_Floodplainraster_Polygon::calculate_polysegment_interception(Geo_Interc
 	int number=intercept_list->get_number_points();
 	_Geo_Polygon::calculate_polysegment_interception(intercept_list, check_polysegment);
 	
+
+
+
+	
 	for (int i=intercept_list->get_number_points(); i> number; i--){
 		//the first point of the segment is hit; transfer it to the raster point index
 		if(intercept_list->get_point(i-1).index_point_is_intercepted==0){
@@ -95,7 +99,6 @@ void Hyd_Floodplainraster_Polygon::calculate_polysegment_interception(Geo_Interc
 	
 	}
 }
-
 //output members
 void Hyd_Floodplainraster_Polygon::output_members(ostringstream *cout){
 	for(int i=0; i< this->number_segments; i++){

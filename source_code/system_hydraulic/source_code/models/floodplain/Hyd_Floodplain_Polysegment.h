@@ -181,6 +181,8 @@ public:
 	///Set distances of the dikeline points to the beginning of the polysegement
 	void set_distances2begin(void);
 
+
+
 private:
 
 	//members
@@ -204,6 +206,10 @@ private:
 	Hyd_Floodplain_Dikeline_Point **list_part_points;
 	///Number of the points stored in the list list_part_points
 	int number_part_points;
+
+	
+
+
 
 
 

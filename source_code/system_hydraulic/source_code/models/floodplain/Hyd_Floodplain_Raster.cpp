@@ -447,6 +447,34 @@ void Hyd_Floodplain_Raster::assign_elements2couplingpointlist(Hyd_Coupling_Point
 	try{
 		//first delete the interception list of the defining polysegment
 		list->get_defining_polysegment()->intercept_list.delete_list();
+
+
+		//check here if the segment point are in the raster polygon
+	
+		Hyd_Floodplain_Polysegment* line;
+		line = list->get_defining_polysegment();
+		for (int i = 0; i < line->get_number_segments(); i++) {
+			bool inside = false;
+			Geo_Point* point = &line->get_segment(i)->point1;
+			inside=this->geometrical_bound.check_point_inside(point);
+			if (inside == true) {
+				line->get_segment(i)->set_intercep_check_req(true);
+				continue;
+			}
+			point = &line->get_segment(i)->point2;
+			inside = this->geometrical_bound.check_point_inside(point);
+			if (inside == true) {
+				line->get_segment(i)->set_intercep_check_req(true);
+				continue;
+			}
+			else {
+				line->get_segment(i)->set_intercep_check_req(false);
+			}
+
+		}
+	
+
+
 		//fill it with the interception points
 		for(int i=0; i< this->number_polygons; i++){
 			//set the polygon

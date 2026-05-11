@@ -28,6 +28,7 @@ set(H_FILES
     source_code/CSchemeInertial.h
     source_code/CSchemeMUSCLHancock.h
     source_code/CSchemePromaides.h
+	source_code/CSchemePromaides2St.h
     source_code/resource.h
     source_code/util.h
 )
@@ -53,6 +54,7 @@ set(CPP_FILES
     source_code/CSchemeInertial.cpp
     source_code/CSchemeMUSCLHancock.cpp
     source_code/CSchemePromaides.cpp
+	source_code/CSchemePromaides2St.cpp
     source_code/util.cpp
     source_code/windows_platform.cpp
 )

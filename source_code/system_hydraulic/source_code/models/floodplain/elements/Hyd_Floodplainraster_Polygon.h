@@ -51,7 +51,7 @@ public:
 
 	///Calculate the interception points with a Geo_Poly_Segment and fill the Geo_Interception_Point_List 
 	void calculate_polysegment_interception(Geo_Interception_Point_List *intercept_list, Geo_Polysegment *check_polysegment);
-	
+		
 	///Assign dikeline values to the raster
 	void assign_values2raster(Hyd_Floodplain_Polysegment *dikeline);
 

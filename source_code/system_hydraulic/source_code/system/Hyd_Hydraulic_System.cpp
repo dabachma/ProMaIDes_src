@@ -3147,6 +3147,7 @@ void Hyd_Hydraulic_System::make_geometrical_interception_fp2rv(void){
 		//list for counting an initializing the couplings
 		Hyd_Coupling_Model_List list;
 		_hyd_model_coupling coup_buff;
+		
 		for(int i=0; i<this->global_parameters.GlobNofFP; i++){
 			for(int j=0; j<this->global_parameters.GlobNofRV; j++){
 				if(this->my_fpmodels[i].intercept_model(&(this->my_rvmodels[j]))==true){
@@ -3158,6 +3159,7 @@ void Hyd_Hydraulic_System::make_geometrical_interception_fp2rv(void){
 				}
 			}
 		}
+
 
 		if(list.get_number_couplings()>0){
 			//set the couplings
@@ -4166,6 +4168,7 @@ int Hyd_Hydraulic_System::calculate_best_thread_no(void) {
 	int nRaster = this->global_parameters.GlobNofFP;
 	int maxT = _Sys_Common_System::no_openmp_threads;
 	_Sys_Common_System::no_openmp_threads_inside;
+	int factor = 1;//factor 1 or 2
 
 	// Sicherheitscheck: Falls der Pointer nicht initialisiert ist
 	if (this->fp_indizes == nullptr) {
@@ -4182,7 +4185,7 @@ int Hyd_Hydraulic_System::calculate_best_thread_no(void) {
 
 		// WICHTIG: Auch hier die inneren Threads berechnen!
 		// Wenn z.B. 1 Raster da ist und maxT=4, dann inside = 4.
-		_Sys_Common_System::no_openmp_threads_inside = (maxT*2) / bestesT;
+		_Sys_Common_System::no_openmp_threads_inside = (maxT*factor) / bestesT;
 		_Sys_Common_System::no_openmp_threads_inside = min(maxT, _Sys_Common_System::no_openmp_threads_inside);
 		if (_Sys_Common_System::no_openmp_threads_inside < 1)
 			_Sys_Common_System::no_openmp_threads_inside = 1;
@@ -4248,7 +4251,7 @@ int Hyd_Hydraulic_System::calculate_best_thread_no(void) {
 	}
 
 	// Berechnung der inneren Threads für den komplexen Fall
-	_Sys_Common_System::no_openmp_threads_inside = (maxT*2) / bestesT;
+	_Sys_Common_System::no_openmp_threads_inside = (maxT*factor) / bestesT;
 	_Sys_Common_System::no_openmp_threads_inside = min(maxT, _Sys_Common_System::no_openmp_threads_inside);
 	if (_Sys_Common_System::no_openmp_threads_inside < 1)
 		_Sys_Common_System::no_openmp_threads_inside = 1;

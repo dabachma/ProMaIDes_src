@@ -16,6 +16,7 @@ Hyd_Floodplain_Polysegment::Hyd_Floodplain_Polysegment(void){
 
 	this->list_part_points=NULL;
 	this->number_part_points=0;
+	
 
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Floodplain_Polysegment), _sys_system_modules::HYD_SYS);
@@ -1488,6 +1489,7 @@ void Hyd_Floodplain_Polysegment::clone_polysegment(Hyd_Floodplain_Polysegment *s
 	this->line_type=seg->line_type;
 	this->intercepted_elem_type=seg->intercepted_elem_type;
 	this->index=seg->index;
+	
 	Geo_Polysegment::copy_polysegment(seg);
 
 	if(seg->line_points!=NULL){

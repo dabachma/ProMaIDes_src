@@ -2057,6 +2057,8 @@ namespace hyd_label{
 	const string scheme_type_diffusive_cpu("diffusive_cpu");
 	///Keyword for the hydraulic scheme using diffusive wave equations, calculated explicitly on the GPU
 	const string scheme_type_diffusive_gpu("diffusive_gpu");
+	///Keyword for the hydraulic scheme using diffusive wave equations, calculated explicitly in a 2-step approach on the GPU
+	const string scheme_type_diffusive_2st_gpu("diffusive_2st_gpu");
 	///Keyword for the hydraulic scheme using inertial scheme, calculated explicitly on the GPU
 	const string scheme_type_inertial_gpu("inertial_gpu");
 	///Keyword for the hydraulic scheme using Godunov scheme implemented with HLLLC, calculated explicitly on the GPU

@@ -67,7 +67,8 @@ HydGui_Floodplain_Member_Wid::HydGui_Floodplain_Member_Wid(DataRole role, QWidge
 	// SCHEME_TYPE
 	scheme_types_mapping.push_back(std::make_pair(0, std::make_pair("Diffusive W. (CPU)", hyd_label::scheme_type_diffusive_cpu)));
 	scheme_types_mapping.push_back(std::make_pair(1, std::make_pair("Diffusive W. (GPU)", hyd_label::scheme_type_diffusive_gpu)));
-	scheme_types_mapping.push_back(std::make_pair(2, std::make_pair("Inertial (GPU)", hyd_label::scheme_type_inertial_gpu)));
+	scheme_types_mapping.push_back(std::make_pair(2, std::make_pair("Diffusive W. 2Step (GPU)", hyd_label::scheme_type_diffusive_2st_gpu)));
+	//scheme_types_mapping.push_back(std::make_pair(3, std::make_pair("Inertial (GPU)", hyd_label::scheme_type_inertial_gpu)));
 	scheme_types_mapping.push_back(std::make_pair(3, std::make_pair("Godunov (GPU)", hyd_label::scheme_type_godunov_gpu)));
 	//scheme_types_mapping.push_back(std::make_pair(4, std::make_pair("MUSCL (GPU)", hyd_label::scheme_type_muscl_gpu)));
 

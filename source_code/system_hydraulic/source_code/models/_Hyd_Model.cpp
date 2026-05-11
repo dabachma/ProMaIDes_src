@@ -352,7 +352,7 @@ void _Hyd_Model::init_solver_gpu(Hyd_Param_Global* global_params) {
 
 	pManager->ValidateAndPrepareModel();
 
-	//TODO: Alaa: Calculate memory     this->count_solver_memory();
+	
 }
 //Reset the solver-tolerances, if they are changed by the dynamic tolerance decreasment; also the warn_counter is reseted
 void _Hyd_Model::reset_solver_tolerances(void){

@@ -1386,7 +1386,7 @@ void CSchemeGodunov::findFastestCells(DomainCell* first, DomainCell* second, Dom
 		if (this->getDomain()->getBedElevation(cellId) != -9999.0) {
 			dDepth = opt_h_gpu[cellId];
 
-			if (this->getSchemeType() == model::schemeTypes::kDiffusiveGPU || this->getSchemeType() == model::schemeTypes::kInertialGPU) {
+			if (this->getSchemeType() == model::schemeTypes::kDiffusiveGPU || this->getSchemeType() == model::schemeTypes::kInertialGPU || model::schemeTypes::kDiffusive2StGPU) {
 				dVelX = sqrt(9.81 * dDepth);
 				dVelY = sqrt(9.81 * dDepth);
 
