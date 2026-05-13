@@ -737,27 +737,54 @@ void CSchemeGodunov::prepareGeneralKernels()
 	// --
 	// Boundary Kernel
 	// --
-	if (this->bUseOptimizedBoundary == false) {
-		// Normal Boundary for rain
-		oclKernelBoundary = oclModel->getKernel("bdy_Promaides");
-		oclKernelBoundary->setGroupSize(this->ulNonCachedWorkgroupSizeX, this->ulNonCachedWorkgroupSizeY);
-		oclKernelBoundary->setGlobalSize(this->ulNonCachedGlobalSizeX, this->ulNonCachedGlobalSizeY);
+	if (this->getSchemeType() != model::schemeTypes::kDiffusive2StGPU) {
+		if (this->bUseOptimizedBoundary == false) {
+			// Normal Boundary for rain
+			oclKernelBoundary = oclModel->getKernel("bdy_Promaides");
+			oclKernelBoundary->setGroupSize(this->ulNonCachedWorkgroupSizeX, this->ulNonCachedWorkgroupSizeY);
+			oclKernelBoundary->setGlobalSize(this->ulNonCachedGlobalSizeX, this->ulNonCachedGlobalSizeY);
 
-		// TODO: Alaa: remove the hydrological buffer and code
-		COCLBuffer* aryArgsBdy[] = { oclBufferCellBoundary, oclBufferTimestep, oclBufferTimeHydrological ,oclBufferCellStates, oclBufferCellBed, oclBufferBilanDef};
+			// TODO: Alaa: remove the hydrological buffer and code
+			COCLBuffer* aryArgsBdy[] = { oclBufferCellBoundary, oclBufferTimestep, oclBufferTimeHydrological ,oclBufferCellStates, oclBufferCellBed, oclBufferBilanDef };
 
-		oclKernelBoundary->assignArguments(aryArgsBdy);
+			oclKernelBoundary->assignArguments(aryArgsBdy);
 
+		}
+		else {
+			// Coupling only Bound
+			oclKernelBoundary = oclModel->getKernel("bdy_Promaides_by_id");
+			oclKernelBoundary->setGroupSize(8);
+			oclKernelBoundary->setGlobalSize(8 * static_cast<unsigned long>(ceil(static_cast<double>(this->ulCouplingArraySize) / 8.0)));
+
+			COCLBuffer* aryArgsBdy[] = { oclBufferCouplingIDs, oclBufferCouplingValues, oclBufferTimestep ,oclBufferCellStates, oclBufferCellBed, oclBufferBilanDef };
+
+			oclKernelBoundary->assignArguments(aryArgsBdy);
+		}
 	}
-	else {
-		// Coupling only Bound
-		oclKernelBoundary = oclModel->getKernel("bdy_Promaides_by_id");
-		oclKernelBoundary->setGroupSize(8);
-		oclKernelBoundary->setGlobalSize(8 * static_cast<unsigned long>(ceil(static_cast<double>(this->ulCouplingArraySize) / 8.0)));
+	else { //2 or multistep approach
+		if (this->bUseOptimizedBoundary == false) {
+			// Normal Boundary for rain
+			oclKernelBoundary = oclModel->getKernel("bdy_Promaides_2St");
+			oclKernelBoundary->setGroupSize(this->ulNonCachedWorkgroupSizeX, this->ulNonCachedWorkgroupSizeY);
+			oclKernelBoundary->setGlobalSize(this->ulNonCachedGlobalSizeX, this->ulNonCachedGlobalSizeY);
 
-		COCLBuffer* aryArgsBdy[] = { oclBufferCouplingIDs, oclBufferCouplingValues, oclBufferTimestep ,oclBufferCellStates, oclBufferCellBed, oclBufferBilanDef};
+			// TODO: Alaa: remove the hydrological buffer and code
+			COCLBuffer* aryArgsBdy[] = { oclBufferCellBoundary, oclBufferTimestep, oclBufferTimeHydrological ,oclBufferCellStates, oclBufferCellBed, oclBufferBilanDef };
 
-		oclKernelBoundary->assignArguments(aryArgsBdy);
+			oclKernelBoundary->assignArguments(aryArgsBdy);
+
+		}
+		else {
+			// Coupling only Bound
+			oclKernelBoundary = oclModel->getKernel("bdy_Promaides_by_id_2St");
+			oclKernelBoundary->setGroupSize(8);
+			oclKernelBoundary->setGlobalSize(8 * static_cast<unsigned long>(ceil(static_cast<double>(this->ulCouplingArraySize) / 8.0)));
+
+			COCLBuffer* aryArgsBdy[] = { oclBufferCouplingIDs, oclBufferCouplingValues, oclBufferTimestep ,oclBufferCellStates, oclBufferCellBed, oclBufferBilanDef };
+
+			oclKernelBoundary->assignArguments(aryArgsBdy);
+		}
+
 	}
 
 

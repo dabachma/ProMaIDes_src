@@ -19,12 +19,14 @@ using std::max;
 CSchemePromaides2St::CSchemePromaides2St(void)
 {
 	// Scheme is loaded
-	model::log->logInfo("Diffusive GPU scheme loaded for execution on OpenCL platform.");
+	model::log->logInfo("Diffusive GPU 2Step scheme loaded for execution on OpenCL platform.");
 
 	// Default setup values
 	this->bDebugOutput = false;
 	this->uiDebugCellX = 100;
 	this->uiDebugCellY = 100;
+	this->oclBufferCellStatesPred = NULL;
+	this->oclBufferMode = NULL;
 
 	this->ucConfiguration = model::schemeConfigurations::promaidesFormula::kCacheNone;
 	this->ucCacheConstraints = model::cacheConstraints::promaidesFormula::kCacheActualSize;
@@ -74,6 +76,86 @@ void CSchemePromaides2St::prepareAll()
 	this->logDetails();
 	this->bReady = true;
 }
+//Runs the actual simulation until completion or error here the simulation is set together via the kernels this connects the clc-methods as kernels 
+void	CSchemePromaides2St::scheduleIteration() {
+	//std::cout << "start iteration" << std::endl;
+	COCLBuffer* bufferSrc = NULL;
+	COCLBuffer* bufferDst = NULL;
+	COCLBuffer* bufferPred = this->oclBufferCellStatesPred;
+
+	if (!bUseAlternateKernel) {
+		bufferSrc = oclBufferCellStates;
+		bufferDst = oclBufferCellStatesAlt;
+	}
+	else {
+		bufferSrc = oclBufferCellStatesAlt;
+		bufferDst = oclBufferCellStates;
+	}
+
+	//___________________________
+	//Step 1 Predictor-Step
+	
+	oclKernelFullTimestep->assignArgument(2, bufferSrc);
+	oclKernelFullTimestep->assignArgument(3, bufferDst);
+	oclKernelFullTimestep->assignArgument(10, bufferPred);
+	*(this->oclBufferMode->getHostBlock<int*>()) = 0;
+	oclKernelFullTimestep->assignArgument(11, this->oclBufferMode);
+	this->oclBufferMode->queueWriteAll();
+	oclKernelFullTimestep->scheduleExecution();
+
+
+	
+	
+	
+	//friction
+	if (this->bFrictionEffects && !this->bFrictionInFluxKernel) {
+		oclKernelFriction->assignArgument(1, bufferPred);
+		oclKernelFriction->scheduleExecution();
+	}
+
+	//boundary
+	//oclKernelBoundary->assignArgument(3, bufferPred);
+	//oclKernelBoundary->scheduleExecution();
+
+
+	//hier warten
+	this->getDomain()->getDevice()->blockUntilFinished();
+	
+	//_______________________
+	//Step 2 Corrector-Step
+	oclKernelFullTimestep->assignArgument(2, bufferSrc);
+	oclKernelFullTimestep->assignArgument(3, bufferDst);
+	oclKernelFullTimestep->assignArgument(10, bufferPred);
+	*(this->oclBufferMode->getHostBlock<int*>()) = 1;
+	oclKernelFullTimestep->assignArgument(11, this->oclBufferMode);
+	this->oclBufferMode->queueWriteAll();
+	oclKernelFullTimestep->scheduleExecution();
+
+
+	
+	//friction
+	if (this->bFrictionEffects && !this->bFrictionInFluxKernel) {
+		oclKernelFriction->assignArgument(1, bufferDst);
+		oclKernelFriction->scheduleExecution();
+	}
+
+	//boundary
+	oclKernelBoundary->assignArgument(3, bufferDst);
+	oclKernelBoundary->scheduleExecution();
+
+
+
+	//________________________
+	//Step 3 after Corrector-Step
+	if (this->bDynamicTimestep) {
+		oclKernelTimestepReduction->assignArgument(0, bufferDst);
+		oclKernelTimestepReduction->scheduleExecution();
+	}
+	
+	oclKernelTimeAdvance->scheduleExecution();
+	
+
+}
 //Log the details and properties of this scheme instance.
 void CSchemePromaides2St::logDetails()
 {
@@ -110,14 +192,14 @@ void CSchemePromaides2St::prepareCode()
 	oclModel->appendCodeFromResource("CLDomainCartesian_H");
 	oclModel->appendCodeFromResource("CLFriction_H");
 	oclModel->appendCodeFromResource("CLDynamicTimestep_H");
-	oclModel->appendCodeFromResource("CLSchemePromaides_H");
-	oclModel->appendCodeFromResource("CLBoundaries_H");
+	oclModel->appendCodeFromResource("CLSchemePromaides2_St_H");
+	oclModel->appendCodeFromResource("CLBoundaries_2St_H");
 
 	oclModel->appendCodeFromResource("CLDomainCartesian_C");
 	oclModel->appendCodeFromResource("CLFriction_C");
 	oclModel->appendCodeFromResource("CLDynamicTimestep_C");
-	oclModel->appendCodeFromResource("CLSchemePromaides_C");
-	oclModel->appendCodeFromResource("CLBoundaries_C");
+	oclModel->appendCodeFromResource("CLSchemePromaides2_St_C");
+	oclModel->appendCodeFromResource("CLBoundaries_2St_C");
 
 	oclModel->compileProgram();
 
@@ -129,15 +211,14 @@ void CSchemePromaides2St::preparePromaidesKernels()
 	// Promaides scheme kernels
 	// --
 
-	oclKernelFullTimestep = oclModel->getKernel("pro_cacheDisabled");
+	oclKernelFullTimestep = oclModel->getKernel("pro2St_cacheDisabled");
 	oclKernelFullTimestep->setGroupSize(this->ulNonCachedWorkgroupSizeX, this->ulNonCachedWorkgroupSizeY);
 	oclKernelFullTimestep->setGlobalSize(this->ulNonCachedGlobalSizeX, this->ulNonCachedGlobalSizeY);
-	COCLBuffer* aryArgsFullTimestep[] = { oclBufferTimestep, oclBufferCellBed, oclBufferCellStates, oclBufferCellStatesAlt, oclBufferCellManning, oclBufferUsePoleni, oclBuffer_opt_zxmax, oclBuffer_opt_cx, oclBuffer_opt_zymax, oclBuffer_opt_cy };
+	COCLBuffer* aryArgsFullTimestep[] = { oclBufferTimestep, oclBufferCellBed, oclBufferCellStates, oclBufferCellStatesAlt, oclBufferCellManning, oclBufferUsePoleni, oclBuffer_opt_zxmax, oclBuffer_opt_cx, oclBuffer_opt_zymax, oclBuffer_opt_cy, oclBufferCellStatesPred, 0 };
 	oclKernelFullTimestep->assignArguments(aryArgsFullTimestep);
 
 
 }
-
 //Release all OpenCL resources consumed using the OpenCL methods
 void CSchemePromaides2St::releaseResources()
 {
@@ -145,6 +226,38 @@ void CSchemePromaides2St::releaseResources()
 
 	this->releasePromaidesResources();
 	this->release1OResources();
+
+	if (this->oclBufferCellStatesPred != NULL) {
+		delete this->oclBufferCellStatesPred;
+		Sys_Memory_Count::self()->minus_mem(4 * sizeof(double) * pDomain->getCellCount(), _sys_system_modules::HYD_SYS);
+	}
+	this->oclBufferCellStatesPred = NULL;
+	if (this->oclBufferMode != NULL)				delete this->oclBufferMode;
+	this->oclBufferMode = NULL;
+
+	
+
+
+}
+//Allocate memory for everything that isn't direct domain information (i.e. temporary/scheme data)
+void CSchemePromaides2St::prepare1OMemory() {
+	CSchemeGodunov::prepare1OMemory();
+	unsigned char ucFloatSize = (cModel->getFloatPrecision() == model::floatPrecision::kSingle ? sizeof(cl_float) : sizeof(cl_double));
+
+	void* pCellStatesPred = NULL;
+	this->oclBufferCellStatesPred = new COCLBuffer("Cell states (prediction)", oclModel, false, false, ucFloatSize * 4 * pDomain->getCellCount(),true);
+	this->oclBufferCellStatesPred->setPointer(pCellStatesPred, ucFloatSize * 4 * pDomain->getCellCount());
+
+	this->oclBufferCellStatesPred->createBuffer();
+	this->oclBufferCellStatesPred->setCallbackRead(CModel::visualiserCallback); 
+	void* pCellMode = NULL;
+	this->oclBufferMode = new COCLBuffer("Mode", oclModel, false, true, sizeof(cl_int), true);
+	*(this->oclBufferMode->getHostBlock<int*>()) = 0;
+	this->oclBufferMode->createBuffer();
+
+
+	Sys_Memory_Count::self()->add_mem(4 * sizeof(double) * pDomain->getCellCount(), _sys_system_modules::HYD_SYS);
+
 }
 //Release all OpenCL resources consumed using the OpenCL methods
 void CSchemePromaides2St::releasePromaidesResources()

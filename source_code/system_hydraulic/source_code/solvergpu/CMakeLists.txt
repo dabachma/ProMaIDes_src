@@ -66,6 +66,8 @@ set(CPP_FILES
 set(OPENCL_FILES
     source_code/opencl/CLBoundaries.clc
     source_code/opencl/CLBoundaries.clh
+	source_code/opencl/CLBoundaries_2St.clc
+    source_code/opencl/CLBoundaries_2St.clh
     source_code/opencl/CLDomainCartesian.clc
     source_code/opencl/CLDomainCartesian.clh
     source_code/opencl/CLDynamicTimestep.clc
@@ -80,6 +82,8 @@ set(OPENCL_FILES
     source_code/opencl/CLSchemeMUSCLHancock.clh
     source_code/opencl/CLSchemePromaides.clc
     source_code/opencl/CLSchemePromaides.clh
+	source_code/opencl/CLSchemePromaides2_St.clc
+    source_code/opencl/CLSchemePromaides2_St.clh
     source_code/opencl/CLSlopeLimiterMINMOD.clc
     source_code/opencl/CLSlopeLimiterMINMOD.clh
     source_code/opencl/CLSolverHLLC.clc

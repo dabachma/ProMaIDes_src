@@ -110,7 +110,7 @@ protected:
 		virtual void		prepareCode();											// Prepare the code required
 		virtual void		releaseResources();										// Release OpenCL resources consumed
 		void				prepareGeneralKernels();								// Prepare the general kernels required
-		void				prepare1OKernels();										// Prepare the kernels required
+		virtual void				prepare1OKernels();										// Prepare the kernels required
 		void				prepare1OConstants();									// Assign constants to the executor
 		void				prepare1OMemory();										// Prepare memory buffers required
 		void				prepare1OExecDimensions();								// Size the problem for execution
