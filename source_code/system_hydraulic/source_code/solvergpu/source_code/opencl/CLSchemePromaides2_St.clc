@@ -85,11 +85,11 @@ __kernel REQD_WG_SIZE_FULL_TS void pro2St_cacheDisabled (
 	dOpt_zymax			= pOpt_zymax[ ulIdx ];
 	dOpt_cy				= pOpt_cy	[ ulIdx ];
 
-	//predictor
+	//switch between modes: predictor
 	if (iMode == 0) {
 		pCellData = pCellStateSrc[ulIdx];	
 	} 
-	//correktor
+	//corrector
 	else {
 		pCellData = pCellStatePred[ulIdx];
 
@@ -107,14 +107,15 @@ __kernel REQD_WG_SIZE_FULL_TS void pro2St_cacheDisabled (
 		return;
 	}
 	
-	
+	//set the values for the discharge calculation per direction
+	//this element
 	pUsePoleniFlags		= pUsePoleni[ ulIdx ];
 	usePoleniN			= pUsePoleniFlags.usePoliniN;
 	usePoleniE			= pUsePoleniFlags.usePoliniE;
 	usePoleniS			= pUsePoleniFlags.usePoliniS;
 	usePoleniW			= pUsePoleniFlags.usePoliniW;
 
-
+	//neighbouring elements
 	ucDirection = DOMAIN_DIR_W;
 	ulIdxNeig = getNeighbourByIndices(lIdxX, lIdxY, ucDirection);
 	dNeigBedElevW	= dBedElevation [ ulIdxNeig ];
@@ -183,10 +184,7 @@ __kernel REQD_WG_SIZE_FULL_TS void pro2St_cacheDisabled (
 	}
 
 	bool debug = false;
-	//if(ulIdx==66689){
-	//	debug = true;
-	//}
-
+	//calculate the discharges for every direction (Manning or Poleni weir)
 	if (!usePoleniN){
 		dDischarges[ DOMAIN_DIR_N ] = manning_Solver(
 			dLclTimestep,
@@ -197,6 +195,8 @@ __kernel REQD_WG_SIZE_FULL_TS void pro2St_cacheDisabled (
 			dCellBedElev,
 			dNeigBedElevN,
 			DOMAIN_DELTAY,
+			pCellData.w,
+			iMode,
 			debug
 		);
 				}else{
@@ -224,6 +224,8 @@ __kernel REQD_WG_SIZE_FULL_TS void pro2St_cacheDisabled (
 			dCellBedElev,
 			dNeigBedElevE,
 			DOMAIN_DELTAX,
+			pCellData.z,
+			iMode,
 			debug
 		);
 				}else{
@@ -251,6 +253,8 @@ __kernel REQD_WG_SIZE_FULL_TS void pro2St_cacheDisabled (
 			dCellBedElev,
 			dNeigBedElevS,
 			DOMAIN_DELTAY,
+			pNeigDataS.w*-1.0,
+			iMode,
 			debug
 		);
 				}else{
@@ -278,6 +282,8 @@ __kernel REQD_WG_SIZE_FULL_TS void pro2St_cacheDisabled (
 			dCellBedElev,
 			dNeigBedElevW,
 			DOMAIN_DELTAX,
+			pNeigDataW.z*-1.0,
+			iMode,
 			debug
 			);
 				}else{
@@ -319,24 +325,13 @@ __kernel REQD_WG_SIZE_FULL_TS void pro2St_cacheDisabled (
 	//printf("Time  %i %f %.15f %.15f\n",ulIdx, dLclTimestep, dDeltaFSL , pCellData.x);
 
 		
-	//pCellData.z		= dDischarges[DOMAIN_DIR_E].y;
-	//pCellData.w		= dDischarges[DOMAIN_DIR_N].y;
-
-	// Update the flow state
-	//pCellData.x		= pCellData.x + dLclTimestep * dDeltaFSL;
-
-	// New max FSL?
-	//if ( pCellData.x > pCellData.y )
-		//pCellData.y = pCellData.x;
-
-	
-
 	//Heunmode
 	//predictor
 	if (iMode == 0) {
 		pCellData.x = pCellStateSrc[ulIdx].x + dLclTimestep * dDeltaFSL;
-		pCellData.z = dDischarges[DOMAIN_DIR_E].y;
-		pCellData.w = dDischarges[DOMAIN_DIR_N].y;
+		//store old discharge for relaxation model
+		pCellData.z = dDischarges[DOMAIN_DIR_E].x;
+		pCellData.w = dDischarges[DOMAIN_DIR_N].x;
 
 		// Commit to global memory to predictor buffer
 		pCellStatePred[ ulIdx ] = pCellData;
@@ -344,25 +339,20 @@ __kernel REQD_WG_SIZE_FULL_TS void pro2St_cacheDisabled (
 			//printf("mode %i id %i h %f ds_dt %f\n", iMode, ulIdx, pCellData.x, dDeltaFSL);
 		}		
 	} else {
-		// KORREKTOR: Mittelung
+		//Corrector
 		cl_double4 u_n = pCellStateSrc[ulIdx];
     
-		// Wasserstand mitteln
-		pCellData.x = 0.5 * u_n.x + 0.5 * (pCellStatePred[ulIdx].x + dLclTimestep * dDeltaFSL);
+		// average of water level predictor and corrector
+		pCellData.x = 0.5* u_n.x + 0.5 * (pCellStatePred[ulIdx].x + dLclTimestep * dDeltaFSL);
 
-		    
-		// Abflüsse mitteln (optional, aber empfohlen für Wellenpräzision)
-		//pCellData.z = 0.5 * u_n.z + 0.5 * dDischarges[DOMAIN_DIR_E].y;
-		//pCellData.w = 0.5 * u_n.w + 0.5 * dDischarges[DOMAIN_DIR_N].y;
-		//keine Mittelung
-		pCellData.z = dDischarges[DOMAIN_DIR_E].y;
-		pCellData.w = dDischarges[DOMAIN_DIR_N].y;
+		//store old discharge for relaxation model
+		pCellData.z = dDischarges[DOMAIN_DIR_E].x;
+		pCellData.w = dDischarges[DOMAIN_DIR_N].x;
 
 
-		// Erst JETZT das Maximum updaten
 		if (pCellData.x > pCellData.y) pCellData.y = pCellData.x;
 
-		// Commit to global memory
+		// Commit to global memory to destination buffer
 		pCellStateDst[ ulIdx ] = pCellData;
 	}
 
@@ -381,12 +371,16 @@ cl_double2 manning_Solver(
 	cl_double opt_z_Cell, 	// Bed Elevation of main Cell
 	cl_double opt_z_Neig,	// Bed Elevation of Neighbor Cell
 	cl_double DeltaXY,
+	cl_double previous_discharge,
+	cl_int mode,
 	bool debug				// Debug Flag
 	)
 	{
 		cl_double2 output;
 		cl_double dDischarge	= 0.0;
 		cl_double velocity	= 0.0;
+		cl_double delta_h=0.0;
+		cl_double abs_delta_h	= 0.0;
 		
 		if (opt_s_Neig-opt_z_Neig > flow_epsilon || opt_s_Cell-opt_z_Cell > flow_epsilon){
 
@@ -394,13 +388,12 @@ cl_double2 manning_Solver(
 
 			if (flow_depth > flow_epsilon){
 
-				cl_double delta_h		= opt_s_Neig - opt_s_Cell;
-				cl_double abs_delta_h	= fabs(delta_h);
+				delta_h		= opt_s_Neig - opt_s_Cell;
+				 abs_delta_h	= fabs(delta_h);
 
 				if(abs_delta_h > flow_epsilon){
 					// P1 (Diffusive Scheme)
 					if(abs_delta_h<=0.005078){
-					//if(abs_delta_h<=0.000000005078){
 						dDischarge = 1.0/(0.5*(manning+manning_Neig)) * pow(flow_depth,5.0/3.0) / pow(DeltaXY ,0.5) * 0.10449968880528 * atan(159.877741951379*delta_h) ;
 					
 					}
@@ -409,64 +402,50 @@ cl_double2 manning_Solver(
 					}
 
 
-					//if ( dDischarge > 0.0 && ( ( fabs( dDischarge ) / flow_depth ) / sqrt( GRAVITY * flow_depth ) ) > 4.0 )
-					//dDischarge = flow_depth * sqrt( GRAVITY * flow_depth ) * 4.0;
-					//if ( dDischarge < 0.0 && ( ( fabs( dDischarge ) / flow_depth ) / sqrt( GRAVITY * flow_depth ) ) > 4.0 )
-					//dDischarge = 0.0 - flow_depth * sqrt( GRAVITY * flow_depth ) * 4.0;
-
-					// Bates(2010):
-					cl_double Q = dDischarge;
-					dDischarge = fmin(fabs(Q), DOMAIN_DELTAX* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep) / (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY));	
-					if (Q<0.0){
-							dDischarge = dDischarge * (-1.0);
-					}
-			
+					// Bates(2010): It is to stong...very stable but to high water levels!
+					//cl_double Q = dDischarge;
+					//dDischarge = fmin(fabs(Q), DOMAIN_DELTAX* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep) / (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY));	
+					//if (Q<0.0){
+					//		dDischarge = dDischarge * (-1.0);
+					//}			
 					
-					
-					/*
-					// P2 (New Castle Limiter) does not work (Daniel)
-					#ifdef useP2	
-						#define FROUDE_LIMIT			0.5
-						#define mainVelocity fabs(dDischarge)/flow_depth
-						#define waveVelocity sqrt(GRAVITY*flow_depth)
-
-						if ( dDischarge > 0.0 && 
-											( mainVelocity / waveVelocity ) > FROUDE_LIMIT ){
-							//dDischarge = flow_depth * sqrt( GRAVITY * flow_depth ) * FROUDE_LIMIT;
-					
-						}else if ( dDischarge < 0.0 &&
-											( mainVelocity / waveVelocity ) > FROUDE_LIMIT ){		
-							//dDischarge = 0.0 - flow_depth * sqrt( GRAVITY * flow_depth ) * FROUDE_LIMIT;
-						}
-					#endif
-				
-					#ifdef useP3	
-						// P3 (Lis-Flood Limiter)
-						#define DOMAIN_AREA DOMAIN_DELTAX*DOMAIN_DELTAY*1.0
-
-						cl_double water_depth = opt_s_Cell - opt_z_Cell;
-						cl_double Nwater_depth = opt_s_Neig - opt_z_Neig;
-
-						if (dDischarge > 0.0 && dDischarge > DOMAIN_AREA * abs_delta_h / 4.0 / timestep){
-							//dDischarge = DOMAIN_AREA * abs_delta_h / 5.0 / timestep;
-						}
-						else if(dDischarge < 0.0 && -1.0 * dDischarge > DOMAIN_AREA * abs_delta_h / 4.0 / timestep){
-							//dDischarge = 0 - DOMAIN_AREA * abs_delta_h / 5.0 / timestep;
-						}
-					#endif
-					*/
-					
-					
-
-					//    v = ds/dt * Delta XY / flow depth
-					// so v = Discharge / flow depth
-					velocity = dDischarge / flow_depth; // m = m2 / m  
+					velocity = dDischarge / flow_depth;   
 				}
 			}
 		}
-		
-		output.x = dDischarge * (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY); // m3 = m2 * m (Q = ds/dt * DeltaX * DeltaY so Q = ds/dt * DeltaXY * !DeltaXY) 
-		output.y = velocity;				   // m
+		//old approach without relaxation
+		//output.x = dDischarge * (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY);  
+
+		//relaxation approach
+		output.x = previous_discharge*0.9+0.10*dDischarge * (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY);
+
+		//bates delimiter after inertia wave approach; it is less strict then the original one
+		cl_double percAdd = 0.0;
+		if( fabs(output.x) > (cl_double)(DOMAIN_DELTAX)* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep)){
+			cl_double Q = output.x;
+			cl_double sug = (cl_double)(DOMAIN_DELTAX)* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep);
+			cl_double diff = fabs(output.x) - sug;
+			cl_double diffp = diff/fabs(output.x);
+	
+	
+			if(fabs(output.x) < 0.01){
+				percAdd =diffp*diffp/40.0; // decrease the denominator to make bates stronger at low discharges, 10 was bad
+			}else{
+				percAdd = diffp*diffp/320.0; // we also need bates at high discharges but to a lesser degree
+			}
+	
+			output.x = fabs(Q)*(1.0-percAdd)+sug*(percAdd);
+			if (Q<0.0)
+				output.x = output.x * (-1.0);
+		}
+
+
+
+
+
+
+
+		output.y = velocity;				   
 
 		return output;
 

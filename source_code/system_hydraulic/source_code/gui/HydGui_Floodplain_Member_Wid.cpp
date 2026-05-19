@@ -68,15 +68,15 @@ HydGui_Floodplain_Member_Wid::HydGui_Floodplain_Member_Wid(DataRole role, QWidge
 	scheme_types_mapping.push_back(std::make_pair(0, std::make_pair("Diffusive W. (CPU)", hyd_label::scheme_type_diffusive_cpu)));
 	scheme_types_mapping.push_back(std::make_pair(1, std::make_pair("Diffusive W. (GPU)", hyd_label::scheme_type_diffusive_gpu)));
 	scheme_types_mapping.push_back(std::make_pair(2, std::make_pair("Diffusive W. 2Step (GPU)", hyd_label::scheme_type_diffusive_2st_gpu)));
-	//scheme_types_mapping.push_back(std::make_pair(3, std::make_pair("Inertial (GPU)", hyd_label::scheme_type_inertial_gpu)));
-	scheme_types_mapping.push_back(std::make_pair(3, std::make_pair("Godunov (GPU)", hyd_label::scheme_type_godunov_gpu)));
-	//scheme_types_mapping.push_back(std::make_pair(4, std::make_pair("MUSCL (GPU)", hyd_label::scheme_type_muscl_gpu)));
+	scheme_types_mapping.push_back(std::make_pair(3, std::make_pair("Inertial (GPU)", hyd_label::scheme_type_inertial_gpu)));
+	scheme_types_mapping.push_back(std::make_pair(4, std::make_pair("Godunov (GPU)", hyd_label::scheme_type_godunov_gpu)));
+	//scheme_types_mapping.push_back(std::make_pair(5, std::make_pair("MUSCL (GPU)", hyd_label::scheme_type_muscl_gpu)));
 
 	ui.scheme_type->set_label_text("Scheme Type");
 	ui.scheme_type->set_box_width(150);
 	ui.scheme_type->set_tooltip("Solver Scheme to be used");
-	string pscheme_type[] = { scheme_types_mapping[0].second.first, scheme_types_mapping[1].second.first,scheme_types_mapping[2].second.first, scheme_types_mapping[3].second.first /* , scheme_types_mapping[4].second.first */ };
-	ui.scheme_type->set_items(pscheme_type, 4 /* 5 */);
+	string pscheme_type[] = { scheme_types_mapping[0].second.first, scheme_types_mapping[1].second.first,scheme_types_mapping[2].second.first, scheme_types_mapping[3].second.first , scheme_types_mapping[4].second.first};
+	ui.scheme_type->set_items(pscheme_type, 5 /* 5 */);
 
 	// SELECTED_DEVICE
 	ui.selected_device->set_label_text("Selected Device");

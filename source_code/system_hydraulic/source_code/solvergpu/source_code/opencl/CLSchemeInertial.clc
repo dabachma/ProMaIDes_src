@@ -341,19 +341,16 @@ cl_double calculateInertialFlux(
 			     ( 1.0 + GRAVITY * dDepth * dTimestep * dManningCoef * dManningCoef * fabs( dPreviousDischarge ) /
 				   pow( dDepth, 10.0/3.0 ) );
 
+	//test further relaxation approach
+	dDischarge=0.8*dPreviousDischarge+0.2*dDischarge;
+
 	if (debug){
 		printf("dDepth %f dLevelDownstream %f dLevelUpstream %f \n",dDepth, dLevelDownstream, dLevelUpstream);
 		printf("dSlope %f dLevelDownstream %f dLevelUpstream %f \n",dSlope, dLevelDownstream, dLevelUpstream);
 		printf("dDischarge %f dPreviousDischarge %f GRAVITY %f dTimestep %f dManningCoef %f \n",dDischarge, dPreviousDischarge, GRAVITY, dTimestep, dManningCoef );
 	}
-
-	//Promaides
-	//cl_double dDischarge2 = 0.0;
-	//cl_double delta_h    = dLevelUpstream - dLevelDownstream;
-	//cl_double abs_delta_h	= fabs(delta_h);
-	//dDischarge2 = 1.0/dManningCoef * pow(dDepth,5.0/3.0) * delta_h / pow(DOMAIN_DELTAX * abs_delta_h,0.5);
-	//printf("Inertail: %f Promaides: %f\n", dDischarge*1000000.0,dDischarge2*1000000.0);
-
+	//____________________
+	//different type of delimiters
 	// Froude number discharge limiter 
 	// This is not discussed anywhere, why?
 	//if ( dDischarge > 0.0 &&
@@ -363,15 +360,13 @@ cl_double calculateInertialFlux(
 	//	 ( ( fabs( dDischarge ) / dDepth ) / sqrt( GRAVITY * dDepth ) ) > FROUDE_LIMIT )
 	//	dDischarge = 0.0 - dDepth * sqrt( GRAVITY * dDepth ) * FROUDE_LIMIT;
 
-	// Bates(2010):
-	cl_double Q = dDischarge;
-	dDischarge = fmin(fabs(Q), (cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4*dTimestep));
+	// Bates(2010): It is to stong...very stable but to high water levels!
+	//cl_double Q = dDischarge;
+	//dDischarge = fmin(fabs(Q), (cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4*dTimestep));
 	//
-	if (Q<0.0){
-		dDischarge = dDischarge * (-1.0);
-	}
-
-
+	//if (Q<0.0){
+		//dDischarge = dDischarge * (-1.0);
+	//}
 
 	// Some completely arbitrary other limiter?!
 	// This is used in CAESAR-LISFLOOD but I can't for the life of me work out the logic behind it...
@@ -380,29 +375,11 @@ cl_double calculateInertialFlux(
 	//	dDischarge = ( ( dLevelUpstream - dBedUpstream ) * (cl_double)(DOMAIN_DELTAX) ) / 5.0 / dTimestep;
 	//if ( dDischarge < 0.0 &&( fabs( dDischarge ) * dTimestep / (cl_double)(DOMAIN_DELTAX) ) > ( dLevelDownstream - dBedDownstream ) / 4.0 )
 	//	dDischarge = 0.0 - ( ( dLevelDownstream - dBedDownstream ) * (cl_double)(DOMAIN_DELTAX) ) / 5.0 / dTimestep;
-	
-	//Best
-	// 98.00
-	// diff/40.0, 90/100
+	//____________________
 
-	//cl_double percAdd = 0.0;
-	//cl_double percentage = 98.00;
-	//percentage = 100.0;
-
-	//
-	//if( fabs(dDischarge) > (cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4.0*dTimestep)){
-	//	cl_double Q = dDischarge;
-	//	cl_double sug = (cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4.0*dTimestep);
-	//	cl_double diff = fabs(dDischarge) - sug;
-	//	percAdd = fmin(diff/40.0, 90.0/100.0);
-	//	dDischarge = fabs(Q)*(percentage/100.0-percAdd)+sug*((1.0-percentage/100.0)+percAdd);
-	//	if (Q<0.0)
-	//		dDischarge = dDischarge * (-1.0);
-	//}
 
 	// The Best so far:
 	// <0.01 is /40.0   else  /320
-
 	cl_double percAdd = 0.0;
 	if( fabs(dDischarge) > (cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4.0*dTimestep)){
 		cl_double Q = dDischarge;
@@ -421,6 +398,7 @@ cl_double calculateInertialFlux(
 		if (Q<0.0)
 			dDischarge = dDischarge * (-1.0);
 	}
+	
 
 	if ( dDepth < VERY_SMALL )
 		dDischarge = 0.0;

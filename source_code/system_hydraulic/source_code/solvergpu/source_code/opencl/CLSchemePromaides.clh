@@ -53,6 +53,7 @@ cl_double2 manning_Solver(
 	cl_double opt_z_Cell,
 	cl_double opt_z_Neig,
 	cl_double DeltaXY,
+	cl_double previous_discharge,
 	bool debug
 	);
 //calculation the overflow between elements via Poleni weir equation (1d-dike line element)
@@ -69,5 +70,11 @@ cl_double2 poleni_Solver(
 	cl_double DeltaXY,
 	bool debug
 	);
+
+// Van Leer Limiter
+inline double limit_vanleer(double a, double b);
+
+// Minmod Limiter (falls du es noch stabiler/flacher willst)
+inline double limit_minmod(double a, double b);
 
 #endif
