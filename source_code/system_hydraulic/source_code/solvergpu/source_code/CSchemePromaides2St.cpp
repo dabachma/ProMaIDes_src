@@ -66,9 +66,9 @@ void CSchemePromaides2St::prepareAll()
 		this->preparePromaidesKernels();
 	}catch (const std::exception& e) {
 		model::doError(
-			std::string("Caught an exception in void CSchemeGodunov::prepareAll() : ") + e.what(),
+			std::string("Caught an exception in void CSchemePromaides2St::prepareAll() : ") + e.what(),
 			model::errorCodes::kLevelFatal,
-			"void CSchemePromaides::prepareAll()",
+			"void CSchemePromaides2St::prepareAll()",
 			"Check inputed data."
 		);
 	}
@@ -107,11 +107,11 @@ void	CSchemePromaides2St::scheduleIteration() {
 	
 	
 	
-	//friction
-	if (this->bFrictionEffects && !this->bFrictionInFluxKernel) {
+	//friction Not required for this scheme; just for Gudunov!
+	/*if (this->bFrictionEffects && !this->bFrictionInFluxKernel) {
 		oclKernelFriction->assignArgument(1, bufferPred);
 		oclKernelFriction->scheduleExecution();
-	}
+	}*/
 
 	//boundary
 	//oclKernelBoundary->assignArgument(3, bufferPred);

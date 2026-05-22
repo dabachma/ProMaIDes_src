@@ -2481,6 +2481,7 @@ void Sys_Data_Tree_Wid::widget2hyd(QTreeWidgetItem *item){
 		//set the data
 		try{
 			wid->set_member(&this->database, fp_nr);
+			wid->set_no_fps(number_fp);
 		}
 		catch(Error msg){
 			throw msg;

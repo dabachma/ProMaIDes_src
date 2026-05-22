@@ -81,7 +81,7 @@ void CSchemeMUSCLHancock::prepareAll()
 		this->prepare2OKernels();
 	}catch (const std::exception& e) {
 		model::doError(
-			std::string("Caught an exception in void CSchemeGodunov::prepareAll() : ") + e.what(),
+			std::string("Caught an exception in void CSchemeMUSCLHancock::prepareAll() : ") + e.what(),
 			model::errorCodes::kLevelFatal,
 			"void CSchemeMUSCLHancock::prepareAll()",
 			"Check inputed data."

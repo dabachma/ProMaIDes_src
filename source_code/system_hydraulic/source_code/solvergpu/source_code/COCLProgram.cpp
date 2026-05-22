@@ -50,7 +50,8 @@ void COCLProgram::compileProgram(
 		this->sCompileParameters += " -cl-single-precision-constant";
 
 	// Some standard things we need
-	this->sCompileParameters += " -cl-mad-enable";
+	//this->sCompileParameters += " -cl-mad-enable";
+	this->sCompileParameters += " -cl-fast-relaxed-math";
 #endif
 
 	// This might not be a good idea...
@@ -68,6 +69,10 @@ void COCLProgram::compileProgram(
 		this->prependCode(this->getExtensionsHeader());							// Required for double-precision etc.
 		this->prependCode(this->getConstantsHeader());							// Domain constant data (i.e. rows, cols etc.)
 	}
+
+	//try statement!!
+	
+
 
 	cl_uint			uiStackLength = static_cast<cl_uint>(oclCodeStack.size());
 	OCL_RAW_CODE* orcCode = new char* [uiStackLength];
@@ -90,7 +95,7 @@ void COCLProgram::compileProgram(
 			" Got Error code: [" + Util::get_error_str(iErrorID) + "] from clCreateProgramWithSource",
 			model::errorCodes::kLevelModelStop,
 			"bool COCLProgram::compileProgram( bool bIncludeStandardElements )",
-			"Your device might not be supported."
+			"Your device might not be supported, check other devices."
 		);
 
 	}
@@ -131,7 +136,7 @@ void COCLProgram::compileProgram(
 			" Got Error code: [" + Util::get_error_str(iErrorID) + "] from clBuildProgram",
 			model::errorCodes::kLevelModelStop,
 			"bool COCLProgram::compileProgram( bool bIncludeStandardElements )",
-			"Please contact the developers. See log above."
+			"Please contact the developers, check the output in the HYD-log file (end) and check your clc-code; also a failedBuildLog.txt in the project dir is generated"
 		);
 	}
 
@@ -152,14 +157,14 @@ void COCLProgram::compileProgram(
 			strcat(concatenatedString, str);
 		}
 		model::log->logInfo(sBuildLog);
-		model::log->writeCharToFile(concatenatedString, "WarningBuildLog.txt");
+		//model::log->writeCharToFile(concatenatedString, "WarningBuildLog.txt");
 		delete[] concatenatedString;
-		model::log->logInfo("The source code has been written to WarningBuildLog.txt. Please check it.");
+		//model::log->logInfo("The source code has been written to WarningBuildLog.txt. Please check it.");
 
 		model::doError("Some messages were reported while building.",
 			model::errorCodes::kLevelWarning,
 			"bool COCLProgram::compileProgram( bool bIncludeStandardElements )",
-			"See log above."
+			"To get more info please check the \"(): Warning:\" messages in the HYD - system logfile"
 		);
 	}
 
@@ -381,7 +386,7 @@ OCL_RAW_CODE	COCLProgram::getExtensionsHeader()
 			"Double-precision will be handled as single-precision.",
 			model::errorCodes::kLevelWarning,
 			"OCL_RAW_CODE	COCLProgram::getExtensionsHeader()",
-			"This might cause some problems, down the line."
+			"This might cause some problems in the accuracy of the calculation."
 		);
 
 		// Create an alias and treat doubles as floats

@@ -110,6 +110,8 @@ public:
 	void set_child(QWidget *child);
 	///Set current scroll bars position (vertical, horizontal)
 	void set_current_scroll_bar(const int ver_pos, const int hor_pos);
+	///Set number of floodplains
+	virtual void set_no_fps(const int no);
 
 public slots:
 	///Open the dialog to edit values in the widget

@@ -19,6 +19,8 @@ using std::min;
 using std::max;
 CLog* model::log;
 
+bool CModel::abort_thread_flag = false;
+
 //Constructor
 CModel::CModel(CLoggingInterface* CLI, bool profilingOn)
 {
@@ -28,7 +30,7 @@ CModel::CModel(CLoggingInterface* CLI, bool profilingOn)
 	if (profilingOn) {
 		model::log->logWarning("Profiler is activated. This will slow down the simulation. Use this for testing only.");
 	}
-	this->profiler = new CProfiler(profilingOn);
+	//this->profiler = new CProfiler(profilingOn);
 
 	this->showProgess = false;
 	this->mpiManager		= NULL;
@@ -59,8 +61,8 @@ CModel::~CModel(void)
 		delete this->domain;
 	if ( this->execController != NULL )
 		delete this->execController;
-	if (this->profiler != NULL)
-		delete this->profiler;
+	//if (this->profiler != NULL)
+		//delete this->profiler;
 	this->log->logInfo("The model engine is completely unloaded.");
 	if (this->log != NULL)
 		model::log = NULL;
@@ -331,6 +333,10 @@ void	CModel::runNext(const double next_time_point)
 		// Current Time
 		dCurrentTime = domain->getScheme()->getCurrentTime();
 
+		//check stop thread flag
+		CModel::check_stop_thread_flag();
+		
+
 		// Either we're not ready to sync, or we were still synced from the last run
 		if (domain->getScheme()->isRunning() == false && domain->getDevice()->isBusy() == false) {
 			domain->getScheme()->runSimulation(dTargetTime);
@@ -349,19 +355,58 @@ void	CModel::runNext(const double next_time_point)
 }
 
 //Attached the profiler class to the CModel
-void CModel::setProfiler(CProfiler* profiler_input) {
-	this->profiler = profiler_input;
-}
+//void CModel::setProfiler(CProfiler* profiler_input) {
+//	this->profiler = profiler_input;
+//}
 
 
 //Attached the logger class to the CModel
 void CModel::setUIStatus(bool status) {
 	this->showProgess = status;
 }
+//Set the stop thread flag (static)
+void CModel::set_stop_thread_flag(const bool flag) {
+	CModel::abort_thread_flag = flag;
+}
+//Check the stop thread flag (static)
+void CModel::check_stop_thread_flag(void) {
+
+	if (abort_thread_flag == true) {
+		Error msg;
+		msg.set_msg(_sys_system_modules::HYD_SYS);
+		throw msg;
+	}
+}
 
 //Raise an error message and deal with it accordingly.
 void model::doError(std::string error_reason, unsigned char error_type, std::string error_place, std::string error_help)
 {
-	model::log->logError(error_reason, error_type, error_place, error_help);
+	//model::log->logError(error_reason, error_type, error_place, error_help);
+
+	if (error_type == model::errorCodes::kLevelFatal || error_type == model::errorCodes::kLevelModelStop) {
+		Error msg;
+		msg.set_msg(error_place, error_reason, error_help, 35, false);
+		throw msg;
+	}
+	else {
+		Warning msg;
+		string reaction;
+		if (error_type == model::errorCodes::kLevelModelContinue) {
+			reaction = "Model can continue";
+		}
+		else if (error_type == model::errorCodes::kLevelWarning) {
+			reaction = "Warning";
+		}
+		else {
+			reaction = "Information";
+
+		}
+		msg.set_msg(error_place, error_reason, error_help,reaction,28);
+		msg.output_msg(2);
+
+	}
+
+
+
 
 }

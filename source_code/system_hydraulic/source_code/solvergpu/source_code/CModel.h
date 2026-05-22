@@ -72,8 +72,17 @@ class CModel
 		CLog*					log;											// Handle for the log singular class
 		void					setUIStatus(bool);								// Turns on/off the UI
 
-		void					setProfiler(CProfiler*);						// Set the profiler 
-		CProfiler* profiler;													// Profiler class
+		//void					setProfiler(CProfiler*);						// Set the profiler 
+		//CProfiler* profiler;													// Profiler class
+
+		//Set the stop thread flag (static)
+		static void set_stop_thread_flag(const bool flag);
+		///Check the stop thread flag
+		static void check_stop_thread_flag(void);
+
+		///Flag if the thread are aborted by the user
+		static bool abort_thread_flag;
+
 	private:
 
 		// Private functions

@@ -337,9 +337,26 @@ cl_double calculateInertialFlux(
 	cl_double dSlope	 = ( dLevelDownstream - dLevelUpstream ) / DOMAIN_DELTAX;
 
 	// Inertial 
+	/*
 	dDischarge = ( dPreviousDischarge - ( GRAVITY * dDepth * dTimestep * dSlope ) ) /
 			     ( 1.0 + GRAVITY * dDepth * dTimestep * dManningCoef * dManningCoef * fabs( dPreviousDischarge ) /
 				   pow( dDepth, 10.0/3.0 ) );
+				   */
+	
+
+	//optimized version
+	double dDepth2 = dDepth * dDepth;
+	double dDepth3 = dDepth2 * dDepth;
+	double depth_10_3 = dDepth3 * cbrt(dDepth);
+	dDischarge = ( dPreviousDischarge - ( GRAVITY * dDepth * dTimestep * dSlope ) ) /
+			     ( 1.0 + GRAVITY * dDepth * dTimestep * dManningCoef * dManningCoef * fabs( dPreviousDischarge ) /
+				   depth_10_3 );
+	
+
+
+
+
+
 
 	//test further relaxation approach
 	dDischarge=0.8*dPreviousDischarge+0.2*dDischarge;

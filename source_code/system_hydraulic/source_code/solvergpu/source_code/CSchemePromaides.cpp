@@ -66,7 +66,7 @@ void CSchemePromaides::prepareAll()
 		this->preparePromaidesKernels();
 	}catch (const std::exception& e) {
 		model::doError(
-			std::string("Caught an exception in void CSchemeGodunov::prepareAll() : ") + e.what(),
+			std::string("Caught an exception in void CSchemePromaides::prepareAll() : ") + e.what(),
 			model::errorCodes::kLevelFatal,
 			"void CSchemePromaides::prepareAll()",
 			"Check inputed data."

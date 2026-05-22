@@ -45,10 +45,16 @@ public:
 	void set_default_values(void);
 	///Set the member of the widget per database
 	void set_member(QSqlDatabase *ptr_database, const int fp_no);
+	///Set number of floodplains
+	void set_no_fps(const int no);
 
 public slots:
 	///Open the dialog to edit values in the widget
 	void show_as_dialog(void);
+
+	///change combo box scheme type
+	void change_combo_box_scheme(const int index);
+
 
 private:
 	///Maping of scheme types, making a table of index, text, and database label
@@ -57,11 +63,17 @@ private:
 	///QT-form member
 	Ui::HydGui_Floodplain_Member ui;
 
+	///Number of floodplains
+	int no_FPs;
+	
+	
 	//method
 	///Transfer members to database
 	void transfer_members2database(HydGui_Floodplain_Member_Wid *dialog);
 	///Set the error(s)
 	Error set_error(const int err_type);
+
+
 
 };
 

@@ -81,6 +81,10 @@ void _Sys_Abstract_Base_Wid::set_current_scroll_bar(const int ver_pos, const int
 		this->scroll_area->horizontalScrollBar()->setSliderPosition(hor_pos);
 	}
 }
+void _Sys_Abstract_Base_Wid::set_no_fps(const int no) {
+	return;
+
+}
 //_____________
 //private slots
 //Recieve if the head spin box value is changed

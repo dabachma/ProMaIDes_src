@@ -379,7 +379,7 @@
           </font>
          </property>
          <property name="title">
-          <string>Preconditioner Settings</string>
+          <string>Preconditioner Settings (just CPU)</string>
          </property>
          <property name="flat">
           <bool>false</bool>

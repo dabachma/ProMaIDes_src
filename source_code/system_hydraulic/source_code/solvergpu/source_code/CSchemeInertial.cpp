@@ -68,7 +68,7 @@ void CSchemeInertial::prepareAll()
 		this->prepareInertialKernels();
 	}catch (const std::exception& e) {
 		model::doError(
-			std::string("Caught an exception in void CSchemeGodunov::prepareAll() : ") + e.what(),
+			std::string("Caught an exception in void CSchemeInertial::prepareAll() : ") + e.what(),
 			model::errorCodes::kLevelFatal,
 			"void CSchemeInertial::prepareAll()",
 			"Check inputed data."

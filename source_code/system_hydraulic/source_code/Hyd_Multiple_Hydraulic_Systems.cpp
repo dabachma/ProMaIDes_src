@@ -487,6 +487,7 @@ void Hyd_Multiple_Hydraulic_Systems::run(void){
 //Set the stop thread flag (static)
 void Hyd_Multiple_Hydraulic_Systems::set_stop_thread_flag(const bool flag){
 	Hyd_Multiple_Hydraulic_Systems::abort_thread_flag=flag;
+	CModel::set_stop_thread_flag(flag);
 }
 //Check the stop thread flag (static)
 void Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag(void){

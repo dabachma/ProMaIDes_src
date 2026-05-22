@@ -31,7 +31,7 @@ void CProfiler::profile(std::string name, int flag, COCLDevice* device){
 			model::doError("Profiler for [" + name + "] was set to End profiling but it was never started. ",
 				model::errorCodes::kLevelWarning,
 				"void CProfiler::profile(std::string name, int flag, COCLDevice* device)",
-				"Please Report to the developers."
+				"Please Report to the developers or check use of CProfiler in code"
 			);
 		}
 	}
@@ -44,7 +44,7 @@ void CProfiler::profile(std::string name, int flag, COCLDevice* device){
 				model::doError("Profile Element [" + name + "] never ended. And is now requested to start",
 					model::errorCodes::kLevelWarning,
 					"void CProfiler::profile(std::string name, int flag, COCLDevice* device)",
-					"Please Report to the developers."
+					"Please Report to the developers or check use of CProfiler in code"
 				);
 			}
 			profiledElement->isStarted = true;
@@ -62,7 +62,7 @@ void CProfiler::profile(std::string name, int flag, COCLDevice* device){
 				model::doError("Profile Element [" + name + "] never started. And is now requested to end",
 					model::errorCodes::kLevelWarning,
 					"void CProfiler::profile(std::string name, int flag, COCLDevice* device)",
-					"Please Report to the developers."
+					"Please Report to the developers or check use of CProfiler in code"
 				);
 			}
 			profiledElement->isStarted = false;
@@ -84,7 +84,7 @@ void CProfiler::profile(std::string name, int flag, COCLDevice* device){
 		model::doError("Profiler couldn't find the element [" + name + "]. ",
 			model::errorCodes::kLevelWarning,
 			"void CProfiler::profile(std::string name, int flag, COCLDevice* device)",
-			"Please Report to the developers. "
+			"Please Report to the developers or check use of CProfiler in code"
 		);
 	}
 }
@@ -113,7 +113,7 @@ CProfiler::ProfiledElement* CProfiler::getProfileElement(std::string name) {
 	model::doError("Profiler never Found the element it was looking for",
 		model::errorCodes::kLevelWarning,
 		"void CProfiler::profile(std::string name, int flag, COCLDevice* device)",
-		"Please Report to the developers. "
+		"Please Report to the developers or check use of CProfiler in code"
 	);
 
 	return nullptr;

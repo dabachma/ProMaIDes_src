@@ -321,6 +321,9 @@ string Warning::warning_type_translation(void){
 			case 27:
 				cout << "CI-system Waring" << endl;
 				break;
+			case 28:
+				cout << "GPU-solver Waring" << endl;
+				break;
 			default:
 				cout << "Unknown Warning " << endl;
 		}		

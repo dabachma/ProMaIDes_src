@@ -78,6 +78,10 @@ HydGui_Floodplain_Member_Wid::HydGui_Floodplain_Member_Wid(DataRole role, QWidge
 	string pscheme_type[] = { scheme_types_mapping[0].second.first, scheme_types_mapping[1].second.first,scheme_types_mapping[2].second.first, scheme_types_mapping[3].second.first , scheme_types_mapping[4].second.first};
 	ui.scheme_type->set_items(pscheme_type, 5 /* 5 */);
 
+
+	//set the signal and slot
+	connect(ui.scheme_type->comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &HydGui_Floodplain_Member_Wid::change_combo_box_scheme);
+
 	// SELECTED_DEVICE
 	ui.selected_device->set_label_text("Selected Device");
 	ui.selected_device->set_box_width(150);
@@ -109,7 +113,7 @@ HydGui_Floodplain_Member_Wid::HydGui_Floodplain_Member_Wid(DataRole role, QWidge
 
 	// FRICTION_STATUS
 	ui.friction_status->set_label_text("Friction Effects");
-	ui.friction_status->set_tooltip("Enable/disable friction effects");
+	ui.friction_status->set_tooltip("Enable/disable friction effects; it is recommended for the Godunov scheme; it is ineffective for other schemes");
 
 	// WORKGROUP_SIZE_Xgs
 	ui.workgroup_size_x->set_label_text("Workgroup Size X");
@@ -154,6 +158,10 @@ HydGui_Floodplain_Member_Wid::HydGui_Floodplain_Member_Wid(DataRole role, QWidge
 	ui.wet_tol->set_range(-20, 20);
 	ui.wet_tol->set_value(0.01);
 	ui.wet_tol->set_dataRole(role);
+
+	this->no_FPs = 0;
+	
+	this->ui.checkBox_all->setVisible(false);
 
 	//SELF
 	switch(role) {
@@ -207,6 +215,7 @@ void HydGui_Floodplain_Member_Wid::set_editable(const bool state) {
 	ui.rel_tol->set_editable(state);
 	ui.abs_tol->set_editable(state);
 	ui.wet_tol->set_editable(state);
+	this->ui.checkBox_all->setVisible(state);
 }
 
 //Set all members of the widget, similar to a copy constructor
@@ -309,6 +318,7 @@ void HydGui_Floodplain_Member_Wid::set_member(QSqlDatabase *ptr_database, const 
 
 
 	this->ui.floodplain_number->set_value(fp_no);
+	
 
 	if(number==0){
 		this->ui.floodplain_name->set_text("Unknown FP-No.");
@@ -341,6 +351,7 @@ void HydGui_Floodplain_Member_Wid::set_member(QSqlDatabase *ptr_database, const 
 		}
 		this->ui.scheme_type->set_editable(true);
 		this->ui.scheme_type->set_current_value(indexSchemeType);
+		this->change_combo_box_scheme(indexSchemeType);
 		this->ui.scheme_type->set_editable(false);
 
 		this->ui.selected_device->set_editable(true);
@@ -359,6 +370,11 @@ void HydGui_Floodplain_Member_Wid::set_member(QSqlDatabase *ptr_database, const 
 		//description
 		//this->ui.wet_tol->set_value(results.record(0).value((Hyd_Model_Floodplain::general_param_table->get_column_name(label::description)).c_str()).toString().toStdString());
 	}
+}
+//Set number of floodplains
+void HydGui_Floodplain_Member_Wid::set_no_fps(const int no) {
+	this->no_FPs = no;
+
 }
 //____________
 //public slots
@@ -383,6 +399,46 @@ void HydGui_Floodplain_Member_Wid::show_as_dialog(void) {
 		return;	
 	}
 }
+//change combo box scheme type
+void HydGui_Floodplain_Member_Wid::change_combo_box_scheme(const int index) {
+	if (index == 0) {
+		ui.abs_tol->setEnabled(true);
+		ui.rel_tol->setEnabled(true);
+		ui.selected_device->setEnabled(false);
+		ui.workgroup_size_y->setEnabled(false);
+		ui.workgroup_size_x->setEnabled(false);
+		ui.friction_status->setEnabled(false);
+		ui.reduction_wavefronts->setEnabled(false);
+		ui.courant_number->setEnabled(false);
+
+
+
+	}
+	else {
+		ui.abs_tol->setEnabled(false);
+		ui.rel_tol->setEnabled(false);
+		ui.selected_device->setEnabled(true);
+		ui.workgroup_size_y->setEnabled(true);
+		ui.workgroup_size_x->setEnabled(true);
+		ui.friction_status->setEnabled(true);
+		ui.reduction_wavefronts->setEnabled(true);
+		ui.courant_number->setEnabled(true);
+
+	}
+	if (index == 4) {
+		ui.friction_status->setEnabled(true);
+		ui.friction_status->checkBox->setChecked(true);
+
+	}
+	else {
+		ui.friction_status->setEnabled(false);
+		ui.friction_status->checkBox->setChecked(false);
+	}
+
+
+
+
+}
 //___________
 //private
 //Transfer members to database
@@ -396,46 +452,117 @@ void HydGui_Floodplain_Member_Wid::transfer_members2database(HydGui_Floodplain_M
 	}
 
 	QSqlQueryModel query;
-
 	ostringstream query_string;
-	query_string <<"UPDATE ";
-	query_string << Hyd_Model_Floodplain::general_param_table->get_table_name();
-	query_string << " SET " ;
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::atol) << " = "<< dialog->ui.abs_tol->get_value()<< " , ";
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::rtol) << " = "<< dialog->ui.rel_tol->get_value()<< " , ";
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::genmod_name) << " = '"<< dialog->ui.floodplain_name->get_text()<< "' , ";
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::wet) << " = "<< dialog->ui.wet_tol->get_value() << " , ";
 
-	string scheme_type_text_from_box = dialog->ui.scheme_type->get_current_value();
-	string scheme_type_text_from_box_to_db = "";
-	for (size_t i = 0; i < scheme_types_mapping.size(); ++i) {
-		if (scheme_types_mapping[i].second.first == scheme_type_text_from_box) {
-			scheme_type_text_from_box_to_db = scheme_types_mapping[i].second.second;
-			break;
+	if (dialog->ui.checkBox_all->isChecked() == false) {
+		query_string << "UPDATE ";
+		query_string << Hyd_Model_Floodplain::general_param_table->get_table_name();
+		query_string << " SET ";
+		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::atol) << " = " << dialog->ui.abs_tol->get_value() << " , ";
+		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::rtol) << " = " << dialog->ui.rel_tol->get_value() << " , ";
+		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::genmod_name) << " = '" << dialog->ui.floodplain_name->get_text() << "' , ";
+		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::wet) << " = " << dialog->ui.wet_tol->get_value() << " , ";
+
+		string scheme_type_text_from_box = dialog->ui.scheme_type->get_current_value();
+		string scheme_type_text_from_box_to_db = "";
+		for (size_t i = 0; i < scheme_types_mapping.size(); ++i) {
+			if (scheme_types_mapping[i].second.first == scheme_type_text_from_box) {
+				scheme_type_text_from_box_to_db = scheme_types_mapping[i].second.second;
+				break;
+			}
 		}
+
+		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::schemetype) << " = '" << scheme_type_text_from_box_to_db << "' , ";
+		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::selecteddevice) << " = " << dialog->ui.selected_device->get_current_index() << " , ";
+		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::courantnumber) << " = " << dialog->ui.courant_number->get_value() << " , ";
+
+		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::reductionwavefronts) << " = " << dialog->ui.reduction_wavefronts->get_value() << " , ";
+		if (dialog->ui.scheme_type->get_current_index() == 4) {
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::frictionstatus) << " = '" << functions::convert_boolean2string(dialog->ui.friction_status->get_value()) << "' , ";
+		}
+		else {
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::frictionstatus) << " = '" << functions::convert_boolean2string(false) << "' , ";
+
+
+		}
+		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::workgroupsizex) << " = " << dialog->ui.workgroup_size_x->get_value() << " , ";
+		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::workgroupsizey) << " = " << dialog->ui.workgroup_size_y->get_value() << " ";
+
+		query_string << " WHERE ";
+		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::genmod_id) << " = " << dialog->ui.floodplain_number->get_value();
+
+		Data_Base::database_request(&query, query_string.str(), ptr_database);
+
+		if (query.lastError().isValid()) {
+			Error msg = set_error(0);
+			ostringstream info;
+			info << "Table Name      : " << Hyd_Model_Floodplain::general_param_table->get_table_name() << endl;
+			info << "Table error info: " << query.lastError().text().toStdString() << endl;
+			msg.make_second_info(info.str());
+			msg.output_msg(0);
+		}
+
+	}
+	//write it to all FPs
+	else {
+		for (int i = 0; i < this->no_FPs; i++) {
+			query_string << "UPDATE ";
+			query_string << Hyd_Model_Floodplain::general_param_table->get_table_name();
+			query_string << " SET ";
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::atol) << " = " << dialog->ui.abs_tol->get_value() << " , ";
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::rtol) << " = " << dialog->ui.rel_tol->get_value() << " , ";
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::genmod_name) << " = '" << dialog->ui.floodplain_name->get_text() << "' , ";
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::wet) << " = " << dialog->ui.wet_tol->get_value() << " , ";
+
+			string scheme_type_text_from_box = dialog->ui.scheme_type->get_current_value();
+			string scheme_type_text_from_box_to_db = "";
+			for (size_t i = 0; i < scheme_types_mapping.size(); ++i) {
+				if (scheme_types_mapping[i].second.first == scheme_type_text_from_box) {
+					scheme_type_text_from_box_to_db = scheme_types_mapping[i].second.second;
+					break;
+				}
+			}
+
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::schemetype) << " = '" << scheme_type_text_from_box_to_db << "' , ";
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::selecteddevice) << " = " << dialog->ui.selected_device->get_current_index() << " , ";
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::courantnumber) << " = " << dialog->ui.courant_number->get_value() << " , ";
+
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::reductionwavefronts) << " = " << dialog->ui.reduction_wavefronts->get_value() << " , ";
+			if (dialog->ui.scheme_type->get_current_index() == 4) {
+				query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::frictionstatus) << " = '" << functions::convert_boolean2string(dialog->ui.friction_status->get_value()) << "' , ";
+			}
+			else {
+				query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::frictionstatus) << " = '" << functions::convert_boolean2string(false) << "' , ";
+
+
+			}
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::workgroupsizex) << " = " << dialog->ui.workgroup_size_x->get_value() << " , ";
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::workgroupsizey) << " = " << dialog->ui.workgroup_size_y->get_value() << " ";
+
+			query_string << " WHERE ";
+			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::genmod_id) << " = " << i;
+
+			Data_Base::database_request(&query, query_string.str(), ptr_database);
+
+			if (query.lastError().isValid()) {
+				Error msg = set_error(0);
+				ostringstream info;
+				info << "Table Name      : " << Hyd_Model_Floodplain::general_param_table->get_table_name() << endl;
+				info << "Table error info: " << query.lastError().text().toStdString() << endl;
+				msg.make_second_info(info.str());
+				msg.output_msg(0);
+			}
+			query.clear();
+			query_string.str("");
+			query_string.clear();
+
+		
+		
+		}
+
 	}
 
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::schemetype) << " = '"<< scheme_type_text_from_box_to_db << "' , ";
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::selecteddevice) << " = "<< dialog->ui.selected_device->get_current_index() << " , ";
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::courantnumber) << " = "<< dialog->ui.courant_number->get_value() << " , ";
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::reductionwavefronts) << " = "<< dialog->ui.reduction_wavefronts->get_value() << " , ";
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::frictionstatus) << " = '"<< functions::convert_boolean2string(dialog->ui.friction_status->get_value()) << "' , ";
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::workgroupsizex) << " = "<< dialog->ui.workgroup_size_x->get_value() << " , ";
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::workgroupsizey) << " = "<< dialog->ui.workgroup_size_y->get_value() << " ";
-	
-	query_string  << " WHERE ";
-	query_string  << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::genmod_id) << " = "  << dialog->ui.floodplain_number->get_value();
-	
-	Data_Base::database_request(&query, query_string.str(), ptr_database);
 
-	if(query.lastError().isValid()){
-		Error msg=set_error(0);
-		ostringstream info;
-		info << "Table Name      : " << Hyd_Model_Floodplain::general_param_table->get_table_name() << endl;
-		info << "Table error info: " << query.lastError().text().toStdString() << endl;
-		msg.make_second_info(info.str());
-		msg.output_msg(0);	
-	}
 
 	this->set_member(dialog);
 }

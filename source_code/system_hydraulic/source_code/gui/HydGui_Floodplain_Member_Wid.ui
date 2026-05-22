@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>718</width>
-    <height>620</height>
+    <height>706</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,14 +23,14 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>696</width>
-        <height>598</height>
+        <y>-169</y>
+        <width>693</width>
+        <height>843</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <property name="sizeConstraint">
-        <enum>QLayout::SetFixedSize</enum>
+        <enum>QLayout::SizeConstraint::SetFixedSize</enum>
        </property>
        <item>
         <widget class="QGroupBox" name="groupBox">
@@ -50,7 +50,6 @@
           <font>
            <family>Arial</family>
            <pointsize>10</pointsize>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -92,8 +91,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -115,8 +114,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -138,8 +137,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -161,8 +160,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -184,8 +183,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -207,8 +206,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -230,8 +229,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -253,8 +252,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -276,8 +275,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -299,8 +298,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -321,7 +320,6 @@
           <font>
            <family>Arial</family>
            <pointsize>10</pointsize>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -351,35 +349,35 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
            </widget>
           </item>
           <item>
-            <widget class="Sys_Member_Enum_BaseWid" name="selected_device" native="true">
-              <property name="minimumSize">
-                <size>
-                  <width>200</width>
-                  <height>30</height>
-                </size>
-              </property>
-              <property name="maximumSize">
-                <size>
-                  <width>16777215</width>
-                  <height>50</height>
-                </size>
-              </property>
-              <property name="font">
-                <font>
-                  <pointsize>8</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                </font>
-              </property>
-            </widget>
+           <widget class="Sys_Member_Enum_BaseWid" name="selected_device" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>8</pointsize>
+              <bold>false</bold>
+             </font>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="Sys_Member_Dbl_BaseWid" name="courant_number" native="true">
@@ -397,8 +395,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -420,8 +418,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -431,8 +429,8 @@
            <widget class="Sys_Member_Bool_BaseWid" name="friction_status" native="true">
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -454,8 +452,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -477,8 +475,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -505,7 +503,6 @@
           <font>
            <family>Arial</family>
            <pointsize>10</pointsize>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -541,8 +538,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -569,7 +566,6 @@
           <font>
            <family>Arial</family>
            <pointsize>10</pointsize>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -605,8 +601,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -628,8 +624,8 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -651,14 +647,21 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>8</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox_all">
+         <property name="text">
+          <string>Transfer settings to all FPs</string>
+         </property>
         </widget>
        </item>
       </layout>

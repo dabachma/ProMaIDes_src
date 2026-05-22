@@ -69,7 +69,7 @@ bool CExecutorControlOpenCL::getPlatforms(void)
 			"Error obtaining the number of CL platforms. Got an error [" + Util::get_error_str(iErrorID) + "] ",
 			model::errorCodes::kLevelFatal,
 			"clGetPlatformIDs( NULL, NULL, &this->clPlatformCount )",
-			"Your system might not be supported yet"
+			"Your system might not be supported yet, check other devices"
 		);
 		return false;
 	}
@@ -85,7 +85,7 @@ bool CExecutorControlOpenCL::getPlatforms(void)
 			"Error obtaining the CL platforms. Got an error [" + Util::get_error_str(iErrorID) + "] ",
 			model::errorCodes::kLevelFatal,
 			"clGetPlatformIDs( this->clPlatformCount, this->clPlatforms, &this->clPlatformCount )",
-			"Your system might not be supported yet"
+			"Your system might not be supported yet, check other devices"
 		);
 		return false;
 	}
@@ -109,7 +109,7 @@ bool CExecutorControlOpenCL::getPlatforms(void)
 				"Error obtaining the number of devices on each CL platform. Got an error [" + Util::get_error_str(iErrorID) + "] ",
 				model::errorCodes::kLevelFatal,
 				"clGetDeviceIDs( this->clPlatforms[ iPlatformID ], CL_DEVICE_TYPE_ALL, 0, NULL, &this->platformInfo[ iPlatformID ].uiDeviceCount )",
-				"Your system might not be supported yet"
+				"Your system might not be supported yet, check other devices"
 			);
 			return false;
 		}
@@ -174,7 +174,7 @@ bool CExecutorControlOpenCL::createDevices(void)
 				,
 				model::errorCodes::kLevelFatal,
 				"clGetDeviceIDs( this->clPlatforms[iPlatformID], CL_DEVICE_TYPE_ALL, this->platformInfo[iPlatformID].uiDeviceCount, clDevice, NULL );",
-				"Your device might not be supported yet. Try to updating graphics drivers."
+				"Your device might not be supported yet. Try to updating graphics drivers or check other devices"
 			);
 			return false;
 		}
@@ -241,7 +241,7 @@ void CExecutorControlOpenCL::getPlatformInfo(unsigned int uiPlatformID, std::str
 		model::doError("clGetPlatformInfo failed to get size of info result. Got error: " + Util::get_error_str(iErrorID),
 			model::errorCodes::kLevelFatal,
 			"char* CExecutorControlOpenCL::getPlatformInfo(unsigned int uiPlatformID, cl_platform_info clInfo)",
-			"Your device might not be supported"
+			"Your device might not be supported, check other devices"
 		);
 		return;
 	}
@@ -261,7 +261,7 @@ void CExecutorControlOpenCL::getPlatformInfo(unsigned int uiPlatformID, std::str
 		model::doError("clGetPlatformInfo got size successfully but couldn't get the data. Got error: " + Util::get_error_str(iErrorID),
 			model::errorCodes::kLevelFatal,
 			"char* CExecutorControlOpenCL::getPlatformInfo(unsigned int uiPlatformID, cl_platform_info clInfo)",
-			"Your device might not be supported"
+			"Your device might not be supported, check other devices"
 		);
 		return;
 	}
@@ -324,7 +324,7 @@ void	CExecutorControlOpenCL::selectDevice()
 			"No suitable devices could be found for running this model.",
 			model::errorCodes::kLevelModelStop,
 			"void	CExecutorControlOpenCL::selectDevice()",
-			"Please switch to a cpu simulation."
+			"Please switch to a cpu simulation or other devices"
 		);
 		return;
 	}
@@ -342,7 +342,7 @@ void	CExecutorControlOpenCL::selectDevice(unsigned int uiDeviceNo)
 			"An invalid device was selected for execution.",
 			model::errorCodes::kLevelFatal,
 			"void	CExecutorControlOpenCL::selectDevice(unsigned int uiDeviceNo)",
-			"Please switch to a cpu simulation."
+			"Please switch to a cpu simulation or other devices"
 		);
 		return;
 	}

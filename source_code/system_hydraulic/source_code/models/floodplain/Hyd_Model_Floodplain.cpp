@@ -1341,6 +1341,7 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 		// Run the simulations until the target time, the results on the simulation are saved in readBuffers_opt_h
 		//cout << "Next_time_point: " << next_time_point << endl;
 		this->run_solver_gpu(next_time_point, system_id);
+		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		if (myScheme->isSimulationSlow()) {
 			Hyd_Param_FP hyd_Param_FP;
 			DomainCell fastest1, fastest2, fastest3;
@@ -1349,8 +1350,6 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 			Error msg = this->set_error(26);
 			ostringstream info;
 			info << "Hydraulic system                    : " << system_id << endl;
-			info << this->get_model_description();
-
 			info << "Scheme Type: " << hyd_Param_FP.convert_schemetype2txt(myScheme->getSchemeType()) << endl;
 			info << "Courant Number: " << myScheme->getCourantNumber() << endl;
 			info << "Target Time: " << myScheme->getTargetTime() << endl;
@@ -1358,14 +1357,14 @@ void Hyd_Model_Floodplain::solve_model_gpu(const double next_time_point, const s
 			info << "Current Timestep: " << myScheme->getCurrentTimestep() << endl;
 			info << "Current Timestep Moving Average: " << myScheme->getCurrentTimestepMovAvg() << endl;
 
-			info << "Fastest Cells in Domain Reported: " << endl;
+			/*info << "Fastest Cells in Domain Reported: " << endl;
 			info << "    1. CellId: " << fastest1.ulCellId << " Depth: " << fastest1.dDepth << " Elevation: " << fastest1.dElevation << " VelocityX: " << fastest1.dV_x << " VelocityY: "
 				<< fastest1.dV_y << " GroundVelocity: " << fastest1.dCalculatedVelocity << " TimeStepLimit: " << fastest1.dExpectedTimeStep << endl;
 			info << "    2. CellId: " << fastest2.ulCellId << " Depth: " << fastest2.dDepth << " Elevation: " << fastest2.dElevation << " VelocityX: " << fastest2.dV_x << " VelocityY: "
 				<< fastest2.dV_y << " GroundVelocity: " << fastest2.dCalculatedVelocity << " TimeStepLimit: " << fastest2.dExpectedTimeStep << endl;
 			info << "    3. CellId: " << fastest3.ulCellId << " Depth: " << fastest3.dDepth << " Elevation: " << fastest3.dElevation << " VelocityX: " << fastest3.dV_x << " VelocityY: "
 				<< fastest3.dV_y << " GroundVelocity: " << fastest3.dCalculatedVelocity << " TimeStepLimit: " << fastest3.dExpectedTimeStep << endl;
-			info << "Floodplain Snapshot has been exported to " << "fp_" + myCarDomain->getName() + "_" + std::to_string(myScheme->getCurrentTime()) + ".vtk" << endl;
+			info << "Floodplain Snapshot has been exported to " << "fp_" + myCarDomain->getName() + "_" + std::to_string(myScheme->getCurrentTime()) + ".vtk" << endl;*/
 			msg.make_second_info(info.str());
 			throw msg;
 		}
@@ -2473,16 +2472,17 @@ void Hyd_Model_Floodplain::output_solver_errors_gpu(const double time_point, con
 	cout << W(15) << timestring;
 	cout << W(15) << realtime;
 	cout << P(1) << FORMAT_FIXED_REAL << "  (" << diff_time << ")  ";
-	cout << W(15) << this->pManager->getDomain()->getScheme()->getIterationsTotal();
-	cout << "  (" << this->pManager->getDomain()->getScheme()->getIterationsTotal() - this->diff_solver_steps << ")   ";
-	cout << W(15) << P(4) << FORMAT_FIXED_REAL << glob_time_step/(this->pManager->getDomain()->getScheme()->getIterationsTotal() - this->diff_solver_steps);
-	cout << W(22) << P(4) << FORMAT_FIXED_REAL << ((step_counter + 1) * glob_time_step)/(this->pManager->getDomain()->getScheme()->getIterationsTotal()) ;
+	int it_total = this->pManager->getDomain()->getScheme()->getIterationsTotal();
+	cout << W(15) << it_total;
+	cout << "  (" << it_total - this->diff_solver_steps << ")   ";
+	cout << W(15) << P(4) << FORMAT_FIXED_REAL << glob_time_step/(it_total - this->diff_solver_steps);
+	cout << W(22) << P(4) << FORMAT_FIXED_REAL << ((step_counter + 1) * glob_time_step)/(it_total) ;
 	cout << W(18) << total_internal;
 	cout << "  (" << internal_steps << ")";
 	cout << endl;
 	Sys_Common_Output::output_hyd->output_txt(&cout);
 
-	this->diff_solver_steps = this->pManager->getDomain()->getScheme()->getIterationsTotal();
+	this->diff_solver_steps = it_total;
 
 	//rewind the prefix
 	Sys_Common_Output::output_hyd->rewind_userprefix();

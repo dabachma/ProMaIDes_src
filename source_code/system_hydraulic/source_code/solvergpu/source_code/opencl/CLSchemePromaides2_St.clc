@@ -392,13 +392,31 @@ cl_double2 manning_Solver(
 				 abs_delta_h	= fabs(delta_h);
 
 				if(abs_delta_h > flow_epsilon){
-					// P1 (Diffusive Scheme)
 					if(abs_delta_h<=0.005078){
-						dDischarge = 1.0/(0.5*(manning+manning_Neig)) * pow(flow_depth,5.0/3.0) / pow(DeltaXY ,0.5) * 0.10449968880528 * atan(159.877741951379*delta_h) ;
+						//dDischarge = 1.0/(0.5*(manning+manning_Neig)) * pow(flow_depth,5.0/3.0) / pow(DeltaXY ,0.5) * 0.10449968880528 * atan(159.877741951379*delta_h) ;
+
+						//optimized code??
+						const double COEFF    = 0.10449968880528;
+						const double ATAN_VAL = 159.877741951379;
+
+						double inv_manning = 2.0 / (manning + manning_Neig);
+						double depth_5_3   = flow_depth * cbrt(flow_depth * flow_depth);
+						double inv_dist    = 1.0 / sqrt(DeltaXY);
+
+						// atan für double
+						dDischarge = inv_manning * depth_5_3 * inv_dist * COEFF * atan(ATAN_VAL * delta_h);
 					
 					}
 					else{
-						dDischarge = 1.0/(0.5*(manning+manning_Neig)) * pow(flow_depth,5.0/3.0) * delta_h / pow(DeltaXY * abs_delta_h,0.5); // m2 (this is ds/dt * Delta XY)
+						//dDischarge = 1.0/(0.5*(manning+manning_Neig)) * pow(flow_depth,5.0/3.0) * delta_h / pow(DeltaXY * abs_delta_h,0.5); 
+
+						//optimized code??
+						// Berechnung für double
+						double inv_manning = 2.0 / (manning + manning_Neig);
+						double depth_5_3   = flow_depth * cbrt(flow_depth * flow_depth);
+
+						// sqrt ist für double die richtige Wahl
+						dDischarge = inv_manning * depth_5_3 * delta_h / sqrt(DeltaXY * fabs(delta_h));
 					}
 
 

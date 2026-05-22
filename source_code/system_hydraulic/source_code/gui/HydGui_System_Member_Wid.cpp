@@ -76,6 +76,7 @@ HydGui_System_Member_Wid::HydGui_System_Member_Wid(DataRole role, QWidget *paren
 	ui.max_h_fp->set_range(0.000001, 10000.0);
 	ui.max_h_fp->set_increment(0.01);
 	ui.max_h_fp->set_dataRole(role);
+	ui.max_h_fp->setVisible(false);
 
 	// maximum waterlevel change in rv 
 	ui.max_h_rv->set_label_text("Maximum of h change in river element [m]");
@@ -83,6 +84,7 @@ HydGui_System_Member_Wid::HydGui_System_Member_Wid(DataRole role, QWidget *paren
 	ui.max_h_rv->set_range(0.000001, 10000.0);
 	ui.max_h_rv->set_increment(0.01);
 	ui.max_h_rv->set_dataRole(role);
+	ui.max_h_rv->setVisible(false);
 
 
 	// maximum explicit v-head change in rv 
@@ -91,6 +93,7 @@ HydGui_System_Member_Wid::HydGui_System_Member_Wid(DataRole role, QWidget *paren
 	ui.max_v_rv->set_range(0.000001, 10000.0);
 	ui.max_v_rv->set_increment(0.01);
 	ui.max_v_rv->set_dataRole(role);
+	ui.max_v_rv->setVisible(false);
 
 	// minimum stepsize of internal syncronisation step
 	ui.min_intstep->set_label_text("Minimum step size for the syncronisation step [s]");

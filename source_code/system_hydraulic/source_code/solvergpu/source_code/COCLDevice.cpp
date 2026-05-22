@@ -376,6 +376,11 @@ void	COCLDevice::blockUntilFinished()
 	}
 	*/
 	this->bBusy = false;
+
+
+
+
+
 }
 
 //Does this device fully support the required aspects of double precision

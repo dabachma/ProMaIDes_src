@@ -1032,6 +1032,8 @@ void CSchemeGodunov::Threaded_runBatch()
 	// Keep the thread in existence because of the overhead
 	// associated with creating a thread.
 	while (this->bThreadRunning)
+
+		
 	{
 		try{
 			if (this->bSimulationSlow || this->bSolverThreadStopped) {
@@ -1045,7 +1047,7 @@ void CSchemeGodunov::Threaded_runBatch()
 				}
 				continue;
 			}
-			this->cModel->profiler->profile("BatchRunning", CProfiler::profilerFlags::START_PROFILING);
+			//this->cModel->profiler->profile("BatchRunning", CProfiler::profilerFlags::START_PROFILING);
 
 			// Have we been asked to update the target time?
 			if (this->bUpdateTargetTime){
@@ -1109,24 +1111,7 @@ void CSchemeGodunov::Threaded_runBatch()
 					ulCurrentCellsCalculated += this->pDomain->getCellCount();
 					bUseAlternateKernel = !bUseAlternateKernel;
 
-					//Heun-Verfahren...
-					// 1. Schritt:speicher s in s_start mach 1 Zeitschritt, speicher ds_dt in ds_dt1, s wird verändert
-					// 2. Schritt: mach den zweiten mit neuen hs; speicher ds_dt in ds_dt2_ swird nicht verändert
-					// 3. mittel die ds/dt, setze h/s zurück am s_start; rechne h aus
-					// 4. nächster Zeitschritt
-					//ich brauche zwei/3 neue Zeiger mit der Größe der Anzhal elemente s_start; ds_dt1; ds_dt2
-					//eine neue Kernel funktion h/s ausrechnen
-					//speichermanagment updaten...was wird allociert für GPU
-					//neue GPU rechen art...mehrschritt prom gpu...dann bleibt alles andere unangetastet
-					//dazu neue Kernels-funktionen: schritt1_rechnen1 schritt2rechnen2 schritt3_zusammenführen
-					//wie mit boundaries??
-
-					//außerdem: Number um time step in display...avergae timestep anzeigen
-
-
-
-
-
+				
 				}
 
 			}
@@ -1141,21 +1126,11 @@ void CSchemeGodunov::Threaded_runBatch()
 
 
 			this->pDomain->getDevice()->blockUntilFinished();
-
-
-
-
-
-			
-
-			
-			
-
 			this->readKeyStatistics();
 
 			dAvgTimestep = (dAvgTimestep * uiIterationsTotal + dCurrentTimestep * uiIterationsSinceTargetChanged) / (uiIterationsTotal + uiIterationsSinceTargetChanged);
 			//uiIterationsTotal += uiIterationsSinceTargetChanged;
-			if ((dTargetTime - this->dCurrentTime) > 1e-5) {
+			if ((dTargetTime - this->dCurrentTime) > 1e-10) {
 				uiIterationsTotal += uiQueueAmount;
 			}
 			uiSuccessfulIterationsTotal += uiBatchSuccessful;
@@ -1164,44 +1139,7 @@ void CSchemeGodunov::Threaded_runBatch()
 			// Wait until further work is scheduled
 			this->bRunning = false;
 
-
-			//this->sum_deficit_bilan = 0.0;
-			//if (this->bUseOptimizedBoundary == false) {
-			//	//this->oclBufferBilanDef->queueReadAll();
-			//	for (int i = 0; i < pDomain->getCellCount(); i++) {
-			//		if (cModel->getFloatPrecision() == model::floatPrecision::kSingle)
-			//		{
-			//			//float* data = (this->oclBufferBilanDef->getHostBlock<float*>());
-			//			this->sum_deficit_bilan = this->sum_deficit_bilan + 0;//data[i];
-			//		}
-			//		else {
-			//			//double* data = (this->oclBufferBilanDef->getHostBlock<double*>());
-
-			//			this->sum_deficit_bilan = this->sum_deficit_bilan + 0;// data[i];
-			//		}
-			//	}
-			//}
-			//else {
-			//	this->oclBufferBilanDef->queueReadAll();
-			//	for (int i = 0; i < this->ulCouplingArraySize; i++) {
-			//		if (cModel->getFloatPrecision() == model::floatPrecision::kSingle)
-			//		{
-			//			//float* data = (this->oclBufferBilanDef->getHostBlock<float*>());
-
-			//			this->sum_deficit_bilan = this->sum_deficit_bilan + 0;// data[i];
-
-			//		}
-			//		else {
-
-			//			//double* data = (this->oclBufferBilanDef->getHostBlock<double*>());
-
-			//			this->sum_deficit_bilan = this->sum_deficit_bilan + 0;// data[i];
-			//		}
-			//	}
-			//}
-
-			this->cModel->profiler->profile("BatchRunning", CProfiler::profilerFlags::END_PROFILING);
-
+			
 
 		}
 		catch (const std::exception& e)
@@ -1246,9 +1184,11 @@ void	CSchemeGodunov::scheduleIteration() {
 	oclKernelFullTimestep->scheduleExecution();
 	//profilese
 
-
-	if (this->bFrictionEffects && !this->bFrictionInFluxKernel) {
-		oclKernelFriction->scheduleExecution();
+	//appliy friction not in other scheme; if you do it, friction is apllied double!
+	if (this->getSchemeType() == model::schemeTypes::kGodunovGPU || this->getSchemeType() == model::schemeTypes::kMUSCLGPU) {
+		if (this->bFrictionEffects && !this->bFrictionInFluxKernel) {
+			oclKernelFriction->scheduleExecution();
+		}
 	}
 
 	//profilebs
@@ -1272,7 +1212,7 @@ void	CSchemeGodunov::scheduleIteration() {
 void CSchemeGodunov::readDomainAll()
 {
 
-	this->cModel->profiler->profile("readDomainAll", CProfiler::profilerFlags::START_PROFILING);
+	//this->cModel->profiler->profile("readDomainAll", CProfiler::profilerFlags::START_PROFILING);
 	if (bUseAlternateKernel)
 	{
 		oclBufferCellStatesAlt->queueReadAll(); 
@@ -1286,7 +1226,7 @@ void CSchemeGodunov::readDomainAll()
 
 
 
-	this->cModel->profiler->profile("readDomainAll", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
+	//this->cModel->profiler->profile("readDomainAll", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
 }
 
 //Clean-up temporary resources consumed during the simulation

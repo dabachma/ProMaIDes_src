@@ -1847,9 +1847,9 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 			Sys_Common_Output::output_hyd->output_txt(&cout);
 			for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
 				this->my_fpmodels[j].output_final();
-				if (this->my_fpmodels[j].pManager != nullptr) {
-					this->my_fpmodels[j].pManager->profiler->logValues();
-				}
+				//if (this->my_fpmodels[j].pManager != nullptr) {
+					//this->my_fpmodels[j].pManager->profiler->logValues();
+				//}
 			}
 			if (this->file_output_required == true && all_output == true) {
 				cout << "Output maximum results of the Floodplainmodel(s) to file..." << endl;
