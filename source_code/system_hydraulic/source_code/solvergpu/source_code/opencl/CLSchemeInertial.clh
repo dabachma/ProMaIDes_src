@@ -68,4 +68,6 @@ cl_double poleni_Solver(
 	bool debug
 	);
 
+	inline cl_double smoothstep_froude(cl_double edge0, cl_double edge1, cl_double x);
+
 #endif

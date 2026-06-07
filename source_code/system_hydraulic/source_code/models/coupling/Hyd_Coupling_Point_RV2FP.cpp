@@ -10,6 +10,7 @@ Hyd_Coupling_Point_RV2FP::Hyd_Coupling_Point_RV2FP(void){
 	this->floodplain_elem_index=-1;
 	this->floodplain_elem=NULL;
 	this->floodplain_index=-1;
+	this->area_fp = 0.0;
 
 	this->fpl_section_id=-1;
 
@@ -95,6 +96,7 @@ Hyd_Coupling_Point_RV2FP::Hyd_Coupling_Point_RV2FP(const Hyd_Coupling_Point_RV2F
 	this->first_found_elem_index=object.first_found_elem_index;
 	this->floodplain_elem=object.floodplain_elem;
 	this->fpl_section_id=object.fpl_section_id;
+	this->area_fp = object.area_fp;
 
 	this->mid_basepoint=object.mid_basepoint;
 	this->mid_basepoint_profile=object.mid_basepoint_profile;
@@ -179,6 +181,7 @@ void Hyd_Coupling_Point_RV2FP::set_couplingpoint_members(Hyd_Coupling_Point_RV2F
 	this->river_profile_index_down=object->river_profile_index_down;
 	this->river_profile_down=object->river_profile_down;
 	this->floodplain_index=object->floodplain_index;
+	this->area_fp = object->area_fp;
 	this->floodplain_elem_index=object->floodplain_elem_index;
 	this->set_pointer_floodplain_element(object->floodplain_elem);
 	this->first_found_elem_index=object->first_found_elem_index;
@@ -275,6 +278,16 @@ void Hyd_Coupling_Point_RV2FP::set_floodplain_index(const int index){
 //Get the index of the coupled floodplain
 int Hyd_Coupling_Point_RV2FP::get_floodplain_index(void){
 	return this->floodplain_index;
+}
+///Set the area of the coupled FP element
+void Hyd_Coupling_Point_RV2FP::set_fp_elem_area(const double area) {
+	this->area_fp = area;
+
+}
+///Get the pointer to the coupled floodplain
+double Hyd_Coupling_Point_RV2FP::get_fp_elem_area(void) {
+	return this->area_fp;
+
 }
 //Get the index of the coupled fpl-section
 int Hyd_Coupling_Point_RV2FP::get_fpl_section_index(void){
@@ -465,7 +478,7 @@ void Hyd_Coupling_Point_RV2FP::reset_coupling_discharge(const bool left_river_fl
 	}
 }
 //Syncronisation of the coupled models with the couplingspoint
-void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models(const double timepoint, const double delta_t, const bool left_river_flag, const bool time_check, const int internal_counter){
+void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models(const double timepoint, const double delta_t, const bool left_river_flag, const bool time_check, const int internal_counter, int* counter_limiter, int* counter_tot, double* opt_time_hit, double* opt_time_cor){
 
 	_Hyd_Coupling_Point::syncronisation_coupled_models();
 	this->delta_t=delta_t;
@@ -478,6 +491,8 @@ void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models(const double timepo
 	else{
 		//calculate the current midwaterlevel in the river
 		this->calculate_mid_waterlevel();
+
+		double area_delimiter = this->get_fp_elem_area();
 		
 
 		double h_one_buff=0.0;
@@ -516,7 +531,7 @@ void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models(const double timepo
 		//left river bank
 			if(left_river_flag==true){
 				if(this->overflow_flag==true){
-					this->syncronisation_coupled_models_overflow(timepoint, this->river_profile_up->get_overflow_poleni_left(), h_one_buff, h_two_buff);
+					this->syncronisation_coupled_models_overflow(timepoint, this->river_profile_up->get_overflow_poleni_left(), h_one_buff, h_two_buff, area_delimiter , counter_limiter, counter_tot, opt_time_hit, opt_time_cor);
 
 					//if (timepoint > 50400 && abs(this->current_q)>0.0) {
 					//	//	//	Daniel test alfnitz
@@ -579,7 +594,7 @@ void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models(const double timepo
 			//right river bank
 			else{
 				if(this->overflow_flag==true){
-					this->syncronisation_coupled_models_overflow(timepoint, this->river_profile_up->get_overflow_poleni_right(), h_one_buff, h_two_buff);
+					this->syncronisation_coupled_models_overflow(timepoint, this->river_profile_up->get_overflow_poleni_right(), h_one_buff, h_two_buff, area_delimiter, counter_limiter, counter_tot, opt_time_hit, opt_time_cor);
 			
 					//if (timepoint > 50400 && abs(this->current_q) > 0.0) {
 					//	//	//	Daniel test alfnitz
@@ -862,6 +877,7 @@ Hyd_Coupling_Point_RV2FP& Hyd_Coupling_Point_RV2FP::operator=(const Hyd_Coupling
 	this->mid_fac_up=object.mid_fac_up;
 	this->mid_fac_down=object.mid_fac_down;
 	this->mid_waterlevel=object.mid_waterlevel;
+	this->area_fp = object.area_fp;
 
 
 	this->overflow_flag=object.overflow_flag;
@@ -1087,7 +1103,7 @@ void Hyd_Coupling_Point_RV2FP::transfer_coupling_characteristics_rightbank(void)
 		}
 }
 //Syncronisation of the coupled models with the couplingspoint for overflow
-void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models_overflow(const double timepoint, const double poleni, const double h_one, const double h_two){
+void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models_overflow(const double timepoint, const double poleni, const double h_one, const double h_two,  const double area_limiter, int* counter_limiter, int* counter_tot, double* opt_time_hit, double* opt_time_cor){
 	double delta_h_river=0.0;
 	double delta_h_elem=0.0;
 	double q_buff=0.0;
@@ -1171,6 +1187,50 @@ void Hyd_Coupling_Point_RV2FP::syncronisation_coupled_models_overflow(const doub
 	//smooth it for numerical reasons
 	q_buff=this->smooth_coupling_discharge(q_buff, &this->old_q);
 	this->current_q=q_buff;
+
+
+
+	//Total overflow to total hits delimiter
+	if (abs(this->current_q) > 0.0) {
+		
+			(*counter_tot)++; //double* opt_time_cor
+		
+	}
+
+	double max_Q = 0.0;
+	//calculate the delimiter
+	max_Q = (area_limiter * this->overflow_width) / (4 * delta_t);
+	if (max_Q < abs(this->current_q)) {
+		
+			(*counter_limiter)++;
+		
+	}
+	
+	//calculate optimal timestep for not hitting delimiter
+	if (time_check == true) {
+		if (max_Q < abs(this->current_q)) {
+
+			(*opt_time_hit) = (area_limiter * this->overflow_width) / (4 * abs(this->current_q));
+		}
+		else {
+
+			(*opt_time_hit) = -1.0;
+		}
+	}
+	//set the delimiter
+	max_Q = min(abs(this->current_q), max_Q);
+
+	if (this->current_q < 0.0) {
+		this->current_q = -1.0 * max_Q;
+	}
+	else {
+		this->current_q = max_Q;
+	}
+
+
+
+
+
 	this->calculate_maximum_values(timepoint, this->current_q, &this->max_coupling_v);
 	this->calculate_hydrological_balance(this->current_q, &this->coupling_volume);
 	//discharge to element

@@ -74,6 +74,9 @@ void Sys_Text_Searcher_Wid::set_window_title(const _sys_system_modules type){
 			buff_str<<"Modeltime";
 			buff.append(buff_str.str().c_str());
 			buff_str.str("");
+			buff_str << "OpenMP";
+			buff.append(buff_str.str().c_str());
+			buff_str.str("");
 		}
 		this->lineEdit_word->addItems(buff);
 		this->lineEdit_word->insertSeparator(this->lineEdit_word->count());

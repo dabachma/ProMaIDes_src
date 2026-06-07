@@ -7,6 +7,7 @@
  */
 
  #define Cfacweir 2.95245
+ #define flow_epsilon 1.0e-9
 
 /*
  *  Calculate everything without using LDS caching
@@ -333,24 +334,69 @@ cl_double calculateInertialFlux(
 )
 {
 	cl_double dDischarge = 0.0;
-	cl_double dDepth	 = fmax( dLevelDownstream, dLevelUpstream ) - max( dBedUpstream, dBedDownstream );
-	cl_double dSlope	 = ( dLevelDownstream - dLevelUpstream ) / DOMAIN_DELTAX;
+	//cl_double dDepth	 = fmax( dLevelDownstream, dLevelUpstream ) - max( dBedUpstream, dBedDownstream );
+	//cl_double dSlope	 = ( dLevelDownstream - dLevelUpstream ) / DOMAIN_DELTAX;
+	cl_double dDepth=0.0;
+	cl_double dSlope=0.0;
 
 	// Inertial 
-	/*
-	dDischarge = ( dPreviousDischarge - ( GRAVITY * dDepth * dTimestep * dSlope ) ) /
-			     ( 1.0 + GRAVITY * dDepth * dTimestep * dManningCoef * dManningCoef * fabs( dPreviousDischarge ) /
-				   pow( dDepth, 10.0/3.0 ) );
-				   */
-	
+	cl_double dCentralDepth=0.0;
+	if (dLevelDownstream-dBedDownstream > flow_epsilon || dLevelUpstream-dBedUpstream > flow_epsilon){
 
-	//optimized version
-	double dDepth2 = dDepth * dDepth;
-	double dDepth3 = dDepth2 * dDepth;
-	double depth_10_3 = dDepth3 * cbrt(dDepth);
-	dDischarge = ( dPreviousDischarge - ( GRAVITY * dDepth * dTimestep * dSlope ) ) /
-			     ( 1.0 + GRAVITY * dDepth * dTimestep * dManningCoef * dManningCoef * fabs( dPreviousDischarge ) /
-				   depth_10_3 );
+		dDepth	 = fmax( dLevelDownstream, dLevelUpstream ) - fmax( dBedUpstream, dBedDownstream );
+
+		if (dDepth > flow_epsilon){
+
+			dSlope	 = ( dLevelDownstream - dLevelUpstream ) / DOMAIN_DELTAX;
+			
+
+			if(fabs(dLevelDownstream - dLevelUpstream)> flow_epsilon){
+
+
+
+						
+						/*dDischarge = ( dPreviousDischarge - ( GRAVITY * dDepth * dTimestep * dSlope ) ) /
+									 ( 1.0 + GRAVITY * dDepth * dTimestep * dManningCoef * dManningCoef * fabs( dPreviousDischarge ) /
+									   pow( dDepth, 10.0/3.0 ) );
+									   */
+
+					//optimized version
+					cl_double dDepth2 = dDepth * dDepth;
+					cl_double dDepth3 = dDepth2 * dDepth;
+					cl_double depth_10_3 = dDepth3 * cbrt(dDepth);
+
+					// 3. Konstantes Sohlgefälle zwischen den beiden Zellen bestimmen
+					cl_double dBedSlope = (dBedDownstream - dBedUpstream) / DOMAIN_DELTAX;
+					cl_double dBedSlopeAbs = fabs(dBedSlope);
+            
+					// --- ABSOLUT GLATTER ÜBERGANG MIT SMOOTHSTEP (Exakt 1.0 im Flachen) ---
+					cl_double dSlopeLow  = 0.0125; // Bis 0.5% Gefälle: Reiner de Almeida (omega = 1.0)
+				   cl_double dSlopeHigh = 0.020; // Ab 2.0% Gefälle: Volle Trägheitsdämpfung (omega = 0.0)
+		  
+					//stabilization of the inertia wave in steep areas bei reducing the previous discharge part
+					cl_double omega = 1.0;
+					if (dBedSlopeAbs > dSlopeLow) {
+						cl_double t = (dBedSlopeAbs - dSlopeLow) / (dSlopeHigh - dSlopeLow);
+						t = clamp(t, 0.0, 1.0);
+                
+						// Kubischer Hermite-Spline: Garantiert stetige Übergänge ohne numerische Knicke
+						omega = 1.0 - (t * t * (3.0 - 2.0 * t));
+					}
+			
+
+						
+
+
+					dDischarge = ( omega* dPreviousDischarge - ( GRAVITY * dDepth * dTimestep * dSlope ) ) /
+									( 1.0 + GRAVITY * dDepth * dTimestep * dManningCoef * dManningCoef * fabs( dPreviousDischarge ) /
+									depth_10_3 );
+									   
+     
+
+
+			}
+		}
+	}
 	
 
 
@@ -378,12 +424,18 @@ cl_double calculateInertialFlux(
 	//	dDischarge = 0.0 - dDepth * sqrt( GRAVITY * dDepth ) * FROUDE_LIMIT;
 
 	// Bates(2010): It is to stong...very stable but to high water levels!
-	//cl_double Q = dDischarge;
-	//dDischarge = fmin(fabs(Q), (cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4*dTimestep));
-	//
-	//if (Q<0.0){
-		//dDischarge = dDischarge * (-1.0);
-	//}
+		cl_double Q = dDischarge;
+		cl_double fac=10000/(DOMAIN_DELTAY*DOMAIN_DELTAX);
+		//dDischarge = fmin(fabs(Q), ((cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4*dTimestep)));
+		//related to the area of the elements...small elements less restriction; big elemenet more restriction by Bates delimiter
+		dDischarge = fmin(fabs(Q), ((cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(2*dTimestep))*fac*fac);
+		//
+		if (Q<0.0){
+			dDischarge = dDischarge * (-1.0);
+		}
+	
+
+	
 
 	// Some completely arbitrary other limiter?!
 	// This is used in CAESAR-LISFLOOD but I can't for the life of me work out the logic behind it...
@@ -497,4 +549,9 @@ cl_double poleni_Solver(
 		//}
 
 		return dDischarge;
+	}
+
+	inline cl_double smoothstep_froude(cl_double edge0, cl_double edge1, cl_double x) {
+		cl_double t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+		return t * t * (3.0 - 2.0 * t);
 	}

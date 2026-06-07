@@ -5767,25 +5767,10 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 	}
 
 	counter=0;
-//#pragma omp parallel
-//{
-// omp_set_num_threads(3);
-//#pragma omp for reduction(+:counter)
-    //clock_t c_start = clock();
-	//calculate new data
-	// 
 
 
-//#pragma omp parallel num_threads(_Sys_Common_System::no_openmp_threads)
-//{
-//	int tid = omp_get_thread_num();
-//	double* my_buf = fp_data->buff_q_thread[tid];
-//	std::fill(my_buf, my_buf + fp_data->Param_FP.get_no_elems_y() * fp_data->Param_FP.get_no_elems_x(), 0.0);
-//#pragma omp barrier 
-//
-//
-//	#pragma omp for schedule(static)
-	//#pragma omp parallel for num_threads(_Sys_Common_System::no_openmp_threads) 
+
+
 	for (int i = 0; i < fp_data->Param_FP.get_no_elems_y(); i++) {
 		for (int j = 0; j < fp_data->Param_FP.get_no_elems_x(); j++) {
 			int local_counter = i * fp_data->Param_FP.get_no_elems_x() + j;
@@ -5844,15 +5829,11 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 										//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
 										//ds_dt_data[counter+1]=ds_dt_data[counter+1]-ds_dt_buff;
 
-									//#pragma omp atomic
+									
 									ds_dt_data[idx] += ds_dt_buff;
-									//#pragma omp atomic
+								
 									ds_dt_data[idx + 1] -= ds_dt_buff;
-									 
-									//fp_data->opt_buff_qx[i][j] = ds_dt_buff;
-
-									/*my_buf[idx] += ds_dt_buff;
-									my_buf[idx + 1] -= ds_dt_buff;*/
+					
 
 
 
@@ -5916,18 +5897,11 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 								}
 							}
 							//set the result
-							//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
-							//ds_dt_data[counter+1]=ds_dt_data[counter+1]-ds_dt_buff;
-							// 
-							//#pragma omp atomic
+							
 							ds_dt_data[idx] += ds_dt_buff;
-							//#pragma omp atomic
+						
 							ds_dt_data[idx + 1] -= ds_dt_buff;
 
-							//fp_data->opt_buff_qx[i][j] = ds_dt_buff;
-
-							/*my_buf[idx] += ds_dt_buff;
-							my_buf[idx + 1] -= ds_dt_buff;*/
 						}
 					}
 
@@ -5974,19 +5948,11 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 									}
 
 									//set the result
-								//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
-									//ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]=ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]-ds_dt_buff;
-								//ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
-
-									//#pragma omp atomic
 									ds_dt_data[idx] += ds_dt_buff;
-									//#pragma omp atomic
+
 									ds_dt_data[fp_data->id_y[idx]] -= ds_dt_buff;
 
-									//fp_data->opt_buff_qy[i][j] = ds_dt_buff;
-
-									/*my_buf[idx] += ds_dt_buff;
-									my_buf[fp_data->id_y[idx]] -= ds_dt_buff;*/
+			
 
 								}
 							}
@@ -6049,19 +6015,11 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 							}
 
 							//set result data
-							//ds_dt_data[counter]=ds_dt_data[counter]+ds_dt_buff;
-							//ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]=ds_dt_data[counter+fp_data->Param_FP.get_no_elems_x()]-ds_dt_buff;
-							//ds_dt_data[fp_data->id_y[counter]]=ds_dt_data[fp_data->id_y[counter]]-ds_dt_buff;
-
-							//#pragma omp atomic
+										
 							ds_dt_data[idx] += ds_dt_buff;
-							//#pragma omp atomic
 							ds_dt_data[fp_data->id_y[idx]] -= ds_dt_buff;
 
-							//fp_data->opt_buff_qy[i][j] = ds_dt_buff;
 
-						/*	my_buf[idx] += ds_dt_buff;
-							my_buf[fp_data->id_y[idx]] -= ds_dt_buff;*/
 
 
 						}
@@ -6084,43 +6042,6 @@ int f2D_equation2solve(realtype time, N_Vector results, N_Vector ds_dt, void *fl
 //}
 
 
-
-	//#pragma omp parallel num_threads(_Sys_Common_System::no_openmp_threads)
-	//{
-	//	// Die t-Schleife muss sequentiell bleiben, um deine Reihenfolge zu wahren
-	//	for (int t = 0; t < _Sys_Common_System::no_openmp_threads; t++) {
-	//		double* src = fp_data->buff_q_thread[t];
-
-	//		// NUR das "for" ist parallel. Die Threads teilen sich die Arbeit an ds_dt_data.
-	//		// Hier gibt es KEINEN neuen Thread-Start-Overhead (Fork/Join).
-	//		#pragma omp for schedule(static)
-	//		for (int i = 0; i < fp_data->NEQ_real; i++) {
-	//			ds_dt_data[i] += src[i];
-	//		}
-
-	//		// WICHTIG: Die Barriere ist am Ende von "omp for" implizit enthalten. 
-	//		// Sie stellt sicher, dass Thread 0 fertig ist, bevor Thread 1 addiert wird.
-	//	}
-	//}
-
-
-
-	//set results
-	//for (int i = 0; i < fp_data->Param_FP.get_no_elems_y(); i++) {
-	//	for (int j = 0; j < fp_data->Param_FP.get_no_elems_x(); j++) {
-	//		int local_counter = i * fp_data->Param_FP.get_no_elems_x() + j;
-	//		if (fp_data->flow_elem[i][j] == true) {
-	//			if (fp_data->noflow_x[i][j] == false) {
-	//				ds_dt_data[fp_data->id_reduced[local_counter]] += fp_data->opt_buff_qx[i][j];
-	//				ds_dt_data[fp_data->id_reduced[local_counter] + 1] -= fp_data->opt_buff_qx[i][j];
-	//			}
-	//			if (fp_data->noflow_y[i][j] == false) {
-	//				ds_dt_data[fp_data->id_reduced[local_counter]] += fp_data->opt_buff_qy[i][j];
-	//				ds_dt_data[fp_data->id_y[fp_data->id_reduced[local_counter]]] -= fp_data->opt_buff_qy[i][j];
-	//			}
-	//		}
-	//	}
-	//}
 
 
 

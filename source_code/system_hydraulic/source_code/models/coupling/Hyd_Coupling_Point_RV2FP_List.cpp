@@ -473,6 +473,7 @@ void Hyd_Coupling_Point_RV2FP_List::add_relevant_polysegment_points(Hyd_Floodpla
 				if(fp_boundary->check_point_inside(&(this->defining_polysegment->my_segment[j].point2))==true){
 					buffer.set_point(&(this->defining_polysegment->my_segment[j].point2));
 					buffer.set_floodplain_index(this->points[i].get_floodplain_index());
+					buffer.set_fp_elem_area(this->points[i].get_fp_elem_area());
 					buffer.set_indices(j,this->points[i].floodplain_elem_index);
 					buffer.set_pointer_floodplain_element(this->points[i].floodplain_elem);
 					buffer.set_point_name(hyd_label::coupling_point_RV2FP);
@@ -490,6 +491,7 @@ void Hyd_Coupling_Point_RV2FP_List::add_relevant_polysegment_points(Hyd_Floodpla
 			if(fp_boundary->check_point_inside(&(this->defining_polysegment->my_segment[counter].point1))==true){
 				buffer.set_point(&(this->defining_polysegment->my_segment[counter].point1));
 				buffer.set_floodplain_index(this->points[0].get_floodplain_index());
+				buffer.set_fp_elem_area(this->points[0].get_fp_elem_area());
 				buffer.set_indices(counter,this->points[0].floodplain_elem_index);
 				buffer.set_pointer_floodplain_element(this->points[0].floodplain_elem);
 				buffer.set_point_name(hyd_label::coupling_point_RV2FP);
@@ -526,9 +528,10 @@ void Hyd_Coupling_Point_RV2FP_List::reset_points(void){
 	}
 }
 //Syncronisation of the coupled models with the stored couplingspoints in the list
-void Hyd_Coupling_Point_RV2FP_List::syncronisation_models_bylistpoints(const double timepoint, const double delta_t, const bool time_check, const int internal_counter){
+void Hyd_Coupling_Point_RV2FP_List::syncronisation_models_bylistpoints(const double timepoint, const double delta_t, const bool time_check, const int internal_counter,  int* counter_limiter, int* counter_tot, double* opt_time_hit, double* opt_time_cor){
 	for(int i=0; i<this->number;i++){
-		this->points[i].syncronisation_coupled_models(timepoint, delta_t, this->left_river_flag, time_check, internal_counter);	
+		
+		this->points[i].syncronisation_coupled_models(timepoint, delta_t, this->left_river_flag, time_check, internal_counter, counter_limiter, counter_tot, opt_time_hit, opt_time_cor);
 	}
 }
 //Get the maximum waterlevel gradient 

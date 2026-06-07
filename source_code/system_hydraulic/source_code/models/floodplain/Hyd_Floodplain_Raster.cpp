@@ -361,6 +361,31 @@ void Hyd_Floodplain_Raster::set_rasterpolygon_intercepted(Hyd_Floodplain_Polygon
 }
 //Intercept a Hyd_Floodplainpolysegment with the raster (e.g. dikeline, riverline)
 void Hyd_Floodplain_Raster::interception_polysegments2raster(Hyd_Floodplain_Polysegment *line){
+
+	//check here if the segment point are in the raster polygon
+	
+	for (int i = 0; i < line->get_number_segments(); i++) {
+		bool inside = false;
+		Geo_Point* point = &line->get_segment(i)->point1;
+		inside = this->geometrical_bound.check_point_inside(point);
+		if (inside == true) {
+			line->get_segment(i)->set_intercep_check_req(true);
+			continue;
+		}
+		point = &line->get_segment(i)->point2;
+		inside = this->geometrical_bound.check_point_inside(point);
+		if (inside == true) {
+			line->get_segment(i)->set_intercep_check_req(true);
+			continue;
+		}
+		else {
+			line->get_segment(i)->set_intercep_check_req(false);
+		}
+
+	}
+
+
+
 	try{
 		for(int i=0; i< this->number_polygons; i++){
 			//set the polygon
@@ -415,6 +440,7 @@ void Hyd_Floodplain_Raster::assign_elements2couplingpointlist(Hyd_Coupling_Point
 				buffer.set_point((list->get_defining_polysegment()->intercept_list.get_point(0).line_interception.interception_point));
 				buffer.set_indices(list->get_defining_polysegment()->intercept_list.get_point(0).index_intercepts, elem_index);
 				buffer.set_floodplain_index(this->index_fp_model);
+				//buffer.set_fp_elem_area(this->geo_info.width_x * this->geo_info.width_y);
 				if(elem_index>=0){
 					buffer.set_pointers(&this->floodplain_pointer[elem_index]);
 				}
@@ -428,6 +454,7 @@ void Hyd_Floodplain_Raster::assign_elements2couplingpointlist(Hyd_Coupling_Point
 			buffer.set_point((list->get_defining_polysegment()->intercept_list.get_point(i).line_interception.interception_point));
 			buffer.set_indices(list->get_defining_polysegment()->intercept_list.get_point(i).index_intercepts, elem_index);
 			buffer.set_floodplain_index(this->index_fp_model);
+			//buffer.set_fp_elem_area(this->geo_info.width_x * this->geo_info.width_y);
 			if(elem_index>=0){
 				buffer.set_pointers(&this->floodplain_pointer[elem_index]);
 			}
@@ -504,6 +531,7 @@ void Hyd_Floodplain_Raster::assign_elements2couplingpointlist(Hyd_Coupling_Point
 			buffer.set_point((list->get_defining_polysegment()->intercept_list.get_point(0).line_interception.interception_point));
 			buffer.set_indices(list->get_defining_polysegment()->intercept_list.get_point(0).index_intercepts, elem_index);
 			buffer.set_floodplain_index(this->index_fp_model);
+			buffer.set_fp_elem_area(this->geo_info.width_x* this->geo_info.width_y);
 			if(elem_index>=0){
 				buffer.set_pointer_floodplain_element(&this->floodplain_pointer[elem_index]);
 			}
@@ -529,6 +557,7 @@ void Hyd_Floodplain_Raster::assign_elements2couplingpointlist(Hyd_Coupling_Point
 				buffer.set_point((list->get_defining_polysegment()->intercept_list.get_point(0).line_interception.interception_point));
 				buffer.set_indices(list->get_defining_polysegment()->intercept_list.get_point(0).index_intercepts, elem_index);
 				buffer.set_floodplain_index(this->index_fp_model);
+				buffer.set_fp_elem_area(this->geo_info.width_x * this->geo_info.width_y);
 				if(elem_index>=0){
 					buffer.set_pointer_floodplain_element(&this->floodplain_pointer[elem_index]);
 				}
@@ -542,6 +571,7 @@ void Hyd_Floodplain_Raster::assign_elements2couplingpointlist(Hyd_Coupling_Point
 			buffer.set_point((list->get_defining_polysegment()->intercept_list.get_point(i).line_interception.interception_point));
 			buffer.set_indices(list->get_defining_polysegment()->intercept_list.get_point(i).index_intercepts, elem_index);
 			buffer.set_floodplain_index(this->index_fp_model);
+			buffer.set_fp_elem_area(this->geo_info.width_x * this->geo_info.width_y);
 			if(elem_index>=0){
 				buffer.set_pointer_floodplain_element(&this->floodplain_pointer[elem_index]);
 			}

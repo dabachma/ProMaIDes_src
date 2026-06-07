@@ -355,7 +355,7 @@ void Hyd_Coupling_Point_FP2FP::syncronisation_coupled_models(const double timepo
 		//}
 		
 
-		//Test a delimiter
+		
 		//Total overflow to total hits delimiter
 		if (abs(this->current_q) > 0.0) {
 			if (time_check == false) {

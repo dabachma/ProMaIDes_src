@@ -70,13 +70,14 @@ HydGui_Floodplain_Member_Wid::HydGui_Floodplain_Member_Wid(DataRole role, QWidge
 	scheme_types_mapping.push_back(std::make_pair(2, std::make_pair("Diffusive W. 2Step (GPU)", hyd_label::scheme_type_diffusive_2st_gpu)));
 	scheme_types_mapping.push_back(std::make_pair(3, std::make_pair("Inertial (GPU)", hyd_label::scheme_type_inertial_gpu)));
 	scheme_types_mapping.push_back(std::make_pair(4, std::make_pair("Godunov (GPU)", hyd_label::scheme_type_godunov_gpu)));
-	//scheme_types_mapping.push_back(std::make_pair(5, std::make_pair("MUSCL (GPU)", hyd_label::scheme_type_muscl_gpu)));
+	scheme_types_mapping.push_back(std::make_pair(5, std::make_pair("MUSCL (GPU)", hyd_label::scheme_type_muscl_gpu)));
 
 	ui.scheme_type->set_label_text("Scheme Type");
 	ui.scheme_type->set_box_width(150);
 	ui.scheme_type->set_tooltip("Solver Scheme to be used");
-	string pscheme_type[] = { scheme_types_mapping[0].second.first, scheme_types_mapping[1].second.first,scheme_types_mapping[2].second.first, scheme_types_mapping[3].second.first , scheme_types_mapping[4].second.first};
-	ui.scheme_type->set_items(pscheme_type, 5 /* 5 */);
+	string pscheme_type[] = { scheme_types_mapping[0].second.first, scheme_types_mapping[1].second.first,scheme_types_mapping[2].second.first, scheme_types_mapping[3].second.first , scheme_types_mapping[4].second.first, scheme_types_mapping[5].second.first };
+	ui.scheme_type->set_items(pscheme_type, 6 /* 5 */);
+	
 
 
 	//set the signal and slot
@@ -425,7 +426,7 @@ void HydGui_Floodplain_Member_Wid::change_combo_box_scheme(const int index) {
 		ui.courant_number->setEnabled(true);
 
 	}
-	if (index == 4) {
+	if (index == 4 || index ==5) {
 		ui.friction_status->setEnabled(true);
 		ui.friction_status->checkBox->setChecked(true);
 
@@ -477,7 +478,7 @@ void HydGui_Floodplain_Member_Wid::transfer_members2database(HydGui_Floodplain_M
 		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::courantnumber) << " = " << dialog->ui.courant_number->get_value() << " , ";
 
 		query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::reductionwavefronts) << " = " << dialog->ui.reduction_wavefronts->get_value() << " , ";
-		if (dialog->ui.scheme_type->get_current_index() == 4) {
+		if (dialog->ui.scheme_type->get_current_index() == 4 || dialog->ui.scheme_type->get_current_index() == 5) {
 			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::frictionstatus) << " = '" << functions::convert_boolean2string(dialog->ui.friction_status->get_value()) << "' , ";
 		}
 		else {
@@ -528,7 +529,7 @@ void HydGui_Floodplain_Member_Wid::transfer_members2database(HydGui_Floodplain_M
 			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::courantnumber) << " = " << dialog->ui.courant_number->get_value() << " , ";
 
 			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::reductionwavefronts) << " = " << dialog->ui.reduction_wavefronts->get_value() << " , ";
-			if (dialog->ui.scheme_type->get_current_index() == 4) {
+			if (dialog->ui.scheme_type->get_current_index() == 4 || dialog->ui.scheme_type->get_current_index() == 5) {
 				query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::frictionstatus) << " = '" << functions::convert_boolean2string(dialog->ui.friction_status->get_value()) << "' , ";
 			}
 			else {

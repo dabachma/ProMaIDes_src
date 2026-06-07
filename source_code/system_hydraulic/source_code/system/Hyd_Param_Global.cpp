@@ -50,7 +50,7 @@ Hyd_Param_Global::Hyd_Param_Global(void):default_max_steps(40000), default_init_
 	this->output_flags.tecplot_2d_required = false;
 	this->output_flags.bluekenue_2d_required = false;
 	this->output_flags.paraview_1d_required = true;
-	this->output_flags.paraview_2d_required = true;
+	this->output_flags.paraview_2d_required = false;
 	this->output_flags.database_instat_required = true;
 	this->output_flags.output_folder = label::not_set;
 

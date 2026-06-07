@@ -1186,6 +1186,7 @@ void Hyd_Coupling_Management::reset_couplings(void){
 	for(int i=0; i< this->number_merged_rv2fp; i++){
 		this->coupling_merged_rv2fp[i].list_left.reset_points();
 		this->coupling_merged_rv2fp[i].list_right.reset_points();
+		this->coupling_merged_rv2fp[i].reset_counter_limiter();
 	}
 
 
@@ -1404,6 +1405,15 @@ void Hyd_Coupling_Management::output_number_limiter_hits(void) {
 
 		ostringstream cout;
 		int total = 0;
+		cout << "Number of limiter hits (RV2FP COUPLING) " << endl;
+		for (int i = 0; i < this->number_merged_rv2fp; i++) {
+			this->coupling_merged_rv2fp[i].output_number_limiter_hits(&total, &cout);
+		}
+
+		cout << " Total number                      :" << W(5) << total << endl;
+
+
+		total = 0;
 		cout << "Number of limiter hits (FP2FP COUPLING) " << endl;
 		for (int i = 0; i < this->number_fp2fp; i++) {
 			this->coupling_fp2fp[i].output_number_limiter_hits(&total, &cout);

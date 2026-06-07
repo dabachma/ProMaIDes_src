@@ -143,6 +143,11 @@ public:
 	///Clone the river to floodplain merged coupling
 	void clone_couplings(Hyd_Coupling_RV2FP_Merged *coupling, Hyd_Hydraulic_System *system);
 
+	///Reset counter limiter
+	void reset_counter_limiter(void);
+	///Output number of limiter hits
+	void output_number_limiter_hits(int* total, ostringstream* out);
+
 private:
 	
 	//members
@@ -173,6 +178,19 @@ private:
 
 	///Number of coupled floodplain models
 	int number_fp_models;
+
+
+	///Counter how often the limiter is reached
+	int counter_limiter;
+
+	///Total counter how often a coupling is active
+	int counter_tot_coupling_active;
+	///Optimal timestep to avoid hitting limiter
+	double timestep_opt_hit_limit;
+	///Optimal timestep after Courant-criteria
+	double timestep_opt_cor;
+
+
 
 	//methods
 	///Initialize the direct RV2FP-coupling out of the outflow-profile

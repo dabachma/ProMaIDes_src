@@ -6,16 +6,16 @@
  * See OriginalSourceCode.zip for changes. (Based on 1e62acf6b9b480e08646b232361b68c1827d91ae from https://github.com/lukeshope/hipims-ocl )
  */
 
-#define profiless this->cModel->profiler->profile("oclKernelFullTimestep", CProfiler::profilerFlags::START_PROFILING);
-#define profilese this->cModel->profiler->profile("oclKernelFullTimestep", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
-#define profilebs this->cModel->profiler->profile("oclKernelBoundary", CProfiler::profilerFlags::START_PROFILING);
-#define profilebe this->cModel->profiler->profile("oclKernelBoundary", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
-#define profilers this->cModel->profiler->profile("oclKernelTimestepReduction", CProfiler::profilerFlags::START_PROFILING);
-#define profilere this->cModel->profiler->profile("oclKernelTimestepReduction", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
-#define profilets this->cModel->profiler->profile("oclKernelTimeAdvance", CProfiler::profilerFlags::START_PROFILING);
-#define profilete this->cModel->profiler->profile("oclKernelTimeAdvance", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
-#define profileqs this->cModel->profiler->profile("QueueReading", CProfiler::profilerFlags::START_PROFILING);
-#define profileqe this->cModel->profiler->profile("QueueReading", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
+//#define profiless this->cModel->profiler->profile("oclKernelFullTimestep", CProfiler::profilerFlags::START_PROFILING);
+//#define profilese this->cModel->profiler->profile("oclKernelFullTimestep", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
+//#define profilebs this->cModel->profiler->profile("oclKernelBoundary", CProfiler::profilerFlags::START_PROFILING);
+//#define profilebe this->cModel->profiler->profile("oclKernelBoundary", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
+//#define profilers this->cModel->profiler->profile("oclKernelTimestepReduction", CProfiler::profilerFlags::START_PROFILING);
+//#define profilere this->cModel->profiler->profile("oclKernelTimestepReduction", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
+//#define profilets this->cModel->profiler->profile("oclKernelTimeAdvance", CProfiler::profilerFlags::START_PROFILING);
+//#define profilete this->cModel->profiler->profile("oclKernelTimeAdvance", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
+//#define profileqs this->cModel->profiler->profile("QueueReading", CProfiler::profilerFlags::START_PROFILING);
+//#define profileqe this->cModel->profiler->profile("QueueReading", CProfiler::profilerFlags::END_PROFILING, this->pDomain->getDevice());
 
 #include <algorithm>
 

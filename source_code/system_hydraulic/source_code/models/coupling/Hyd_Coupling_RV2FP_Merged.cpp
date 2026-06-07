@@ -21,6 +21,12 @@ Hyd_Coupling_RV2FP_Merged::Hyd_Coupling_RV2FP_Merged(void){
 	this->river_model_is_set=false;
 	this->number_fp_models=0;
 
+	
+	this->counter_limiter = 0;
+	this->counter_tot_coupling_active = 0;
+	this->timestep_opt_hit_limit = 0.0;
+	this->timestep_opt_cor = 0.0;
+
 	//count the memory
 	Sys_Memory_Count::self()->add_mem(sizeof(Hyd_Coupling_RV2FP_Merged)-sizeof(Hyd_Coupling_Point_RV2FP_List)*2, _sys_system_modules::HYD_SYS);
 
@@ -731,8 +737,8 @@ int Hyd_Coupling_RV2FP_Merged::get_index_coupled_fp_models(const int index){
 //Synchronise the models
 void Hyd_Coupling_RV2FP_Merged::synchronise_models(const double timepoint, const double delta_t,  const bool time_check, const int internal_counter){
 	try{
-		this->list_left.syncronisation_models_bylistpoints(timepoint,delta_t, time_check, internal_counter);
-		this->list_right.syncronisation_models_bylistpoints(timepoint, delta_t, time_check, internal_counter);
+		this->list_left.syncronisation_models_bylistpoints(timepoint,delta_t, time_check, internal_counter,  &this->counter_limiter, &this->counter_tot_coupling_active, &this->timestep_opt_hit_limit, &this->timestep_opt_cor);
+		this->list_right.syncronisation_models_bylistpoints(timepoint, delta_t, time_check, internal_counter,  &this->counter_limiter, &this->counter_tot_coupling_active, &this->timestep_opt_hit_limit, &this->timestep_opt_cor);
 		if(time_check==false){
 			this->synchronise_direct_coupling_out();
 			this->synchronise_direct_coupling_in();
@@ -958,6 +964,32 @@ void Hyd_Coupling_RV2FP_Merged::clone_couplings(Hyd_Coupling_RV2FP_Merged *coupl
 	//the lists
 	this->list_left.clone_list(&coupling->list_left, system, this->river_model->Param_RV.get_river_number());
 	this->list_right.clone_list(&coupling->list_right, system, this->river_model->Param_RV.get_river_number());
+
+
+	
+	this->counter_limiter = 0;
+	this->counter_tot_coupling_active = 0;
+	this->timestep_opt_hit_limit = 0.0;
+	this->timestep_opt_cor = 0.0;
+
+
+}
+//Reset counter limiter
+void Hyd_Coupling_RV2FP_Merged::reset_counter_limiter(void) {
+	this->counter_limiter = 0;
+	this->counter_tot_coupling_active = 0;
+}
+//Output number of limiter hits
+void Hyd_Coupling_RV2FP_Merged::output_number_limiter_hits(int* total, ostringstream* out) {
+	double perc = 0.0;
+	if (this->counter_tot_coupling_active > 0) {
+		perc = ((double)this->counter_limiter / (double)this->counter_tot_coupling_active) * 100.0;
+
+	}
+	*out << " Hits RV index " << this->get_river_index() << "   :" << this->counter_limiter << " (active: " << this->counter_tot_coupling_active << FORMAT_FIXED_REAL << P(2) << " " << perc << "%)" << endl;
+
+	*total = *total + this->counter_limiter;
+
 }
 //__________
 //private

@@ -68,6 +68,11 @@ public:
 	///Get the index of the coupled floodplain
 	int get_floodplain_index(void);
 
+	///Set the area of the coupled FP element
+	void set_fp_elem_area(const double area);
+	///Get the pointer to the coupled floodplain
+	double get_fp_elem_area(void);
+
 	///Get the index of the coupled fpl-section
 	int get_fpl_section_index(void);
 
@@ -112,7 +117,7 @@ public:
 	///Reset the current coupling discharge of the points and the coupled element
 	void reset_coupling_discharge(const bool left_river_flag);
 	///Syncronisation of the coupled models with the couplingspoint
-	void syncronisation_coupled_models(const double timepoint, const double delta_t, const bool left_river_flag, const bool time_check, const int internal_counter);
+	void syncronisation_coupled_models(const double timepoint, const double delta_t, const bool left_river_flag, const bool time_check, const int internal_counter, int* counter_limiter, int* counter_tot, double* opt_time_hit, double* opt_time_cor);
 
 	///Set the flag if a coupling due to a overflow is applicable
 	void set_overflow_flag(const bool flag);
@@ -185,6 +190,8 @@ private:
 	_Hyd_River_Profile *river_profile_down;
 	///Index of the coupled floodplain
 	int floodplain_index;
+	//Area of the coupled FP element
+	double area_fp;
 	///Index of the floodplain element
 	int floodplain_elem_index;
 	///Index of the first found coupling element
@@ -318,7 +325,7 @@ private:
 	///Transfer the coupling characteristics of the coupled elements for a right river bank (in flow direction)
 	void transfer_coupling_characteristics_rightbank(void);
 	///Syncronisation of the coupled models with the couplingspoint for overflow
-	void syncronisation_coupled_models_overflow(const double timepoint, const double poleni, const double h_one, const double h_two);
+	void syncronisation_coupled_models_overflow(const double timepoint, const double poleni, const double h_one, const double h_two, const double area_limiter, int* counter_limiter, int* counter_tot, double* opt_time_hit, double* opt_time_cor);
 	///Syncronisation of the coupled models with the couplingspoint for the discharge throught the break
 	void syncronisation_coupled_models_break(const double timepoint, const double h_one, const double h_two);
 	///Smooth the coupling discharge with the coupling discharge calculated one internal timestep before

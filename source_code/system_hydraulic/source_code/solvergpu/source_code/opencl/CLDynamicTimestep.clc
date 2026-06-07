@@ -248,7 +248,11 @@ void tst_Reduce(
 				dVelY += sqrt( GRAVITY * dDepth );
 			#endif
 
-			#ifdef INERTIAL_SCHEME			
+			#ifdef INERTIAL_SCHEME
+
+				
+			
+						
 				dVelX = sqrt( GRAVITY * dDepth );
 				dVelY = sqrt( GRAVITY * dDepth );
 			#endif

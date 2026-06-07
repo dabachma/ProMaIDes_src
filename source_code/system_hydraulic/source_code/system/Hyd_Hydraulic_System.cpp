@@ -1284,6 +1284,7 @@ void Hyd_Hydraulic_System::init_models(const bool modul_extern_startet){
 		this->set_start_warning_number();
 
 		//connect river
+		this->profiler.activate_profiler(true);
 		this->connect_rivers(&this->material_params);
 		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		//make the coupling for the diversion channel
@@ -1585,7 +1586,7 @@ void Hyd_Hydraulic_System::make_calculation(void){
 	//set Profiler
 	//Profiler profiler = new Profiler(true);
 	//this->profiler = profiler;
-	this->profiler.activate_profiler(true);
+	
 
 	//set the first output time
 	this->output_time=this->global_parameters.GlobTStep+this->global_parameters.get_startime();
@@ -1790,6 +1791,7 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 		ostringstream cout;
 		this->output_final_system_statistics();
 		cout << "Statistics of Coupling(s)..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
 		this->coupling_managment.output_number_limiter_hits();
 
 
@@ -2752,6 +2754,7 @@ void Hyd_Hydraulic_System::connect_floodplains(void){
 	ostringstream cout;
 	ostringstream prefix;
 	try{
+		this->profiler.profile("connect_floodplains", Profiler::profilerFlags::START_PROFILING);
 		//set the parameters for Hyd_Model_Floodplain
 		for (int j =0; j < this->global_parameters.GlobNofFP; j++){
 			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
@@ -2764,6 +2767,7 @@ void Hyd_Hydraulic_System::connect_floodplains(void){
 			this->my_fpmodels[j].init_floodplain_model(&this->material_params, this->my_comodel);
 			Sys_Common_Output::output_hyd->rewind_userprefix();
 		}
+		this->profiler.profile("connect_floodplains", Profiler::profilerFlags::END_PROFILING);
 	}
 	catch(Error msg){
 		Sys_Common_Output::output_hyd->rewind_userprefix();
@@ -3134,6 +3138,8 @@ void Hyd_Hydraulic_System::make_geometrical_interception_fp2fp(void){
 //Make geometrical interceptions between floodplain and river models
 void Hyd_Hydraulic_System::make_geometrical_interception_fp2rv(void){
 	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+
+	this->profiler.profile("make_geometrical_interception_fp2rv", Profiler::profilerFlags::START_PROFILING);
 	if(this->global_parameters.GlobNofFP>0){
 		ostringstream cout;
 		cout << "Geometrical interception between floodplain- and river-models..." << endl ;
@@ -3174,6 +3180,7 @@ void Hyd_Hydraulic_System::make_geometrical_interception_fp2rv(void){
 		//rewind the prefix
 		Sys_Common_Output::output_hyd->rewind_userprefix();
 	}
+	this->profiler.profile("make_geometrical_interception_fp2rv", Profiler::profilerFlags::END_PROFILING);
 }
 //Make the geometrical interceptions between coast model and river models
 void Hyd_Hydraulic_System::make_geometrical_interception_rv2co(void){
@@ -4194,6 +4201,8 @@ int Hyd_Hydraulic_System::calculate_best_thread_no(void) {
 	}
 
 	// 2. Fall: Lastverteilung optimieren
+	int gpu_is_used = 0;
+
 	struct RasterLast {
 		int index;
 		long last;
@@ -4206,6 +4215,7 @@ int Hyd_Hydraulic_System::calculate_best_thread_no(void) {
 		tempListe[i].last = this->my_fpmodels[i].get_number_elements();
 		 if (this->my_fpmodels[i].Param_FP.get_scheme_info().scheme_type != model::schemeTypes::kDiffusiveCPU && this->global_parameters.get_opencl_available() == true) {
 			 tempListe[i].is_gpu = true;
+			 gpu_is_used++;
 		}
 		 else {
 			 tempListe[i].is_gpu = false;
@@ -4255,6 +4265,13 @@ int Hyd_Hydraulic_System::calculate_best_thread_no(void) {
 	_Sys_Common_System::no_openmp_threads_inside = min(maxT, _Sys_Common_System::no_openmp_threads_inside);
 	if (_Sys_Common_System::no_openmp_threads_inside < 1)
 		_Sys_Common_System::no_openmp_threads_inside = 1;
+
+	//in case of just gpu no openMP for fp parallelisation; for a mixed application I have to think about it 
+	/*if (gpu_is_used == nRaster) {
+		bestesT = 1;
+		_Sys_Common_System::no_openmp_threads_inside = _Sys_Common_System::no_openmp_threads;
+
+	}*/
 
 	return bestesT;
 }
