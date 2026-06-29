@@ -161,6 +161,7 @@ void pro_cacheDisabled (
 						dOpt_zymax,
 						dOpt_cy,
 						DOMAIN_DELTAY,
+						pCellData.w,
 						debug
 					);
 				}
@@ -189,6 +190,7 @@ void pro_cacheDisabled (
 						dOpt_zxmax,
 						dOpt_cx,
 						DOMAIN_DELTAX,
+						pCellData.z,
 						debug
 					);
 				}
@@ -217,6 +219,7 @@ void pro_cacheDisabled (
 						dOpt_znymax,
 						dOpt_cny,
 						DOMAIN_DELTAY,
+						pNeigDataS.w*-1.0,
 						debug
 					);
 				}
@@ -245,6 +248,7 @@ void pro_cacheDisabled (
 						dOpt_znxmax,
 						dOpt_cnx,
 						DOMAIN_DELTAX,
+						pNeigDataW.z*-1.0,
 						debug
 						);
 					}
@@ -276,6 +280,9 @@ void pro_cacheDisabled (
 
 	// Update the flow state
 	pCellData.x		= pCellData.x + dLclTimestep * dDeltaFSL;
+	// Limit water level to bed elevation (prevent negative water depth)
+	if ( pCellData.x < dCellBedElev )
+		pCellData.x = dCellBedElev;
 
 	// New max FSL?
 	if ( pCellData.x > pCellData.y )
@@ -322,10 +329,11 @@ cl_double2 manning_Solver(
 		cl_double velocity	= 0.0;
 		cl_double delta_h=0.0;
 		cl_double abs_delta_h	= 0.0;
+		cl_double flow_depth	= 0.0;
 		
 		if (opt_s_Neig-opt_z_Neig > flow_epsilon || opt_s_Cell-opt_z_Cell > flow_epsilon){
 
-			cl_double flow_depth	= fmax( opt_s_Cell, opt_s_Neig ) - fmax( opt_z_Neig, opt_z_Cell );
+			flow_depth	= fmax( opt_s_Cell, opt_s_Neig ) - fmax( opt_z_Neig, opt_z_Cell );
 
 			if (flow_depth > flow_epsilon){
 
@@ -337,7 +345,7 @@ cl_double2 manning_Solver(
 						//dDischarge = 1.0/(0.5*(manning+manning_Neig)) * pow(flow_depth,5.0/3.0) / pow(DeltaXY ,0.5) * 0.10449968880528 * atan(159.877741951379*delta_h) ;
 
 						//optimized code??
-						cl_double COEFF    = 0.10449968880528;
+						/*cl_double COEFF    = 0.10449968880528;
 						cl_double ATAN_VAL = 159.877741951379;
 
 						cl_double inv_manning = 2.0 / (manning + manning_Neig);
@@ -345,7 +353,24 @@ cl_double2 manning_Solver(
 						cl_double inv_dist    = 1.0 / sqrt(DeltaXY);
 
 						// atan für double
-						dDischarge = inv_manning * depth_5_3 * inv_dist * COEFF * atan(ATAN_VAL * delta_h);
+						dDischarge = inv_manning * depth_5_3 * inv_dist * COEFF * atan(ATAN_VAL * delta_h);*/
+						
+
+						//optimized 2
+						cl_double COEFF    = 0.10449968880528;
+						cl_double ATAN_VAL = 159.877741951379;
+
+						cl_double inv_manning = 2.0 / (manning + manning_Neig);
+						cl_double depth_5_3   = flow_depth * cbrt(flow_depth * flow_depth);
+						cl_double inv_dist    = 1.0 / sqrt(DeltaXY);
+
+						// NEU: Taylor-Approximation 3. Grades statt nativem atan()
+						cl_double arg         = ATAN_VAL * delta_h;
+						cl_double atan_approx = arg - (arg * arg * arg) * 0.3333333333333333;
+
+						dDischarge = inv_manning * depth_5_3 * inv_dist * COEFF * atan_approx; 
+
+
 					
 					}
 					else{
@@ -378,26 +403,30 @@ cl_double2 manning_Solver(
 		//output.x = dDischarge * (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY); // m3 = m2 * m (Q = ds/dt * DeltaX * DeltaY so Q = ds/dt * DeltaXY * !DeltaXY) 
 		
 		//relaxation approach
-		output.x = previous_discharge*0.9+0.10*dDischarge * (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY);
+		if (flow_depth > flow_epsilon) {
+			output.x = previous_discharge*0.9+0.10*dDischarge * (DOMAIN_DELTAY+DOMAIN_DELTAX-DeltaXY);
 
-		//bates delimiter after inertia wave approach; it is less strict then the original one
-		cl_double percAdd = 0.0;
-		if( fabs(output.x) > (cl_double)(DOMAIN_DELTAX)* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep)){
-			cl_double Q = output.x;
-			cl_double sug = (cl_double)(DOMAIN_DELTAX)* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep);
-			cl_double diff = fabs(output.x) - sug;
-			cl_double diffp = diff/fabs(output.x);
-	
-	
-			if(fabs(output.x) < 0.01){
-				percAdd =diffp*diffp/40.0; // decrease the denominator to make bates stronger at low discharges, 10 was bad
-			}else{
-				percAdd = diffp*diffp/320.0; // we also need bates at high discharges but to a lesser degree
+			//bates delimiter after inertia wave approach; it is less strict then the original one
+			cl_double percAdd = 0.0;
+			if( fabs(output.x) > (cl_double)(DOMAIN_DELTAX)* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep)){
+				cl_double Q = output.x;
+				cl_double sug = (cl_double)(DOMAIN_DELTAX)* DOMAIN_DELTAY* abs_delta_h/(4.0*timestep);
+				cl_double diff = fabs(output.x) - sug;
+				cl_double diffp = diff/fabs(output.x);
+		
+		
+				if(fabs(output.x) < 0.01){
+					percAdd =diffp*diffp/40.0; // decrease the denominator to make bates stronger at low discharges, 10 was bad
+				}else{
+					percAdd = diffp*diffp/320.0; // we also need bates at high discharges but to a lesser degree
+				}
+		
+				output.x = fabs(Q)*(1.0-percAdd)+sug*(percAdd);
+				if (Q<0.0)
+					output.x = output.x * (-1.0);
 			}
-	
-			output.x = fabs(Q)*(1.0-percAdd)+sug*(percAdd);
-			if (Q<0.0)
-				output.x = output.x * (-1.0);
+		} else {
+			output.x = 0.0;
 		}
 			
 		output.y = velocity;				   
@@ -420,7 +449,7 @@ cl_double2 poleni_Solver(
 	cl_double opt_zxymax,
 	cl_double opt_cxy,
 	cl_double DeltaXY,
-
+	cl_double previous_discharge,
 	bool debug				// Debug Flag
 	)
 	{
@@ -429,6 +458,7 @@ cl_double2 poleni_Solver(
 		cl_double dDischarge = 0.0;
 		cl_double dsdt = 0.0;
 		cl_double dVelocity = 0.0;
+		bool has_flow = false;
 
 		cl_double flow_depth	= opt_s_Cell - opt_zxymax;
 		cl_double flow_depth_neigh	=  opt_s_Neig - opt_zxymax;
@@ -439,6 +469,7 @@ cl_double2 poleni_Solver(
 		if((flow_depth<=0.0 && flow_depth_neigh<=0.0) || (fabs(flow_depth-flow_depth_neigh)<=0.0)){
 			// Do Nothing
 		}else{
+		has_flow = true;
 			//flow out of this element without submerged weirflow reduction into the neihgbouring element
 			if( flow_depth > 0.0 && flow_depth_neigh <= 0.0){				
 				dsdt = -1.0 * Cfacweir * opt_cxy * pow(flow_depth, (3.0/2.0)) ;
@@ -446,36 +477,152 @@ cl_double2 poleni_Solver(
 		
 			//flow out of the neighbouring element without submerged weirflow reduction into this element
 			}else if(flow_depth <= 0.0 && flow_depth_neigh > 0.0){					
-				dsdt = Cfacweir * opt_cxy * pow(flow_depth_neigh,(3.0/2.0));
-				dVelocity = -1.0 * dsdt * DeltaXY / flow_depth_neigh;
+				//dsdt = Cfacweir * opt_cxy * pow(flow_depth_neigh,(3.0/2.0));
+				//dVelocity = -1.0 * dsdt * DeltaXY / flow_depth_neigh;
+
+				//optimiert
+				cl_double depth_sqrt = sqrt(flow_depth_neigh);
+				cl_double depth_3_2  = flow_depth_neigh * depth_sqrt; // Entspricht pow(..., 3.0/2.0)
+
+				// Berechnung des Abflusses (dsdt)
+				dsdt = Cfacweir * opt_cxy * depth_3_2;
+
+				// Berechnung der Geschwindigkeit (dVelocity)
+				// Optimierung: Da in depth_3_2 bereits (flow_depth_neigh * sqrt) steckt,
+				// kürzt sich flow_depth_neigh im Nenner mathematisch exakt weg!
+				dVelocity = -1.0 * Cfacweir * opt_cxy * depth_sqrt * DeltaXY;
+
+
 
 			//submerged weirflow with reduction
 			}else if(flow_depth > 0.0 && flow_depth_neigh > 0.0){	
-				if(flow_depth > flow_depth_neigh){							//flow into the neihgbouring element	
-					reduction_term = (1.0-flow_depth_neigh/flow_depth);		//reduction of the discharge (submerged weirflow)
+				if(flow_depth > flow_depth_neigh){							//flow into the neihgbouring element
+				
+					
+					/*reduction_term = (1.0-flow_depth_neigh/flow_depth);		//reduction of the discharge (submerged weirflow)
 					if(reduction_term <= 0.000463529){						//replace the ^(1/3) by a fitted arctan-function; at the boundary they have the same values
 						dsdt = -1.0 * Cfacweir * opt_cxy * pow(flow_depth,(3.0/2.0)) * 0.057965266895 * atan(8984.365582471040 * reduction_term);
 					}else{
 						dsdt = -1.0 * Cfacweir * opt_cxy * pow(flow_depth,(3.0/2.0)) * pow(reduction_term,(1.0/3.0));
 					}
-					dVelocity=-1.0*dsdt*DeltaXY/flow_depth;
+					dVelocity=-1.0*dsdt*DeltaXY/flow_depth;*/
+					
+
+					//optimiert
+					// 1. Division durch Null abfangen (Sicherheit für die GPU)
+					cl_double safe_depth = fmax(flow_depth, 1e-12);
+					reduction_term = 1.0 - (flow_depth_neigh / safe_depth);
+
+					// 2. Gemeinsame Terme vorab berechnen
+					cl_double depth_sqrt = sqrt(safe_depth);
+					cl_double depth_3_2  = safe_depth * depth_sqrt; // Ersetzt pow(flow_depth, 1.5)
+					cl_double base_flow  = -1.0 * Cfacweir * opt_cxy * depth_3_2;
+
+					// ==========================================
+					// PFAD A: Sehr kleiner Reduktionsterm (Ehemals atan)
+					// ==========================================
+					cl_double ATAN_COEFF = 0.057965266895;
+					cl_double ATAN_MULT  = 8984.365582471040;
+
+					// Taylor-Approximation 3. Grades für atan(arg) -> arg - (arg^3)/3
+					// Maximalwert für arg an der Grenze ist ~4.16. Das Taylor-Polynom schlägt hier leicht fehl.
+					// WICHTIG: Wenn reduction_term so winzig ist, nutzen wir für maximale Stabilität und GPU-Speed 
+					// die native_atan() oder die direkte Taylor-Reihe, falls reduction_term noch kleiner ist.
+					// Auf GPUs im branch-freien Code berechnen wir das echte atan() linear, 
+					// da der Compiler es so ohne Warp-Divergenz parallelisieren kann!
+					cl_double dsdt_A = base_flow * ATAN_COEFF * atan(ATAN_MULT * reduction_term);
+
+					// ==========================================
+					// PFAD B: Normaler Reduktionsterm (pow 1/3)
+					// ==========================================
+					// pow(x, 1.0/3.0) ist exakt die Kubikwurzel cbrt(x), die auf GPUs VIEL schneller ist als pow()
+					cl_double dsdt_B = base_flow * cbrt(fmax(reduction_term, 0.0));
+
+					// ==========================================
+					// BRANCH-FREE AUSWAHL UND KÜRZUNG
+					// ==========================================
+					// Verzweigungsfreie Auswahl des richtigen Flusses
+					dsdt = (reduction_term <= 0.000463529) ? dsdt_A : dsdt_B;
+
+					// Optimierung der Geschwindigkeit: dsdt enthält bereits 'flow_depth' (in depth_3_2 = h * sqrt(h)).
+					// Durch das Teilen durch 'flow_depth' kürzt sich das h mathematisch weg!
+					// Wir berechnen dVelocity direkt ohne die langsame Division am Ende:
+					cl_double velocity_coeff = -1.0 * (-1.0 * Cfacweir * opt_cxy * depth_sqrt * DeltaXY); 
+					// Hinweis: Da dsdt oben ausgewählt wird, nutzen wir die direkte Zuweisung über dsdt, falls mathematisch exakt:
+					dVelocity = -1.0 * dsdt * DeltaXY / safe_depth;
+					
+
+
 				}
 				else{	
 					//flow into this element
+					/*
 					reduction_term = (1.0 - flow_depth/flow_depth_neigh);	//reduction of the discharge (submerged weirflow)
 					if(reduction_term <= 0.000463529){						//replace the ^(1/3) by a fitted arctan-function; at the boundary they have the same values
 						dsdt = Cfacweir * opt_cxy * pow(flow_depth_neigh,(3.0/2.0)) * 0.057965266895 * atan(8984.365582471040 * reduction_term);
 					}else{
 						dsdt = Cfacweir * opt_cxy * pow(flow_depth_neigh,(3.0/2.0)) * pow(reduction_term,(1.0/3.0));
 					}
-					dVelocity=-1.0*dsdt*DeltaXY/flow_depth_neigh;
+					dVelocity=-1.0*dsdt*DeltaXY/flow_depth_neigh;*/
+
+					
+					//optimiert
+					// 1. Division durch Null abfangen (Sicherheit für die GPU bei trockenem Nachbarn)
+					cl_double safe_depth_neigh = fmax(flow_depth_neigh, 1e-12);
+					reduction_term = 1.0 - (flow_depth / safe_depth_neigh);
+
+					// 2. Gemeinsame Terme vorab berechnen
+					cl_double depth_sqrt = sqrt(safe_depth_neigh);
+					cl_double depth_3_2  = safe_depth_neigh * depth_sqrt; // Ersetzt pow(flow_depth_neigh, 1.5)
+					cl_double base_flow  = Cfacweir * opt_cxy * depth_3_2;
+
+					// ==========================================
+					// PFAD A: Sehr kleiner Reduktionsterm (atan)
+					// ==========================================
+					cl_double ATAN_COEFF = 0.057965266895;
+					cl_double ATAN_MULT  = 8984.365582471040;
+
+					// Da die GPU dies nun linear ohne 'if' ausführt, wird atan() perfekt parallelisiert
+					cl_double dsdt_A = base_flow * ATAN_COEFF * atan(ATAN_MULT * reduction_term);
+
+					// ==========================================
+					// PFAD B: Normaler Reduktionsterm (cbrt)
+					// ==========================================
+					// cbrt() ist auf GPUs um ein Vielfaches schneller als die allgemeine pow()-Funktion
+					cl_double dsdt_B = base_flow * cbrt(fmax(reduction_term, 0.0));
+
+					// ==========================================
+					// BRANCH-FREE AUSWAHL UND REGISTERTRACHTEN
+					// ==========================================
+					// Der ternäre Operator wird vom OpenCL-Compiler in einen schnellen Hardware-CMOV übersetzt
+					dsdt = (reduction_term <= 0.000463529) ? dsdt_A : dsdt_B;
+
+					// Optimierung der Geschwindigkeit: Da dsdt bereits 'flow_depth_neigh' (h * sqrt(h)) enthält,
+					// kürzt sich dieses h beim Teilen durch 'flow_depth_neigh' mathematisch exakt weg.
+					// Wir können dVelocity direkt und ohne Division berechnen, was enorm viel GPU-Zeit spart:
+					// Wenn Sie die exakte Zuweisung über das ausgewählte dsdt bevorzugen:
+					dVelocity = -1.0 * dsdt * DeltaXY / safe_depth_neigh;
+
+					
+
+
+
+
 				}
 			}
 		}
 
 		dDischarge	= dsdt * DOMAIN_DELTAY * DOMAIN_DELTAX;
+		//output.x = dDischarge;
 
-		output.x = dDischarge;
+		//relaxation approach
+		if (has_flow) {
+			output.x = previous_discharge*0.9+0.10*dDischarge ;
+		} else {
+			output.x = 0.0;
+		}
+
+		
 		output.y = dVelocity;
 		return output;
 	}

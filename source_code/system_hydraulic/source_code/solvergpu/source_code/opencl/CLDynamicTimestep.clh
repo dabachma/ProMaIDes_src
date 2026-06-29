@@ -10,7 +10,7 @@
 #define TIMESTEP_EARLY_LIMIT_DURATION	60.0
 #define TIMESTEP_START_MINIMUM			1E-10
 #define TIMESTEP_START_MINIMUM_DURATION	1.0
-#define TIMESTEP_MINIMUM				1E-10
+#define TIMESTEP_MINIMUM				2E-10
 #define TIMESTEP_MAXIMUM				30.0   //was 5. Was actually 15 not 5.
 #define TIMESTEP_MOVING_AVG_ALPHA		0.8		//Higher means more focus on newer timesteps
 

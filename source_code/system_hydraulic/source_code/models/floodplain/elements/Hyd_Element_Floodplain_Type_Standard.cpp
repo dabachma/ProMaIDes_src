@@ -1132,6 +1132,15 @@ void Hyd_Element_Floodplain_Type_Standard::calculate_ds_dt_manning_x(void){
 			
 			//calculate the flow-velocity
 			this->v_x=-1.0*ds_dt_buff*(*this->x_width)/flow_depth;
+
+			//if (isnan(this->v_x) == true) {
+				//ostringstream cout;
+
+				//cout << " Flow depth " << flow_depth << " ds_dt " << ds_dt_buff << " flowd neig " << this->element_x->element_type->get_h_value() << endl;
+				//Sys_Common_Output::output_hyd->output_txt(&cout, true);
+
+
+			//}
 		}
 	}
 }

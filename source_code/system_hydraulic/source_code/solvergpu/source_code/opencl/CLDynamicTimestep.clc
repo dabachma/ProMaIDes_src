@@ -238,14 +238,52 @@ void tst_Reduce(
 			#endif
 
 			#ifdef DIFFUSIVE_SCHEME				
-				//similar to Gudunov
-				dVelX = pCellState.z;
-				dVelY = pCellState.w ;
-				if ( dVelX < 0.0 ) dVelX = -dVelX;
-				if ( dVelY < 0.0 ) dVelY = -dVelY;
+                    if ( dDepth > 1e-3 )
+                    {
+                        //dVelX = (pCellState.z / (dDepth * DOMAIN_DELTAY));
+                        //dVelY = (pCellState.w / (dDepth * DOMAIN_DELTAX));
 
-				dVelX += sqrt( GRAVITY * dDepth );
-				dVelY += sqrt( GRAVITY * dDepth );
+						dVelX = (pCellState.z);
+                        dVelY = (pCellState.w);
+
+                    }
+                    else
+                    {
+                        dVelX = 0.0;
+                        dVelY = 0.0;
+                    }
+
+                    // Zuerst den Absolutwert bilden (damit v immer positiv ist)
+                    if ( dVelX < 0.0 ) dVelX = -dVelX;
+                    if ( dVelY < 0.0 ) dVelY = -dVelY;
+
+					dVelX += sqrt( GRAVITY * dDepth );
+					dVelY += sqrt( GRAVITY * dDepth );
+
+					cl_double omega=0.99;
+                    // --- NEUES DIFFUSIVES STABILITÄTSKRITERIUM ---
+                   /*if ( dDepth > 1e-3 )
+                    {
+                        cl_double n_rough = 0.03; // Konservativer repräsentativer Manning-Wert
+                        cl_double h_pow = pow(dDepth, 5.0 / 3.0);
+
+                        // Diffusionsgeschwindigkeit X-Richtung
+                        cl_double slope_term_x = (n_rough * dVelX) / pow(dDepth, 2.0 / 3.0);
+                        cl_double DX = h_pow / (n_rough * fmax(slope_term_x, 0.01)); // 0.01 entspricht sqrt(S_f_min)
+                        cl_double v_diff_x = (4.0 * DX) / DOMAIN_DELTAX;
+                        //dVelX = fmax(dVelX, v_diff_x);
+						dVelX =dVelX*omega+v_diff_x*(1.0-omega);
+
+                        // Diffusionsgeschwindigkeit Y-Richtung
+                        cl_double slope_term_y = (n_rough * dVelY) / pow(dDepth, 2.0 / 3.0);
+                        cl_double DY = h_pow / (n_rough * fmax(slope_term_y, 0.01));
+                        cl_double v_diff_y = (4.0 * DY) / DOMAIN_DELTAY;
+                        //dVelY = fmax(dVelY, v_diff_y);
+						dVelY =dVelY*omega+v_diff_y*(1.0-omega);
+						
+                    }*/
+
+
 			#endif
 
 			#ifdef INERTIAL_SCHEME

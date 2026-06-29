@@ -71,6 +71,7 @@ cl_double2 poleni_Solver(
 	cl_double opt_zxymax,
 	cl_double opt_cxy,
 	cl_double DeltaXY,
+	cl_double previous_discharge,
 	bool debug
 	);
 
