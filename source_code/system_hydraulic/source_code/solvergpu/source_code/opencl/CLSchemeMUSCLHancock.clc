@@ -615,7 +615,7 @@ void mch_2nd_cacheNone (
 			}
 		#endif
 
-		if ( pNeigData[ucDirection].y < VERY_SMALL )
+		if ( ( pNeigData[ucDirection].x - dNeigBedElev[ucDirection] ) < VERY_SMALL || dNeigBedElev[ucDirection] == -9999.0 )
 			++ucDryCount;
 	}
 
@@ -690,8 +690,15 @@ void mch_2nd_cacheNone (
 	// Source term vector
 	// TODO: Somehow get these sorted too...
 	pSourceTerms.x = 0.0;
-	pSourceTerms.y = -1 * GRAVITY * ( ( pNeigData[DOMAIN_DIR_E].x + pNeigData[DOMAIN_DIR_W].x ) / 2 ) * ( ( pNeigData[DOMAIN_DIR_E].y - pNeigData[DOMAIN_DIR_W].y ) / DOMAIN_DELTAX );
-	pSourceTerms.z = -1 * GRAVITY * ( ( pNeigData[DOMAIN_DIR_N].x + pNeigData[DOMAIN_DIR_S].x ) / 2 ) * ( ( pNeigData[DOMAIN_DIR_N].y - pNeigData[DOMAIN_DIR_S].y ) / DOMAIN_DELTAY );
+	//pSourceTerms.y = -1 * GRAVITY * ( ( pNeigData[DOMAIN_DIR_E].x + pNeigData[DOMAIN_DIR_W].x ) / 2 ) * ( ( pNeigData[DOMAIN_DIR_E].y - pNeigData[DOMAIN_DIR_W].y ) / DOMAIN_DELTAX );
+	//pSourceTerms.z = -1 * GRAVITY * ( ( pNeigData[DOMAIN_DIR_N].x + pNeigData[DOMAIN_DIR_S].x ) / 2 ) * ( ( pNeigData[DOMAIN_DIR_N].y - pNeigData[DOMAIN_DIR_S].y ) / DOMAIN_DELTAY );
+
+	   pSourceTerms.y = -1.0 * GRAVITY * ( ( pNeigData[DOMAIN_DIR_E].x + pNeigData[DOMAIN_DIR_W].x ) / 2.0 ) * ( (dNeigBedElev[DOMAIN_DIR_E] - dNeigBedElev[DOMAIN_DIR_W] ) / DOMAIN_DELTAX );
+    pSourceTerms.z = -1.0 * GRAVITY * ( ( pNeigData[DOMAIN_DIR_N].x + pNeigData[DOMAIN_DIR_S].x ) / 2.0 ) * ( (dNeigBedElev[DOMAIN_DIR_N] - dNeigBedElev[DOMAIN_DIR_S] ) / DOMAIN_DELTAY );
+
+
+
+
 
 	// Calculation of change values per timestep and spatial dimension
 	dDeltaValues.x	= ( pFlux[1].x  - pFlux[3].x  )/DOMAIN_DELTAX + 

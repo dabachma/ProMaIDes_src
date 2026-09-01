@@ -4700,7 +4700,7 @@ void Hyd_Model_Floodplain::transfer_hydraulic_boundary_sz2database_per_elem(QSql
 	string buffer_data;
 
 	for (int i = 0; i < this->Param_FP.FPNofY*this->Param_FP.FPNofX; i++) {
-		if (i % 10000 == 0 && i > 0) {
+		if (i % 100000 == 0 && i > 0) {
 			cout << i << " (" << this->get_number_elements() << ") boundary data of HYD raster elements are transfered to database..." << endl;
 			Sys_Common_Output::output_hyd->output_txt(&cout);
 			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
@@ -4715,7 +4715,7 @@ void Hyd_Model_Floodplain::transfer_hydraulic_boundary_sz2database_per_elem(QSql
 
 
 		//send packages of 100
-		if (counter == 100) {
+		if (counter == 10000) {
 			query_total << query_header << query_data.str();
 			//delete last komma
 			string buff = query_total.str();

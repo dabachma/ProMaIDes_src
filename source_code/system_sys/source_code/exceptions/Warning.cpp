@@ -429,7 +429,8 @@ void Warning::output_warning_occurrence(const int warning_occur){
 }
 //check if the last warning is from place and reason the same
 bool Warning::check_multi_warning(void){
-	if(Warning::old_reason==this->reason && Warning::old_place==this->place && Warning::old_info==this->secundary_info){
+	//if(Warning::old_reason==this->reason && Warning::old_place==this->place && Warning::old_info==this->secundary_info){
+	if (Warning::old_reason == this->reason && Warning::old_place == this->place) {
 		Warning::multiple_counter++;
 		return true;
 	}

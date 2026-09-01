@@ -681,8 +681,11 @@ void Hyd_River_Profile_Connection_Standard::set_actual_river_discharge(_Hyd_Rive
 	}
 	else if(upstream_profile->get_profile_type()==_hyd_profile_types::WEIR_TYPE){
 		//cumulate the discharge from the segment between weir profile and this profile; here the solved area is not relevant
-		this->q_river=upstream_profile->get_actual_river_discharge();
-		this->typ_of_profile->set_actuel_flowvelocity(this->q_river);
+		
+			this->q_river = upstream_profile->get_actual_river_discharge();
+			this->typ_of_profile->set_actuel_flowvelocity(this->q_river);
+		
+	
 
 	}
 

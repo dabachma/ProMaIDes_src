@@ -1092,7 +1092,7 @@ void CSchemeGodunov::Threaded_runBatch()
 				uiQueueAmount = max(min(600, estimatedQ),1); //300
 			}
 			else {
-				if (dCurrentTime > 0.1 && dCurrentTimestepMovAvg < 0.0001) {
+				if (dCurrentTime > 0.1 && dCurrentTimestepMovAvg < 0.00001) {
 					//this->outputAllFloodplainDataToVtk();	// Report Floodplain in a vtk file
 					this->bSimulationSlow = true;			// Declare Slow Simulation
 					return;									// Don't go beyond

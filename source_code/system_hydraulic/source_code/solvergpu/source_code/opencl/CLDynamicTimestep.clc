@@ -238,13 +238,17 @@ void tst_Reduce(
 			#endif
 
 			#ifdef DIFFUSIVE_SCHEME				
-                    if ( dDepth > 1e-3 )
+                   if ( dDepth > 1e-3 )
                     {
                         //dVelX = (pCellState.z / (dDepth * DOMAIN_DELTAY));
                         //dVelY = (pCellState.w / (dDepth * DOMAIN_DELTAX));
+						cl_double fac_h=2.0;
+						if( dDepth > 1.0){
+							//fac_h=dDepth;
+						}
 
-						dVelX = (pCellState.z);
-                        dVelY = (pCellState.w);
+						dVelX = (pCellState.z)/(DOMAIN_DELTAY*fac_h);
+                        dVelY = (pCellState.w)/(DOMAIN_DELTAX*fac_h);
 
                     }
                     else
@@ -260,34 +264,56 @@ void tst_Reduce(
 					dVelX += sqrt( GRAVITY * dDepth );
 					dVelY += sqrt( GRAVITY * dDepth );
 
-					cl_double omega=0.99;
-                    // --- NEUES DIFFUSIVES STABILITÄTSKRITERIUM ---
-                   /*if ( dDepth > 1e-3 )
-                    {
-                        cl_double n_rough = 0.03; // Konservativer repräsentativer Manning-Wert
-                        cl_double h_pow = pow(dDepth, 5.0 / 3.0);
+					/*cl_double v_physx= fabs(pCellState.z / (dDepth * DOMAIN_DELTAY));
+					cl_double v_physy= fabs(pCellState.w / (dDepth * DOMAIN_DELTAX));
+					
 
-                        // Diffusionsgeschwindigkeit X-Richtung
-                        cl_double slope_term_x = (n_rough * dVelX) / pow(dDepth, 2.0 / 3.0);
-                        cl_double DX = h_pow / (n_rough * fmax(slope_term_x, 0.01)); // 0.01 entspricht sqrt(S_f_min)
-                        cl_double v_diff_x = (4.0 * DX) / DOMAIN_DELTAX;
-                        //dVelX = fmax(dVelX, v_diff_x);
-						dVelX =dVelX*omega+v_diff_x*(1.0-omega);
 
-                        // Diffusionsgeschwindigkeit Y-Richtung
-                        cl_double slope_term_y = (n_rough * dVelY) / pow(dDepth, 2.0 / 3.0);
-                        cl_double DY = h_pow / (n_rough * fmax(slope_term_y, 0.01));
-                        cl_double v_diff_y = (4.0 * DY) / DOMAIN_DELTAY;
-                        //dVelY = fmax(dVelY, v_diff_y);
-						dVelY =dVelY*omega+v_diff_y*(1.0-omega);
+					cl_double n=0.0286;
+
+					dVelX = 0.0;
+                     dVelY = 0.0;
+					 cl_double D_limit=2000.0;
+
+					 if(dDepth>0.05){
+						D_limit=20.0;
+					 }
+				
+					// Lokalen Diffusionskoeffizient D berechnen
+					if(v_physx>0.02){
+						cl_double D_x = pow(dDepth, 2.33333) / (2.0 * v_physx * n * n);
+					
+
+						D_x= fmin(D_x,D_limit);
+					
+
+						dVelX=(2.0*D_x)/DOMAIN_DELTAY;
+						;
+
+					
+					}
+					if(v_physy>0.02){
 						
-                    }*/
+						cl_double D_y = pow(dDepth, 2.33333) / (2.0 * v_physy * n * n);
 
+						
+						D_y= fmin(D_y,D_limit);
+
+						
+						dVelY=(2.0*D_y)/DOMAIN_DELTAX;
+
+					
+					}*/
+
+					
+					
+				
+
+				
 
 			#endif
 
 			#ifdef INERTIAL_SCHEME
-
 				
 			
 						

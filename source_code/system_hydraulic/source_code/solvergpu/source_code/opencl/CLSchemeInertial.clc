@@ -155,6 +155,7 @@ void ine_cacheDisabled (
 			dManningCoef,
 			dLclTimestep,
 			pNeigDataN.w,
+			pCellData.w,
 			pNeigDataN.x,
 			dNeigBedElevN,
 			pCellData.x,
@@ -180,6 +181,7 @@ void ine_cacheDisabled (
 			dManningCoef,
 			dLclTimestep,
 			pNeigDataE.z,
+			pCellData.z,
 			pNeigDataE.x,
 			dNeigBedElevE,
 			pCellData.x,
@@ -205,6 +207,7 @@ void ine_cacheDisabled (
 			dManningCoef,
 			dLclTimestep,
 			pCellData.w,
+			pNeigDataN.w,
 			pCellData.x,
 			dCellBedElev,
 			pNeigDataS.x,
@@ -230,6 +233,7 @@ void ine_cacheDisabled (
 			dManningCoef,
 			dLclTimestep,
 			pCellData.z,
+			pNeigDataE.z,
 			pCellData.x,
 			dCellBedElev,
 			pNeigDataW.x,
@@ -275,6 +279,10 @@ void ine_cacheDisabled (
 					    dDischarge[DOMAIN_DIR_N] - dDischarge[DOMAIN_DIR_S] )/DOMAIN_DELTAY;
 	if(debug)					
 		printf("ulIdx %f old_opts %f new_opts %f dLclTimestep %f dDeltaFSL %f dN %f dE %f dS %f dW %f \n", ulIdx*1.0, pCellData.x, pCellData.x+ dLclTimestep * dDeltaFSL,dLclTimestep, dDeltaFSL, dDischarge[ DOMAIN_DIR_N ],dDischarge[ DOMAIN_DIR_E ],dDischarge[ DOMAIN_DIR_S ],dDischarge[ DOMAIN_DIR_W ]);
+	
+
+	
+	
 	// Update the flow state
 	pCellData.x		= pCellData.x + dLclTimestep * dDeltaFSL;
 
@@ -326,6 +334,7 @@ cl_double calculateInertialFlux(
 		cl_double		dManningCoef,					// Manning coefficient
 		cl_double		dTimestep,						// Timestep
 		cl_double		dPreviousDischarge,				// Last current discharge
+		cl_double dOppositeDischarge,     // NEU: Der Fluss am gegenüberliegenden Interface (z.B. West)e
 		cl_double		dLevelUpstream,					// Upstream current level
 		cl_double		dBedUpstream,					// Upstream bed elevation
 		cl_double		dLevelDownstream,				// Downstream current level
@@ -339,8 +348,12 @@ cl_double calculateInertialFlux(
 	cl_double dDepth=0.0;
 	cl_double dSlope=0.0;
 
+	// Timestep-Kehrwert vorberechnen, um Divisionen in Bates-Limitern zu vermeiden
+	cl_double invTimestep = 1.0 / dTimestep;
+	cl_double nu_num = 0.15; 
+
 	// Inertial 
-	cl_double dCentralDepth=0.0;
+	/* cl_double dCentralDepth=0.0;
 	if (dLevelDownstream-dBedDownstream > flow_epsilon || dLevelUpstream-dBedUpstream > flow_epsilon){
 
 		dDepth	 = fmax( dLevelDownstream, dLevelUpstream ) - fmax( dBedUpstream, dBedDownstream );
@@ -352,59 +365,152 @@ cl_double calculateInertialFlux(
 
 			if(fabs(dLevelDownstream - dLevelUpstream)> flow_epsilon){
 
-
-
-						
-						/*dDischarge = ( dPreviousDischarge - ( GRAVITY * dDepth * dTimestep * dSlope ) ) /
-									 ( 1.0 + GRAVITY * dDepth * dTimestep * dManningCoef * dManningCoef * fabs( dPreviousDischarge ) /
-									   pow( dDepth, 10.0/3.0 ) );
-									   */
-
 					//optimized version
 					cl_double dDepth2 = dDepth * dDepth;
 					cl_double dDepth3 = dDepth2 * dDepth;
 					cl_double depth_10_3 = dDepth3 * cbrt(dDepth);
+					
 
-					// 3. Konstantes Sohlgef�lle zwischen den beiden Zellen bestimmen
+					// 3. Konstantes SohlgefÃ¤lle zwischen den beiden Zellen bestimmen
 					cl_double dBedSlope = (dBedDownstream - dBedUpstream) / DOMAIN_DELTAX;
 					cl_double dBedSlopeAbs = fabs(dBedSlope);
             
-					// --- ABSOLUT GLATTER �BERGANG MIT SMOOTHSTEP (Exakt 1.0 im Flachen) ---
-					cl_double dSlopeLow  = 0.0125; // Bis 0.5% Gef�lle: Reiner de Almeida (omega = 1.0)
-				   cl_double dSlopeHigh = 0.020; // Ab 2.0% Gef�lle: Volle Tr�gheitsd�mpfung (omega = 0.0)
+					// --- ABSOLUT GLATTER ÃœBERGANG MIT SMOOTHSTEP (Exakt 1.0 im Flachen) ---
+					cl_double dSlopeLow  = 0.0125; // Bis 0.5% GefÃ¤lle: Reiner de Almeida (omega = 1.0)
 		  
 					//stabilization of the inertia wave in steep areas bei reducing the previous discharge part
 					cl_double omega = 1.0;
 					if (dBedSlopeAbs > dSlopeLow) {
-						cl_double t = (dBedSlopeAbs - dSlopeLow) / (dSlopeHigh - dSlopeLow);
+						// 1.0 / (0.020 - 0.0125) = 133.33333333333334, um die Division einzusparen
+						cl_double t = (dBedSlopeAbs - dSlopeLow) * 133.33333333333334;
 						t = clamp(t, 0.0, 1.0);
                 
-						// Kubischer Hermite-Spline: Garantiert stetige �berg�nge ohne numerische Knicke
+						// Kubischer Hermite-Spline: Garantiert stetige ÃœbergÃ¤nge ohne numerische Knicke
 						omega = 1.0 - (t * t * (3.0 - 2.0 * t));
 					}
+					omega = 1.0;
 			
+					// Optimiertes Umschreiben der Formel zur Elimination einer Division
+					cl_double A = omega * dPreviousDischarge - ( GRAVITY * dDepth * dTimestep * dSlope );
+					cl_double B = GRAVITY * dDepth * dTimestep * dManningCoef * dManningCoef * fabs( dPreviousDischarge );
+					cl_double dDischargeInertial = (A * depth_10_3) / (depth_10_3 + B); 
+        
+					// 2. LOKALER DIFFUSIONSFILTER (Bremst & verschmiert die steile Wellenfront)
+					// Nutzt das Wasserstandsgefälle, um an der steilen Front Durchflussmasse 
+					// nach vorne in die Breite zu verteilen (drückt den Peak nach unten).
+					cl_double dDiffusionTerm = nu_num * (GRAVITY * dDepth * dTimestep * dSlope);
+        
+					// Gesamtdurchfluss zusammensetzen
+					dDischarge = dDischargeInertial+ dDiffusionTerm;
+					
+					
+					// 1. Berechnung von h^(7/3) korrigieren:
+					// dDepth * cbrt(dDepth) * dDepth ergibt dDepth^(7/3) -> Das ist korrekt!
+					cl_double depth_7_3 = dDepth * cbrt(dDepth) * dDepth; 
 
-						
+					// 2. Antriebsterm (Zähler)
+					cl_double A = omega * dPreviousDischarge - ( GRAVITY * dDepth * dTimestep * dSlope );
 
+					// 3. Reibungsterm B (enthält Manning-n, Zeitschritt und den aktuellen Fluss)
+					cl_double B = GRAVITY * dTimestep * dManningCoef * dManningCoef * fabs( dPreviousDischarge );
 
-					dDischarge = ( omega* dPreviousDischarge - ( GRAVITY * dDepth * dTimestep * dSlope ) ) /
-									( 1.0 + GRAVITY * dDepth * dTimestep * dManningCoef * dManningCoef * fabs( dPreviousDischarge ) /
-									depth_10_3 );
-									   
-     
+					// 4. Die finale Verrechnung (Deine auskommentierte, mathematisch korrekte Formel aktivieren!)
+					cl_double dDischargeInertial = (A * depth_7_3) / (depth_7_3 + B); 
 
-
+					// Direkte Zuweisung
+					dDischarge = dDischargeInertial;
 			}
 		}
-	}
+	}*/
+
+
+
+	if (dLevelDownstream - dBedDownstream > flow_epsilon || dLevelUpstream - dBedUpstream > flow_epsilon) {
+
+    dDepth = fmax(dLevelDownstream, dLevelUpstream) - fmax(dBedUpstream, dBedDownstream);
+
+    if (dDepth > flow_epsilon) {
+
+        dSlope = (dLevelDownstream - dLevelUpstream) / DOMAIN_DELTAX;
+
+        if (fabs(dLevelDownstream - dLevelUpstream) > flow_epsilon) {
+
+            // [Dein bestehender Code für Omega-Dämpfung]
+            cl_double omega = 1.0; 
+
+            // =========================================================================
+            // REIN LOKALER EXPLIZITER KONVEKTIVER TERM (v * dv/dx)
+            // =========================================================================
+            cl_double F_convective = 0.0;
+
+            /*if (dDepth > flow_epsilon) {
+                cl_double v_current  = dPreviousDischarge / dDepth;
+                cl_double v_opposite = dOppositeDischarge / dDepth;
+
+                // 1. Der rohe, ungefilterte Raumgradient
+                cl_double dv_dx_raw = (v_current - v_opposite) / DOMAIN_DELTAX;
+
+                // 2. DER MINMOD-LIMITER (Das mathematische Schutzschild)
+                // Wenn v_current und v_opposite unterschiedliche Vorzeichen haben (Wasser fließt 
+                // an beiden Rändern voneinander weg oder aufeinander zu), ist der lokale Gradient 
+                // numerisch instabil. Der Minmod-Limiter setzt dv_dx in diesem Fall SOFORT auf Null.
+                cl_double dv_dx = dv_dx_raw;
+                
+                // Prüfen, ob die Geschwindigkeiten gegeneinander arbeiten (Vorzeichenwechsel)
+                if (v_current * v_opposite < 0.0) {
+                    dv_dx = 0.0; // Schließt die numerische Schere komplett aus
+                } else {
+                    // Wenn sie in die gleiche Richtung fließen, begrenzen wir den Gradienten 
+                    // auf das absolute Minimum der beiden Einzelsteigungen (Zellzentrums-Upwind)
+                    cl_double slope_current  = fabs(v_current) / DOMAIN_DELTAX;
+                    cl_double slope_opposite = fabs(v_opposite) / DOMAIN_DELTAX;
+                    cl_double min_slope = fmin(slope_current, slope_opposite);
+					
+                    
+                    // Vorzeichen des rohen Gradienten beibehalten, aber Betrag deckeln
+                    cl_double sign_raw = (dv_dx_raw >= 0.0) ? 1.0 : -1.0;
+                    dv_dx = sign_raw * fmin(fabs(dv_dx_raw), min_slope);
+                }
+
+                // 3. Finaler Transportterm (ohne künstliche Schwellenwerte!)
+                F_convective = fabs(v_current) * dv_dx * dDepth;
+            }*/
+
+			F_convective =0.0;
+
+            // 1. Berechnung von h^(7/3)
+            cl_double depth_7_3 = dDepth * cbrt(dDepth) * dDepth; 
+
+            // 2. Antriebsterm (Zähler) erweitert um den konvektiven Term
+            cl_double A = omega * dPreviousDischarge 
+                        - ( GRAVITY * dDepth * dTimestep * dSlope )
+                        - ( F_convective * dTimestep ); // Konvektion abgezogen
+
+            // 3. Reibungsterm B
+            cl_double B = GRAVITY * dTimestep * dManningCoef * dManningCoef * fabs(dPreviousDischarge);
+
+            // 4. Finale Verrechnung
+            cl_double dDischargeInertial = (A * depth_7_3) / (depth_7_3 + B); 
+
+            dDischarge = dDischargeInertial;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
-
-
-
-
-
-
-	//test further relaxation approach
+	//test further relaxation approach 0.8 0.2
 	dDischarge=0.8*dPreviousDischarge+0.2*dDischarge;
 
 	if (debug){
@@ -424,15 +530,15 @@ cl_double calculateInertialFlux(
 	//	dDischarge = 0.0 - dDepth * sqrt( GRAVITY * dDepth ) * FROUDE_LIMIT;
 
 	// Bates(2010): It is to stong...very stable but to high water levels!
-		cl_double Q = dDischarge;
-		cl_double fac=10000/(DOMAIN_DELTAY*DOMAIN_DELTAX);
-		//dDischarge = fmin(fabs(Q), ((cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4*dTimestep)));
-		//related to the area of the elements...small elements less restriction; big elemenet more restriction by Bates delimiter
-		dDischarge = fmin(fabs(Q), ((cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(2*dTimestep))*fac*fac);
+		/*cl_double Q = dDischarge;
+		cl_double fac=10000.0/(DOMAIN_DELTAY*DOMAIN_DELTAX);
+		// Division durch dTimestep durch Multiplikation mit invTimestep ersetzt
+		cl_double bates_limit = ((cl_double)(DOMAIN_DELTAY) * fabs(dLevelDownstream-dLevelUpstream) * (0.5 * invTimestep)) * fac * fac;
+		dDischarge = fmin(fabs(Q), bates_limit);
 		//
 		if (Q<0.0){
 			dDischarge = dDischarge * (-1.0);
-		}
+		}*/
 	
 
 	
@@ -449,10 +555,10 @@ cl_double calculateInertialFlux(
 
 	// The Best so far:
 	// <0.01 is /40.0   else  /320
-	cl_double percAdd = 0.0;
-	if( fabs(dDischarge) > (cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4.0*dTimestep)){
+	/*cl_double percAdd = 0.0;
+	cl_double sug = (cl_double)(DOMAIN_DELTAY) * fabs(dLevelDownstream-dLevelUpstream) * (0.25 * invTimestep);
+	if( fabs(dDischarge) > sug ){
 		cl_double Q = dDischarge;
-		cl_double sug = (cl_double)(DOMAIN_DELTAY)* fabs(dLevelDownstream-dLevelUpstream)/(4.0*dTimestep);
 		cl_double diff = fabs(dDischarge) - sug;
 		cl_double diffp = diff/fabs(dDischarge);
 	
@@ -466,7 +572,7 @@ cl_double calculateInertialFlux(
 		dDischarge = fabs(Q)*(1.0-percAdd)+sug*(percAdd);
 		if (Q<0.0)
 			dDischarge = dDischarge * (-1.0);
-	}
+	}*/
 	
 
 	if ( dDepth < VERY_SMALL )
@@ -509,45 +615,39 @@ cl_double poleni_Solver(
 		}else{
 			//flow out of this element without submerged weirflow reduction into the neihgbouring element
 			if( flow_depth > 0.0 && flow_depth_neigh <= 0.0){				
-				dDischarge = -1.0 * Cfacweir * opt_cxy * pow(flow_depth, (3.0/2.0)) ;
+				// pow(flow_depth, 1.5) durch (flow_depth * sqrt(flow_depth)) ersetzt
+				dDischarge = -1.0 * Cfacweir * opt_cxy * (flow_depth * sqrt(flow_depth)) ;
 		
 			//flow out of the neighbouring element without submerged weirflow reduction into this element
 			}else if(flow_depth <= 0.0 && flow_depth_neigh > 0.0){					
-				dDischarge = Cfacweir * opt_cxy * pow(flow_depth_neigh,(3.0/2.0));
+				// pow(flow_depth_neigh, 1.5) durch (flow_depth_neigh * sqrt(flow_depth_neigh)) ersetzt
+				dDischarge = Cfacweir * opt_cxy * (flow_depth_neigh * sqrt(flow_depth_neigh));
 
 			//submerged weirflow with reduction
 			}else if(flow_depth > 0.0 && flow_depth_neigh > 0.0){	
 				if(flow_depth > flow_depth_neigh){							//flow into the neihgbouring element	
 					reduction_term = (1.0-flow_depth_neigh/flow_depth);		//reduction of the discharge (submerged weirflow)
 					if(reduction_term <= 0.000463529){						//replace the ^(1/3) by a fitted arctan-function; at the boundary they have the same values
-						dDischarge = -1.0 * Cfacweir * opt_cxy * pow(flow_depth,(3.0/2.0)) * 0.057965266895 * atan(8984.365582471040 * reduction_term);
+						dDischarge = -1.0 * Cfacweir * opt_cxy * (flow_depth * sqrt(flow_depth)) * 0.057965266895 * atan(8984.365582471040 * reduction_term);
 					}else{
-						dDischarge = -1.0 * Cfacweir * opt_cxy * pow(flow_depth,(3.0/2.0)) * pow(reduction_term,(1.0/3.0));
+						// pow(reduction_term, 1.0/3.0) durch cbrt(reduction_term) ersetzt
+						dDischarge = -1.0 * Cfacweir * opt_cxy * (flow_depth * sqrt(flow_depth)) * cbrt(reduction_term);
 					}
 				}
 				else{	
 					//flow into this element
 					reduction_term = (1.0 - flow_depth/flow_depth_neigh);	//reduction of the discharge (submerged weirflow)
 					if(reduction_term <= 0.000463529){						//replace the ^(1/3) by a fitted arctan-function; at the boundary they have the same values
-						dDischarge = Cfacweir * opt_cxy * pow(flow_depth_neigh,(3.0/2.0)) * 0.057965266895 * atan(8984.365582471040 * reduction_term);
+						dDischarge = Cfacweir * opt_cxy * (flow_depth_neigh * sqrt(flow_depth_neigh)) * 0.057965266895 * atan(8984.365582471040 * reduction_term);
 					}else{
-						dDischarge = Cfacweir * opt_cxy * pow(flow_depth_neigh,(3.0/2.0)) * pow(reduction_term,(1.0/3.0));
+						// pow(reduction_term, 1.0/3.0) durch cbrt(reduction_term) ersetzt
+						dDischarge = Cfacweir * opt_cxy * (flow_depth_neigh * sqrt(flow_depth_neigh)) * cbrt(reduction_term);
 					}
 				}
 			}
 		}
 
 		dDischarge = dDischarge * DOMAIN_DELTAY;
-		
-		//if ( dDischarge > 0.0 && ( ( fabs( dDischarge ) / dDepth ) / sqrt( GRAVITY * dDepth ) ) > FROUDE_LIMIT ){
-		//	dDischarge = dDepth * sqrt( GRAVITY * dDepth ) * FROUDE_LIMIT;
-		//	printf("Limiter active \n");
-		//}
-		//if ( dDischarge < 0.0 && ( ( fabs( dDischarge ) / dDepth ) / sqrt( GRAVITY * dDepth ) ) > FROUDE_LIMIT ){
-		//	dDischarge = 0.0 - dDepth * sqrt( GRAVITY * dDepth ) * FROUDE_LIMIT;
-		//	printf("Limiter active \n");
-		//}
-
 		return dDischarge;
 	}
 
