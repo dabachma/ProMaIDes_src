@@ -1241,6 +1241,7 @@ void Hyd_Hydraulic_System::clone_system(Hyd_Hydraulic_System *system){
 			this->my_fpmodels[i].init_solver(&this->global_parameters);
 			Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
 		}
+		this->calculate_best_thread_no();
 		Sys_Common_Output::output_hyd->rewind_userprefix();
 
 		//couplings

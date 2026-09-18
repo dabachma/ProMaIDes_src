@@ -10,3 +10,4 @@
 *.aps
 /.cache
 /.vscode
+.aider*

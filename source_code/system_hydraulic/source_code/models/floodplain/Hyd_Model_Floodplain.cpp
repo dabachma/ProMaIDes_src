@@ -2332,6 +2332,42 @@ void Hyd_Model_Floodplain::output_result2paraview(const double timepoint, const 
 		bin.writeRawData(reinterpret_cast<const char *>(&h), sizeof(float));
 	}
 
+	txt << endl;
+	buff_unit = " v_x_";
+	buff_unit += label::m_per_sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	txt << "SCALARS" << "  " << buff_unit.c_str() << " float" << endl;
+	txt << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		h = this->floodplain_elems[i].element_type->get_flowvelocity_vx();
+		functions::SwapEnd(h);
+		bin.writeRawData(reinterpret_cast<const char*>(&h), sizeof(float));
+	}
+
+	txt << endl;
+	buff_unit = " v_y_";
+	buff_unit += label::m_per_sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	txt << "SCALARS" << "  " << buff_unit.c_str() << " float" << endl;
+	txt << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		h = this->floodplain_elems[i].element_type->get_flowvelocity_vy();
+		functions::SwapEnd(h);
+		bin.writeRawData(reinterpret_cast<const char*>(&h), sizeof(float));
+	}
+
+	txt << endl;
+	buff_unit = " bound_";
+	buff_unit += label::qm_per_sec;
+	buff_unit = functions::clean_white_space(&buff_unit);
+	txt << "SCALARS" << "  " << buff_unit.c_str() << " float" << endl;
+	txt << "LOOKUP_TABLE default" << endl;
+	for (int i = 0; i < this->NEQ; i++) {
+		h = this->floodplain_elems[i].element_type->get_bound_discharge();
+		functions::SwapEnd(h);
+		bin.writeRawData(reinterpret_cast<const char*>(&h), sizeof(float));
+	}
+
 
 
 

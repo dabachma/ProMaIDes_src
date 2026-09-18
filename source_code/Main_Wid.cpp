@@ -4479,6 +4479,26 @@ void Main_Wid::start_task_hyd(QList<QVariant> list) {
 		}
 
 	}
+	else if (buff_command == "set_sc_db") {
+		QStringList buff_sec;
+		for (int i = 2; i < list.count(); i++) {
+			buff_sec.append(list.at(i).toString());
+		}
+		cout << "Set new HYD-scenario to database " << endl;
+		if (buff_sec.count() == 4) {
+			cout << " " << buff_sec.at(0).toStdString() << " " << buff_sec.at(1).toStdString() << " " << buff_sec.at(2).toInt() << " " << buff_sec.at(3).toDouble() << endl;
+			Sys_Common_Output::output_system->output_txt(&cout, false);
+			//this->add_hyd_boundary_sz_file2database_task(buff_sec);
+		}
+		else {
+			cout << "Wrong command; command for set a new HYD-scenario is: HYD, add_db, relative_path_to_.ilm, scenario_name, annuality, probability_of_event " << endl;
+			Sys_Common_Output::output_system->output_txt(&cout, false);
+			Sys_Common_Output::output_system->rewind_userprefix();
+			this->count_task++;
+			emit send_task_by_file_start();
+		}
+
+	}
 	else if (buff_command == "delete_db") {
 
 		QList<int> buff_sec;

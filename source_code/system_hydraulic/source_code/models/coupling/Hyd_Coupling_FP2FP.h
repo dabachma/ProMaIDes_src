@@ -89,6 +89,9 @@ private:
 	///Set the defining polysegment with the boundary of the first floodplain model
 	void set_defining_polysegment(void);
 
+	///Set the error
+	Error set_error(const int err_type);
+
 
 };
 #endif

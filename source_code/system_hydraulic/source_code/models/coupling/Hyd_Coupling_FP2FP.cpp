@@ -198,6 +198,21 @@ void Hyd_Coupling_FP2FP::set_defining_polysegment(void){
 	//check if the first floodplain is inside the second one
 	if(this->floodplain_model_2->raster.geometrical_bound.check_polygon_inside(&(this->floodplain_model_1->raster.geometrical_bound))==true){
 		this->defining_polysegment.set_polysegment(&(this->floodplain_model_1->raster.geometrical_bound));
+		double size_this = *this->floodplain_model_2->Param_FP.get_ptr_elem_area();
+		double size_other = *this->floodplain_model_1->Param_FP.get_ptr_elem_area();
+		if (size_other >= size_this) {
+			//Error
+			Error msg = this->set_error(0);
+			throw msg;
+
+
+		}
+	}
+	else if (this->floodplain_model_1->raster.geometrical_bound.check_polygon_inside(&(this->floodplain_model_2->raster.geometrical_bound)) == true) {
+		//Error
+		Error msg = this->set_error(0);
+		throw msg;
+
 	}
 	else{
 		Hyd_Floodplain_Polysegment polysegment_buffer;
@@ -257,4 +272,31 @@ void Hyd_Coupling_FP2FP::set_defining_polysegment(void){
 	//check for development
 	//this->defining_polysegment.output_members();
 	
+}
+//set the error
+Error Hyd_Coupling_FP2FP::set_error(const int err_type) {
+	string place = "Hyd_Coupling_FP2FP::";
+	string help;
+	string reason;
+	int type = 0;
+	bool fatal = false;
+	stringstream info;
+	Error msg;
+
+	switch (err_type) {
+	case 0://coarser fp inside finer fp
+		place.append("set_defining_polysegment(void)");
+		reason = "A coarser FP-raster is completely inside a finer FP-raster";
+		help = "Check your model set-up; use just the finer raster; the raster-inside function is to make a finer nested raster";
+		type = 16;
+		break;
+	default:
+		place.append("set_error(const int err_type)");
+		reason = "Unknown flag!";
+		help = "Check the flags";
+		type = 6;
+	}
+	msg.set_msg(place, reason, help, type, fatal);
+	msg.make_second_info(info.str());
+	return msg;
 }
