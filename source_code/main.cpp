@@ -76,6 +76,7 @@ int main(int argc, char *argv[]) {
 
 //methods for console
 void openDynamicConsole() {
+#ifdef _WIN32
     if (AllocConsole()) {
         FILE* fp = nullptr;
         // Sofortige Bindung ohne Umwege
@@ -89,11 +90,19 @@ void openDynamicConsole() {
         std::cin.clear();
         std::ios::sync_with_stdio(true);
     }
+#else
+    // Unter Linux wird keine separate Windows-Konsole benötigt
+#endif
 }
 
 void closeDynamicConsole() {
+#ifdef _WIN32
     FreeConsole();
+#else
+    // Unter Linux/Unix tut diese Funktion nichts
+#endif
 }
+
 
 int main(int argc, char *argv[]){
 
