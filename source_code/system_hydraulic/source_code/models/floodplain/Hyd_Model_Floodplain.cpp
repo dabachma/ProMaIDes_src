@@ -4658,7 +4658,7 @@ void Hyd_Model_Floodplain::transfer_element_members2database(QSqlDatabase *ptr_d
 		counter++;
 
 		//send packages of 100
-		if(counter==500){
+		if(counter==1000){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();

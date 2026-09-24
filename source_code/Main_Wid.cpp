@@ -3,7 +3,7 @@
 //init static variables
 
 //constructor
-Main_Wid::Main_Wid(int argc, char *argv[]){
+Main_Wid::Main_Wid(int argc, char *argv[], bool headless=false){
 	//important to use this custom defined enumerator with the signal and slot-mechanism
 	qRegisterMetaType<_sys_close_types>("_sys_close_types");
 
@@ -26,7 +26,7 @@ Main_Wid::Main_Wid(int argc, char *argv[]){
 		else{
 			this->project_file_set=false;
 		}
-		if(argc == 3) {
+		if(argc == 3 || argc == 4) {
 			this->task_file_name = argv[2];
 		}
 		
@@ -145,10 +145,13 @@ Main_Wid::Main_Wid(int argc, char *argv[]){
 	this->risk_flags.nobreak_risk_applied=false;
 
 	//show welcome widget
-	this->welcome_wid.show();
-	this->welcome_timer.setSingleShot(true);
-	QObject::connect(&welcome_timer, SIGNAL(timeout()), this, SLOT(start_main_window()));
-	this->welcome_timer.start(5500);
+	if (headless == false) {
+		//dlevlwev
+		this->welcome_wid.show();
+		this->welcome_timer.setSingleShot(true);
+		QObject::connect(&welcome_timer, SIGNAL(timeout()), this, SLOT(start_main_window()));
+		this->welcome_timer.start(5500);
+	}
 
      this->setWindowTitle(Sys_Project::get_version_number().c_str());
 
@@ -172,6 +175,11 @@ Main_Wid::Main_Wid(int argc, char *argv[]){
 
 	//
 
+	if (headless == true) {
+
+		this->read_existing_project();
+
+	}
 
 }
 //destructor
@@ -4248,6 +4256,7 @@ void Main_Wid::start_task_by_file(void) {
 				cout << "Close... " << endl;
 				Sys_Common_Output::output_system->output_txt(&cout, false);
 				Sys_Common_Output::output_system->rewind_userprefix();
+				emit emit allTasksFinished();
 				this->my_close(false);
 
 			}
@@ -4479,19 +4488,19 @@ void Main_Wid::start_task_hyd(QList<QVariant> list) {
 		}
 
 	}
-	else if (buff_command == "set_sc_db") {
+	else if (buff_command == "set_base_sc_db") {
 		QStringList buff_sec;
 		for (int i = 2; i < list.count(); i++) {
 			buff_sec.append(list.at(i).toString());
 		}
-		cout << "Set new HYD-scenario to database " << endl;
+		cout << "Set new base HYD-scenario to database " << endl;
 		if (buff_sec.count() == 4) {
 			cout << " " << buff_sec.at(0).toStdString() << " " << buff_sec.at(1).toStdString() << " " << buff_sec.at(2).toInt() << " " << buff_sec.at(3).toDouble() << endl;
 			Sys_Common_Output::output_system->output_txt(&cout, false);
-			//this->add_hyd_boundary_sz_file2database_task(buff_sec);
+			this->import_hyd_basesystem_file2database_task(buff_sec);
 		}
 		else {
-			cout << "Wrong command; command for set a new HYD-scenario is: HYD, add_db, relative_path_to_.ilm, scenario_name, annuality, probability_of_event " << endl;
+			cout << "Wrong command; command for set a new HYD-scenario is: HYD, set_base_sc_db, relative_path_to_.ilm, scenario_name, annuality, probability_of_event " << endl;
 			Sys_Common_Output::output_system->output_txt(&cout, false);
 			Sys_Common_Output::output_system->rewind_userprefix();
 			this->count_task++;
@@ -5643,6 +5652,81 @@ void Main_Wid::import_hyd_basesystem_file2database(void){
 		}
 	}
 	catch(Error msg){
+		msg.output_msg(0);
+	}
+}
+//Import the hydraulic base system per file to a database via task
+void Main_Wid::import_hyd_basesystem_file2database_task(QStringList list_data) {
+	try {
+
+		ostringstream cout;
+		bool flag2 = false;
+		if (Hyd_Boundary_Szenario_Management::check_base_scenario_is_set(this->system_database->get_database()) == true) {
+			cout << "New base scenario will be imported. All existing HYD-input data in the database will be deleted." << endl;
+			Sys_Common_Output::output_system->output_txt(&cout, false);
+		}
+		
+		flag2 = true;
+	
+		string buffer = list_data.at(0).toStdString();
+		if (flag2 == true) {
+			bool flag = true;
+
+			if (flag == true) {
+				if (buffer != label::not_set) {
+					//reset the dam-raster connection flags to the hydraulic system
+					if (Sys_Project::get_project_type() == _sys_project_type::proj_all || Sys_Project::get_project_type() == _sys_project_type::proj_risk ||
+						Sys_Project::get_project_type() == _sys_project_type::proj_dam_hyd || Sys_Project::get_project_type() == _sys_project_type::proj_dam) {
+						this->setEnabled(false);
+						emit send_txt2statusbar("Delete damage results/Reset DAM2HYD-connection...", 0);
+						Dam_Damage_System::reset_raster_hyd_connection_flag(this->system_database->get_database());
+						Dam_Damage_System::delete_data_in_erg_table(this->system_database->get_database());
+						emit send_txt2statusbar("Ready", 0);
+						this->setEnabled(true);
+					}
+					//reset combine-flag of the fpl-system
+					if (Sys_Project::get_project_type() == _sys_project_type::proj_all || Sys_Project::get_project_type() == _sys_project_type::proj_risk) {
+						this->setEnabled(false);
+						emit send_txt2statusbar("Reset FPL2HYD-connection...", 0);
+						Fpl_Section::reset_combined2hyd_system(this->system_database->get_database(), this->system_state.get_sys_system_id());
+						emit send_txt2statusbar("Ready", 0);
+						this->setEnabled(true);
+					}
+
+					//allocate the thread
+					try {
+						this->allocate_multi_hydraulic_system();
+					}
+					catch (Error msg) {
+						msg.output_msg(0);
+						return;
+					}
+
+					//connect the thread when is finished
+					QObject::connect(this->hyd_calc, SIGNAL(finished()), this, SLOT(thread_hyd_import_finished()));
+					//enable menu and actions
+					this->action_stop_hyd_import->setEnabled(true);
+
+					//set thread specific members
+					this->hyd_calc->set_thread_type(_hyd_thread_type::hyd_data_import);
+					this->hyd_calc->set_ptr2database(this->system_database->get_database());
+					if (this->hyd_calc->set_system_number_file_direct(list_data, &this->new_hyd_sc_list) == false) {
+						this->delete_multi_hydraulic_system();
+						return;
+					}
+					this->reset_exception_new_action();
+					//start the thread
+					this->hyd_calc->start();
+					this->check_hyd_thread_is_running();
+				}
+				else {
+					cout << "No file name is set; task finished." << endl;
+					Sys_Common_Output::output_system->output_txt(&cout, false);
+				}
+			}
+		}
+	}
+	catch (Error msg) {
 		msg.output_msg(0);
 	}
 }

@@ -74,9 +74,46 @@ int main(int argc, char *argv[]) {
 
 
 
-//test
+//methods for console
+void openDynamicConsole() {
+    if (AllocConsole()) {
+        FILE* fp = nullptr;
+        // Sofortige Bindung ohne Umwege
+        freopen_s(&fp, "CONOUT$", "w", stdout);
+        freopen_s(&fp, "CONOUT$", "w", stderr);
+        freopen_s(&fp, "CONIN$", "r", stdin);
+
+        // C++ Standard-Streams zurücksetzen und synchronisieren
+        std::cout.clear();
+        std::cerr.clear();
+        std::cin.clear();
+        std::ios::sync_with_stdio(true);
+    }
+}
+
+void closeDynamicConsole() {
+    FreeConsole();
+}
 
 int main(int argc, char *argv[]){
+
+
+    bool headlessMode = false;
+    
+    if(argc==4){
+        if (QString(argv[3]) == "-headless") {
+            headlessMode = true;
+            }
+    }
+
+    // 2. Konsole öffnen, falls im Batch-Modus
+    if (headlessMode==true) {
+        openDynamicConsole();
+        std::cout << "Headless-mode: Konsole initialisiert.\n";
+    }
+
+
+
     QApplication app(argc, argv);
     //qt-macro for inititalize the resources which are stored in a static library
         Q_INIT_RESOURCE(system_sys_resource);
@@ -97,36 +134,52 @@ int main(int argc, char *argv[]){
        //app.setStyle(QStyleFactory::create("windowsvista"));
        //app.setStyle(QStyleFactory::create("Fusion"));
     
-     /*   cout << "Max thereads " <<omp_get_max_threads() << endl;
 
-        #pragma omp parallel for 
-        for (int i = 0; i < 10000; i++) {
 
-            cout << "No. " << i << " thread no " << omp_get_thread_num() << endl;
+   
 
-        }*/
+    if (0 == 0) {
+        try {
+            Main_Wid my_system(argc, argv, headlessMode);
+            if (headlessMode==true) {
+                std::cout << "Headless mode active: Starting local event loop.\n";
 
-	
+                // 1. Lokale Event-Loop erstellen
+                QEventLoop batchLoop;
 
-    if(0==0){
-        try{
+                // 2. Verbinde ein Signal aus Main_Wid mit dem Beenden dieser Schleife.
+                // Ersetze 'allTasksFinished' durch das Signal, das du am Ende deiner Tasks feuerst!
+                QObject::connect(&my_system, SIGNAL(allTasksFinished()), &batchLoop, SLOT(quit()));
 
-            Main_Wid my_system(argc, argv);
-            app.exec();
+                // Falls der Task nicht schon automatisch im Konstruktor startet, hier anstoßen:
+                // emit my_system.send_task_by_file_start();
+
+                // 3. Hier blockieren! Der GUI-Thread wartet genau in dieser Zeile,
+                // bis 'allTasksFinished()' emittiert wird. Kein vorzeitiges Schließen mehr möglich.
+                batchLoop.exec();
+
+                std::cout << "Local event loop finished. \n";
+            }
+            else {
+                // Standard GUI-Modus
+                app.exec();
+            }
         }
-        catch(Error msg){
+        catch (Error msg) {
             msg.output_msg(0);
         }
     }
 
     Sys_Memory_Count::self()->output_mem();
-    Sys_Memory_Count::self()->make_warning_end_widget();
+    if (headlessMode == false) {
+        Sys_Memory_Count::self()->make_warning_end_widget();
+    }
 
-    /*int test;
-     test=_CrtDumpMemoryLeaks();*/
+    if (headlessMode) {
+        closeDynamicConsole();
+    }
 
-	//_CrtDumpMemoryLeaks();
-
+  
     return 0;
 }
 #endif

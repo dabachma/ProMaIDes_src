@@ -197,6 +197,45 @@ bool Hyd_Multiple_Hydraulic_Systems::set_system_number_file_direct(QStringList l
 			msg.output_msg(2);
 		}
 	}
+	else if (this->type == _hyd_thread_type::hyd_data_import){
+
+		//read out the number of files
+		this->number_systems = 1;
+		try {
+			this->allocate_file_names();
+		}
+		catch (Error msg) {
+			throw msg;
+		}
+
+		//first has the path in
+		this->file_names[0] = list_id.at(0).toStdString();
+		Hyd_Boundary_Scenario_List my_list;
+		Hyd_Boundary_Szenario my_sc;
+		my_sc.set_name(list_id.at(1).toStdString());
+		int id_buff = this->sz_bound_manager.get_new_hyd_sz_id(&this->qsqldatabase);
+		new_id->append(id_buff);
+		my_sc.set_members(id_buff, list_id.at(2).toDouble(), list_id.at(3).toDouble(), list_id.at(1).toStdString());
+
+		my_list.add_scenario2list(&my_sc);
+
+
+		try {
+			this->sz_bound_manager.set_new_boundary_scenario_directly(&my_list);
+
+		}
+		catch (Error msg) {
+			this->number_systems = 0;
+			this->delete_file_names();
+			msg.output_msg(2);
+		}
+
+
+
+
+
+
+	}
 
 	return flag;
 

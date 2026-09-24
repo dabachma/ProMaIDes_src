@@ -166,7 +166,7 @@ Q_OBJECT
 
 public:
 	///Default constructor with arguments
-	Main_Wid(int argc, char *argv[]);
+	Main_Wid(int argc, char *argv[], bool headless);
 	///Default Destructor
 	~Main_Wid(void);
 
@@ -425,6 +425,8 @@ signals:
 	void send_setup_file_tree_view(void);
 	///Send that the task-by-file can start
 	void send_task_by_file_start(void);
+	/// Send signal if all task in the batch mode are finished
+	void allTasksFinished(void);
 
 private slots:
 	///The welcome window is closed; the mainwindow is started
@@ -701,6 +703,10 @@ private slots:
 
 	///Import the hydraulic base system per file to a database (menu hyd/import files to database)
 	void import_hyd_basesystem_file2database(void);
+
+	///Import the hydraulic base system per file to a database via task
+	void Main_Wid::import_hyd_basesystem_file2database_task(QStringList list_data);
+
 	///Import and add the hydraulic boundary szenarios per file to a database (menu hyd/import files to database)
 	void add_hyd_boundary_sz_file2database(void);
 

@@ -233,11 +233,11 @@ void Dam_Ecn_Raster::transfer_input_members2database(QSqlDatabase *ptr_database)
 		counter++;
 
         if(i%100000==0 && i>0){
-            cout << "Transfer economical raster elements "<< i <<" to " << i+25000 <<" (from "<<this->number_polygons<<")" <<" to database..."<< endl;
+            cout << "Transfer economical raster elements "<< i <<" to " << i+100000 <<" (from "<<this->number_polygons<<")" <<" to database..."<< endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
 		}
         //send packages of 1000
-        if(counter==500){
+        if(counter==1000){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();
@@ -338,14 +338,14 @@ void Dam_Ecn_Raster::input_raster_perdatabase_element_data(QSqlDatabase *ptr_dat
 		int counter2=0;
 		//read in points
 		for(int i=0; i< this->number_polygons; i++){
-			if(i%10000==0 && i>0){
+			if(i%100000==0 && i>0){
 				Dam_Damage_System::check_stop_thread_flag();
-				cout << "Input economical raster elements "<< i <<" to " << i+10000 <<"..."<< endl;
+				cout << "Input economical raster elements "<< i <<" to " << i+100000 << " (" << this->number_polygons << ")..." << endl;
 				Sys_Common_Output::output_dam->output_txt(&cout);
 			}
 			if(i==counter*constant::max_rows){
 				elem_results.clear();
-				Dam_Ecn_Element::select_relevant_elements_database(&elem_results, ptr_database, id ,this->number,   i, constant::max_rows);
+				Dam_Ecn_Element::select_relevant_elements_database(&elem_results, ptr_database, id ,this->number,   i, constant::max_rows, false);
 				counter++;
 				counter2=0;
 			}
@@ -650,7 +650,7 @@ void Dam_Ecn_Raster::set_intercepted_elem2reduced_area(Dam_Ecn_Raster *raster, Q
 	//which has the smaller area
 	if(this->get_area()<=raster->get_area()){
 		for(int i=0; i< raster->get_number_elements(); i++){
-			if(i%10000==0 && i>0){
+			if(i%100000==0 && i>0){
 				cout << i <<" ("<<raster->get_number_elements()<<") economical raster elements are checked for interception..."<< endl;
 				Sys_Common_Output::output_dam->output_txt(&cout);
 				Dam_Damage_System::check_stop_thread_flag();
@@ -663,7 +663,7 @@ void Dam_Ecn_Raster::set_intercepted_elem2reduced_area(Dam_Ecn_Raster *raster, Q
 	}
 	else{
 		for(int i=0; i< this->get_number_elements(); i++){
-			if(i%10000==0 && i>0){
+			if(i%100000==0 && i>0){
 				cout << i <<" ("<<this->get_number_elements()<<") economical raster elements are checked for interception..."<< endl;
 				Sys_Common_Output::output_dam->output_txt(&cout);
 			}
@@ -707,115 +707,200 @@ void Dam_Ecn_Raster::set_intercepted_elem2floodplain_id(Hyd_Model_Floodplain *fp
 
 	//Hyd_Floodplainraster_Polygon *raster_elems=NULL;
 
-	bool *raster_elem_outside=NULL;
-	try{
-			raster_elem_outside=new bool[fp_model->get_number_elements()];
-		}
-		catch(bad_alloc &t){
-			Error msg=this->set_error(3);
-			ostringstream info;
-			info<< "Info bad alloc: " << t.what() << endl;
-			msg.make_second_info(info.str());
-			throw msg;
-		}
+	//bool *raster_elem_outside=NULL;
+	//try{
+	//		raster_elem_outside=new bool[fp_model->get_number_elements()];
+	//}
+	//catch(bad_alloc &t){
+	//	Error msg=this->set_error(3);
+	//	ostringstream info;
+	//	info<< "Info bad alloc: " << t.what() << endl;
+	//	msg.make_second_info(info.str());
+	//	throw msg;
+	//}
 
-	try{
-		//fp_model->raster.get_complete_raster_polygons(&raster_elems);
+		// --- VOR DER SCHLEIFE: Konstanten vorbereiten ---
 
-		//check which hyd-polygons are outside of the dam-raster
-		for(int i=0; i< fp_model->get_number_elements(); i++){
-			fp_model->raster.set_geometrical_raster_polygon(i);
-			if(this->geometrical_bound.check_polygon_interception(&(fp_model->raster.raster_elem))==_polygon_intercept::complete_outside){
-				//raster_elems[i].set_is_outside_flag(true);
-				raster_elem_outside[i]=true;
-			}
-			else{
-				//raster_elems[i].set_is_outside_flag(false);
-				raster_elem_outside[i]=false;
-			}
-		}
+		// 1. Raster-Eigenschaften auslesen (Hier deine echten Getter-Funktionen einsetzen)
+		const double x0 = fp_model->Param_FP.get_geometrical_info().origin_global_x; // Ursprung X (unten-links)
+		const double y0 = fp_model->Param_FP.get_geometrical_info().origin_global_y; // Ursprung Y (unten-links)
+		const double dx = fp_model->Param_FP.get_geometrical_info().width_x;
+		const double dy = fp_model->Param_FP.get_geometrical_info().width_y;
+		const int nx = fp_model->Param_FP.get_geometrical_info().number_x;
+		const int ny = fp_model->Param_FP.get_geometrical_info().number_y;
+		const int total_fp_elements = fp_model->get_number_elements();
+		const int floodplain_number = fp_model->Param_FP.get_floodplain_number();
 
-		//intercept the elements with floodplain boundary
-		for(int i=0; i< this->number_polygons; i++){
 		
-			found_flag=false;
-			if(i%10000==0 && i>0){
-				cout << i <<" ("<<this->get_number_elements()<<") economical raster elements are checked for interception with the hydraulic..."<< endl;
+		// 2. Rotation vorbereiten (Direkte Übergabe des Winkels)
+		const double angle_rad = fp_model->Param_FP.get_geometrical_info().angle * M_PI / 180.0;
+		const double cos_a = std::cos(angle_rad);
+		const double sin_a = std::sin(angle_rad);
+
+
+
+		// 3. Hilfsvariable für schnellen Konsolen-Output (ersetzt das teure i % 100000)
+		int output_counter = 0;
+		
+
+
+		// --- DIE OPTIMIERTE SCHLEIFE ---
+
+		for (int i = 0; i < this->number_polygons; i++) {
+
+			// Performance-optimierte Statusausgabe alle 100.000 Elemente
+			if (++output_counter >= 100000) {
+				output_counter = 0;
+				cout << i+1 << " (" << this->get_number_elements() << ") economical raster elements are checked for interception with the hydraulic..." << std::endl;
 				Sys_Common_Output::output_dam->output_txt(&cout);
 				Dam_Damage_System::check_stop_thread_flag();
 			}
-			counter=0;
-			//check if the mid_point is inside the floodplain boundary
-			if(fp_model->raster.geometrical_bound.check_point_inside(&this->ecn_elem[i].mid_point)==true){
-				do{
-					Dam_Damage_System::check_stop_thread_flag();
 
-					fp_model->set_relevant_elem_indices(id_fp_elem, relevant_hyd_elem);
-					for(int j=0; j<end_counter; j++){
-						if(relevant_hyd_elem[j]<0){
-							continue;
+
+			// Koordinaten des aktuellen Schadenszellen-Mittelpunkts holen
+			double x = this->ecn_elem[i].mid_point.get_xcoordinate();
+			double y = this->ecn_elem[i].mid_point.get_ycoordinate();
+
+			// Schritt A: Verschiebung relativ zum Raster-Ursprung (unten-links)
+			double dx_p = x - x0;
+			double dy_p = y - y0;
+
+			// Schritt B: Rückrotation in das achsenparallele lokale Koordinatensystem
+			double x_local = dx_p * cos_a - dy_p * sin_a; // Hier MINUS statt Plus
+			double y_local = dx_p * sin_a + dy_p * cos_a; // Hier PLUS statt Minus
+
+			// Schritt C: Spalten- und Zeilenindex direkt berechnen (O(1))
+			int col = static_cast<int>(x_local / dx);
+			int row = static_cast<int>(y_local / dy);
+
+			// Schritt D: Validierung – liegt der Punkt überhaupt innerhalb des hydraulischen Rasters?
+			if (col >= 0 && col < nx && row >= 0 && row < ny) {
+
+				// Direkten 1D-Array-Index berechnen (Row-Major-Layout von unten-links startend)
+				int id_fp_elem = row * nx + col;
+
+				// Zusätzliche Absicherung, dass der Index nicht außerhalb des Arrays liegt
+				if (id_fp_elem >= 0 && id_fp_elem < total_fp_elements) {
+
+					// Prüfen, ob das hydraulische Element außerhalb liegt (dein bestehendes Array)
+					//if (raster_elem_outside[id_fp_elem] == false) {
+
+						// Zelltyp abfragen
+						auto elem_type = fp_model->floodplain_elems[id_fp_elem].get_elem_type();
+
+						// Identisch mit deiner originalen Typ-Prüfung
+						if (elem_type == _hyd_elem_type::STANDARD_ELEM ||
+							elem_type == _hyd_elem_type::DIKELINE_ELEM ||
+							elem_type == _hyd_elem_type::RIVER_ELEM) {
+
+							// Werte direkt in das Schadenzeilen-Element schreiben
+							this->ecn_elem[i].set_index_floodplain(floodplain_number);
+							this->ecn_elem[i].set_index_floodplain_element(id_fp_elem);
 						}
-						//check if the hyd-elemet is outside
-						if(raster_elem_outside[relevant_hyd_elem[j]]==true){
-							continue;
-						}
-						//if(raster_elems[relevant_hyd_elem[j]].get_is_outside_flag()==true){
-						//	continue;
-						//}
-						//search for the floodplain element
-						fp_model->raster.set_geometrical_raster_polygon(relevant_hyd_elem[j]);
-						if(fp_model->raster.raster_elem.check_point_outside(&this->ecn_elem[i].mid_point)==false){
-							id_fp_elem=relevant_hyd_elem[j];
-							if(fp_model->floodplain_elems[id_fp_elem].get_elem_type()==_hyd_elem_type::STANDARD_ELEM ||
-								fp_model->floodplain_elems[id_fp_elem].get_elem_type()==_hyd_elem_type::DIKELINE_ELEM ||
-								fp_model->floodplain_elems[id_fp_elem].get_elem_type()==_hyd_elem_type::RIVER_ELEM 
-								){
-									this->ecn_elem[i].set_index_floodplain(fp_model->Param_FP.get_floodplain_number());
-
-									this->ecn_elem[i].set_index_floodplain_element(id_fp_elem);
-									
-							}
-							found_flag=true;
-							break;
-						}
-					}
-
-					if(found_flag==true){
-						//nine neighbouring elements
-						end_counter=9;
-						break;
-					}
-
-					//count the element id
-					if(id_fp_elem>=fp_model->get_number_elements()-1){
-						id_fp_elem=0;
-					}
-					else{
-						id_fp_elem++;
-					}
-					end_counter=1;
-					counter++;
+					//}
 				}
-				while(counter<fp_model->get_number_elements());
 			}
 		}
-	}
-	catch(Error msg){
-		/*if(raster_elems!=NULL){
-			delete []raster_elems;
-		}*/
-		if(raster_elem_outside!=NULL){
-			delete []raster_elem_outside;
-		}
-		throw msg;
-	}
+
+	//try{
+	//	//fp_model->raster.get_complete_raster_polygons(&raster_elems);
+
+	//	//check which hyd-polygons are outside of the dam-raster
+	//	for(int i=0; i< fp_model->get_number_elements(); i++){
+	//		fp_model->raster.set_geometrical_raster_polygon(i);
+	//		if(this->geometrical_bound.check_polygon_interception(&(fp_model->raster.raster_elem))==_polygon_intercept::complete_outside){
+	//			//raster_elems[i].set_is_outside_flag(true);
+	//			raster_elem_outside[i]=true;
+	//		}
+	//		else{
+	//			//raster_elems[i].set_is_outside_flag(false);
+	//			raster_elem_outside[i]=false;
+	//		}
+	//	}
+
+	//	//intercept the elements with floodplain boundary
+	//	for(int i=0; i< this->number_polygons; i++){
+	//	
+	//		found_flag=false;
+	//		if(i%100000==0 && i>0){
+	//			cout << i <<" ("<<this->get_number_elements()<<") economical raster elements are checked for interception with the hydraulic..."<< endl;
+	//			Sys_Common_Output::output_dam->output_txt(&cout);
+	//			Dam_Damage_System::check_stop_thread_flag();
+	//		}
+	//		counter=0;
+
+	//		//check if the mid_point is inside the floodplain boundary
+	//		if(fp_model->raster.geometrical_bound.check_point_inside(&this->ecn_elem[i].mid_point)==true){
+
+	//			do{
+	//				Dam_Damage_System::check_stop_thread_flag();
+
+	//				fp_model->set_relevant_elem_indices(id_fp_elem, relevant_hyd_elem);
+	//				for(int j=0; j<end_counter; j++){
+	//					if(relevant_hyd_elem[j]<0){
+	//						continue;
+	//					}
+	//					//check if the hyd-elemet is outside
+	//					if(raster_elem_outside[relevant_hyd_elem[j]]==true){
+	//						continue;
+	//					}
+	//					//if(raster_elems[relevant_hyd_elem[j]].get_is_outside_flag()==true){
+	//					//	continue;
+	//					//}
+	//					//search for the floodplain element
+	//					fp_model->raster.set_geometrical_raster_polygon(relevant_hyd_elem[j]);
+	//					if(fp_model->raster.raster_elem.check_point_outside(&this->ecn_elem[i].mid_point)==false){
+	//						id_fp_elem=relevant_hyd_elem[j];
+	//						if(fp_model->floodplain_elems[id_fp_elem].get_elem_type()==_hyd_elem_type::STANDARD_ELEM ||
+	//							fp_model->floodplain_elems[id_fp_elem].get_elem_type()==_hyd_elem_type::DIKELINE_ELEM ||
+	//							fp_model->floodplain_elems[id_fp_elem].get_elem_type()==_hyd_elem_type::RIVER_ELEM 
+	//							){
+	//								this->ecn_elem[i].set_index_floodplain(fp_model->Param_FP.get_floodplain_number());
+
+	//								this->ecn_elem[i].set_index_floodplain_element(id_fp_elem);
+	//								
+	//						}
+	//						found_flag=true;
+	//						break;
+	//					}
+	//				}
+
+	//				if(found_flag==true){
+	//					//nine neighbouring elements
+	//					end_counter=9;
+	//					break;
+	//				}
+
+	//				//count the element id
+	//				if(id_fp_elem>=fp_model->get_number_elements()-1){
+	//					id_fp_elem=0;
+	//				}
+	//				else{
+	//					id_fp_elem++;
+	//				}
+	//				end_counter=1;
+	//				counter++;
+	//			}
+	//			while(counter<fp_model->get_number_elements());
+	//		}
+	//	}
+	//}
+	//catch(Error msg){
+	//	/*if(raster_elems!=NULL){
+	//		delete []raster_elems;
+	//	}*/
+	//	if(raster_elem_outside!=NULL){
+	//		delete []raster_elem_outside;
+	//	}
+	//	throw msg;
+	//}
 
 	/*if(raster_elems!=NULL){
 		delete []raster_elems;
 	}*/
-	if(raster_elem_outside!=NULL){
-		delete []raster_elem_outside;
-	}
+	//if(raster_elem_outside!=NULL){
+	//	delete []raster_elem_outside;
+	//}
 }
 //Set intercepted elements with polygons to the new landuse-id
 void Dam_Ecn_Raster::set_intercepted_elem2new_landuse(QSqlDatabase *ptr_database, const _sys_system_id id, Dam_Polygon *polys, QList <int> current_id, QList <int> new_id){
@@ -826,7 +911,7 @@ void Dam_Ecn_Raster::set_intercepted_elem2new_landuse(QSqlDatabase *ptr_database
 
 	//intercept the elements with polygons
 	for(int i=0; i< this->number_polygons; i++){
-		if(i%10000==0 && i>0){
+		if(i%100000==0 && i>0){
 			cout << i <<" ("<<this->get_number_elements()<<") economical raster elements are checked for interception with the hydraulic..."<< endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
 		}
@@ -911,8 +996,8 @@ void Dam_Ecn_Raster::transfer_intercepted_elem_data2database(QSqlDatabase *ptr_d
 			counter++;
 		};
 
-		//send packages of 100
-		if(counter==500){
+		//send packages of 1000
+		if(counter==1000){
 			//delete last semikolon
 			string buff=query_total.str();
 			buff.erase(buff.length()-1);
