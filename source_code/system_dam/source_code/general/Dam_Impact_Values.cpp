@@ -93,6 +93,33 @@ void Dam_Impact_Values::readout_data_from_database_model(QSqlQueryModel *model, 
 		throw msg;
 	}
 }
+// Read out the member data directly from a streaming query
+void Dam_Impact_Values::readout_data_from_query(const QSqlQuery* query) {
+	try {
+		// Index 0 ist die elemdata_id (haben wir in der Hauptschleife bereits ausgelesen,
+		// aber wir weisen sie hier der Vollständigkeit halber auch dem Element-Member zu)
+		this->fp_elem_id = query->value(0).toInt();
+
+		this->impact_h = query->value(1).toDouble();
+		this->impact_v_tot = query->value(2).toDouble();
+		this->impact_dsdt = query->value(3).toDouble();
+		this->impact_duration = query->value(4).toDouble();
+		this->impact_first_t = query->value(5).toDouble();
+		this->impact_vh = query->value(6).toDouble();
+		this->watervolume = query->value(7).toDouble();
+
+		// Wet-Flag Logik (bleibt identisch)
+		if (this->impact_h > constant::meter_epsilon) {
+			this->was_wet_flag = true;
+		}
+		else {
+			this->was_wet_flag = false;
+		}
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+}
 //Read out the member data from a given QSqlTableModel
 void Dam_Impact_Values::readout_instat_data_from_database_model(QSqlQueryModel *model, const int model_index) {
 	try {

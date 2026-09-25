@@ -1049,6 +1049,73 @@ int Hyd_Element_Floodplain::select_relevant_results_elements_database(QSqlQueryM
 
 	return number;
 }
+//Select and count the number of relevant results per floodplain elements for one floodplain model in a database table (just part of it) via a stream (static)
+void Hyd_Element_Floodplain::select_all_relevant_results_elements_stream(QSqlQuery* query, QSqlDatabase* ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const bool with_output) {
+	try {
+		Hyd_Element_Floodplain::set_erg_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	if (with_output == true) {
+		ostringstream cout;
+		cout << "Select relevant results of the floodplain elements in database for streaming..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+	ostringstream test_filter;
+	test_filter << "SELECT ";
+	// Index 0: elemdata_id
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(hyd_label::elemdata_id) << " , ";
+	// Index 1 bis 7: Die Ergebniswerte
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(hyd_label::elemerg_h_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(hyd_label::elemerg_vtot_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(hyd_label::elemerg_dsdt_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(hyd_label::elemerg_dur_wet) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(hyd_label::elemerg_t_first) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(hyd_label::elemerg_hv_max) << " , ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(hyd_label::elemerg_end_vol);
+
+	test_filter << " FROM " << Hyd_Element_Floodplain::erg_table->get_table_name();
+	test_filter << " WHERE ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(risk_label::sz_break_id) << " = '" << break_sz << "'";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(hyd_label::sz_bound_id) << " = " << bound_sz;
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(label::applied_flag) << "= true";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " AND (";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(label::measure_id) << " = " << 0;
+	test_filter << " OR ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " ) ";
+	test_filter << " AND ";
+	test_filter << Hyd_Element_Floodplain::erg_table->get_column_name(hyd_label::elemdata_fpno) << " = " << fp_number;
+
+	// OPTIMIERUNG: Da wir über die IDs direkt in das Ziel-Array einsortieren, 
+	// lassen wir ORDER BY, LIMIT und OFFSET komplett weg. Das entlastet die DB massiv!
+
+	// Forward-Only für schnelles Streaming aktivieren
+	query->setForwardOnly(true);
+
+	// Abfrage ausführen
+	if (!query->exec(QString::fromStdString(test_filter.str()))) {
+		Error msg;
+		msg.set_msg("Hyd_Element_Floodplain::select_all_relevant_results_elements_stream", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Hyd_Element_Floodplain::erg_table->get_table_name() << endl;
+		info << "Table error info: " << query->lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	if (with_output == true) {
+		ostringstream cout;
+		cout << "Results of the floodplain elements are ready for streaming" << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+}
 //Count the number of relevant results per floodplain elements for one floodplain model in a database table (static)
 int Hyd_Element_Floodplain::count_relevant_results_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const bool with_output){
 			int number=0;

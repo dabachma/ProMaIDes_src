@@ -3610,8 +3610,8 @@ void Hyd_Model_Floodplain::output_result_max2database(QSqlDatabase *ptr_database
 			*was_output=true;
 		}
 
-		//send packages of 100
-		if(counter==5000){
+		//send packages of 10000
+		if(counter==10000){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();
@@ -4657,8 +4657,8 @@ void Hyd_Model_Floodplain::transfer_element_members2database(QSqlDatabase *ptr_d
 		id_glob++;
 		counter++;
 
-		//send packages of 100
-		if(counter==1000){
+		//send packages of 1000
+		if(counter==10000){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();

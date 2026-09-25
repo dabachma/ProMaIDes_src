@@ -63,6 +63,8 @@ public:
 
 	///Read out the member data from a given QSqlTableModel
 	void readout_data_from_database_model(QSqlQueryModel *model, const int model_index);
+	///Read out the member data directly from a streaming query
+	void Dam_Impact_Values::readout_data_from_query(const QSqlQuery* query);
 	///Read out the member data from a given QSqlTableModel
 	void readout_instat_data_from_database_model(QSqlQueryModel *model, const int model_index);
 

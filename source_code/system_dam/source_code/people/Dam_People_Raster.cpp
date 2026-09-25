@@ -146,8 +146,8 @@ void Dam_People_Raster::transfer_input_members2database(QSqlDatabase *ptr_databa
             cout << "Transfer people2risk raster elements "<< i <<" to " << i+100000 <<" (from "<<this->number_polygons<<")" <<" to database..."<< endl;
 			Sys_Common_Output::output_dam->output_txt(&cout);
 		}
-        //send packages of 500
-        if(counter==1000){
+        //send packages of 10000
+        if(counter==10000){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();
@@ -262,63 +262,130 @@ void Dam_People_Raster::input_raster_perdatabase_general_data(const QSqlQueryMod
 }
 //Input the people2risk raster element data per database: element information, the general information has to be set before
 void Dam_People_Raster::input_raster_perdatabase_element_data(QSqlDatabase *ptr_database, const _sys_system_id id){
-	try{
+	//try{
+	//	ostringstream prefix;
+	//	prefix << "RAST_"<<this->number<<"> ";
+	//	Sys_Common_Output::output_dam->set_userprefix(prefix.str());
+
+	//	ostringstream cout;
+	//	cout <<"Load elements of people2risk raster "<<this->get_raster_name()<< " from database..." <<endl;
+	//	Sys_Common_Output::output_dam->output_txt(&cout);
+	//	this->check_raster_info();
+
+	//	QSqlQueryModel elem_results;
+
+	//	//initialize the raster
+	//	Geo_Raster::init_raster();
+	//	this->allocate_raster_elem_info();
+	//	this->set_sys_system_id(id);
+	//	Geo_Raster::clear_raster();
+
+	//	int number_poly=Dam_People_Element::count_relevant_elements_database(&elem_results, ptr_database, id ,this->number);
+	//	if(number_poly!=this->number_polygons){
+	//		Error msg=this->set_error(2);
+	//		ostringstream info;
+	//		info<<"Required number     : " << this->number_polygons << endl;
+	//		info<<"Found number        : " << number_poly << endl;
+	//		msg.make_second_info(info.str());
+	//		throw msg;
+	//	}
+	//	int counter=0;
+	//	int counter2=0;
+	//	//read in points
+	//	for(int i=0; i< this->number_polygons; i++){
+	//		if(i%100000==0 && i>0){
+	//			Dam_Damage_System::check_stop_thread_flag();
+	//			cout << "Input people2risk raster elements "<< i <<" to " << i+100000 <<" ("<< this->number_polygons<<")..."<< endl;
+	//			Sys_Common_Output::output_dam->output_txt(&cout);
+	//		}
+	//		if(i==counter*constant::max_rows){
+	//			elem_results.clear();
+	//			Dam_People_Element::select_relevant_elements_database(&elem_results, ptr_database, id ,this->number,   i, constant::max_rows,false);
+	//			counter++;
+	//			counter2=0;
+	//		}
+	//		this->element[i].input_element_perdatabase(&elem_results , counter2);
+	//		counter2++;
+	//	}
+	//}
+	//catch(Error msg){
+	//	ostringstream info;
+	//	info <<"Raster-id       : " << this->number << endl;
+	//	info <<"Raster-name     : " << this->name << endl;
+	//	msg.make_second_info(info.str());
+	//	Sys_Common_Output::output_dam->rewind_userprefix();
+	//	throw msg;
+	//}
+	//ptr_database->close();
+	//ptr_database->open();
+	//Sys_Common_Output::output_dam->rewind_userprefix();
+
+	try {
 		ostringstream prefix;
-		prefix << "RAST_"<<this->number<<"> ";
+		prefix << "RAST_" << this->number << "> ";
 		Sys_Common_Output::output_dam->set_userprefix(prefix.str());
 
 		ostringstream cout;
-		cout <<"Load elements of people2risk raster "<<this->get_raster_name()<< " from database..." <<endl;
+		cout << "Load elements of people2risk raster " << this->get_raster_name() << " from database..." << endl;
 		Sys_Common_Output::output_dam->output_txt(&cout);
 		this->check_raster_info();
 
+		// Für den ersten Zähl-Check nutzen wir das Model temporär weiter
 		QSqlQueryModel elem_results;
 
-		//initialize the raster
+		// initialize the raster
 		Geo_Raster::init_raster();
 		this->allocate_raster_elem_info();
 		this->set_sys_system_id(id);
 		Geo_Raster::clear_raster();
 
-		int number_poly=Dam_People_Element::count_relevant_elements_database(&elem_results, ptr_database, id ,this->number);
-		if(number_poly!=this->number_polygons){
-			Error msg=this->set_error(2);
+		int number_poly = Dam_People_Element::count_relevant_elements_database(&elem_results, ptr_database, id, this->number);
+		if (number_poly != this->number_polygons) {
+			Error msg = this->set_error(2);
 			ostringstream info;
-			info<<"Required number     : " << this->number_polygons << endl;
-			info<<"Found number        : " << number_poly << endl;
+			info << "Required number     : " << this->number_polygons << endl;
+			info << "Found number        : " << number_poly << endl;
 			msg.make_second_info(info.str());
 			throw msg;
 		}
-		int counter=0;
-		int counter2=0;
-		//read in points
-		for(int i=0; i< this->number_polygons; i++){
-			if(i%100000==0 && i>0){
+
+		// NEU: Verwende QSqlQuery für das schnelle Streaming der Zeilen
+		QSqlQuery query(*ptr_database);
+		Dam_People_Element::select_all_relevant_elements_stream(&query, ptr_database, id, this->number, false);
+
+		int i = 0;
+		// read in points via Stream-Loop
+		while (query.next()) {
+			if (i % 100000 == 0 && i > 0) {
 				Dam_Damage_System::check_stop_thread_flag();
-				cout << "Input people2risk raster elements "<< i <<" to " << i+100000 <<" ("<< this->number_polygons<<")..."<< endl;
+				cout << "Input people2risk raster elements " << i << " to " << i + 100000 << " (" << this->number_polygons << ")..." << endl;
 				Sys_Common_Output::output_dam->output_txt(&cout);
 			}
-			if(i==counter*constant::max_rows){
-				elem_results.clear();
-				Dam_People_Element::select_relevant_elements_database(&elem_results, ptr_database, id ,this->number,   i, constant::max_rows,false);
-				counter++;
-				counter2=0;
+
+			// Sicherheits-Check gegen Array-Überlauf (falls DB mehr liefert als erwartet)
+			if (i >= this->number_polygons) {
+				break;
 			}
-			this->element[i].input_element_perdatabase(&elem_results , counter2);
-			counter2++;
+
+			// NEU: Nutzt die neue Methode, die direkt aus dem Query-Stream liest
+			// Wichtig: Ihr Array heißt hier "this->element[i]" (im Gegensatz zu "ecn_elem")
+			this->element[i].input_element_from_query(&query);
+			i++;
 		}
 	}
-	catch(Error msg){
+	catch (Error msg) {
 		ostringstream info;
-		info <<"Raster-id       : " << this->number << endl;
-		info <<"Raster-name     : " << this->name << endl;
+		info << "Raster-id       : " << this->number << endl;
+		info << "Raster-name     : " << this->name << endl;
 		msg.make_second_info(info.str());
 		Sys_Common_Output::output_dam->rewind_userprefix();
 		throw msg;
 	}
+
 	ptr_database->close();
 	ptr_database->open();
 	Sys_Common_Output::output_dam->rewind_userprefix();
+
 }
 //Output the members of geometrical damage raster to display/console
 void Dam_People_Raster::output_member(void){
@@ -451,7 +518,7 @@ void Dam_People_Raster::output_results2database(QSqlDatabase *ptr_database,const
 			*was_output=true;
 		}
 		//send packages of 10000
-		if(counter==1000){
+		if(counter==10000){
 			query_total<< query_header << query_data.str();
 			//delete last komma
 			string buff=query_total.str();
@@ -867,6 +934,9 @@ void Dam_People_Raster::transfer_intercepted_elem_data2database(QSqlDatabase *pt
 	cout << "Transfer new data of interception of the people2risk raster elements of raster " << this->name << " to database..."<< endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
 
+	// NEU: Startet die Transaktion VOR der Schleife (Sammelt alle Festplatten-Schreibvorgänge im RAM)
+	ptr_database->transaction();
+
 	ostringstream query_total;
 	int counter=0;
 	//Set the query
@@ -883,8 +953,8 @@ void Dam_People_Raster::transfer_intercepted_elem_data2database(QSqlDatabase *pt
 			counter++;
 		};
 
-		//send packages of 100
-		if(counter==500){
+		//send packages of 10000
+		if(counter==10000){
 			//delete last semikolon
 			string buff=query_total.str();
 			buff.erase(buff.length()-1);
@@ -923,6 +993,17 @@ void Dam_People_Raster::transfer_intercepted_elem_data2database(QSqlDatabase *pt
 		}
 	}
 	query_buff.clear();
+	
+	// NEU: Beendet die Transaktion NACHDEM alles gesendet wurde (Schreibt alles auf einmal auf die Platte)
+	if (!ptr_database->commit()) {
+		ptr_database->rollback(); // Falls der Commit fehlschlägt, Änderungen zurückrollen
+		Warning msg = this->set_warning(8);
+		ostringstream info;
+		info << "Database Commit failed! Changes rolled back." << endl;
+		msg.make_second_info(info.str());
+		msg.output_msg(4);
+	}
+	
 	cout << "Transfer new data of interception of the people2risk raster elements of raster " << this->name << " to database is finished"<< endl;
 	Sys_Common_Output::output_dam->output_txt(&cout);
 

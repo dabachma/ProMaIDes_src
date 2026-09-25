@@ -46,6 +46,8 @@ public:
 	
 	///Input the economic damage raster element data per database
 	void input_element_perdatabase(const QSqlQueryModel *results, const int glob_index);
+	///Input the economic damage raster element data directly from a streaming query
+	void input_element_from_query(const QSqlQuery* query);
 
 	///Set the element data from the raster interception to the database table: identifier of the floodplain, -floodplain element and the reduced area
 	void set_interception_elem_data2database(QSqlDatabase *ptr_database, QSqlQuery *elem_results, const int raster_id);
@@ -174,6 +176,8 @@ public:
 	static int select_relevant_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int raster_id, const bool with_output = true);
 	///Select and count the number of relevant damage raster elements in a database table (just part of it)
 	static int select_relevant_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int raster_id,  const int offset, const int number_rows, const bool with_output = true);
+	///Select all relevant damage raster elements from database and prepare for fast streaming (static)
+	static void select_all_relevant_elements_stream(QSqlQuery* query, QSqlDatabase* ptr_database, const _sys_system_id id, const int raster_id, const bool with_output = true);
 	///Count the number of relevant damage raster elements in a database table
 	static int count_relevant_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int raster_id, const bool with_output = true);
 

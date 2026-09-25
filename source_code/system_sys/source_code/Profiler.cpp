@@ -164,6 +164,18 @@ void Profiler::logValues(void) {
 	delete[] names;
 	delete[] times;
 
+	// Reset time values after output
+	for (int i = 0; i < numberOfElements; ++i) {
+	#ifndef __GNUC__
+		this->profiledElements[i]->totalTicks = 0;
+	#else
+		this->profiledElements[i]->start.tv_sec = 0;
+		this->profiledElements[i]->start.tv_nsec = 0;
+		this->profiledElements[i]->end.tv_sec = 0;
+		this->profiledElements[i]->end.tv_nsec = 0;
+	#endif
+	}
+
 }
 // Activate profiler
 void Profiler::activate_profiler(bool flag) {

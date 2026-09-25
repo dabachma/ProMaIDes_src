@@ -348,7 +348,7 @@ string Hyd_Param_FP::get_filename_result2file(const string type, const double ti
 		stringstream suffix;
 		suffix << "FP_RES_"<<this->FPNumber;
 		if(timepoint>=0.0){
-			suffix<<"_"<<timepoint;
+			suffix<<"_" << std::fixed << std::setprecision(0) << timepoint;
 		}
 		else{
 			suffix<<"_time";

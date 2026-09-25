@@ -171,6 +171,36 @@ void Dam_People_Element::input_element_perdatabase(const QSqlQueryModel *results
 		throw msg;
 	}
 }
+// Input the people2risk damage raster element data directly from a streaming query
+void Dam_People_Element::input_element_from_query(const QSqlQuery* query) {
+	try {
+		// Die Indizes entsprechen exakt der Reihenfolge im neuen SELECT-Statement:
+		// 0: elem_id, 1: elem_mid_x, 2: elem_mid_y, 3: conn_fp_id, 4: conn_fp_elem_id, 
+		// 5: area_elem, 6: glob_id, 7: pop_density, 8: pop2risk_type, 9: no_pop_density, 10: no_pop2risk_type
+
+		this->elem_index = query->value(0).toInt();
+
+		double x_mid = query->value(1).toDouble();
+		double y_mid = query->value(2).toDouble();
+		this->mid_point.set_point_coordinate(x_mid, y_mid);
+
+		this->index_fp = query->value(3).toInt();
+		this->index_fp_elem = query->value(4).toInt();
+		this->area = query->value(5).toDouble();
+		this->global_index = query->value(6).toInt();
+
+		this->indiv_pop_stock_value = query->value(7).toDouble();
+		this->id_people2risk_type = query->value(8).toInt();
+		this->no_info_elem_density = query->value(9).toBool();
+		this->no_info_elem_type = query->value(10).toBool();
+	}
+	catch (Error msg) {
+		ostringstream info;
+		info << "Element index            : " << this->elem_index << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+}
 //Set the element data from the raster interception to the database table: identifier of the floodplain, -floodplain element and the reduced area
 void Dam_People_Element::set_interception_elem_data2database(QSqlDatabase *ptr_database, QSqlQuery *elem_results,  const int raster_id){
 	//nothing to update
@@ -1596,6 +1626,66 @@ int Dam_People_Element::select_relevant_elements_database(QSqlQueryModel *result
 	}
 
 	return number;
+}
+// Select all relevant people2risk raster elements from database and prepare for fast streaming (static)
+void Dam_People_Element::select_all_relevant_elements_stream(QSqlQuery* query, QSqlDatabase* ptr_database, const _sys_system_id id, const int raster_id, const bool with_output) {
+	try {
+		Dam_People_Element::set_elem_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	if (with_output == true) {
+		ostringstream cout;
+		cout << "Select relevant people2risk raster elements in database for streaming..." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout);
+	}
+
+	ostringstream test_filter;
+	test_filter << "Select ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::elem_id) << " , ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::elem_mid_x) << " , ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::elem_mid_y) << " , ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::conn_fp_id) << " , ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::conn_fp_elem_id) << " , ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::area_elem) << " , ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::glob_id) << " , ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::pop_density) << " , ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::pop2risk_type) << " , ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::no_pop_density) << " , ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::no_pop2risk_type);
+
+	test_filter << " from " << Dam_People_Element::elem_table->get_table_name();
+	test_filter << " where ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(label::applied_flag) << "= true";
+	test_filter << " and ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " and (";
+	test_filter << Dam_People_Element::elem_table->get_column_name(label::measure_id) << " = " << 0;
+	test_filter << " or ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " ) ";
+	test_filter << " and ";
+	test_filter << Dam_People_Element::elem_table->get_column_name(dam_label::raster_id) << " = " << raster_id;
+	test_filter << " order by " << Dam_People_Element::elem_table->get_column_name(dam_label::elem_id);
+
+	query->setForwardOnly(true);
+
+	if (!query->exec(QString::fromStdString(test_filter.str()))) {
+		Error msg;
+		msg.set_msg("Dam_People_Element::select_all_relevant_elements_stream(QSqlQuery *query, ...)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Dam_People_Element::elem_table->get_table_name() << endl;
+		info << "Table error info: " << query->lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	if (with_output == true) {
+		ostringstream cout;
+		cout << "Query executed successfully. Ready to stream people2risk elements." << endl;
+		Sys_Common_Output::output_dam->output_txt(&cout);
+	}
 }
 //Count the number of relevant damage raster elements in a database table
 int Dam_People_Element::count_relevant_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int raster_id, const bool with_output){

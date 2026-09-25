@@ -153,6 +153,8 @@ public:
 	static int select_relevant_results_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const bool with_output = true);
 	///Select and count the number of relevant results per floodplain elements for one floodplain model in a database table (just part of it)
 	static int select_relevant_results_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const int offset, const int number_rows, const bool with_output = true);
+	///Select and count the number of relevant results per floodplain elements for one floodplain model in a database table (just part of it) via a stream (static)
+	static void select_all_relevant_results_elements_stream(QSqlQuery* query, QSqlDatabase* ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const bool with_output);
 	///Count the number of relevant results per floodplain elements for one floodplain model in a database table
 	static int count_relevant_results_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int bound_sz, const string break_sz, const bool with_output = true);
 
