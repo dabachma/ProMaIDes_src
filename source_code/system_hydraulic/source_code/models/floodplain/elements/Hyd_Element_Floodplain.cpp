@@ -269,6 +269,36 @@ void Hyd_Element_Floodplain::input_members(const int index, const QSqlQueryModel
         this->input_element_boundarydata2database(bound_result, bound_number, this->glob_elem_number, last_index);
 	}
 }
+// Input the floodplain element data directly from a streaming query
+void Hyd_Element_Floodplain::input_members_from_query(const QSqlQuery* query, QSqlQueryModel* bound_result, const int bound_number, const bool just_elems, int* last_index) {
+	try {
+		// Die Indizes entsprechen exakt der Reihenfolge im SELECT-Statement:
+		// 0: elemdata_glob_id, 1: elemdata_id, 2: elemdata_matid, 
+		// 3: elemdata_z, 4: elemdata_init, 5: elemdata_mid_x, 6: elemdata_mid_y
+
+		this->glob_elem_number = query->value(0).toInt();
+		this->elem_number = query->value(1).toInt();
+		this->buffer_flow_data->mat_type = query->value(2).toInt();
+		this->z_value = query->value(3).toDouble();
+		this->buffer_flow_data->init_condition = query->value(4).toDouble();
+
+		double x_mid = query->value(5).toDouble();
+		double y_mid = query->value(6).toDouble();
+		this->mid_point.set_point_coordinate(x_mid, y_mid);
+	}
+	catch (Error msg) {
+		ostringstream info;
+		info << "Element number            : " << this->elem_number << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	if (just_elems == false) {
+		// Set the boundary conditions (reicht die geladene globale Elementnummer weiter)
+		this->input_element_boundarydata2database(bound_result, bound_number, this->glob_elem_number, last_index);
+	}
+}
+
 //Set members directly
 void Hyd_Element_Floodplain::set_members_directly(const int elem_number, Geo_Point* midpoint, const double z_value, const _hyd_elem_type type){
 	this->elem_number=elem_number;
@@ -595,6 +625,73 @@ int Hyd_Element_Floodplain::select_relevant_elements_database(QSqlQueryModel *re
 	}
 
 	return number;
+}
+//Select and count the number of relevant floodplain elements for one floodplain model in a database table per stream (static)
+void Hyd_Element_Floodplain::select_all_elements_stream(QSqlQuery* query, QSqlDatabase* ptr_database, const _sys_system_id id, const int fp_number, const bool with_output) {
+	try {
+		Hyd_Element_Floodplain::set_table(ptr_database);
+	}
+	catch (Error msg) {
+		throw msg;
+	}
+	if (with_output == true) {
+		ostringstream cout;
+		cout << "Search for relevant floodplain elements in database for streaming..." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
+
+	ostringstream test_filter;
+	test_filter << "Select ";
+	// Index 0: elemdata_glob_id
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_glob_id) << " , ";
+	// Index 1: elemdata_id
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_id) << " , ";
+	// Index 2: elemdata_matid
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_matid) << " , ";
+	// Index 3: elemdata_z
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_z) << " , ";
+	// Index 4: elemdata_init
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_init) << " , ";
+	// Index 5: elemdata_mid_x
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_mid_x) << " , ";
+	// Index 6: elemdata_mid_y
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_mid_y);
+
+	test_filter << " from " << Hyd_Element_Floodplain::elem_table->get_table_name();
+	test_filter << " where ";
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(label::applied_flag) << "= true";
+	test_filter << " and ";
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(label::areastate_id) << " =" << id.area_state;
+	test_filter << " and (";
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(label::measure_id) << " = " << 0;
+	test_filter << " or ";
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(label::measure_id) << " = " << id.measure_nr;
+	test_filter << " ) ";
+	test_filter << " and ";
+	test_filter << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_fpno) << " = " << fp_number;
+
+	// Da wir die Elemente sequentiell in ein Array einlesen, lassen wir das ORDER BY wie im alten Code bestehen:
+	test_filter << " order by " << Hyd_Element_Floodplain::elem_table->get_column_name(hyd_label::elemdata_id);
+
+	// Aktiviert speicherschonendes und schnelles Vorwärts-Streaming von PostgreSQL
+	query->setForwardOnly(true);
+
+	// Request direkt über das QSqlQuery-Objekt absetzen
+	if (!query->exec(QString::fromStdString(test_filter.str()))) {
+		Error msg;
+		msg.set_msg("Hyd_Element_Floodplain::select_all_elements_stream(QSqlQuery *query, ...)", "Invalid database request", "Check the database", 2, false);
+		ostringstream info;
+		info << "Table Name      : " << Hyd_Element_Floodplain::elem_table->get_table_name() << endl;
+		info << "Table error info: " << query->lastError().text().toStdString() << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
+
+	if (with_output == true) {
+		ostringstream cout;
+		cout << "Relevant floodplain elements query executed successfully. Ready to stream." << endl;
+		Sys_Common_Output::output_hyd->output_txt(&cout);
+	}
 }
 //Count the number of relevant elements (static)
 int Hyd_Element_Floodplain::count_relevant_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const bool with_output){

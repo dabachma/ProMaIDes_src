@@ -1051,9 +1051,7 @@ void Dam_Ecn_Raster::transfer_intercepted_elem_data2database(QSqlDatabase *ptr_d
 	Sys_Common_Output::output_dam->output_txt(&cout);
 
 
-	// NEU: Startet die Transaktion VOR der Schleife (Sammelt alle Festplatten-Schreibvorgänge im RAM)
-	ptr_database->transaction();
-
+	
 	ostringstream query_total;
 	int counter=0;
 	//Set the query
@@ -1113,15 +1111,7 @@ void Dam_Ecn_Raster::transfer_intercepted_elem_data2database(QSqlDatabase *ptr_d
 	}
 	query_buff.clear();
 
-	// NEU: Beendet die Transaktion NACHDEM alles gesendet wurde (Schreibt alles auf einmal auf die Platte)
-	if (!ptr_database->commit()) {
-		ptr_database->rollback(); // Falls der Commit fehlschlägt, Änderungen zurückrollen
-		Warning msg = this->set_warning(8);
-		ostringstream info;
-		info << "Database Commit failed! Changes rolled back." << endl;
-		msg.make_second_info(info.str());
-		msg.output_msg(4);
-	}
+
 
 
 

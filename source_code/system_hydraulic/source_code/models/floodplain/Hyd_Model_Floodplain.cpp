@@ -3810,40 +3810,62 @@ void Hyd_Model_Floodplain::set_relevant_elem_indices(const int current_id, int *
 void Hyd_Model_Floodplain::input_elems_database(QSqlDatabase *ptr_database, QSqlQueryModel *bound_result, const int number_bound, const bool output_flag, const bool just_elems){
 	QSqlQueryModel prof_query_result;
 	//get the number of elements in the table
-	int number_elems=0;
+	int number_elems = 0;
 
-	number_elems=Hyd_Element_Floodplain::count_relevant_elements_database(&prof_query_result, ptr_database, this->system_id, this->Param_FP.FPNumber, output_flag);
+	number_elems = Hyd_Element_Floodplain::count_relevant_elements_database(&prof_query_result, ptr_database, this->system_id, this->Param_FP.FPNumber, output_flag);
 	prof_query_result.clear();
 	//check the number of found elements
-	if(number_elems!=this->Param_FP.FPNofX*Param_FP.FPNofY){
-		Error msg=this->set_error(12);
+	if (number_elems != this->Param_FP.FPNofX * Param_FP.FPNofY) {
+		Error msg = this->set_error(12);
 		ostringstream info;
-		info << "Table name               : " <<Hyd_Model_Floodplain::general_param_table->get_table_name() << endl;
+		info << "Table name               : " << Hyd_Model_Floodplain::general_param_table->get_table_name() << endl;
 		info << "Number found elements    : " << number_elems << endl;
-		info << "Number required elements : " << this->Param_FP.FPNofX*Param_FP.FPNofY << endl;
+		info << "Number required elements : " << this->Param_FP.FPNofX * Param_FP.FPNofY << endl;
 		msg.make_second_info(info.str());
 		throw msg;
 	}
 
 	//allocate the floodplain elements
 	this->allocate_elems();
-	int counter=0;
-	int counter2=0;
-	//read in the element members
-    int last_index=0;
-	
-	for(int i=0; i< this->NEQ; i++){
-		if(i==counter*constant::max_rows){
-			prof_query_result.clear();
-			Hyd_Element_Floodplain::select_relevant_elements_database(&prof_query_result, ptr_database, this->system_id, this->Param_FP.FPNumber, i, constant::max_rows, output_flag);
-			counter++;
-			counter2=0;
-		}
-		Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
-        this->floodplain_elems[i].input_members(counter2, &prof_query_result, bound_result, number_bound, just_elems, &last_index);
-		counter2++;
-	}
 
+	try {
+		// 1. QSqlQuery-Objekt auf der bestehenden DB-Verbindung anlegen
+		QSqlQuery query(*ptr_database);
+
+		// 2. Die neue statische Methode aufrufen, um das SELECT abzusetzen (ohne LIMIT/OFFSET)
+		Hyd_Element_Floodplain::select_all_elements_stream(&query, ptr_database, this->system_id, this->Param_FP.FPNumber, output_flag);
+
+		int i = 0;
+		int last_index = 0;
+		ostringstream cout;
+
+		// 3. Zeile für Zeile blitzschnell über den Stream einlesen
+		while (query.next()) {
+			// NEU: Textausgabe alle 100.000 Elemente nach Ihrem Vorbild
+			if (i % 100000 == 0 && i > 0) {
+				Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+				cout << "Input floodplain elements " << i << " to " << i + 100000 << " (" << this->NEQ << ")..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+			}
+
+			// Sicherheits-Check gegen Array-Überlauf
+			if (i >= this->NEQ) {
+				break;
+			}
+
+			// Daten direkt aus der aktuellen Stream-Zeile des Query-Objekts extrahieren
+			this->floodplain_elems[i].input_members_from_query(&query, bound_result, number_bound, just_elems, &last_index);
+			i++;
+		}
+	}
+	catch (Error msg) {
+		// Detailliertes Error-Handling nach Ihrem Vorbild
+		ostringstream info;
+		info << "Floodplain-id            : " << this->Param_FP.FPNumber << endl;
+		info << "Required number elements : " << this->NEQ << endl;
+		msg.make_second_info(info.str());
+		throw msg;
+	}
 
 	//set the geometry of the elements
 	this->set_elem_geometry();
@@ -3855,8 +3877,62 @@ void Hyd_Model_Floodplain::input_elems_database(QSqlDatabase *ptr_database, QSql
 	this->raster.generate_alloc_points_segments();
 	prof_query_result.clear();
 
+	// OPTIMIERUNG: close() und open() wurden gelöscht, da sie die Laufzeit unnötig blockieren
+
+
 	ptr_database->close();
 	ptr_database->open();
+
+	
+	//QSqlQueryModel prof_query_result;
+	////get the number of elements in the table
+	//int number_elems=0;
+
+	//number_elems=Hyd_Element_Floodplain::count_relevant_elements_database(&prof_query_result, ptr_database, this->system_id, this->Param_FP.FPNumber, output_flag);
+	//prof_query_result.clear();
+	////check the number of found elements
+	//if(number_elems!=this->Param_FP.FPNofX*Param_FP.FPNofY){
+	//	Error msg=this->set_error(12);
+	//	ostringstream info;
+	//	info << "Table name               : " <<Hyd_Model_Floodplain::general_param_table->get_table_name() << endl;
+	//	info << "Number found elements    : " << number_elems << endl;
+	//	info << "Number required elements : " << this->Param_FP.FPNofX*Param_FP.FPNofY << endl;
+	//	msg.make_second_info(info.str());
+	//	throw msg;
+	//}
+
+	////allocate the floodplain elements
+	//this->allocate_elems();
+	//int counter=0;
+	//int counter2=0;
+	////read in the element members
+ //   int last_index=0;
+	//
+	//for(int i=0; i< this->NEQ; i++){
+	//	if(i==counter*constant::max_rows){
+	//		prof_query_result.clear();
+	//		Hyd_Element_Floodplain::select_relevant_elements_database(&prof_query_result, ptr_database, this->system_id, this->Param_FP.FPNumber, i, constant::max_rows, output_flag);
+	//		counter++;
+	//		counter2=0;
+	//	}
+	//	Hyd_Multiple_Hydraulic_Systems::check_stop_thread_flag();
+     //  this->floodplain_elems[i].input_members(counter2, &prof_query_result, bound_result, number_bound, just_elems, &last_index);
+	//	counter2++;
+	//}
+
+
+	////set the geometry of the elements
+	//this->set_elem_geometry();
+
+	////set the floodplain elements to the raster
+	//this->raster.set_floodplain_elem_pointer(this->floodplain_elems);
+
+	////set the points of the floodplain raster
+	//this->raster.generate_alloc_points_segments();
+	//prof_query_result.clear();
+
+	//ptr_database->close();
+	//ptr_database->open();
 }
 //Delete emlements and raster geomtry
 void Hyd_Model_Floodplain::delete_elems_raster_geo(void){

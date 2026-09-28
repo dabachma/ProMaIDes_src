@@ -104,6 +104,8 @@ public:
 	void transfer_hydraulic_boundary_sz2database(QSqlDatabase *ptr_database, const int fp_number);
 	///Input the floodplain element data with the index from the selected data set of a database table
     void input_members(const int index, const QSqlQueryModel *query_result, QSqlQueryModel *bound_result, const int bound_number, const bool just_elems, int *last_index);
+	/// Input the floodplain element data directly from a streaming query
+	void Hyd_Element_Floodplain::input_members_from_query(const QSqlQuery* query, QSqlQueryModel* bound_result, const int bound_number, const bool just_elems, int* last_index);
 	///Set members directly
 	void set_members_directly(const int elem_number, Geo_Point* midpoint, const double z_value, const _hyd_elem_type type);
 
@@ -121,6 +123,8 @@ public:
 	static int select_relevant_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const bool with_output = true);
 	///Select and count the number of relevant floodplain elements for one floodplain model in a database table (just parts of it)
 	static int select_relevant_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const int offset, const int number_rows, const bool with_output = true);
+	//Select and count the number of relevant floodplain elements for one floodplain model in a database table per stream (static)
+	static void select_all_elements_stream(QSqlQuery* query, QSqlDatabase* ptr_database, const _sys_system_id id, const int fp_number, const bool with_output=true);
 
 	///Count the number of relevant elements
 	static int count_relevant_elements_database(QSqlQueryModel *results, QSqlDatabase *ptr_database, const _sys_system_id id, const int fp_number, const bool with_output = true);
