@@ -381,8 +381,19 @@ void Sys_Version_Update::check_update_hyd_table_global_param(QSqlDatabase *ptr_d
 		buffer.add_columns_file(project_file, hyd_label::tab_sys_param, hyd_label::output_instat_db);
 	}
 
-
-
+	//output netcdf 2d
+	exists = false;
+	for (int i = 0; i < Hyd_Param_Global::global_param_table->get_number_col(); i++) {
+		if ((Hyd_Param_Global::global_param_table->get_ptr_col())[i].id == hyd_label::output_netcdf) {
+			exists = (Hyd_Param_Global::global_param_table->get_ptr_col())[i].found_flag;
+		}
+	}
+	if (exists == false) {
+		Tables buffer;
+		//add new table column
+		buffer.add_columns(ptr_database, hyd_label::tab_sys_param, hyd_label::output_netcdf, sys_label::tab_col_type_bool, false, "false", _sys_table_type::hyd);
+		buffer.add_columns_file(project_file, hyd_label::tab_sys_param, hyd_label::output_netcdf);
+	}
 
 	Hyd_Param_Global::close_table();
 

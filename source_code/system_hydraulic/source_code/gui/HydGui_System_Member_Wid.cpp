@@ -123,6 +123,10 @@ HydGui_System_Member_Wid::HydGui_System_Member_Wid(DataRole role, QWidget *paren
 	ui.output_2d_bluekenue->set_tooltip("Please check it, if a 2d output for BlueKenue is required");
 	//ui.output_2d_bluekenue->set_dataRole(role);
 
+	ui.output_netcdf->set_label_text("NetCDF output required");
+	ui.output_netcdf->set_tooltip("Please check it, if a output for NetCDF is required");
+	//ui.output_netcdf->set_dataRole(role);
+
 	ui.output_instat_dbase->set_label_text("Instationary DataBase output required");
 	ui.output_instat_dbase->set_tooltip("Please check it, if a instationary database output is required");
 	//ui.output_instat_dbase->set_dataRole(role);
@@ -174,6 +178,7 @@ void HydGui_System_Member_Wid::set_editable(const bool state) {
 	ui.output_1d_paraview->set_editable(state);
 	ui.output_2d_paraview->set_editable(state);
 	ui.output_2d_bluekenue->set_editable(state);
+	ui.output_netcdf->set_editable(state);
 	ui.output_instat_dbase->set_editable(state);
 }
 //Set all members of the widget, similar to a copy constructor
@@ -212,6 +217,7 @@ void HydGui_System_Member_Wid::set_member(_Sys_Abstract_Base_Wid *ptr) {
 	ui.output_1d_paraview->set_value(other->ui.output_1d_paraview->get_value());
 	ui.output_2d_paraview->set_value(other->ui.output_2d_paraview->get_value());
 	ui.output_2d_bluekenue->set_value(other->ui.output_2d_bluekenue->get_value());
+	ui.output_netcdf->set_value(other->ui.output_netcdf->get_value());
 	ui.output_instat_dbase->set_value(other->ui.output_instat_dbase->get_value());
 
 }
@@ -246,6 +252,7 @@ void HydGui_System_Member_Wid::set_default_values(void) {
 	ui.output_1d_paraview->set_value(true);
 	ui.output_2d_paraview->set_value(true);
 	ui.output_2d_bluekenue->set_value(false);
+	ui.output_netcdf->set_value(false);
 	ui.output_instat_dbase->set_value(true);
 }
 //Set the member of the widget per database
@@ -305,6 +312,7 @@ void HydGui_System_Member_Wid::set_member(QSqlDatabase *ptr_database){
 	ui.output_1d_paraview->set_value(buffer.output_flags.paraview_1d_required);
 	ui.output_2d_paraview->set_value(buffer.output_flags.paraview_2d_required);
 	ui.output_2d_bluekenue->set_value(buffer.output_flags.bluekenue_2d_required);
+	ui.output_netcdf->set_value(buffer.output_flags.netcdf_required);
 	ui.output_instat_dbase->set_value(buffer.output_flags.database_instat_required);
 }
 //____________
@@ -371,6 +379,7 @@ void HydGui_System_Member_Wid::transfer_members2database(HydGui_System_Member_Wi
 	query_string << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_1d) << " = '" << functions::convert_boolean2string(dialog->ui.output_1d_paraview->get_value()) << "', ";
 	query_string << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_2d) << " = '" << functions::convert_boolean2string(dialog->ui.output_2d_paraview->get_value()) << "', ";
 	query_string << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_bluekenue_2d) << " = '" << functions::convert_boolean2string(dialog->ui.output_2d_bluekenue->get_value()) << "', ";
+	query_string << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_netcdf) << " = '" << functions::convert_boolean2string(dialog->ui.output_netcdf->get_value()) << "', ";
 	query_string << Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_instat_db) << " = '" << functions::convert_boolean2string(dialog->ui.output_instat_dbase->get_value()) << "' ";
 
 

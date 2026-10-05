@@ -11,3 +11,4 @@
 /.cache
 /.vscode
 .aider*
+/vcpkg_installed

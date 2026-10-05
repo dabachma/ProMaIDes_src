@@ -51,6 +51,7 @@ Hyd_Param_Global::Hyd_Param_Global(void):default_max_steps(40000), default_init_
 	this->output_flags.bluekenue_2d_required = false;
 	this->output_flags.paraview_1d_required = true;
 	this->output_flags.paraview_2d_required = false;
+	this->output_flags.netcdf_required = false;
 	this->output_flags.database_instat_required = true;
 	this->output_flags.output_folder = label::not_set;
 
@@ -199,7 +200,7 @@ void Hyd_Param_Global::create_table(QSqlDatabase *ptr_database){
 			Sys_Common_Output::output_hyd->output_txt(&cout);
 			//make specific input for this class
 			const string tab_name=hyd_label::tab_sys_param;
-			const int num_col=21;
+			const int num_col=22;
 			_Sys_data_tab_column tab_col[num_col];
 			//init
 			for(int i=0; i< num_col; i++){
@@ -290,13 +291,17 @@ void Hyd_Param_Global::create_table(QSqlDatabase *ptr_database){
 			tab_col[18].type = sys_label::tab_col_type_bool;
 			tab_col[18].default_value = "true";
 
-			tab_col[19].name = hyd_label::output_instat_db;
+			tab_col[19].name = hyd_label::output_netcdf;
 			tab_col[19].type = sys_label::tab_col_type_bool;
-			tab_col[19].default_value = "true";
+			tab_col[19].default_value = "false";
+
+			tab_col[20].name = hyd_label::output_instat_db;
+			tab_col[20].type = sys_label::tab_col_type_bool;
+			tab_col[20].default_value = "true";
 
 
-			tab_col[20].name=label::description;
-			tab_col[20].type=sys_label::tab_col_type_string;
+			tab_col[21].name=label::description;
+			tab_col[21].type=sys_label::tab_col_type_string;
 
 			try{
 				Hyd_Param_Global::global_param_table= new Tables();
@@ -326,7 +331,7 @@ void Hyd_Param_Global::set_table(QSqlDatabase *ptr_database, const bool not_clos
 	if(Hyd_Param_Global::global_param_table==NULL){
 		//make specific input for this class
 		const string tab_id_name=hyd_label::tab_sys_param;
-		string tab_id_col[20];
+		string tab_id_col[21];
 
 		tab_id_col[0]=hyd_label::nofset;
 		tab_id_col[1]=hyd_label::tstart;
@@ -347,7 +352,8 @@ void Hyd_Param_Global::set_table(QSqlDatabase *ptr_database, const bool not_clos
 		tab_id_col[16] = hyd_label::output_bluekenue_2d;
 		tab_id_col[17] = hyd_label::output_paraview_1d;
 		tab_id_col[18] = hyd_label::output_paraview_2d;
-		tab_id_col[19] = hyd_label::output_instat_db;
+		tab_id_col[19] = hyd_label::output_netcdf;
+		tab_id_col[20] = hyd_label::output_instat_db;
 
 		try{
 			Hyd_Param_Global::global_param_table= new Tables(tab_id_name, tab_id_col, sizeof(tab_id_col)/sizeof(tab_id_col[0]));
@@ -512,6 +518,7 @@ void Hyd_Param_Global::globals_per_database(QSqlDatabase *ptr_database, const bo
 	this->output_flags.bluekenue_2d_required = (model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_bluekenue_2d)).c_str()).toBool());
 	this->output_flags.paraview_1d_required = (model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_1d)).c_str()).toBool());
 	this->output_flags.paraview_2d_required = (model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_2d)).c_str()).toBool());
+	this->output_flags.netcdf_required = (model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_netcdf)).c_str()).toBool()); 
 	this->output_flags.database_instat_required = (model.record(0).value((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_instat_db)).c_str()).toBool());
 
 	if(output==true){
@@ -574,6 +581,7 @@ void Hyd_Param_Global::output_members(const int fp_threads, vector<int>& fp_indi
 	cout << " BlueKenue 2d output required                  : " << W(7) << P(6) << functions::convert_boolean2string(this->output_flags.bluekenue_2d_required) << endl;
 	cout << " ParaView / csv 1d output required             : " << W(7) << P(6) << functions::convert_boolean2string(this->output_flags.paraview_1d_required) << endl;
 	cout << " ParaView 2d output required                   : " << W(7) << P(6) << functions::convert_boolean2string(this->output_flags.paraview_2d_required) << endl;
+	cout << " NetCDF output required                        : " << W(7) << P(6) << functions::convert_boolean2string(this->output_flags.netcdf_required) << endl;
 	cout << " Instationary database output required         : " << W(7) << P(6) << functions::convert_boolean2string(this->output_flags.database_instat_required) << endl;
 	cout << " Path to outputfolder                          : " << W(7) << P(6) << this->output_flags.output_folder << endl;
 
@@ -1080,6 +1088,7 @@ void Hyd_Param_Global::input_globals2database_table(QSqlDatabase *ptr_database, 
 	model.setData(model.index(0, model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_1d)).c_str())), functions::convert_boolean2string(this->output_flags.paraview_1d_required).c_str());
 	model.setData(model.index(0, model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_paraview_2d)).c_str())), functions::convert_boolean2string(this->output_flags.paraview_2d_required).c_str());
 	model.setData(model.index(0, model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_instat_db)).c_str())), functions::convert_boolean2string(this->output_flags.database_instat_required).c_str());
+	model.setData(model.index(0, model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_netcdf)).c_str())), functions::convert_boolean2string(this->output_flags.netcdf_required).c_str());
 	model.setData(model.index(0, model.record().indexOf((Hyd_Param_Global::global_param_table->get_column_name(hyd_label::output_bluekenue_2d)).c_str())), functions::convert_boolean2string(this->output_flags.bluekenue_2d_required).c_str());
 
 	

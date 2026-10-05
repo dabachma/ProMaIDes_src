@@ -1,0 +1,7 @@
+{
+  "dependencies": [
+    "netcdf-c",
+    "netcdf-cxx4"
+  ],
+  "builtin-baseline": "eb2d3a3279fd019cb7733072d86900d0ad2a1aef"
+}

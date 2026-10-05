@@ -326,6 +326,7 @@ _hyd_keyword_file _Hyd_Parse_IO::ParseNextKeyword(char *CommandList){
 	else if (FIND1("$BLUEKENUE_2D"))	Keyword = eBLUEKENUE2D;
 	else if (FIND1("$PARAVIEW_EXCEL_1D"))	Keyword = ePARAVIEW1D;
 	else if (FIND1("$PARAVIEW_2D"))	Keyword = ePARAVIEW2D;
+	else if (FIND1("$NETCDF"))	Keyword = eNETCDF;
 	else if (FIND1("$DATBASE_INSTAT"))	Keyword = eDATABASE_INSTAT;
 	else if (FIND1("$OUTPUT_FOLDER"))	Keyword = eOUTPUT_FOLDER;
 

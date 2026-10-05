@@ -163,6 +163,8 @@ public:
 	void output_geometrie2bluekenue(void);
 	///Output the geometrie to Paraview file
 	void output_geometrie2paraview(void);
+	///Output the geometrie to netCDF file
+	void output_geometrie2netcdf(void);
 
 	///Output the result members per timestep
 	void output_result_members_per_timestep(void);
@@ -172,6 +174,10 @@ public:
     void output_result2bluekenue(const double timepoint, const int timestep_number, const double start_time);
 	///Output the result members per timestep to Paraview
 	void output_result2paraview(const double timepoint, const int timestep_number);
+	///Output the result members per timestep to netCDF
+	void output_result2netcdf(const double timepoint, const int timestep_number);
+	///Close the netCDF file
+	void close_netcdf(void);
 
 	///Output the result members per timestep to database
 	void output_result2database(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number, const string time);
@@ -350,6 +356,26 @@ private:
 	///The discharge of the old time step (t-2) for the error volume calculation due to a setted outflow but no watervolume is left in the element
 	double old_discharge_2_error;
 
+	/// NetCDF State, file keeps open for the whole simulation, only the data is written every x timestep
+	int nc_ncid_dyn = -1;
+	int nc_v_time_dyn = -1, nc_v_h_dyn = -1, nc_v_vx_dyn = -1, nc_v_vy_dyn = -1, nc_v_bound_dyn = -1;
+	/// NetCDF step counter, used to write the data every x timestep
+	size_t nc_step_dyn = 0;
+
+	///Reusable buffers for NetCDF output, to avoid reallocation every timestep
+	vector<float> buf_h, buf_vx, buf_vy, buf_bq;
+	///maximum water depth for every cell
+	vector<float> nc_max_h;
+	
+	///Flag if the NetCDF file was created. Needed because the base file is only created once and not for every scenario.
+	bool nc_file_created = false;
+	///Dry threshold for NetCDF output
+	const double dry_threshold = 0.001;
+	///Boundary condition threshold for NetCDF output
+	const double q_threshold = 1e-9;
+	///Fill value for NetCDF output
+	const float fill_value = -9999.0f;
+
 	// methods
 
 
@@ -490,6 +516,9 @@ private:
 	void get_mid_up2down_noflowline_geo_bound(Hyd_Floodplain_Polysegment *polyline);
 	///Set a noflow line from mid left to right of the geometrical boundary (protection by fp interception)
 	void get_mid_left2right_noflowline_geo_bound(Hyd_Floodplain_Polysegment *polyline);
+
+	///Create a dynamic netCDF file for the floodplain model
+	void create_dynamic_netcdf_file(string filename);
 
 	///Set warning(s)
 	Warning set_warning(const int warn_type);

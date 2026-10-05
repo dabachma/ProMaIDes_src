@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>787</width>
-    <height>830</height>
+    <height>901</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,8 +42,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>763</width>
-        <height>806</height>
+        <width>767</width>
+        <height>881</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -672,6 +672,17 @@
           </item>
           <item>
            <widget class="Sys_Member_Bool_BaseWid" name="output_2d_paraview" native="true">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Sys_Member_Bool_BaseWid" name="output_netcdf" native="true">
             <property name="font">
              <font>
               <pointsize>8</pointsize>

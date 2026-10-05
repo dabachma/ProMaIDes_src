@@ -48,6 +48,9 @@ struct _hyd_output_flags {
 	///Output flag if a paraview / csv 2d output is required
 	bool paraview_2d_required;
 
+	///Output flag if a netcdf 2d output is required
+	bool netcdf_required;
+
 	///Output flag if database instationary output is required
 	bool database_instat_required;
 

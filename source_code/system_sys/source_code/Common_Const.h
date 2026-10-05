@@ -1943,6 +1943,8 @@ namespace hyd_label{
 	const string output_paraview_1d("output_paraview_1d");
 	///Keyword for the database table column of the global parameters: output for paraview 2d  (Hyd_Param_Global)
 	const string output_paraview_2d("output_paraview_2d");
+	///Keyword for the database table column of the global parameters: output for netcdf (Hyd_Param_Global)
+	const string output_netcdf("output_netcdf");
 	///Keyword for the database table column of the global parameters: instationary output for database  (Hyd_Param_Global)
 	const string output_instat_db("insta_output_db");
 	///Keyword for the database table column of the global parameters: output folder (Hyd_Param_Global)
@@ -2550,6 +2552,8 @@ namespace hyd_label{
 	const string bluekenue("bluekenue");
 	///Output for ParaView / csv
 	const string paraview("paraview");
+	///Output for NetCDF
+	const string netcdf("netcdf");
 
 	///File type .dat (tecplot)
 	const string dat(".dat");
@@ -2559,6 +2563,8 @@ namespace hyd_label{
 	const string csv(".csv");
 	///File type .vtk (paraview)
 	const string vtk(".vtk");
+	///File type .nc (netcdf)
+	const string nc(".nc");
 
 }
 ///General text labels specially for the module DAM \ingroup dam
