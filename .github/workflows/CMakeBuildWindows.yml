@@ -47,8 +47,7 @@ jobs:
         dir "C:/Program Files/NVIDIA GPU Computing Toolkit" -s
         Add-Content $env:GITHUB_PATH "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.3"
     - name: '📁 Create vcpkg cache dir'
-      shell: bash
-      run: mkdir ${{github.workspace}}/.vcpkg-cache
+      run: New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\.vcpkg-cache"
     
     - name: '💾 Cache vcpkg packages'
       uses: actions/cache@v4

@@ -315,6 +315,6 @@ if(MSVC)
  else()
  
    find_package(OpenMP REQUIRED)
-   target_link_libraries(system_hydraulic OpenMP::OpenMP_CXX)
+   target_link_libraries(system_hydraulic PUBLIC OpenMP::OpenMP_CXX)
    
 endif()
