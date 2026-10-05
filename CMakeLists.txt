@@ -148,6 +148,8 @@ add_definitions(-DQWT_DLL)
 # - setx Qt5_DIR C:\Qt\5.15.2\msvc2019_64 
 find_package(Qt5 COMPONENTS Core Sql Svg PrintSupport Widgets Gui Xml REQUIRED)
 
+find_package(netCDF CONFIG REQUIRED)
+
 # - An additional required package for Linux is the X11Extras. Required for the GUI on Linux
 if (UNIX AND NOT APPLE)
     find_package(Qt5 COMPONENTS REQUIRED X11Extras)

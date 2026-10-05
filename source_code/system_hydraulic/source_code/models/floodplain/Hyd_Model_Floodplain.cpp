@@ -1,11 +1,19 @@
 //#include "Hyd_Model_Floodplain.h"
 #include "Hyd_Headers_Precompiled.h"
 #include <omp.h>
+#include <netcdf.h>
+#include <vector>
+#include <QMutex>
 //static double my_time = 0;
 //static int my_c = 0;
 
 //init static members
 Tables *Hyd_Model_Floodplain::general_param_table=NULL;
+
+inline QRecursiveMutex& netcdf_mutex() {   // Qt5: QMutex m(QMutex::Recursive)
+	static QRecursiveMutex m;
+	return m;
+}
 
 //constructor
 Hyd_Model_Floodplain::Hyd_Model_Floodplain(void){
@@ -84,6 +92,8 @@ Hyd_Model_Floodplain::~Hyd_Model_Floodplain(void){
     this->delete_opt_data_coup();
 	this->delete_dikeline_polysegments();
 	this->delete_noflow_polygons();
+	//Close the netcdf file if it is open
+	this->close_netcdf();
 	//count the memory
 	Sys_Memory_Count::self()->minus_mem(sizeof(Hyd_Model_Floodplain)-sizeof(Hyd_Floodplain_Raster)-sizeof(Hyd_Param_FP), _sys_system_modules::HYD_SYS);
 }
@@ -1936,6 +1946,164 @@ void Hyd_Model_Floodplain::output_geometrie2paraview(void) {
 	this->tecplot_output.close();
 	this->tecplot_output.clear();
 }
+//Output the geometrie to netcdf file
+void Hyd_Model_Floodplain::output_geometrie2netcdf(void) {
+	/*
+	Dimensions: describe the axes of the data arrays. A dimension has a name and a length. An unlimited dimension has a length that can be expanded at any time, as more data are written to it
+	Variables: N-dimensional arrays of data
+	Attributes: annotate variables or files with small notes or supplementary metadata. 
+	*/
+
+	string filename = this->Param_FP.get_filename_geometrie(hyd_label::netcdf);
+	if (filename == label::not_set) {
+		return;
+	};
+	filename += hyd_label::nc;
+
+	const size_t nx = this->Param_FP.FPNofX;
+	const size_t ny = this->Param_FP.FPNofY;
+	const size_t nnx = nx + 1;
+	const size_t n_nodes = nnx * (ny + 1); //number of nodes
+	const size_t n_faces = nx * ny; //number of faces
+	const size_t nmax_face_nodes = 4; //maximum number of nodes per face (assuming quadrilateral faces)
+	const size_t chunk[2] = { 1, n_faces }; //chunk size for time and face dimensions
+
+	//ID of the netcdf file, only for the geometry file
+	int ncid = -1;
+
+	// Write the mesh_node_x and mesh_node_y variables
+	vector<double> nxv(n_nodes), nyv(n_nodes);
+	for (size_t i = 0; i < n_nodes; i++) {
+		nxv[i] = this->raster.get_raster_point(i)->get_xcoordinate();
+		nyv[i] = this->raster.get_raster_point(i)->get_ycoordinate();
+	};
+
+	// Write the static variables
+	vector<double> z_values(n_faces);
+	vector<double> init_values(n_faces);
+	vector<double> n_values(n_faces);
+	for (size_t i = 0; i < n_faces; i++) {
+		z_values[i] = this->floodplain_elems[i].get_z_value();
+		init_values[i] = this->floodplain_elems[i].get_flow_data().init_condition;
+		n_values[i] = this->floodplain_elems[i].get_flow_data().n_value;
+	};
+
+	auto check = [&](int stat, const char *what) {
+		if (stat != NC_NOERR) {
+			if (ncid >= 0) nc_close(ncid);
+			Error msg = this->set_error(28);
+			ostringstream info;
+			info << "Filename " << filename << endl;
+			info << "NetCDF call " << what << ": " << nc_strerror(stat) << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		};
+	};
+
+	QMutexLocker lock(&netcdf_mutex()); 
+
+	//Create the netcdf file
+	check(nc_create(filename.c_str(), NC_CLOBBER | NC_NETCDF4, &ncid), "nc_create"); /*NC_CLOBBER (overwrite existing file)*/
+	this->nc_file_created = true;
+
+	//Define dimensions, Nodes, Faces, Maximum number of nodes per face (assuming quadrilateral faces), Time
+	int d_node, d_face, d_nmax_face_nodes;
+	check(nc_def_dim(ncid, "nmesh_node", n_nodes, &d_node), "dim nmesh_node");
+	check(nc_def_dim(ncid, "nmesh_face", n_faces, &d_face), "dim nmesh_face");
+	check(nc_def_dim(ncid, "nmax_face_nodes", nmax_face_nodes, &d_nmax_face_nodes), "dim nmax_face_nodes");
+
+	//lambda function to write text attributes to the netcdf file
+	auto put_text = [&](int ncid, int var, const char* name, const string& s) {
+		check(nc_put_att_text(ncid, var, name, s.size(), s.c_str()), "att text");
+			};
+
+	int v_mesh;
+	//ncid, name, type, ndims (Number of dimensions, 2 matrix, 1 vector, 0 scalar), dimids, varid
+	check(nc_def_var(ncid, "mesh", NC_INT, 0, NULL, &v_mesh), "var mesh");
+	put_text(ncid, v_mesh, "cf_role", "mesh_topology");
+	
+	//topology_dimension: The number of topological dimensions of the mesh. For a 2D mesh, this value is 2.
+	int topo_dim = 2;
+	check(nc_put_att_int(ncid, v_mesh, "topology_dimension", NC_INT, 1, &topo_dim), "att topology_dimension");
+	put_text(ncid, v_mesh, "node_coordinates", "mesh_node_x mesh_node_y");
+	put_text(ncid, v_mesh, "face_node_connectivity", "mesh_face_nodes");
+	put_text(ncid, v_mesh, "face_dimension", "nmesh_face");
+
+	//Define variables for mesh_node_x, mesh_node_y
+	int v_x, v_y, v_fn, v_time, v_h;
+	check(nc_def_var(ncid, "mesh_node_x", NC_DOUBLE, 1, &d_node, &v_x), "var mesh_node_x");
+	check(nc_def_var(ncid, "mesh_node_y", NC_DOUBLE, 1, &d_node, &v_y), "var mesh_node_y");
+	
+	//Define the mesh_face_nodes variable with dimensions (nmesh_face, nmax_face_nodes)
+	int dfn[2] = { d_face, d_nmax_face_nodes };
+	check(nc_def_var(ncid, "mesh_face_nodes", NC_INT, 2, dfn, &v_fn), "var mesh_face_nodes");
+	put_text(ncid, v_fn, "cf_role", "face_node_connectivity");
+	
+	//Define the start_index attribute for mesh_face_nodes variable
+	int start_idx = 0;
+	check(nc_put_att_int(ncid, v_fn, "start_index", NC_INT, 1, &start_idx), "att start_index");
+	
+	//Define the z variable with dimension (nmesh_face) and fill value
+	int v_z;
+	check(nc_def_var(ncid, "z", NC_DOUBLE, 1, &d_face, &v_z), "var z");
+	check(nc_def_var_fill(ncid, v_z, 0, &this->Param_FP.noinfo_value), "var fill value");
+	put_text(ncid, v_z, "mesh", "mesh");
+	put_text(ncid, v_z, "location", "face");
+	put_text(ncid, v_z, "units", "m");
+	check(nc_def_var_deflate(ncid, v_z, 1, 1, 4), "var deflate"); //Enable compression for the z variable, Level 4 compression, shuffle filter enabled
+
+	//Define the init_condition variable with dimension (nmesh_face)
+	int v_init;
+	check(nc_def_var(ncid, "init_condition", NC_DOUBLE, 1, &d_face, &v_init), "var init_condition");
+	check(nc_def_var_fill(ncid, v_init, 0, &this->fill_value), "var fill value"); //Init condition of 0 m set as fill value for noinfo elements
+	put_text(ncid, v_init, "mesh", "mesh");
+	put_text(ncid, v_init, "location", "face");
+	put_text(ncid, v_init, "units", "m");
+	
+	//Define the n_value variable with dimension (nmesh_face)
+	int v_n;
+	check(nc_def_var(ncid, "n_value", NC_DOUBLE, 1, &d_face, &v_n), "var n_value");
+	put_text(ncid, v_n, "mesh", "mesh");
+	put_text(ncid, v_n, "location", "face");
+	put_text(ncid, v_n, "units", "s m^-(1/3)");
+	put_text(ncid, v_n, "long_name", "Manning's roughness coefficient");
+	
+	//Define global attributes
+	auto g = [&](const char* name, const string& s) {
+		check(nc_put_att_text(ncid, NC_GLOBAL, name, s.size(), s.c_str()), "global attributes");
+		};
+	g("Conventions", "CF-1.8 UGRID-1.0");
+	g("title", "ProMaIDES 2D floodplain results, FP " + to_string(this->Param_FP.FPNumber));
+	g("institution", "AG FRM, Institute for Water Management and Eco-Technologies, Magdeburg-Stendal University of Applied Sciences");
+	g("source", "ProMaIDes, hydraulic 2D model");
+	g("comment", "Cell-based data (location=face); dry cells = _FillValue");
+	
+	//End the definition mode
+	check(nc_enddef(ncid), "enddef");
+
+	// Write the mesh_face_nodes variable. Cells are defined in a counter-clockwise order, starting from the bottom-left corner of each cell.
+	vector<int> faces(n_faces * nmax_face_nodes);
+	for (size_t iy = 0; iy < ny; iy++) {
+		for (size_t ix = 0; ix < nx; ix++) {
+			size_t face_idx = iy * nx + ix;
+			size_t node_idx = iy * nnx + ix;
+			faces[face_idx * nmax_face_nodes + 0] = node_idx;
+			faces[face_idx * nmax_face_nodes + 1] = node_idx + 1;
+			faces[face_idx * nmax_face_nodes + 2] = node_idx + nnx + 1;
+			faces[face_idx * nmax_face_nodes + 3] = node_idx + nnx;
+		}
+	};
+	// Write the mesh_node_x, mesh_node_y, and mesh_face_nodes variables to the netCDF file
+	check(nc_put_var_double(ncid, v_x, nxv.data()), "put mesh_node_x");
+	check(nc_put_var_double(ncid,v_y, nyv.data()), "put mesh_node_y");
+	check(nc_put_var_int(ncid, v_fn, faces.data()), "put mesh_face_nodes");
+
+	check(nc_put_var_double(ncid, v_z, z_values.data()), "put z");
+	check(nc_put_var_double(ncid, v_init, init_values.data()), "put init_condition");
+	check(nc_put_var_double(ncid, v_n, n_values.data()), "put n_value");
+
+	check(nc_close(ncid), "nc_close");
+};
 //Output the result members per timestep
 void Hyd_Model_Floodplain::output_result_members_per_timestep(void){
 	//set prefix for output
@@ -2375,6 +2543,256 @@ void Hyd_Model_Floodplain::output_result2paraview(const double timepoint, const 
 	output.close();
 	
 }
+
+void Hyd_Model_Floodplain::output_result2netcdf(const double timepoint, const int timestep_counter) {
+	
+	string filename = this->Param_FP.get_filename_result(hyd_label::netcdf);
+	if (filename == label::not_set) {
+		return;
+	};
+	filename += hyd_label::nc;
+	
+	const size_t n = this->NEQ;
+	//Buffer resize if necessary
+	if (this->buf_h.size() != n) {
+		this->buf_h.resize(n);
+		this->buf_vx.resize(n);
+		this->buf_vy.resize(n);
+		this->buf_bq.resize(n);
+	}
+	//Reset the maximum water depth buffer if this is the first timestep or if the size of the buffer has changed
+	if (timestep_counter == 0 || this->nc_max_h.size() != n) {
+		this->nc_max_h.assign(n, 0.0f);
+	}
+
+	for (size_t i = 0; i < n; i++) {
+		auto* et = this->floodplain_elems[i].element_type;
+		double hv = et->get_h_value();
+		double q = et->get_bound_discharge();
+		this->buf_bq[i] = (fabs(q) > this->q_threshold) ? (float)q : this->fill_value; // Set to noinfo_value if bound discharge is very small
+		if (hv > this->dry_threshold) {
+			this->buf_h[i] = (float)hv;
+			this->buf_vx[i] = (float)et->get_flowvelocity_vx();
+			this->buf_vy[i] = (float)et->get_flowvelocity_vy();
+			//Update the maximum water depth buffer
+			if ((float)hv > this->nc_max_h[i]) {
+				this->nc_max_h[i] = (float)hv;
+			}
+		}
+		else {
+			this->buf_h[i] = this->buf_vx[i] = this->buf_vy[i] = this->fill_value; // Set to noinfo_value if h is very small
+		}
+	}
+	QMutexLocker lock(&netcdf_mutex()); // Lock the mutex to ensure thread safety when writing to the netCDF file
+
+	auto check = [&](int stat, const char* what) {
+		if (stat != NC_NOERR) {
+			if (this->nc_ncid_dyn >= 0) { nc_close(this->nc_ncid_dyn); this->nc_ncid_dyn = -1; }
+			Error msg = this->set_error(29);
+			ostringstream info;
+			info << "Filename " << filename << endl;
+			info << "NetCDF call " << what << ": " << nc_strerror(stat) << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		}
+		};
+
+
+	// Create the dynamic netCDF file if it hasn't been created yet
+	if (timestep_counter == 0 || this->nc_ncid_dyn < 0) {
+		if (timestep_counter == 0) {
+			this->create_dynamic_netcdf_file(filename); // Create the netCDF file and write the geometry data
+		}
+		// Open the netCDF file once for writing
+		check(nc_open(filename.c_str(), NC_WRITE, &this->nc_ncid_dyn), "nc_open");
+		check(nc_inq_varid(this->nc_ncid_dyn, "time", &this->nc_v_time_dyn), "inq time");
+		check(nc_inq_varid(this->nc_ncid_dyn, "water_depth", &this->nc_v_h_dyn), "inq water_depth");
+		check(nc_inq_varid(this->nc_ncid_dyn, "velocity_x", &this->nc_v_vx_dyn), "inq velocity_x");
+		check(nc_inq_varid(this->nc_ncid_dyn, "velocity_y", &this->nc_v_vy_dyn), "inq velocity_y");
+		check(nc_inq_varid(this->nc_ncid_dyn, "boundary_condition", &this->nc_v_bound_dyn), "inq boundary_condition");
+		this->nc_step_dyn = 0;
+	}
+
+	const size_t start[2] = { this->nc_step_dyn, 0 };
+	const size_t count[2] = { 1, n };
+	const size_t t_start = this->nc_step_dyn, one = 1;
+
+	// Write the data for the current timestep
+	check(nc_put_vara_double(this->nc_ncid_dyn, this->nc_v_time_dyn, &t_start, &one, &timepoint), "put time");
+	check(nc_put_vara_float(this->nc_ncid_dyn, this->nc_v_h_dyn, start, count, this->buf_h.data()), "put water_depth");
+	check(nc_put_vara_float(this->nc_ncid_dyn, this->nc_v_vx_dyn, start, count, this->buf_vx.data()), "put velocity_x");
+	check(nc_put_vara_float(this->nc_ncid_dyn, this->nc_v_vy_dyn, start, count, this->buf_vy.data()), "put velocity_y");
+	check(nc_put_vara_float(this->nc_ncid_dyn, this->nc_v_bound_dyn, start, count, this->buf_bq.data()), "put boundary_condition");
+	this->nc_step_dyn++; 
+
+	// Sync the netCDF file every 10 timesteps to ensure data is written to disk, but not too frequently to avoid performance issues
+	if (this->nc_step_dyn % 10 == 0) {
+		check(nc_sync(this->nc_ncid_dyn), "nc_sync");
+	}
+
+}
+// Close the netCDF file if it is open
+void Hyd_Model_Floodplain::close_netcdf() {
+	QMutexLocker lock(&netcdf_mutex()); // Lock the mutex to ensure thread safety when closing the netCDF file)
+	if (this->nc_ncid_dyn >= 0) {
+		nc_close(this->nc_ncid_dyn);
+		this->nc_ncid_dyn = -1;
+	}
+}
+
+void Hyd_Model_Floodplain::create_dynamic_netcdf_file(string filename) {
+
+	const size_t nx = this->Param_FP.FPNofX;
+	const size_t ny = this->Param_FP.FPNofY;
+	const size_t nnx = nx + 1;
+	const size_t n_nodes = nnx * (ny + 1); //number of nodes
+	const size_t n_faces = nx * ny; //number of faces
+	const size_t nmax_face_nodes = 4; //maximum number of nodes per face (assuming quadrilateral faces)
+	const size_t chunk[2] = { 1, n_faces }; //chunk size for time and face dimensions
+
+	// Write the mesh_node_x and mesh_node_y variables
+	vector<double> nxv(n_nodes), nyv(n_nodes);
+	for (size_t i = 0; i < n_nodes; i++) {
+		nxv[i] = this->raster.get_raster_point(i)->get_xcoordinate();
+		nyv[i] = this->raster.get_raster_point(i)->get_ycoordinate();
+	};
+
+	auto check = [&](int stat, const char* what) {
+		if (stat != NC_NOERR) {
+			if (this->nc_ncid_dyn >= 0) nc_close(this->nc_ncid_dyn);
+			Error msg = this->set_error(30);
+			ostringstream info;
+			info << "Filename " << filename << endl;
+			info << "NetCDF call " << what << ": " << nc_strerror(stat) << endl;
+			msg.make_second_info(info.str());
+			throw msg;
+		};
+		};
+	
+	QMutexLocker lock(&netcdf_mutex()); // Lock the mutex to ensure thread safety when writing to the netCDF file
+
+	//Create the netcdf file
+	check(nc_create(filename.c_str(), NC_CLOBBER | NC_NETCDF4, &this->nc_ncid_dyn), "nc_create"); /*NC_CLOBBER (overwrite existing file)*/
+	this->nc_file_created = true;
+
+	//Define dimensions, Nodes, Faces, Maximum number of nodes per face (assuming quadrilateral faces), Time
+	int d_node, d_face, d_nmax_face_nodes, d_time;
+	check(nc_def_dim(this->nc_ncid_dyn, "nmesh_node", n_nodes, &d_node), "dim nmesh_node");
+	check(nc_def_dim(this->nc_ncid_dyn, "nmesh_face", n_faces, &d_face), "dim nmesh_face");
+	check(nc_def_dim(this->nc_ncid_dyn, "nmax_face_nodes", nmax_face_nodes, &d_nmax_face_nodes), "dim nmax_face_nodes");
+	check(nc_def_dim(this->nc_ncid_dyn, "time", NC_UNLIMITED, &d_time), "dim time"); /*NC_UNLIMITED: unlimited dimension(can grow)*/
+
+	//lambda function to write text attributes to the netcdf file
+	auto put_text = [&](int ncid, int var, const char* name, const string& s) {
+		check(nc_put_att_text(ncid, var, name, s.size(), s.c_str()), "att text");
+		};
+
+	int v_mesh;
+	//ncid, name, type, ndims (Number of dimensions, 2 matrix, 1 vector, 0 scalar), dimids, varid
+	check(nc_def_var(this->nc_ncid_dyn, "mesh", NC_INT, 0, NULL, &v_mesh), "var mesh");
+	put_text(this->nc_ncid_dyn, v_mesh, "cf_role", "mesh_topology");
+
+	//topology_dimension: The number of topological dimensions of the mesh. For a 2D mesh, this value is 2.
+	int topo_dim = 2;
+	check(nc_put_att_int(this->nc_ncid_dyn, v_mesh, "topology_dimension", NC_INT, 1, &topo_dim), "att topology_dimension");
+	put_text(this->nc_ncid_dyn, v_mesh, "node_coordinates", "mesh_node_x mesh_node_y");
+	put_text(this->nc_ncid_dyn, v_mesh, "face_node_connectivity", "mesh_face_nodes");
+	put_text(this->nc_ncid_dyn, v_mesh, "face_dimension", "nmesh_face");
+
+	//Define variables for mesh_node_x, mesh_node_y
+	int v_x, v_y, v_fn, v_time, v_h;
+	check(nc_def_var(this->nc_ncid_dyn, "mesh_node_x", NC_DOUBLE, 1, &d_node, &v_x), "var mesh_node_x");
+	check(nc_def_var(this->nc_ncid_dyn, "mesh_node_y", NC_DOUBLE, 1, &d_node, &v_y), "var mesh_node_y");
+
+	//Define the mesh_face_nodes variable with dimensions (nmesh_face, nmax_face_nodes)
+	int dfn[2] = { d_face, d_nmax_face_nodes };
+	check(nc_def_var(this->nc_ncid_dyn, "mesh_face_nodes", NC_INT, 2, dfn, &v_fn), "var mesh_face_nodes");
+	put_text(this->nc_ncid_dyn, v_fn, "cf_role", "face_node_connectivity");
+
+	//Define the start_index attribute for mesh_face_nodes variable
+	int start_idx = 0;
+	check(nc_put_att_int(this->nc_ncid_dyn, v_fn, "start_index", NC_INT, 1, &start_idx), "att start_index");
+
+	//Define the time variable with dimension (time)
+	check(nc_def_var(this->nc_ncid_dyn, "time", NC_DOUBLE, 1, &d_time, &v_time), "var time");
+	put_text(this->nc_ncid_dyn, v_time, "units", "seconds since 1970-01-01T00:00:00");
+
+	//Define the dh (water depth) variable with dimensions (time, nmesh_face)
+	int dh[2] = { d_time, d_face };
+	check(nc_def_var(this->nc_ncid_dyn, "water_depth", NC_FLOAT, 2, dh, &v_h), "var water_depth");
+	put_text(this->nc_ncid_dyn, v_h, "mesh", "mesh");
+	put_text(this->nc_ncid_dyn, v_h, "location", "face");
+	put_text(this->nc_ncid_dyn, v_h, "units", "m");
+	check(nc_put_att_double(this->nc_ncid_dyn, v_h, "dry_threshold", NC_DOUBLE, 1, &this->dry_threshold), "var dry_threshold");
+	put_text(this->nc_ncid_dyn, v_h, "dry_threshold_units", "m");
+	put_text(this->nc_ncid_dyn, v_h, "comment", "cells with h <= dry_threshold are set to _FillValue");
+	check(nc_def_var_fill(this->nc_ncid_dyn, v_h, 0, &this->fill_value), "var fill value");
+	check(nc_def_var_chunking(this->nc_ncid_dyn, v_h, NC_CHUNKED, chunk), "var chunking");
+	check(nc_def_var_deflate(this->nc_ncid_dyn, v_h, 1, 1, 4), "var deflate"); //Enable compression for the water_depth variable, Level 4 compression, shuffle filter enabled
+
+	//Define the vx and vy variables with dimensions (time, nmesh_face)
+	int v_vx, v_vy;
+	check(nc_def_var(this->nc_ncid_dyn, "velocity_x", NC_FLOAT, 2, dh, &v_vx), "var velocity_x");
+	check(nc_def_var(this->nc_ncid_dyn, "velocity_y", NC_FLOAT, 2, dh, &v_vy), "var velocity_y");
+	for (int v : {v_vx, v_vy}) {
+		put_text(this->nc_ncid_dyn, v, "mesh", "mesh");
+		put_text(this->nc_ncid_dyn, v, "location", "face");
+		put_text(this->nc_ncid_dyn, v, "units", "m/s");
+		check(nc_def_var_fill(this->nc_ncid_dyn, v, 0, &this->fill_value), "var fill value");
+		check(nc_def_var_chunking(this->nc_ncid_dyn, v, NC_CHUNKED, chunk), "var chunking");
+		check(nc_def_var_deflate(this->nc_ncid_dyn, v, 1, 1, 4), "var deflate"); //Enable compression for the velocity variables, Level 4 compression, shuffle filter enabled
+	}
+	put_text(this->nc_ncid_dyn, v_vx, "long_name", "x-component of velocity");
+	put_text(this->nc_ncid_dyn, v_vy, "long_name", "y-component of velocity");
+
+	//Define the boundary_condition variable with dimensions (time, nmesh_face)
+	int v_bound;
+	check(nc_def_var(this->nc_ncid_dyn, "boundary_condition", NC_FLOAT, 2, dh, &v_bound), "var boundary_condition");
+	put_text(this->nc_ncid_dyn, v_bound, "mesh", "mesh");
+	put_text(this->nc_ncid_dyn, v_bound, "location", "face");
+	put_text(this->nc_ncid_dyn, v_bound, "units", "m^3/s");
+	put_text(this->nc_ncid_dyn, v_bound, "long_name", "boundary condition flow rate");
+	check(nc_put_att_double(this->nc_ncid_dyn, v_bound, "zero_threshold", NC_DOUBLE, 1, &this->q_threshold), "var zero_threshold");
+	put_text(this->nc_ncid_dyn, v_bound, "comment", "cells with |q| <= zero_threshold are set to _FillValue");
+	check(nc_def_var_fill(this->nc_ncid_dyn, v_bound, 0, &this->fill_value), "var fill value");
+	check(nc_def_var_chunking(this->nc_ncid_dyn, v_bound, NC_CHUNKED, chunk), "var chunking");
+	check(nc_def_var_deflate(this->nc_ncid_dyn, v_bound, 1, 1, 4), "var deflate"); //Enable compression for the boundary_condition variable, Level 4 compression, shuffle filter enabled
+
+
+	//Define global attributes
+	auto g = [&](const char* name, const string& s) {
+		check(nc_put_att_text(this->nc_ncid_dyn, NC_GLOBAL, name, s.size(), s.c_str()), "global attributes");
+		};
+	g("Conventions", "CF-1.8 UGRID-1.0");
+	g("title", "ProMaIDES 2D floodplain results, FP " + to_string(this->Param_FP.FPNumber));
+	g("institution", "AG FRM, Institute for Water Management and Eco-Technologies, Magdeburg-Stendal University of Applied Sciences");
+	g("source", "ProMaIDes, dynamic hydraulic 2D model");
+	g("comment", "Cell-based data (location=face); dry cells = _FillValue");
+
+	//End the definition mode
+	check(nc_enddef(this->nc_ncid_dyn), "enddef");
+
+	// Write the mesh_face_nodes variable. Cells are defined in a counter-clockwise order, starting from the bottom-left corner of each cell.
+	vector<int> faces(n_faces * nmax_face_nodes);
+	for (size_t iy = 0; iy < ny; iy++) {
+		for (size_t ix = 0; ix < nx; ix++) {
+			size_t face_idx = iy * nx + ix;
+			size_t node_idx = iy * nnx + ix;
+			faces[face_idx * nmax_face_nodes + 0] = node_idx;
+			faces[face_idx * nmax_face_nodes + 1] = node_idx + 1;
+			faces[face_idx * nmax_face_nodes + 2] = node_idx + nnx + 1;
+			faces[face_idx * nmax_face_nodes + 3] = node_idx + nnx;
+		}
+	};
+	// Write the mesh_node_x, mesh_node_y, and mesh_face_nodes variables to the netCDF file
+	check(nc_put_var_double(this->nc_ncid_dyn, v_x, nxv.data()), "put mesh_node_x");
+	check(nc_put_var_double(this->nc_ncid_dyn, v_y, nyv.data()), "put mesh_node_y");
+	check(nc_put_var_int(this->nc_ncid_dyn, v_fn, faces.data()), "put mesh_face_nodes");
+
+	check(nc_close(this->nc_ncid_dyn), "nc_close");
+
+}
+
 //Output the result members per timestep to database
 void Hyd_Model_Floodplain::output_result2database(QSqlDatabase *ptr_database, const string break_sz, const double timepoint, const int timestep_number, const string time) {
 
@@ -5799,7 +6217,30 @@ Error Hyd_Model_Floodplain::set_error(const int err_type){
 			help = "Please read message above.";
 			type = 35;
 			break;
-
+		case 28://could not createthe netcdf geometry file
+			place.append("output_geometry2netcdf(void)");
+			reason = "Could not open the file for the NetCDF output (geometry) of the floodplain model";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 29://could not open the netcdf result file
+			place.append("output_result2netcdf(const double timepoint, const int timestep_number)");
+			reason = "Could not open the file for the NetCDF output (results) of the floodplain model";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 30: //could not create the netcdf result file
+			place.append("create_result2netcdf(string filename)");
+			reason = "Could not create the NetCDF output (results) of the floodplain model";
+			help = "Check the file";
+			type = 5;
+			break;
+		case 31: //Error in the netcdf reduce function
+			place.append("reduce_netcdf(const double h_min)");
+			reason = "Error in the NetCDF reduce function";
+			help = "Check the file";
+			type = 5;
+			break;
 		default:
 			place.append("set_error(const int err_type)");
 			reason ="Unknown flag!";

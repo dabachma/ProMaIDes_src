@@ -107,6 +107,8 @@ enum _hyd_keyword_file{
 	ePARAVIEW1D,
 	///Marker for the Paraview 2d output
 	ePARAVIEW2D,
+	///Marker for the NetCDF 2d output
+	eNETCDF,
 	///Marker for the database instationary output
 	eDATABASE_INSTAT,
 	///Marker for the out folder

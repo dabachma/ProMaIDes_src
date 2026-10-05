@@ -300,7 +300,7 @@ target_include_directories(system_hydraulic
 # - The dlls or libs are what include the functions themselves.
 # - All children libraries are declared here
 # - Eventhough Qt Class are also required, they don't need to be specified here as they are inherited automatically
-target_link_libraries(system_hydraulic solver solvergpu system_sys)
+target_link_libraries(system_hydraulic solver solvergpu system_sys netCDF::netcdf)
 
 # - qt_wrap_ui (or qt5_wrap_ui) wraps ui files, in other words generating .h files from them
 # - AUTOMOC can also be used which does this automatically. This, however, is not recommened, it brings more troubles than solutions  

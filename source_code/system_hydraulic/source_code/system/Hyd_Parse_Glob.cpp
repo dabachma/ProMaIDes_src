@@ -620,6 +620,9 @@ void Hyd_Parse_Glob::parse_output_setting(_hyd_keyword_file Key, word Command) {
 			else if (Key == ePARAVIEW2D) {
 				this->Globals.output_flags.paraview_2d_required= _Hyd_Parse_IO::transform_string2boolean(str_buff);
 			}
+			else if (Key == eNETCDF) {
+				this->Globals.output_flags.netcdf_required = _Hyd_Parse_IO::transform_string2boolean(str_buff);
+			}
 			else if (Key == eDATABASE_INSTAT) {
 				this->Globals.output_flags.database_instat_required = _Hyd_Parse_IO::transform_string2boolean(str_buff);
 			}

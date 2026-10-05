@@ -1417,7 +1417,9 @@ void Hyd_Hydraulic_System::output_setted_members(void){
 		if(this->global_parameters.GlobNofFP>0){
 			cout << "Setted members of the Floodplainmodel(s) to file..." << endl ;
 			Sys_Common_Output::output_hyd->output_txt(&cout);	
+			bool output_required = false;
 			if (this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+				output_required = true;
 				cout << "for Tecplot..." << endl;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
 				for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
@@ -1425,6 +1427,7 @@ void Hyd_Hydraulic_System::output_setted_members(void){
 				}
 			}
 			if (this->global_parameters.get_output_flags().paraview_2d_required == true) {
+				output_required = true;
 				cout << "for ParaView..." << endl;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
 				for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
@@ -1432,13 +1435,23 @@ void Hyd_Hydraulic_System::output_setted_members(void){
 				}
 			}
 			if (this->global_parameters.get_output_flags().bluekenue_2d_required==true) {
+				output_required = true;
 				cout << "for BlueKenue..." << endl;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
 				for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
 					this->my_fpmodels[j].output_geometrie2bluekenue();
 				}
 			}
-			if (this->global_parameters.get_output_flags().tecplot_2d_required == false && this->global_parameters.get_output_flags().paraview_2d_required == false && this->global_parameters.get_output_flags().bluekenue_2d_required == false) {
+
+			if (this->global_parameters.get_output_flags().netcdf_required == true) {
+				output_required = true;
+				cout << "for NetCDF..." << endl;
+				Sys_Common_Output::output_hyd->output_txt(&cout);
+				for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
+					this->my_fpmodels[j].output_geometrie2netcdf();
+				}
+			}
+			if (!output_required) {
 				cout << "No output required..." << endl;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
 			}
@@ -1857,7 +1870,9 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 			if (this->file_output_required == true && all_output == true) {
 				cout << "Output maximum results of the Floodplainmodel(s) to file..." << endl;
 				Sys_Common_Output::output_hyd->output_txt(&cout);
+				bool output_required = false;
 				if (this->global_parameters.get_output_flags().tecplot_2d_required == true) {
+					output_required = true;
 					cout << "for Tecplot..." << endl;
 					Sys_Common_Output::output_hyd->output_txt(&cout);
 					for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
@@ -1865,6 +1880,7 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 					}
 				}
 				if (this->global_parameters.get_output_flags().bluekenue_2d_required == true) {
+					output_required = true;
 					cout << "for BlueKenue..." << endl;
 					Sys_Common_Output::output_hyd->output_txt(&cout);
 					for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
@@ -1872,13 +1888,23 @@ void Hyd_Hydraulic_System::output_final_model_statistics(const bool all_output){
 					}
 				}
 				if (this->global_parameters.get_output_flags().paraview_2d_required == true) {
+					output_required = true;
 					cout << "for ParaView..." << endl;
 					Sys_Common_Output::output_hyd->output_txt(&cout);
 					for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
 						this->my_fpmodels[j].output_result_max2paraview();
 					}
 				}
-				if (this->global_parameters.get_output_flags().tecplot_2d_required == false && this->global_parameters.get_output_flags().paraview_2d_required == false) {
+				if (this->global_parameters.get_output_flags().netcdf_required == true) {
+					output_required = true;
+					cout << "for NetCDF..." << endl;
+					Sys_Common_Output::output_hyd->output_txt(&cout);
+					for (int j = 0; j < this->global_parameters.GlobNofFP; j++) {
+						this->my_fpmodels[j].close_netcdf();
+					}
+
+				}
+				if (output_required == false) {
 					cout << "No output required..." << endl;
 					Sys_Common_Output::output_hyd->output_txt(&cout);
 				}
@@ -2345,6 +2371,9 @@ void Hyd_Hydraulic_System::set_folder_name(const string sc_name, const bool crea
 			if (this->global_parameters.get_output_flags().paraview_1d_required == true || this->global_parameters.get_output_flags().paraview_2d_required == true) {
 				my_dir.mkdir(hyd_label::paraview.c_str());
 			}
+			if (this->global_parameters.get_output_flags().netcdf_required == true) {
+				my_dir.mkdir(hyd_label::netcdf.c_str());
+			}
 
 
 
@@ -2399,6 +2428,9 @@ void Hyd_Hydraulic_System::set_folder_name_file(void) {
 		}
 		if (this->global_parameters.get_output_flags().paraview_1d_required == true || this->global_parameters.get_output_flags().paraview_2d_required == true) {
 			my_dir.mkdir(hyd_label::paraview.c_str());
+		}
+		if (this->global_parameters.get_output_flags().netcdf_required == true) {
+			my_dir.mkdir(hyd_label::netcdf.c_str());
 		}
 		this->file_output_folder = buffer.str();
 
@@ -4002,6 +4034,12 @@ void Hyd_Hydraulic_System::output_calculation_steps_floodplainmodel2file(const d
 			for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
 				//to the paraview file 
 				this->my_fpmodels[i].output_result2paraview(timestep, this->timestep_counter);
+			}
+		}
+		if (this->global_parameters.get_output_flags().netcdf_required == true) {
+			for (int i = 0; i < this->global_parameters.GlobNofFP; i++) {
+				//to the netcdf file 
+				this->my_fpmodels[i].output_result2netcdf(timestep, this->timestep_counter);
 			}
 		}
 	}
