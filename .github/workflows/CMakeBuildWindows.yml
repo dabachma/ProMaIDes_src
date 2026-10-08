@@ -29,11 +29,11 @@ jobs:
         submodules: recursive
         
      # HIER IST DER FIX: Installiert die stabile Version von py7zr vor der Qt-Installation
-    - name: '🔧 Fix py7zr bad path issue'
-      run: pip install "py7zr==1.1.0"
+   # - name: '🔧 Fix py7zr bad path issue'
+   #   run: pip install "py7zr==1.1.0"
       
     - name: '🧰 Install Qt'
-      uses: jurplel/install-qt-action@v3
+      uses: jurplel/install-qt-action@v4
       with:
         version: '5.15.2'
       
