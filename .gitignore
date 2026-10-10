@@ -5,7 +5,6 @@
 /build
 /.vs
 /out
-/CMakePresets.json
 /CMakeUserPresets.json
 *.aps
 /.cache
