@@ -1081,6 +1081,8 @@ private:
 	void read_task_file(void);
 	///Output task file list
 	void output_task_list(void);
+	///Return absolute path of the project file
+	QString get_absolute_path_project_file(const QString &relative_path);
 
 	///Set error(s)
 	Error set_error(const int err_type);

@@ -4299,7 +4299,8 @@ void Main_Wid::start_task_fpl(QList<QVariant> list) {
 	//import
 	if (buff_command == "import") {
 		QStringList buff_sec;
-		for (int i = 2; i < list.count(); i++) {
+		buff_sec.append(get_absolute_path_project_file(list.at(2).toString()));
+		for (int i = 3; i < list.count(); i++) {
 			buff_sec.append(list.at(i).toString());
 		}
 		this->number_new_sec = buff_sec.count();
@@ -4456,7 +4457,7 @@ void Main_Wid::start_task_hyd(QList<QVariant> list) {
 	if (buff_command == "calc_file") {
 		QStringList buff_sec;
 		for (int i = 2; i < list.count(); i++) {
-			QString buff = Sys_Project::get_main_path().c_str() + list.at(i).toString();
+			QString buff = get_absolute_path_project_file(list.at(i).toString());
 			buff_sec.append(buff);
 		}
 		
@@ -4470,7 +4471,8 @@ void Main_Wid::start_task_hyd(QList<QVariant> list) {
 	}
 	else if (buff_command == "add_db") {
 		QStringList buff_sec;
-		for (int i = 2; i < list.count(); i++) {
+		buff_sec.append(get_absolute_path_project_file(list.at(2).toString()));
+		for (int i = 3; i < list.count(); i++) {
 			buff_sec.append(list.at(i).toString());
 		}
 		cout << "Add following HYD-scenario(s) to database " << endl;
@@ -4490,7 +4492,8 @@ void Main_Wid::start_task_hyd(QList<QVariant> list) {
 	}
 	else if (buff_command == "set_base_sc_db") {
 		QStringList buff_sec;
-		for (int i = 2; i < list.count(); i++) {
+		buff_sec.append(get_absolute_path_project_file(list.at(2).toString()));
+		for (int i = 3; i < list.count(); i++) {
 			buff_sec.append(list.at(i).toString());
 		}
 		cout << "Set new base HYD-scenario to database " << endl;
@@ -4599,7 +4602,14 @@ QList<int> Main_Wid::check_key_word_hyd(const QString key) {
 
 
 	return sec_id;
+}
 
+QString Main_Wid::get_absolute_path_project_file(const QString &relative_path) {
+	const QString base = QString::fromStdString(Sys_Project::get_main_path());
+	const QString path = QFileInfo(relative_path).isAbsolute()
+		? relative_path
+		: QDir(base).filePath(relative_path);
+	return QDir::cleanPath(path);
 }
 //________
 //menu FPL
