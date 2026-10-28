@@ -20,7 +20,7 @@ Hyd_Param_FP::Hyd_Param_FP(void):default_rel_tol(1.0e-8),default_abs_tol(1.0e-5)
 	this->selected_device		= 1;
 	this->courant_number		= 0.5;
 	this->reduction_wavefronts	= 200;
-	this->friction_status		= false;
+	this->friction_status		= true;
 	this->workgroup_size_x		= 8;
 	this->workgroup_size_y		= 8;
 

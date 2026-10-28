@@ -512,7 +512,7 @@ void HydGui_Floodplain_Member_Wid::transfer_members2database(HydGui_Floodplain_M
 			query_string << " SET ";
 			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::atol) << " = " << dialog->ui.abs_tol->get_value() << " , ";
 			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::rtol) << " = " << dialog->ui.rel_tol->get_value() << " , ";
-			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::genmod_name) << " = '" << dialog->ui.floodplain_name->get_text() << "' , ";
+			//query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::genmod_name) << " = '" << dialog->ui.floodplain_name->get_text() << "' , ";
 			query_string << Hyd_Model_Floodplain::general_param_table->get_column_name(hyd_label::wet) << " = " << dialog->ui.wet_tol->get_value() << " , ";
 
 			string scheme_type_text_from_box = dialog->ui.scheme_type->get_current_value();
